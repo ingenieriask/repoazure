@@ -1,0 +1,9 @@
+{% extends 'correspondence/index.html' %}
+
+{% block content %}
+    <h1>Logged out</h1>
+    <p>
+        La session ha sido cerrada con éxito
+        usted puede <a href="{% url 'login' %}">Ingresar de nuevo.</a>
+    </p>
+{% endblock %}

@@ -1,0 +1,16 @@
+{% extends 'correspondence/base.html' %}
+
+{% block content%}
+    {% load crispy_forms_tags %}
+    {{ form | crispy }}
+    {% csrf_token %}
+    {% if form.errors %}
+    <div class="alert alert-danger mt-2" role="alert">
+        Tu nombre usuario y contraseña no coinciden.
+        Por favor intenta de nuevo
+    </div>
+        {% endif %}
+    <input type="hidden" name="next" value="{{next}}">
+    <input type="submit" class="btn btn-primary" value="Login">
+    <div class="small mt-3"><a href="{% url 'password_reset'%}">¿Olvido su contraseña?</a></div>
+{% endblock %}

@@ -1,0 +1,46 @@
+{% extends 'correspondence/main_template.html' %}
+
+{% block content %}
+  <div class="card mb-4">
+      <div class="card-header">Listado de expedientes</div>
+      <div class="card-body">
+        <div class="datatable">
+          <table class="table table-bordered table-hover" id="radicateListTable" width="100%" cellspacing='0'>
+            <thead>
+              <tr>
+                <th>Nombre</th>
+                <th>Tipificacion</th>
+                <th>Asunto</th>
+                <th>Fuente</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+            <tfoot>
+              <tr>
+                <th>Nombre</th>
+                <th>Tipificacion</th>
+                <th>Asunto</th>
+                <th>Fuente</th>
+                <th>Acciones</th>
+              </tr>
+            </tfoot>
+            <tbody>
+              {% for record in records %}
+              <tr>
+                <td>{{ record.name }}</td>
+                <td>{{ record.retention }}</td>
+                <td>{{ record.subject }}</td>
+                <td>{{ record.source }}</td>
+                <td>
+                    <a href="{% url 'correspondence:detail_record' pk=record.pk %}" class="btn btn-datatable btn-icon btn-transparent-dark"><i data-feather="eye"></i></a>
+                    <a href="{% url 'correspondence:edit_record' pk=record.pk %}" class="btn btn-datatable btn-icon btn-transparent-dark"><i data-feather="edit"></i></a>
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+          <a href="{% url 'correspondence:create_record' %}" class="btn btn-large btn-success">Crear Nuevo</a>
+        </div>
+      </div>
+  </div>
+{% endblock %}

@@ -1,0 +1,13 @@
+{% extends 'correspondence/main_template.html' %}
+
+{% block content %}
+<div class="card mb-4">
+    <div class="card-header">Expediente</div>
+    <div class="card-body">
+      {% csrf_token %}
+      {% load crispy_forms_tags %}
+      {% crispy form %}
+    </div>
+</div>
+
+{% endblock %}

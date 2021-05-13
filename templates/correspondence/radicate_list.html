@@ -1,0 +1,54 @@
+{% extends 'correspondence/main_template.html' %}
+
+{% block content %}
+  <div class="card mb-4">
+      <div class="card-header">Listado de radicados</div>
+      <div class="card-body">
+        <div class="text-right m-2">
+          <a href="{% url 'correspondence:process_excel_radicates' %}" class="btn btn-info" target="_blank"><i data-feather="file-text"></i>Exportar</a>
+        </div>
+        <div class="datatable">
+          <table class="table table-bordered table-hover" id="radicateListTable" width="100%" cellspacing='0'>
+            <thead>
+              <tr>
+                <th>Fecha</th>
+                <th>Número</th>
+                <th>Asunto</th>
+                <th>Remitente</th>
+                <th>Estado</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+            <tfoot>
+              <tr>
+                <th>Fecha</th>
+                <th>Número</th>
+                <th>Asunto</th>
+                <th>Remitente</th>
+                <th>Estado</th>
+                <th>Acciones</th>
+              </tr>
+            </tfoot>
+            <tbody>
+              {% for radicate in radicates %}
+              <tr>
+                <td>{{ radicate.date_radicated }}</td>
+                <td>{{ radicate.number }}</td>
+                <td>{{ radicate.subject }}</td>
+                <td>{{ radicate.person.name }}</td>
+                <td><div class="badge badge-success badge-pill">Radicado</div></td>
+                <td>
+                    <button class="btn btn-datatable btn-icon btn-transparent-dark mr-2"><i data-feather="more-vertical"></i></button>
+                    <a href="{% url 'correspondence:detail_radicate' pk=radicate.pk %}" class="btn btn-datatable btn-icon btn-transparent-dark"><i data-feather="eye"></i></a>
+                    {% if radicate.document_file %}
+                      <a href="{{ radicate.document_file.url }}" class="btn btn-datatable btn-icon btn-transparent-dark"><i data-feather="file"></i></a>
+                    {% endif %}
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+  </div>
+{% endblock %}

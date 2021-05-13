@@ -1,0 +1,38 @@
+{% extends 'correspondence/main_template.html' %}
+<!-- BLOCK Content -->
+{% block content %}
+<div class="card mb-4">
+    <div class="card-header">Remitente</div>
+    <div class="card-body">
+        <h5 class="card-title">{{person.name}}</h5>
+        <p class="card-text">{{person.address}}</p>
+        <a href="{% url 'correspondence:edit_person' pk=person.pk %}" class="btn btn-primary">Editar</a>
+    </div>
+</div>
+
+<div class="card mb-4">
+    <div class="card-header">Entrada de correspondencia</div>
+    <div class="card_body p-3">
+          <form method="post" enctype="multipart/form-data">
+            {% load crispy_forms_tags %}
+            {% crispy form %}
+            {% csrf_token %}
+          </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block script %}
+$("#id_document_file").fileinput({
+        theme: 'fas',
+        allowedFileExtensions: ['pdf','docx','png','jpg','jpeg'],
+        overwriteInitial: true,
+        maxFileSize:20000,
+        maxFilesNum: 1,
+        language: 'es',
+        slugCallback: function (filename) {
+            return filename.replace('(', '_').replace(']', '_');
+        }
+      });
+{% endblock %}
+

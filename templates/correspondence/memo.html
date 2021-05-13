@@ -1,0 +1,9 @@
+{% extends 'correspondence/template.html' %}
+{% block principal %}
+{% load crispy_forms_tags %}
+  <form method="post" enctype="multipart/form-data" action="{% url 'correspondence:test_form' %}">
+    {{ form | crispy }}
+    <input class="btn btn-primary btn-lg" type="submit" name="Radicar" value="Radicar">
+  </form>
+
+{% endblock %}

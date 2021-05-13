@@ -1,0 +1,45 @@
+{% extends 'correspondence/main_template.html' %}
+{% block content %}
+    <div class="card">
+        <div class="card-header">
+            Plantillas
+        </div>
+        <div class="card-body">
+            {% for template in templates %}
+                <div class="card card-icon mt-2">
+                    <div class="row no-gutters">
+                        <div class="col-auto card-icon-aside bg-light">
+                            <i data-feather="file"></i>
+                        </div>
+                        <div class="col">
+                            <div class="card-body py-5">
+                                <h5 class="card-title">{{ template.name }}</h5>
+                                <p class="card-text">
+                                    {{ template.office }}<br>
+                                    {{ template.description }}<br>
+                                    <strong>Creador:</strong> {{ template.user_creation }}<br>
+                                    <strong>Fecha de creación: </strong> {{ template.date_creation }}<br>
+                                    {% if template.user_updated %}
+                                        <strong>Editor:</strong> {{ template.user_updated }}<br>
+                                        <strong>Fecha de edición:</strong> {{ template.date_updated }}<br>
+                                    {% endif %}
+                                    <br>
+                                    {% if template.file %}
+                                        <a class="btn btn-success" href="{{ template.file.url }}"><i data-feather="download-cloud"></i>Descargar</a>
+                                    {% endif %}
+                                    <a class="btn btn-primary" href="{% url 'correspondence:edit_template' pk=template.pk %}">Editar</a>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+        <div class="card-footer">
+            <p class="card-text mt-1">
+                <a href="{% url 'correspondence:create_template' %}" class="btn btn-primary"><i data-feather="file-plus"></i>Crear nuevo</a>
+            </p>
+            {% include "correspondence/pagination.html" with page=page_obj %}
+        </div>
+    </div>
+{% endblock %}

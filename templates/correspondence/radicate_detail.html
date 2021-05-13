@@ -1,0 +1,126 @@
+{% extends 'correspondence/main_template.html' %}
+{% load static %}
+{% block content %}
+    <div class="btn-group mb-3 position-relative" role="group" align="center" aria-label="Button group with nested dropdown">
+        <a class="btn btn-dark" href="{% url 'correspondence:list_radicate' %}" role="button"><i data-feather="corner-down-left"></i>Listado</a>
+        <div class="btn-group" role="group">
+            <button id="btnGroupDrop1" type="button" class="btn btn-dark dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <i data-feather="activity"></i>
+                Acciones
+            </button>
+            <div class="dropdown-menu m-1" aria-labelledby="dropdownMenuButton">
+                <a class="dropdown-item" href="{% url 'correspondence:current_user' pk=radicate.pk %}">Trasladar</a>
+                <a class="dropdown-item" href="{% url 'correspondence:recordassigned' pk=radicate.pk %}">Incluir en expediente</a>
+                <a class="dropdown-item" href="{% url 'correspondence:project_answer' pk=radicate.pk %}">Proyectar respuesta</a>
+            </div>
+        </div>
+    </div>
+    <div class="row mb-3">
+        <div class="col-xxl-12 col-xl-12 mb-12">
+            <div class="card mb-4 h-100 mb-3">
+                <div class="card-header">
+                    Detalle
+                </div>
+                <div id="detail">
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-4 text-sm">
+                                <p>
+                                    <i data-feather="key"></i>
+                                    <b>Número:</b><br>{{ radicate.number }}
+                                </p>
+                                <p>
+                                    <i data-feather="calendar"></i>
+                                    <b>Fecha:</b><br>{{ radicate.date_radicated }}
+                                </p>
+                                <p>
+                                    <i data-feather="hash"></i>
+                                    <b>Consecutivo:</b><br>{{ radicate.pk }}
+                                </p>
+                                <p>
+                                    <i data-feather="message-square"></i>
+                                    <b>Asunto:</b><br>{{ radicate.subject }}
+                                </p>
+                                <p>
+                                    <i data-feather="home"></i>
+                                    <b>Dirección:</b><br>{{ radicate.person.address }} - {{ radicate.person.city }}
+                                </p>
+
+                            </div>
+                            <div class="col-md-4 text-sm">
+                                <p>
+                                    <i data-feather="list"></i>
+                                    <b>Recepción:</b><br>{{ radicate.reception_mode }}
+                                </p>
+                                <p>
+                                    <i data-feather="user"></i>
+                                    <b>Remitente:</b><br>{{ radicate.person }}
+                                </p>
+                                <p>
+                                    <i data-feather="list"></i>
+                                    <b>Tipo:</b><br>{{ radicate.type }}
+                                </p>
+                            </div>
+                            <div class="col-md-4 text-sm">
+                                <p>
+                                    <i data-feather="user"></i>
+                                    <b>Usuario creador:</b><br>{{ radicate.creator.user.first_name }} {{ radicate.creator.user.last_name }}
+                                </p>
+                                <p>
+                                    <i data-feather="user"></i>
+                                    <b>Usuario actual:</b><br>{{ radicate.current_user.user.first_name }} {{ radicate.current_user.user.last_name }}
+                                </p>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="row">
+        <div class="col-lg-6">
+            {% if radicate.cmis_id %}
+                <div class="row m-3">
+                    <img data-nodeid="{{ radicate.cmis_id | default_if_none:"" }}" class="img-fluid shadow" src="{% static 'correspondence/assets/img/default.jpeg' %}">
+                </div>
+            {% endif %}
+        </div>
+        <div class="col-lg-6">
+            <div class="card bg-light mb-3">
+                <div class="card-header">
+                    Histórico
+                </div>
+                <div id="history">
+                    <div class="card-body">
+                        <div class="timeline timeline-xs">
+                            {% for log in logs %}
+                                <div class="timeline-item">
+                                    <div class="timeline-item-marker">
+                                        <div class="timeline-item-marker-text">{{ log.timestamp | date:"d M" }}</div>
+                                        <div class="timeline-item-marker-indicator bg-green"></div>
+                                    </div>
+                                    <div class="timeline-item-content">
+                                        {{ log.extra.message }}
+                                        el {{ log.timestamp | date:"D d M Y P " }}
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+{% endblock %}
+{% block script %}
+    $('.img-fluid').each(function(index,element){
+    if($(element).data('nodeid')){
+    cmis = $(element).data('nodeid');
+    $(element).attr("src", '{% url "correspondence:get_thumbnail" %}?cmis_id='+cmis);
+    console.log('entrando!!')
+    }});
+{% endblock %}

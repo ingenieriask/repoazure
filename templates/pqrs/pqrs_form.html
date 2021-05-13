@@ -1,0 +1,18 @@
+{% extends 'pqrs/template.html' %}
+{% block content %}
+<div class="card mb-4">
+    <div class="card-header">RINO - PQRS</div>
+    <div class="card-body">
+        {% csrf_token %}
+        {% load crispy_forms_tags %}
+        {% crispy form %}
+        {% comment %} {{ form|crispy }} {% endcomment %}
+        <hr class="my-4" />
+        <div class="d-flex justify-content-between">
+            <a class="btn btn-light disabled" id="wizard1-bt" href="#wizard1" data-toggle="tab" aria-controls="wizard1" aria-selected="true">Anterior</a>
+            <a class="btn btn-primary" id="wizard2-bt" href="#wizard2" data-toggle="tab" aria-controls="wizard2" aria-selected="true">Siguiente</a>
+        </div>
+
+    </div>
+</div>
+{% endblock %}

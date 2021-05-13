@@ -1,0 +1,104 @@
+{% extends 'pqrs/template.html' %}
+
+{% block content %}
+    <div class="row mb-3">
+        <div class="col-xxl-12 col-xl-12 mb-12">
+        <div class="card mb-4 h-100 mb-3">
+            <div class="card-header">
+                    Detalle
+            </div>
+            <div id="detail">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6 text-sm">
+                              <p>
+                                  <i data-feather="key"></i>
+                                  <b>Número:</b><br>{{radicate.number}}
+                              </p>
+                              <p>
+                                  <i data-feather="calendar"></i>
+                                  <b>Fecha:</b><br>{{radicate.date_radicated}}
+                              </p>
+                              <p>
+                                  <i data-feather="message-square"></i>
+                                  <b>Asunto:</b><br>{{radicate.subject}}
+                              </p>
+
+                        </div>
+                        <div class="col-md-6 text-sm">
+                              <p>
+                                  <i data-feather="list"></i>
+                                  <b>Recepción:</b><br>{{radicate.reception_mode}}
+                              </p>
+                              <p>
+                                  <i data-feather="user"></i>
+                                  <b>Remitente:</b><br>{{radicate.person }}
+                              </p>
+                              <p>
+                                  <i data-feather="home"></i>
+                                  <b>Dirección:</b><br>{{radicate.person.address }} - {{ radicate.person.city }}
+                              </p>
+                        </div>
+                    </div>
+                    <div class="col-md-12 text-sm">
+                        <p>
+                            <i data-feather="message-square"></i>
+                            <b>Data:</b><br>{{radicate.pqr.data}}
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+      </div>
+    </div>
+    {%  if radicate.document_file %}
+<div class="row">
+    <div class="col-xxl-12 col-xl-12 mb-12">
+        <div class="card text-white bg-dark mb-3">
+          <div class="card-header">
+              Documento
+          </div>
+            <div id="document">
+              <div class="card-body">
+                <div class="embed-responsive embed-responsive-16by9">
+                    <iframe class="embed-responsive-item" src="{{ radicate.document_file.url }}">
+                    </iframe>
+                </div>
+              </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+<div class="row">
+  <div class="col-xxl-12 col-xl-12 mb-12">
+    <div class="card bg-light mb-3">
+    <div class="card-header">
+            Histórico
+    </div>
+        <div id="history">
+            <div class="card-body">
+              <div class="timeline timeline-xs">
+              {% for log in logs %}
+                <div class="timeline-item">
+                    <div class="timeline-item-marker">
+                        <div class="timeline-item-marker-text">{{log.timestamp | date:"d M" }}</div>
+                        <div class="timeline-item-marker-indicator bg-green"></div>
+                    </div>
+                    <div class="timeline-item-content">
+                         {% comment %} El radicado
+                        {{log.extra.number}}, {% endcomment %}
+                        {{log.extra.message}} 
+                        {% comment %} ( {{log.user}} ) {% endcomment %}
+                        el {{log.timestamp | date:"D d M Y P "  }}
+
+                    </div>
+                </div>
+               {% endfor %}
+             </div>
+            </div>
+        </div>
+  </div>
+  </div>
+</div>
+{% endblock %}

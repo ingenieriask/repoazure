@@ -1,0 +1,14 @@
+{% extends 'correspondence/main_template.html'   %}
+{% load crispy_forms_tags %}
+{% block content %}
+<div class="card mb-4">
+    <div class="card-header">Asignar {{ radicate.number }}</div>
+      <div class="card-body">
+        <form method="post">
+        {% csrf_token %}
+        {{ form | crispy }}
+        <input class="btn btn-primary" type="submit" value="Trasladar">
+        </form>
+      </div>
+    </div>
+{% endblock %}

@@ -1,0 +1,78 @@
+{% extends 'correspondence/main_template.html' %}
+
+{% block content %}
+    <div class="card mb-4">
+        <div class="card-header">
+            Documento
+        </div>
+        <div class="card-body">
+            <form method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                <div class="card bg-text-center mb-3">
+                    <div class="card-header">Plantillas</div>
+                    <div class="card-body">
+                        <h5 class="card-title">Uso de plantillas</h5>
+                        <p class="card-text">A través del uso de plantillas pre-cargadas puedes dar respuesta a tu radicado simplemente agregando el texto
+                            a continuación. Sí deseas subir tu propio texto de respuesta puedes adjuntar un archivo en formato MS Word. </p>
+                    </div>
+                    <div class="card-footer">
+                        <input class="btn btn-primary" type="button" value="Usar plantilla propia" id="id-preload" data-text="uploaded" name="preload">
+                    </div>
+                </div>
+                <div class="input-group mb-3">
+                    <div class="custom-file">
+                        <input type="file" class="custom-file-input" id="customFile" name="template-file">
+                        <label class="custom-file-label" for="customFile">Escoger archivo..</label>
+                    </div>
+                </div>
+                <div class="form-group" id="response-div">
+                    <label for="answer">Texto de la respuesta</label>
+                    <textarea class="form-control" id="id-answer" name="answer" cols="20" rows="10">{{ answer }}</textarea>
+                </div>
+                <input type="submit" name="button" class="btn btn-success mt-3">
+            </form>
+
+            {% if response_file %}
+                <div class="embed-responsive embed-responsive-16by9 m-3">
+                    <iframe class="embed-responsive-item" src="../../../{{ response_file }}">
+                    </iframe>
+                </div>
+            {% endif %}
+
+            {% if radicate.document_file %}
+                <div class="embed-responsive embed-responsive-16by9 mt-5">
+                    <iframe class="embed-responsive-item" src="{{ radicate.document_file.url }}">
+                    </iframe>
+                </div>
+            {% endif %}
+
+        </div>
+    </div>
+
+    <script src="https://cdn.tiny.cloud/1/uvjcmbxnkxlhsr4a17dosom6xsam05zgii7w1865aakpia2f/tinymce/5/tinymce.min.js" referrerpolicy="origin"></script>
+
+
+{% endblock %}
+
+{% block script %}
+    $('.custom-file').hide();
+    $('.input-group-prepend').hide();
+
+    $(document).on('change', '.custom-file-input', function (event) {
+        $(this).next('.custom-file-label').html(event.target.files[0].name);
+    })
+
+    $('#id-preload').click(function (){
+        $('.custom-file').toggle("slow");
+        $('.input-group-prepend').toggle("slow")
+        $('#response-div').toggle("slow");
+        if($(this).data('text')==='uploaded'){
+            $(this).data('text','upload');
+            $(this).attr('value','Usar plantilla pre-cargada');
+        }else{
+            $(this).data('text','uploaded');
+            $(this).attr('value','Usar plantilla propia');
+        }
+    });
+
+{% endblock %}

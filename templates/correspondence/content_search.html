@@ -1,0 +1,54 @@
+{% extends 'correspondence/main_template.html' %}
+{% load static %}
+{% load custom_tags %}
+{% block content %}
+
+    <div class="card mb-4">
+        <div class="card-body">
+            <form id="search-form" action="{% url 'correspondence:search_by_content' %}" method="GET">
+                {% load crispy_forms_tags %}
+                {{ form | crispy }}
+                <button type="button" name="button" class="btn btn-success">Buscar</button>
+            </form>
+        </div>
+    </div>
+    {% if radicates %}
+        {% for radicate in radicates %}
+            <div class="card mb-2">
+                <div class="card-header text-left"><a href="{% url 'correspondence:detail_radicate' pk=radicate.pk %}">{{ radicate.number }}</a></div>
+                <div class="card-body">
+                    <div class="row p-3">
+                        <div class="col-4 text-center">
+                            <img src="{% static 'correspondence/assets/img/default.jpeg' %}" class="img-thumbnail float-left img-fluid" style="max-width: 80%"
+                                 data-nodeid="{{ radicate.cmis_id | default_if_none:"" }}" alt="Responsive image">
+                        </div>
+                        <div class="col-8 text-left align-middle">
+                            <p class="text-sm"><span class="font-weight-bold">Asunto:</span> {{ radicate.subject }}</p>
+                            <p class="text-sm"><span class="font-weight-bold">Creado:</span> {{ radicate.date_radicated }}</p>
+                            <p class="text-sm"><span class="font-weight-bold">Remitente:</span> {{ radicate.person }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+        <div class="card mb-2">
+            <div class="card-footer">
+                {% include "correspondence/pagination.html" with page=radicates term=term %}
+            </div>
+        </div>
+
+    {% endif %}
+{% endblock %}
+
+{% block script %}
+
+    $('.img-thumbnail').each(function(index,element){
+    if($(element).data('nodeid')){
+    cmis = $(element).data('nodeid');
+    $(element).attr("src", '{% url "correspondence:get_thumbnail" %}?cmis_id='+cmis);
+    }
+    });
+    $('.btn').click(function(){
+    $('form').submit();
+    });
+{% endblock %}

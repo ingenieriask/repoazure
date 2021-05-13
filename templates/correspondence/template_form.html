@@ -1,0 +1,29 @@
+{% extends 'correspondence/main_template.html' %}
+
+{% block content %}
+    <div class="card mb-4">
+        <div class="card-header">Plantilla</div>
+        <div class="card-body">
+            <form method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                {% load crispy_forms_tags %}
+                {{ form | crispy }}
+                <input class="btn btn-primary" type="submit" value="Guardar">
+                <a href="{% url 'correspondence:template_list' %}" class="btn btn-primary" type="button">Listado</a>
+            </form>
+        </div>
+    </div>
+{% endblock %}
+{% block script %}
+    $("#id_file").fileinput({
+    theme: 'fas',
+    allowedFileExtensions: ['docx'],
+    overwriteInitial: true,
+    maxFileSize:20000,
+    maxFilesNum: 1,
+    language: 'es',
+    slugCallback: function (filename) {
+    return filename.replace('(', '_').replace(']', '_');
+    }
+    });
+{% endblock %}

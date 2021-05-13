@@ -1,0 +1,14 @@
+{% extends 'pqrs/template.html' %}
+
+{% block content %}
+<div class="card mb-4">
+    <div class="card-header">Persona</div>
+    <div class="card-body">
+    <form  method="post">
+      {% csrf_token %}
+      {% load crispy_forms_tags %}
+      {% crispy form %}
+    </form>
+    </div>
+</div>
+{% endblock %}
