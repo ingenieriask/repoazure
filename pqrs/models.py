@@ -22,7 +22,7 @@ class SubType(models.Model):
     third_alert = models.SmallIntegerField(blank=False, null=False, default=14)
 
     def __str__(self):
-        return self.type.name+' / '+self.name
+        return self.type.name + ' / ' + self.name
 
 
 # Create your models here.
