@@ -18,9 +18,10 @@ from django.contrib.postgres.search import SearchVector, SearchQuery
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
 from django.contrib import messages
-from django.core.mail import send_mail, EmailMultiAlternatives
 from django.core.files.storage import FileSystemStorage, default_storage
 from django.core.files.temp import NamedTemporaryFile
+
+from core.services import MailService
 
 import requests
 import json
@@ -42,7 +43,6 @@ from correspondence.utils import search_by_term
 
 def index(request):
     return render(request, 'correspondence/index.html', {})
-
 
 def register(request):
     registered = False
@@ -200,11 +200,12 @@ def create_radicate(request, person):
 
             files_up = {"filedata": temp_file}
 
-            send_mail(
+            # TODO i16n and parameterizable
+            MailService.send_mail(
                 'Notificación RINO: recepción de radicado',
                 'Buenos días señor usuario.',
                 'rino@skillnet.com.co',
-                [instance.person.email],
+                [instance.person.email]
             )
 
             try:

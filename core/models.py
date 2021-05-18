@@ -171,3 +171,13 @@ def get_first_name(self):
     return self.first_name + ' ' + self.last_name
     
 User.add_to_class("__str__", get_first_name)
+
+class AppParameter(models.Model):
+    name = models.CharField(unique=True, max_length=128)
+    value = models.TextField()
+
+    def __str__(self):
+        return f"{self.name}:{self.value}"
+
+    class Meta:
+        db_table = "core_app_parameter"
