@@ -170,12 +170,6 @@ MESSAGE_TAGS = {
     messages.ERROR: 'alert-danger',
 }
 
-# EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
-EMAIL_USE_TLS = env.bool('RINO_EMAIL_USE_TLS')
-EMAIL_HOST = env.str('RINO_EMAIL_HOST')
-EMAIL_HOST_USER = env.str('RINO_EMAIL_HOST_USER')
-EMAIL_HOST_PASSWORD = env.str('RINO_EMAIL_HOST_PASSWORD')
-EMAIL_PORT = env.int('RINO_EMAIL_PORT')
 DEBUG = env.bool('RINO_DEBUG')
 
 AUTH_USER_MODEL = 'auth.User'
@@ -193,13 +187,6 @@ STATIC_LOCATION = "static"
 MEDIA_LOCATION = "media"
 
 AZURE_ACCOUNT_NAME = "storagerino"
-
-
-#AZURE_CUSTOM_DOMAIN = f'{AZURE_ACCOUNT_NAME}.blob.core.windows.net'
-
-#STATIC_URL = f'http://rino.skillnet.com.co/{STATIC_LOCATION}/'
-#MEDIA_URL = f'http://rino.skillnet.com.co/{MEDIA_LOCATION}/'
-
 CORS_ORIGIN_ALLOW_ALL = True
 
 CORS_ORIGIN_WHITELIST = (
