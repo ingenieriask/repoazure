@@ -5,6 +5,7 @@
 __pycache__
 db.sqlite3
 media
+fixtures/**
 
 # Backup files # 
 *.bak 
@@ -121,3 +122,4 @@ ehthumbs.db
 Icon?
 Thumbs.db
 *.DS_Store
+._*
