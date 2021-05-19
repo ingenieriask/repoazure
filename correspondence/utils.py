@@ -16,18 +16,21 @@ from django.core import files
 
 
 def search_by_term(term):
-    headers: Dict[str, str] = {'Content-Type': 'application/json'}
+    headers = {'Content-Type': 'application/json'}
     try:
         response = requests.post(
             settings.ECM_SEARCH_URL,
-            json=dict(query=dict(query=term),
-                      highlight=dict(
-                          mergeContiguous=True, fragmentSize=150,
-                          usePhraseHighlighter=True,
-                          fields=[
-                              dict(field="name", prefix="( ", postfix=" )"),
-                              dict(field="content", prefix="( ", postfix=" )")
-                          ])),
+            json={
+                "query": {"query": term},
+                "highlight": {
+                    "mergeContiguous": True, "fragmentSize": 150, 
+                    "usePhraseHighlighter": True,
+                    "fields": [
+                        {"field": "name", "prefix": "( ", "postfix": " )"},
+                        {"field": "content", "prefix": "( ", "postfix": " )"}
+                    ]
+                }
+            },
             auth=HTTPBasicAuth(settings.ECM_USER, settings.ECM_PASSWORD),
             headers=headers
         )
