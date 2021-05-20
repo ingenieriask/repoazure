@@ -52,7 +52,9 @@ INSTALLED_APPS = [
     'pinax.eventlog',
     'captcha',
     'storages',
-    'corsheaders'
+    'corsheaders',
+    'djcelery_email',
+    'django_celery_results'
 ]
 
 CRISPY_TEMPLATE_PACK = 'bootstrap4'
@@ -193,3 +195,12 @@ CORS_ORIGIN_WHITELIST = (
   'http://localhost:8000',
   'https://storagerino.blob.core.windows.net'
 )
+
+CELERY_EMAIL_TASK_CONFIG = {
+    'name': 'djcelery_email_send',
+    'ignore_result': False,
+}
+CELERY_EMAIL_CHUNK_SIZE = 1
+CELERY_RESULT_BACKEND = 'django-db'
+
+EMAIL_BACKEND ="djcelery_email.backends.CeleryEmailBackend"

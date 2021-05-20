@@ -38,6 +38,13 @@ logger = logging.getLogger(__name__)
 # Index view
 
 def index(request):
+
+    MailService.send_mail(
+            subject='Email subject', 
+            body='Email body', 
+            from_email=None, 
+            to=['jorge.vanegas@skillnet.com.co', 'javanegasr@gmail.com'])
+
     return render(request, 'correspondence/index.html', {})
 
 def register(request):

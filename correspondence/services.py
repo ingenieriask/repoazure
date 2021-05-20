@@ -25,7 +25,7 @@ class ECMService(object):
         def wrapper(*args, **kwargs):
             # Lazy load
             if not ECMService._params:
-                # Get only email related parameters
+                # Get only ECM related parameters
                 qs = AppParameter.objects.filter(name__startswith='ECM_')
                 ECMService._params = {entry.name : entry.value for entry in qs}
             return func(*args, **kwargs)

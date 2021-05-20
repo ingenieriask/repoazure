@@ -1,4 +1,3 @@
-from django.core.mail import send_mail
 from django.core.mail.backends.smtp import EmailBackend
 from django.core.mail import EmailMessage
 import logging
@@ -12,18 +11,27 @@ class MailService(object):
 
     _params = {}
 
+    def get_params(func):
+        '''Lazy load of email database parameters'''
+    
+        def wrapper(*args, **kwargs):
+            # Lazy load
+            if not MailService._params:
+                # Get only email related parameters
+                qs = AppParameter.objects.filter(name__startswith='EMAIL_')
+                MailService._params = {entry.name : entry.value for entry in qs}
+            return func(*args, **kwargs)
+        return wrapper
+
     @classmethod
+    @get_params
     def send_mail(cls, subject='', body='', from_email=None, to=None):
         '''Send emails to several addresses using database parameters'''
-        
-        # Lazy load
-        if not cls._params:
-            # Get only email related parameters
-            qs = AppParameter.objects.filter(name__startswith='EMAIL_')
-            cls._params = {entry.name : entry.value for entry in qs}
 
         if not from_email:
             from_email = cls._params['EMAIL_HOST_USER']
+
+        print('send mail')
 
         # Configure email handler
         eb = EmailBackend(
