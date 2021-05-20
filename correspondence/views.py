@@ -20,9 +20,6 @@ from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.contrib import messages
 from django.core.files.storage import FileSystemStorage, default_storage
 from django.core.files.temp import NamedTemporaryFile
-
-from core.services import MailService
-
 import requests
 import json
 import os
@@ -30,14 +27,13 @@ import io
 from docx import Document
 import logging
 import xlsxwriter
-
 from pinax.eventlog.models import log, Log
+from django.core.files import File
+
+from core.services import MailService
+from correspondence.services import ECMService
 
 logger = logging.getLogger(__name__)
-
-from requests.auth import HTTPBasicAuth
-from correspondence.utils import search_by_term
-
 
 # Index view
 
@@ -102,7 +98,7 @@ def search_by_content(request):
             form = SearchContentForm(data=request.GET)
 
     try:
-        radicate_list = search_by_term(term)
+        radicate_list = ECMService.search_by_term(term)
     except (requests.exceptions.Timeout, requests.exceptions.ConnectionError) as Error:
         messages.error(request, f"No se ha establecido la conexión con el gestor de contenido")
 
@@ -187,18 +183,6 @@ def create_radicate(request, person):
                 }
             )
             # TODO make an utility
-            document_file = request.FILES['document_file']
-            document_temp_file = NamedTemporaryFile(delete=True)
-
-            for chunk in request.FILES["document_file"].chunks():
-                document_temp_file.write(chunk)
-
-            document_temp_file.seek(0)
-            document_temp_file.flush()
-
-            temp_file = files.File(document_temp_file, name=document_file.name)
-
-            files_up = {"filedata": temp_file}
 
             # TODO i16n and parameterizable
             MailService.send_mail(
@@ -208,27 +192,29 @@ def create_radicate(request, person):
                 [instance.person.email]
             )
 
-            try:
-                data = {"nodeType": "cm:content"}
-                res_upload = requests.post(settings.ECM_UPLOAD_URL, files=files_up, data=data,
-                                           auth=HTTPBasicAuth(settings.ECM_USER, settings.ECM_PASSWORD))
-                json_response = (json.loads(res_upload.text))
-                print(json_response)
-                node_id = json_response['entry']['id']
+            document_file = request.FILES['document_file']
+            document_temp_file = NamedTemporaryFile(delete=True)
+
+            for chunk in document_file.chunks():
+                    document_temp_file.write(chunk)
+
+            document_temp_file.seek(0)
+            document_temp_file.flush()
+
+            temp_file = File(document_temp_file, name=document_file.name)
+
+            node_id = ECMService.upload(temp_file)
+
+            if node_id:
                 radicate.set_cmis_id(node_id)
-                url_renditions = settings.ECM_REQUEST_RENDITIONS.replace('{nodeId}', node_id)
-                data_renditions = '{"id": "imgpreview"}'
-                res_renditions = requests.post(url_renditions, data=data_renditions,
-                                               auth=(settings.ECM_USER, settings.ECM_PASSWORD))
 
-            except Exception as Error:
-                logger.error(Error)
-                print(Error)
-                messages.error(request, "Ha ocurrido un error al guardar el archivo en el gestor de contenido")
+                if ECMService.request_renditions(node_id):
+                    messages.success(request, "El radicado se ha creado correctamente")
+                    url = reverse('correspondence:detail_radicate', kwargs={'pk': radicate.pk})
+                    return HttpResponseRedirect(url)
+            
+            messages.error(request, "Ha ocurrido un error al guardar el archivo en el gestor de contenido")
 
-            messages.success(request, "El radicado se ha creado correctamente")
-            url = reverse('correspondence:detail_radicate', kwargs={'pk': radicate.pk})
-            return HttpResponseRedirect(url)
         else:
             logger.error("Invalid create radicate form")
             return render(request, 'correspondence/create_radicate.html', context={'form': form, 'person': person})
@@ -263,9 +249,6 @@ class RecordAssignedUpdate(UpdateView):
     def form_valid(self, form):
 
         response = super(RecordAssignedUpdate, self).form_valid(form)
-        url = settings.ECM_RECORD_ASSIGN_URL + self.object.cmis_id + '/move'
-        auth = (settings.ECM_USER, settings.ECM_PASSWORD)
-        data = '{"targetParentId": "' + self.object.record.cmis_id + '"}'
 
         log(
             user=self.request.user,
@@ -279,18 +262,13 @@ class RecordAssignedUpdate(UpdateView):
             }
         )
 
-        try:
-            r = requests.post(url, data=data, auth=auth)
-            json_response = (json.loads(r.text))
-            print(json_response)
+        if ECMService.assign_record(self.object.cmis_id, self.object.record.cmis_id):
             messages.success(self.request, "El archivo se ha guardado correctamente en el expediente")
             return response
 
-        except Exception as Error:
-            logger.error(Error)
-            messages.error(self.request, "Ha ocurrido un error al actualizar el archivo en el gestor de contenido")
-            self.object = None
-            return self.form_invalid(form)
+        messages.error(self.request, "Ha ocurrido un error al actualizar el archivo en el gestor de contenido")
+        self.object = None
+        return self.form_invalid(form)
 
 
 def edit_radicate(request, id):
@@ -400,25 +378,17 @@ class RecordCreateView(CreateView):
     def form_valid(self, form):
 
         response = super(RecordCreateView, self).form_valid(form)
-        url = settings.ECM_RECORD_URL
-        auth = (settings.ECM_USER, settings.ECM_PASSWORD)
-        print(self.object)
-        data = '{"name": "' + self.object.name + '", "nodeType": "cm:folder"}'
 
-        try:
-            r = requests.post(url, data=data, auth=auth)
-            json_response = (json.loads(r.text))
-            print(json_response)
-            self.object.set_cmis_id(json_response['entry']['id'])
+        id = ECMService.create_record(self.object.name)
+
+        if id:
+            self.object.set_cmis_id(id)
             messages.success(self.request, "El expediente se ha guardado correctamente")
             return response
 
-        except Exception as Error:
-            logger.error(Error)
-            messages.error(self.request, "Ha ocurrido un error al crear el expediente en el gestor de contenido")
-            self.object = None
-            return self.form_invalid(form)
-
+        messages.error(self.request, "Ha ocurrido un error al crear el expediente en el gestor de contenido")
+        self.object = None
+        return self.form_invalid(form)
 
 class RecordDetailView(DetailView):
     model = Record
@@ -431,22 +401,14 @@ class RecordUpdateView(UpdateView):
     def form_valid(self, form):
 
         response = super(RecordUpdateView, self).form_valid(form)
-        url = settings.ECM_RECORD_UPDATE_URL + self.object.cmis_id
-        auth = (settings.ECM_USER, settings.ECM_PASSWORD)
-        data = '{"name": "' + self.object.name + '"}'
 
-        try:
-            r = requests.put(url, data=data, auth=auth)
-            json_response = (json.loads(r.text))
-            print(json_response)
+        if ECMService.update_record(self.object.cmis_id, self.object.name): 
             messages.success(self.request, "El expediente se ha guardado correctamente")
             return response
 
-        except Exception as Error:
-            logger.error(Error)
-            messages.error(self.request, "Ha ocurrido un error al actualizar el expediente en el gestor de contenido")
-            self.object = None
-            return self.form_invalid(form)
+        messages.error(self.request, "Ha ocurrido un error al actualizar el expediente en el gestor de contenido")
+        self.object = None
+        return self.form_invalid(form)
 
 
 class RecordListView(ListView):
@@ -526,16 +488,11 @@ class ProcessExcelRadicates(View):
 
 @login_required
 def get_thumbnail(request):
-    cmis_id = request.GET.get('cmis_id')
-    try:
-        prev_response = requests.get(
-            settings.ECM_PREVIEW_URL.replace('{nodeId}', cmis_id), auth=HTTPBasicAuth(settings.ECM_USER, settings.ECM_PASSWORD)
-        )
-        if prev_response.ok and prev_response.headers['Content-Type'] == "image/jpeg;charset=UTF-8":
-            return HttpResponse(prev_response, content_type="image/jpeg")
 
-    except Exception as Err:
-        print(Err)
+    cmis_id = request.GET.get('cmis_id')
+    prev_response = ECMService.get_thumbnail(cmis_id)
+    if prev_response:
+        return HttpResponse(prev_response, content_type="image/jpeg")
 
     return HttpResponse(default_storage.open('tmp/default.jpeg').read(), content_type="image/jpeg")
 
