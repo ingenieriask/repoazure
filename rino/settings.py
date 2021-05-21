@@ -52,7 +52,9 @@ INSTALLED_APPS = [
     'pinax.eventlog',
     'captcha',
     'storages',
-    'corsheaders'
+    'corsheaders',
+    'djcelery_email',
+    'django_celery_results'
 ]
 
 CRISPY_TEMPLATE_PACK = 'bootstrap4'
@@ -150,6 +152,7 @@ LOGIN_REDIRECT_URL = '/correspondence/charts'
 XS_SHARING_ALLOWED_METHODS = ['POST', 'GET', 'OPTIONS', 'PUT', 'DELETE']
 
 # Config constants
+'''
 ECM_USER = env.str('RINO_ECM_USER')
 ECM_PASSWORD = env.str('RINO_ECM_PASSWORD')
 ECM_SEARCH_URL = env.str('RINO_ECM_SEARCH_URL')
@@ -159,7 +162,7 @@ ECM_RECORD_ASSIGN_URL = env.str('RINO_ECM_RECORD_ASSIGN_URL')
 ECM_RECORD_UPDATE_URL = env.str('RINO_ECM_RECORD_UPDATE_URL')
 ECM_REQUEST_RENDITIONS = env.str('RINO_ECM_REQUEST_RENDITIONS')
 ECM_PREVIEW_URL = env.str('RINO_ECM_PREVIEW_URL')
-
+'''
 CONVERT_URL = 'http://localhost:3000/convert/office'
 
 MESSAGE_TAGS = {
@@ -193,3 +196,12 @@ CORS_ORIGIN_WHITELIST = (
   'http://localhost:8000',
   'https://storagerino.blob.core.windows.net'
 )
+
+CELERY_EMAIL_TASK_CONFIG = {
+    'name': 'djcelery_email_send',
+    'ignore_result': False,
+}
+CELERY_EMAIL_CHUNK_SIZE = 1
+CELERY_RESULT_BACKEND = 'django-db'
+
+EMAIL_BACKEND ="djcelery_email.backends.CeleryEmailBackend"

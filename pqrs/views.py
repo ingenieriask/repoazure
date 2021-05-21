@@ -19,6 +19,7 @@ from django.views.generic.edit import CreateView
 from django.views.generic.list import ListView
 from django.views.generic.edit import UpdateView
 from core.utils_redis import add_to_redis, read_from_redis
+from correspondence.services import ECMService
 
 from pinax.eventlog.models import log, Log
 
@@ -112,31 +113,21 @@ def create_pqr(request, person):
                 }
             )
 
-            files = {"filedata": open(os.path.join(BASE_DIR, radicate.document_file.path), "rb")}
-            data = {"siteid": "rino", "containerid": "files"}
-
             process_email('EMAIL_PQR_CREATE', instance.person.email, instance)
 
-            try:
-                data = {"nodeType": "cm:content"}
-                res_upload = requests.post(settings.ECM_UPLOAD_URL, files=files, data=data,
-                                           auth=HTTPBasicAuth(settings.ECM_USER, settings.ECM_PASSWORD))
-                json_response = (json.loads(res_upload.text))
-                node_id = json_response['entry']['id']
+            files = open(os.path.join(BASE_DIR, radicate.document_file.path), "rb")
+
+            node_id = ECMService.upload(files)
+
+            if node_id:
                 radicate.set_cmis_id(node_id)
-                url_renditions = settings.ECM_REQUEST_RENDITIONS.replace('{nodeId}', node_id)
-                data_renditions = '{"id": "imgpreview"}'
-                res_renditions = requests.post(url_renditions, data=data_renditions,
-                                               auth=(settings.ECM_USER, settings.ECM_PASSWORD))
 
-            except Exception as Error:
-                print(Error)
-                logger.error(Error)
+                if ECMService.request_renditions(node_id):
+                    messages.success(request, "El radicado se ha creado correctamente")
+                    url = reverse('correspondence:detail_radicate', kwargs={'pk': radicate.pk})
+                    return HttpResponseRedirect(url)
+
                 messages.error(request, "Ha ocurrido un error al guardar el archivo en el gestor de contenido")
-
-            messages.success(request, "El radicado se ha creado correctamente")
-            url = reverse('pqrs:pqrs_detail', kwargs={'pk': radicate.pk})
-            return HttpResponseRedirect(url)
         else:
             logger.error("Invalid create radicate form")
             return render(request, 'pqrs/create_pqr.html', context={'form': form, 'person': person})
