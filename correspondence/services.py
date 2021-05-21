@@ -17,6 +17,7 @@ class ECMService(object):
 
     @classmethod
     def get_basic_authentication(cls):
+        print('cls._params:', cls._params)
         return HTTPBasicAuth(cls._params['ECM_USER'], cls._params['ECM_PASSWORD'])
 
     def get_params(func):
@@ -34,6 +35,7 @@ class ECMService(object):
     @classmethod
     @get_params
     def search_by_term(cls, term):
+        '''Term based query'''
 
         headers = {'Content-Type': 'application/json'}
         try:
@@ -50,7 +52,7 @@ class ECMService(object):
                         ]
                     }
                 },
-                auth=HTTPBasicAuth(cls._params['ECM_USER'], cls._params['ECM_PASSWORD']),
+                auth=cls.get_basic_authentication(),
                 headers=headers
             )
 
@@ -74,10 +76,11 @@ class ECMService(object):
     @classmethod
     @get_params
     def get_thumbnail(cls, cmis_id):
+        ''' Retrieve the thumbnail image based on the CMIS ID'''
 
         try:
             prev_response = requests.get(
-                settings.ECM_PREVIEW_URL.replace('{nodeId}', cmis_id), 
+                cls._params['ECM_PREVIEW_URL'].replace('{nodeId}', cmis_id), 
                 auth=cls.get_basic_authentication())
 
             if prev_response.ok and prev_response.headers['Content-Type'] == "image/jpeg;charset=UTF-8":
@@ -89,33 +92,31 @@ class ECMService(object):
     @classmethod
     @get_params
     def create_record(cls, name):
-
-        print('name:', name)
-        print('url:', cls._params['ECM_RECORD_URL'])
+        ''' '''
 
         try:
             r = requests.post(
                 cls._params['ECM_RECORD_URL'], 
-                data={"name": name, "nodeType": "cm:folder"}, 
+                data=json.dumps({"name": name, "nodeType": "cm:folder"}), 
                 auth=cls.get_basic_authentication())
-
-            print(r)
 
             if r.ok:
                 json_response = (json.loads(r.text))
                 return json_response['entry']['id']
 
         except Exception as Error:
+            print('error:', Error)
             logger.error(Error)
 
     @classmethod
     @get_params
     def update_record(cls, id, name):
+        ''' '''
 
         try:
             r = requests.put(
                 cls._params['ECM_RECORD_UPDATE_URL'] + id, 
-                data={"name": name},
+                data=json.dumps({"name": name}),
                 auth=cls.get_basic_authentication())
 
             return r.ok
@@ -126,11 +127,12 @@ class ECMService(object):
     @classmethod
     @get_params
     def assign_record(cls, id, record_id):
+        ''' '''
 
         try:
             r = requests.post(
                 cls._params['ECM_RECORD_ASSIGN_URL'] + id + '/move', 
-                data={"targetParentId": record_id},
+                data=json.dumps({"targetParentId": record_id}),
                 auth=cls.get_basic_authentication())
 
             return r.ok
@@ -142,6 +144,7 @@ class ECMService(object):
     @classmethod
     @get_params
     def upload(cls, file):
+        ''' '''
 
         try:
             res_upload = requests.post(
@@ -161,6 +164,7 @@ class ECMService(object):
     @classmethod
     @get_params
     def request_renditions(cls, node_id):
+        ''' '''
 
         try:
             res_upload = requests.post(
