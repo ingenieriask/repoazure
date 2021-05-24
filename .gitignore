@@ -127,3 +127,5 @@ Thumbs.db
 # NPM dependencies
 node_modules/
 core/fixtures/
+
+**/migrations/**
