@@ -1,0 +1,68 @@
+[
+  {
+    "model": "pqrs.type",
+    "pk": 1,
+    "fields": {
+      "name": "Petición",
+      "subject": "Lorem ipsum dolor sit amet consectetur adipisicing elit. Nesciunt omnis eligendi quidem quaerat modi necessitatibus sint excepturi eveniet at laudantium est distinctio, temporibus earum assumenda aperiam. Nihil ex libero repudiandae.",
+      "asociated_icon": "activity",
+      "max_response_days": 15,
+      "min_response_days": 1
+    }
+  },
+  {
+    "model": "pqrs.type",
+    "pk": 2,
+    "fields": {
+      "name": "Queja",
+      "subject": "Lorem ipsum dolor sit amet consectetur adipisicing elit. Nesciunt omnis eligendi quidem quaerat modi necessitatibus sint excepturi eveniet at laudantium est distinctio, temporibus earum assumenda aperiam. Nihil ex libero repudiandae.",
+      "asociated_icon": "activity",
+      "max_response_days": 15,
+      "min_response_days": 1
+    }
+  },
+  {
+    "model": "pqrs.type",
+    "pk": 3,
+    "fields": {
+      "name": "Reclamo",
+      "subject": "Lorem ipsum dolor sit amet consectetur adipisicing elit. Nesciunt omnis eligendi quidem quaerat modi necessitatibus sint excepturi eveniet at laudantium est distinctio, temporibus earum assumenda aperiam. Nihil ex libero repudiandae.",
+      "asociated_icon": "activity",
+      "max_response_days": 15,
+      "min_response_days": 1
+    }
+  },
+  {
+    "model": "pqrs.type",
+    "pk": 4,
+    "fields": {
+      "name": "Sugerencia",
+      "subject": "Lorem ipsum dolor sit amet consectetur adipisicing elit. Nesciunt omnis eligendi quidem quaerat modi necessitatibus sint excepturi eveniet at laudantium est distinctio, temporibus earum assumenda aperiam. Nihil ex libero repudiandae.",
+      "asociated_icon": "activity",
+      "max_response_days": 15,
+      "min_response_days": 1
+    }
+  },
+  {
+    "model": "pqrs.type",
+    "pk": 5,
+    "fields": {
+      "name": "Denuncia",
+      "subject": "Lorem ipsum dolor sit amet consectetur adipisicing elit. Nesciunt omnis eligendi quidem quaerat modi necessitatibus sint excepturi eveniet at laudantium est distinctio, temporibus earum assumenda aperiam. Nihil ex libero repudiandae.",
+      "asociated_icon": "activity",
+      "max_response_days": 15,
+      "min_response_days": 1
+    }
+  },
+  {
+    "model": "pqrs.type",
+    "pk": 6,
+    "fields": {
+      "name": "Felicitación",
+      "subject": "Lorem ipsum dolor sit amet consectetur adipisicing elit. Nesciunt omnis eligendi quidem quaerat modi necessitatibus sint excepturi eveniet at laudantium est distinctio, temporibus earum assumenda aperiam. Nihil ex libero repudiandae.",
+      "asociated_icon": "activity",
+      "max_response_days": 15,
+      "min_response_days": 1
+    }
+  }
+]
