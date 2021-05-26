@@ -1,6 +1,6 @@
 from django.db import models
 from django.urls import reverse
-
+from django.db.models import CheckConstraint, Q, F
 from core.models import ResponseMode, BaseModel, Person
 from correspondence.models import Radicate
 
@@ -17,16 +17,23 @@ class Type(models.Model):
 
 class SubType(models.Model):
     type = models.ForeignKey(Type, on_delete=models.PROTECT, related_name='subtypes')
+    subject = models.TextField(blank=False, null=False, max_length=2000,default='')
     name = models.CharField(max_length=128)
-    response_days = models.SmallIntegerField(blank=False, null=False, default=15)
+    max_response_days = models.SmallIntegerField(blank=False, null=False, default=15)
+    min_response_days = models.SmallIntegerField(blank=False, null=False, default=1)
     first_alert = models.SmallIntegerField(blank=False, null=False, default=4)
     second_alert = models.SmallIntegerField(blank=False, null=False, default=9)
     third_alert = models.SmallIntegerField(blank=False, null=False, default=14)
 
     def __str__(self):
         return self.type.name + ' / ' + self.name
-
-
+    
+    def save(self, *args, **kwargs):
+        if(self.max_response_days <= self.type.max_response_days):
+            super(SubType, self).save(*args, **kwargs)
+        else:
+            raise Exception("max_response_days should be lower or equal to type.max_response_days")
+            
 # Create your models here.
 class PQR(Radicate):
     # person = models.ForeignKey(Person, on_delete=models.PROTECT, related_name='pqr_person')
