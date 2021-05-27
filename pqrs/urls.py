@@ -5,7 +5,7 @@ from django.urls import path
 app_name = 'pqrs'
 
 urlpatterns = [
-    url(r'^$', views.index, name='index'),
+    path('', views.index, name='index'),
     path('pqrs-create/<int:person>/', views.create_pqr, name='pqrs_create'),
     path('pqrs-detail/<int:pk>/', views.PqrDetailView.as_view(), name="pqrs_detail"),
     path('search-person/', views.search_person, name='search_person'),

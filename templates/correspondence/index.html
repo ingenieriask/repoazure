@@ -1,218 +1,252 @@
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-        {% load static %}
-        <meta charset="utf-8" />
-        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
-        <meta name="description" content="" />
-        <meta name="author" content="" />
-        <title>RINO</title>
-        <link href="{% static 'correspondence/css/styles.css' %}" rel="stylesheet" />
+  <head>
+    {% load static %}
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, shrink-to-fit=no"
+    />
+    <meta name="description" content="" />
+    <meta name="author" content="" />
+    <title>RINO</title>
+    <link
+      href="{% static 'correspondence/css/styles.css' %}"
+      rel="stylesheet"
+    />
 
-        <link href="{% static 'node_modules/datatables.net-bs4/css/dataTables.bootstrap4.min.css' %}" rel="stylesheet" />
-        <link href="{% static 'node_modules/daterangepicker/daterangepicker.css' %}" rel="stylesheet" />
-        <link href="{% static 'node_modules/bootstrap-fileinput/css/fileinput.min.css' %}" rel="stylesheet" />
-        <link href="{% static 'node_modules/@fortawesome/fontawesome-free/css/all.min.css' %}" rel="stylesheet" />
-        <!--
+    <link
+      href="{% static 'node_modules/datatables.net-bs4/css/dataTables.bootstrap4.min.css' %}"
+      rel="stylesheet"
+    />
+    <link
+      href="{% static 'node_modules/daterangepicker/daterangepicker.css' %}"
+      rel="stylesheet"
+    />
+    <link
+      href="{% static 'node_modules/bootstrap-fileinput/css/fileinput.min.css' %}"
+      rel="stylesheet"
+    />
+    <link
+      href="{% static 'node_modules/@fortawesome/fontawesome-free/css/all.min.css' %}"
+      rel="stylesheet"
+    />
+    <!--
         <link href="https://cdn.datatables.net/1.10.22/css/dataTables.bootstrap4.min.css" rel="stylesheet" crossorigin="anonymous" />
         <link href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" rel="stylesheet" crossorigin="anonymous" />
         <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-fileinput/5.0.9/css/fileinput.min.css" media="all" rel="stylesheet" type="text/css" />
         <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.5.0/css/all.css" crossorigin="anonymous">
         -->
-        <link rel="icon" type="image/x-icon" href="{% static 'correspondence/assets/img/favicon.jpg' %}" />
-    </head>
-    <body class="nav-fixed">
-        <div id="layoutnav">
-            <div id="layoutSidenav_content">
-                <main>
-                    <header class="page-header page-header-dark bg-gradient-primary-to-secondary pb-10">
-                        <div class="container">
-                            <div class="page-header-content pt-4">
-                                <div class="row align-items-center justify-content-between">
-                                    <div class="col-auto mt-4">
-                                      <h1 class="page-header-title">
-                                          <img class="float-left" src="{% static 'correspondence/assets/img/illustrations/FullColor_TransparentBg_1280x1024_72dpi_1.png' %}" style="max-width: 7rem" />
-                                          RINO
-                                      </h1>
-                                    </div>
-                                    <div class="col-12 col-xl-auto mt-4">
-                                        <button class="btn btn-white p-3" id="reportrange">
-                                            <i class="mr-2 text-primary" data-feather="calendar"></i>
-                                            <span></span>
-                                            <i class="ml-1" data-feather="chevron-down"></i>
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </header>
-                    <!-- Main page content-->
-                    <div class="container mt-n10">
-                        <div class="row">
-                            <div class="col-xxl-4 col-xl-4 mb-4">
-                                 <!-- Dashboard Correspondence-->
-                                <div class="card lift h-100">
-                                    <div class="card-body h-100 d-flex flex-column justify-content-center py-5 py-xl-4">
-                                        <div class="row align-items-center">
-                                            <div class="text-center">
-                                                <div class="text-center text-xl-left text-xxl-center px-4 mb-4 mb-xl-0 mb-xxl-4">
-                                                    <h1 class="text-primary">RINO Correspondence Center</h1>
-                                                    <a class="btn btn-success btn-lg shadow-lg mt-5" href="{% url 'login' %}">Ingresar</a>
-                                                </div>
-                                            </div>
-                                            <div class="text-center">
-                                              <img class="img-fluid" src="{% static 'correspondence/assets/img/illustrations/undraw_Mail_sent_re_0ofv.svg' %}" style="max-width: 20rem" />
-                                              <p class="text-gray-700 mb-0 mt-3">Sistema inteligente de gestión de correspondencia</p>
-                                            </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-xl-8 mb-4">
-                                    <!-- Dashboard PQRS-->
-                                    <div class="card h-90">
-                                        <div class="card-body">
-                                            <div class="row no-gutters">
-                                                <div class="col-auto card-icon-aside md-4">
-                                                    <i class="feather-xl text-primary mb-3" data-feather="package"></i>
-                                                </div>
-                                                <div class="col">
-                                                    <div class="card-body py-5">
-                                                        <h1 class="card-title text-primary text-center ">Peticiones, Quejas, Reclamos y Sugerencias</h1>
-                                                        <p class="card-text">Comunícate con nosotros</p>
-                                                    </div>
-                                                </div>
-                                                <div class="col-md-4">
-                                                    <img class="img-fluid" src="{% static 'correspondence/assets/img/illustrations/browser-stats.svg' %}" alt="..." style="width: 8rem">
-                                                </div>
-                                            </div>
-                                            <div class="row">
-                                                <div class="col">
-                                                    <ul class="nav nav-pills flex-column" id="cardPillVertical" role="tablist">
-                                                        <li class="nav-item"><a class="nav-link active" id="definition-right-petition" href="#definitionRightPetition" data-toggle="tab" role="tab" aria-controls="overview" aria-selected="true">Derecho de petición</a></li>
-                                                        <li class="nav-item"><a class="nav-link" id="definition-request-information" href="#definitionRequestInformation" data-toggle="tab" role="tab" aria-controls="privacy" aria-selected="false">Solicitud de información</a></li>
-                                                        <li class="nav-item"><a class="nav-link" id="definition-complait" href="#definitionComplait" data-toggle="tab" role="tab" aria-controls="privacy" aria-selected="false">Queja</a></li>
-                                                        <li class="nav-item"><a class="nav-link" id="definition-claim" href="#definitionClaim" data-toggle="tab" role="tab" aria-controls="privacy" aria-selected="false">Reclamo</a></li>
-                                                        <li class="nav-item"><a class="nav-link" id="definition-suggestion" href="#definitionSuggestion" data-toggle="tab" role="tab" aria-controls="privacy" aria-selected="false">Sugerencia</a></li>
-                                                        <li class="nav-item"><a class="nav-link" id="definition-anonymous-request" href="#definitionAnonymosRequest" data-toggle="tab" role="tab" aria-controls="privacy" aria-selected="false">Solicitud anónima</a></li>
-                                                    </ul>
-                                                </div>
-                                                <div class="col-md-8">
-                                                    <div class="tab-content" id="cardPillContentVertical">
-                                                        <div class="tab-pane fade show active" id="definitionRightPetition" role="tabpanel" aria-labelledby="overview-pill-vertical">
-                                                            <h5 class="card-title">¿Que es?</h5>
-                                                            <p class="card-text">Es el derecho fundamental que toda persona tiene a presentar solicitudes respetuosas a las autoridades por motivos de interés general o particular,  en temas de competencia de la entidad y a obtener pronta resolución. Se puede presentar de manera verbal o escrita.</p>
-                                                        </div>
-                                                        <div class="tab-pane fade" id="definitionRequestInformation" role="tabpanel" aria-labelledby="privacy-pill-vertical">
-                                                            <h5 class="card-title">¿Que es?</h5>
-                                                            <p class="card-text">Modalidad de derecho de petición mediante la cual los usuarios pueden requerir información que tiene bajo su administración, custodia o disposición la entidad. Para dar respuesta a este tipo de solicitudes se tendrá en cuenta el carácter reservado o confidencial de la información solicitada y de la legitimación  para acceder a esta.</p>
-                                                        </div>
-                                                        <div class="tab-pane fade" id="definitionComplait" role="tabpanel" aria-labelledby="privacy-pill-vertical">
-                                                            <h5 class="card-title">¿Que es?</h5>
-                                                            <p class="card-text">Es la manifestación de protesta, censura, descontento o inconformidad que formula una persona en relación con una conducta que considera irregular de uno  o varios servidores públicos en desarrollo de sus funciones.</p>
-                                                        </div>
-                                                       <div class="tab-pane fade" id="definitionClaim" role="tabpanel" aria-labelledby="privacy-pill-vertical">
-                                                            <h5 class="card-title">¿Que es?</h5>
-                                                            <p class="card-text">Es el derecho que tiene toda persona de exigir, reivindicar o demandar una solución, ya sea por motivo general o particular referente a la prestación indebida de un servicio o a la falta de atención de una solicitud por parte de la entidad</p>
-                                                        </div>
-                                                         <div class="tab-pane fade" id="definitionSuggestion" role="tabpanel" aria-labelledby="privacy-pill-vertical">
-                                                            <h5 class="card-title">¿Que es?</h5>
-                                                            <p class="card-text">Es la manifestación de una idea o propuesta para mejorar el servicio o la gestión de la Entidad.</p>
-                                                        </div>
-                                                        <div class="tab-pane fade" id="definitionAnonymosRequest" role="tabpanel" aria-labelledby="privacy-pill-vertical">
-                                                            <h5 class="card-title">¿Que es?</h5>
-                                                            <p class="card-text">Es toda solicitud de interés general o particular en temas de competencia de la Entidad, que puede presentar una persona que no desea identificarse o ser identificada.</p>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div class="row mb-3">
-                                                <!-- Button modal trigger -->
-                                                <button class="btn btn-success m-3" type="button" data-toggle="modal" data-target="#privacyModalScrollable">Radicar PQR</button>
-
-                                                <!-- Modal -->
-                                                <div class="modal fade" id="privacyModalScrollable" tabindex="-1" role="dialog" aria-labelledby="privacyModalScrollableTitle" aria-hidden="true">
-                                                    <div class="modal-dialog modal-xl modal-dialog-scrollable" role="document">
-                                                        <div class="modal-content">
-                                                            <div class="modal-header">
-                                                                <h5 class="modal-title" id="privacyModalScrollableTitle">Política de Privacidad para el Tratamiento de Datos Personales </h5>
-                                                                <button class="close" type="button" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
-                                                            </div>
-                                                            <div class="modal-body">
-                                                                Dando cumplimiento a lo dispuesto en la Ley 1581 de 2012, "Por el cual se dictan disposiciones generales para la protección de datos personales" y de conformidad con lo señalado en el Decreto 1377 de 2013, con el diligenciamiento de este formulario de presentación de PQRDS acepta que fue informado por <b>RINO</b>:<br/>.
-
-                                                                        1. <b>RINO</b> actuará como Responsable del Tratamiento de datos personales de los cuales es titular y que, conjunta o separadamente podrá recolectar, usar y tratar sus datos personales conforme la Política de Tratamiento de Datos Personales <b>RINO</b>. <br/>
-                                                                        2. Que ha leído la finalidad(es) de la recolección de los datos personales.<br/>.
-                                                                        3. Es de carácter facultativo o voluntario responder preguntas que versen sobre Datos Sensibles o sobre menores de edad.<br/>.
-                                                                        4. Que sus derechos como titular de los datos son los previstos en la Constitución y la ley, especialmente el derecho a conocer, actualizar, rectificar y suprimir su información personal, así como el derecho a revocar el consentimiento otorgado para el tratamiento de datos personales.<br/>.
-                                                                        5. Los derechos pueden ser ejercidos a través de los canales dispuestos por RINO  observando la Política de Tratamiento de Datos Personales de RINO.<br/>.
-                                                                        6. Mediante la página web de RINO podra radicar cualquier tipo de requerimiento relacionado con el tratamiento de mis datos personales.<br/>.
-                                                                        7. RINO garantizará la confidencialidad, libertad, seguridad, veracidad, transparencia, acceso y circulación restringida de mis datos y se reservará el derecho de modificar su Política de Tratamiento de Datos Personales en cualquier momento. Cualquier cambio será informado y publicado oportunamente en la página web.<br/>.
-                                                                        8. Teniendo en cuenta lo anterior, autoriza de manera voluntaria, previa, explícita, informada e inequívoca a RINO para tratar sus datos personales con su Política de Tratamiento de Datos Personales para los fines relacionados con su objeto y en especial para fines legales, contractuales, misionales descritos en la Política de Tratamiento de Datos Personales de <b>RINO</b>.<br/>.
-                                                                        9. La información obtenida para el Tratamiento de sus datos personales la a suministrado de forma voluntaria y es verídica.<br/>.
-                                                            </div>
-                                                            <div class="modal-footer">
-                                                                <button class="btn btn-secondary" type="button" data-dismiss="modal">Cerrar</button>
-                                                                <a class="btn btn-primary" value="Aceptar" href="{% url 'pqrs:search_person' %}">Aceptar</a>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                               </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-xl-13 mb-4">
-                                    <!-- Dashboard News-->
-                                    <a class="card lift h-100" href="#!">
-                                        <div class="card-body d-flex justify-content-center flex-column">
-                                            <div class="d-flex align-items-center justify-content-between">
-                                                <div class="mr-3">
-                                                    <i class="feather-xl text-secondary mb-3" data-feather="book"></i>
-                                                    <h5>Documentación</h5>
-                                                    <div class="text-muted small">Mantente al día con el trabajo de la unidad de gestión documental</div>
-                                                </div>
-                                                <img src="{% static 'correspondence/assets/img/illustrations/windows.svg' %}" alt="..." style="width: 8rem" />
-                                            </div>
-                                        </div>
-                                    </a>
-                                </div>
-                            </div>
-                        </div>
-                </main>
-                <footer class="footer mt-auto footer-light">
-                    <div class="container-fluid">
-                        <div class="row">
-                            <div class="col-md-6 small">Copyright &copy; RINO 2021</div>
-                            <div class="col-md-6 text-md-right small">
-                                <a href="#!">Privacy Policy</a>
-                                &middot;
-                                <a href="#!">Terms &amp; Conditions</a>
-                            </div>
-                        </div>
-                    </div>
-                </footer>
+    <link
+      rel="icon"
+      type="image/x-icon"
+      href="{% static 'correspondence/assets/img/favicon.jpg' %}"
+    />
+  </head>
+  <body class="nav-fixed">
+    <div id="layoutnav">
+      <div id="layoutSidenav_content">
+        <main>
+          <header
+            class="
+              page-header page-header-dark
+              bg-gradient-primary-to-secondary
+              pb-10
+            "
+          >
+            <div class="container">
+              <div class="page-header-content pt-4">
+                <div class="row align-items-center justify-content-between">
+                  <div class="col-auto mt-4">
+                    <h1 class="page-header-title">
+                      <img
+                        class="float-left"
+                        src="{% static 'correspondence/assets/img/illustrations/FullColor_TransparentBg_1280x1024_72dpi_1.png' %}"
+                        style="max-width: 7rem"
+                      />
+                      RINO
+                    </h1>
+                  </div>
+                  <div class="col-12 col-xl-auto mt-4">
+                    <button class="btn btn-white p-3" id="reportrange">
+                      <i class="mr-2 text-primary" data-feather="calendar"></i>
+                      <span></span>
+                      <i class="ml-1" data-feather="chevron-down"></i>
+                    </button>
+                  </div>
+                </div>
+              </div>
             </div>
-        </div>
+          </header>
+          <!-- Main page content-->
+          <div class="container mt-n10">
+            <div class="row">
+              <div class="col-xxl-4 col-xl-4 mb-4">
+                <!-- Dashboard Correspondence-->
+                <div class="card lift h-100">
+                  <div
+                    class="
+                      card-body
+                      h-100
+                      d-flex
+                      flex-column
+                      justify-content-center
+                      py-5 py-xl-4
+                    "
+                  >
+                    <div class="row align-items-center">
+                      <div class="text-center">
+                        <div
+                          class="
+                            text-center text-xl-left text-xxl-center
+                            px-4
+                            mb-4 mb-xl-0 mb-xxl-4
+                          "
+                        >
+                          <h1 class="text-primary">
+                            RINO Correspondence Center
+                          </h1>
+                          <a
+                            class="btn btn-success btn-lg shadow-lg mt-5"
+                            href="{% url 'login' %}"
+                            >Ingresar</a
+                          >
+                        </div>
+                      </div>
+                      <div class="text-center">
+                        <img
+                          class="img-fluid"
+                          src="{% static 'correspondence/assets/img/illustrations/undraw_Mail_sent_re_0ofv.svg' %}"
+                          style="max-width: 20rem"
+                        />
+                        <p class="text-gray-700 mb-0 mt-3">
+                          Sistema inteligente de gestión de correspondencia
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-xl-8 mb-4">
+                <!-- Dashboard PQRS-->
+                <div class="card h-90">
+                  <div class="card-body">
+                    <div class="row no-gutters">
+                      <div class="col-auto card-icon-aside md-4">
+                        <i
+                          class="feather-xl text-primary mb-3"
+                          data-feather="package"
+                        ></i>
+                      </div>
+                      <div class="col">
+                        <div class="card-body py-5">
+                          <h1 class="card-title text-primary text-center">
+                            Peticiones, Quejas, Reclamo, Sugerencias y Denuncias
+                          </h1>
+                        </div>
+                      </div>
+                      <div class="col-md-4">
+                        <img
+                          class="img-fluid"
+                          src="{% static 'correspondence/assets/img/illustrations/browser-stats.svg' %}"
+                          alt="..."
+                          style="width: 8rem"
+                        />
+                      </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12 mr-5 ml-2 p-5">
+                            <h1 class="text-center">
+                                Bienvenido al Sistema Integrado de Peticiones, Quejas, Reclamos, Sugerencias y Denuncias 
+                                (PQRSD) de RINO
+                            </h1>
+                        </div>
+                        <div class="col-md-6  d-flex">
+                            <a
+                            class="btn btn-success btn-lg shadow-lg mx-auto"
+                            href="pqrs/"
+                            >Redactar PQRSD</a
+                          >
+                        </div>
+                        <div class="col-md-6  d-flex">
+                            <a
+                            class="btn btn-success btn-lg shadow-lg  mx-auto"
+                            href="pqrs/"
+                            >Consultar PQRSD</a
+                          >
+                        </div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-xl-13 mb-4">
+                <!-- Dashboard News-->
+                <a class="card lift h-100" href="#!">
+                  <div
+                    class="card-body d-flex justify-content-center flex-column"
+                  >
+                    <div
+                      class="d-flex align-items-center justify-content-between"
+                    >
+                      <div class="mr-3">
+                        <i
+                          class="feather-xl text-secondary mb-3"
+                          data-feather="book"
+                        ></i>
+                        <h5>Documentación</h5>
+                        <div class="text-muted small">
+                          Mantente al día con el trabajo de la unidad de gestión
+                          documental
+                        </div>
+                      </div>
+                      <img
+                        src="{% static 'correspondence/assets/img/illustrations/windows.svg' %}"
+                        alt="..."
+                        style="width: 8rem"
+                      />
+                    </div>
+                  </div>
+                </a>
+              </div>
+            </div>
+          </div>
+        </main>
+        <footer class="footer mt-auto footer-light">
+          <div class="container-fluid">
+            <div class="row">
+              <div class="col-md-6 small">Copyright &copy; RINO 2021</div>
+              <div class="col-md-6 text-md-right small">
+                <a href="#!">Privacy Policy</a>
+                &middot;
+                <a href="#!">Terms &amp; Conditions</a>
+              </div>
+            </div>
+          </div>
+        </footer>
+      </div>
+    </div>
 
-        <script data-search-pseudo-elements defer src="{% static 'node_modules/@fortawesome/fontawesome-free/js/all.min.js' %}"></script>
-        <script src="{% static 'node_modules/feather-icons/dist/feather.min.js' %}"></script>
-        <script src="{% static 'node_modules/jquery/dist/jquery.min.js' %}"></script>
-        <script src="{% static 'node_modules/bootstrap-fileinput/js/plugins/piexif.min.js' %}"></script>
-        <script src="{% static 'node_modules/bootstrap-fileinput/js/plugins/sortable.min.js' %}"></script>
-        <script src="{% static 'node_modules/@popperjs/core/dist/umd/popper.min.js' %}"></script>
-        <script src="{% static 'node_modules/bootstrap/dist/js/bootstrap.bundle.min.js' %}"></script>
-        <script src="{% static 'node_modules/bootstrap-fileinput/js/fileinput.min.js' %}"></script>
-        <script src="{% static 'node_modules/bootstrap-fileinput/themes/fas/theme.min.js' %}"></script>
-        <script src="{% static 'node_modules/chart.js/dist/Chart.min.js' %}"></script>
-        <script src="{% static 'node_modules/datatables.net/js/jquery.dataTables.min.js' %}"></script>
-        <script src="{% static 'node_modules/datatables.net-bs4/js/dataTables.bootstrap4.min.js' %}"></script>
-        <script src="{% static 'node_modules/moment/min/moment.min.js' %}"></script>
-        <script src="{% static 'node_modules/daterangepicker/daterangepicker.js' %}"></script>
-        <script src="{% static 'node_modules/bootstrap-select/dist/js/bootstrap-select.min.js' %}"></script>
+    <script
+      data-search-pseudo-elements
+      defer
+      src="{% static 'node_modules/@fortawesome/fontawesome-free/js/all.min.js' %}"
+    ></script>
+    <script src="{% static 'node_modules/feather-icons/dist/feather.min.js' %}"></script>
+    <script src="{% static 'node_modules/jquery/dist/jquery.min.js' %}"></script>
+    <script src="{% static 'node_modules/bootstrap-fileinput/js/plugins/piexif.min.js' %}"></script>
+    <script src="{% static 'node_modules/bootstrap-fileinput/js/plugins/sortable.min.js' %}"></script>
+    <script src="{% static 'node_modules/@popperjs/core/dist/umd/popper.min.js' %}"></script>
+    <script src="{% static 'node_modules/bootstrap/dist/js/bootstrap.bundle.min.js' %}"></script>
+    <script src="{% static 'node_modules/bootstrap-fileinput/js/fileinput.min.js' %}"></script>
+    <script src="{% static 'node_modules/bootstrap-fileinput/themes/fas/theme.min.js' %}"></script>
+    <script src="{% static 'node_modules/chart.js/dist/Chart.min.js' %}"></script>
+    <script src="{% static 'node_modules/datatables.net/js/jquery.dataTables.min.js' %}"></script>
+    <script src="{% static 'node_modules/datatables.net-bs4/js/dataTables.bootstrap4.min.js' %}"></script>
+    <script src="{% static 'node_modules/moment/min/moment.min.js' %}"></script>
+    <script src="{% static 'node_modules/daterangepicker/daterangepicker.js' %}"></script>
+    <script src="{% static 'node_modules/bootstrap-select/dist/js/bootstrap-select.min.js' %}"></script>
 
-        <!--
+    <!--
         <script data-search-pseudo-elements defer src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/js/all.min.js" crossorigin="anonymous"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/feather-icons/4.28.0/feather.min.js" crossorigin="anonymous"></script>
         <script src="https://code.jquery.com/jquery-3.5.1.min.js" crossorigin="anonymous"></script>
@@ -230,10 +264,12 @@
         <script src="https://cdn.jsdelivr.net/npm/bootstrap-select@1.13.14/dist/js/bootstrap-select.min.js"></script>
         -->
 
-        <script src="{% static 'correspondence/assets/demo/datatables-demo.js' %}"></script>
-        <script src="{% static 'correspondence/js/jquery.mask.min.js' %}" type="text/javascript"></script>
-        <script src="{% static 'correspondence/js/scripts.js' %}"></script>
-        <script src="{% static 'correspondence/assets/demo/date-range-picker-demo.js' %}"></script>
-
-    </body>
+    <script src="{% static 'correspondence/assets/demo/datatables-demo.js' %}"></script>
+    <script
+      src="{% static 'correspondence/js/jquery.mask.min.js' %}"
+      type="text/javascript"
+    ></script>
+    <script src="{% static 'correspondence/js/scripts.js' %}"></script>
+    <script src="{% static 'correspondence/assets/demo/date-range-picker-demo.js' %}"></script>
+  </body>
 </html>
