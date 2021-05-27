@@ -61,3 +61,5 @@ class PQRSInbound(models.Model):
     subject = models.CharField(blank=False, null=False, max_length=256,default='')
     asociated_icon = models.CharField(blank=False, null=False, max_length=50,default='')
     code = models.IntegerField(blank=False, null=False,default=0)
+    def __str__(self):
+        return self.name
