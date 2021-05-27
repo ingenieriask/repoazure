@@ -56,3 +56,8 @@ class PQR(Radicate):
         #         self.user_updated = user
         super(PQR, self).save()
 
+class PQRSInbound(models.Model):
+    name = models.CharField(max_length=128,blank=False, null=False,default='')
+    subject = models.CharField(blank=False, null=False, max_length=256,default='')
+    asociated_icon = models.CharField(blank=False, null=False, max_length=50,default='')
+    code = models.IntegerField(blank=False, null=False,default=0)
