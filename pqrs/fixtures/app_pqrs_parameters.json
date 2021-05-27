@@ -4,8 +4,8 @@
     "pk": 1,
     "fields": {
       "name": "Petición",
-      "subject": "Lorem ipsum dolor sit amet consectetur adipisicing elit. Nesciunt omnis eligendi quidem quaerat modi necessitatibus sint excepturi eveniet at laudantium est distinctio, temporibus earum assumenda aperiam. Nihil ex libero repudiandae.",
-      "asociated_icon": "activity",
+      "description": "Es el derecho fundamental que tiene toda persona a presentar solicitudes  respetuosas a las autoridades por  motivos de interés general o particular y a obtener su pronta resolución.",
+      "asociated_icon": "file-text",
       "max_response_days": 15,
       "min_response_days": 1
     }
@@ -15,8 +15,8 @@
     "pk": 2,
     "fields": {
       "name": "Queja",
-      "subject": "Lorem ipsum dolor sit amet consectetur adipisicing elit. Nesciunt omnis eligendi quidem quaerat modi necessitatibus sint excepturi eveniet at laudantium est distinctio, temporibus earum assumenda aperiam. Nihil ex libero repudiandae.",
-      "asociated_icon": "activity",
+      "description": "Es la manifestación de protesta, censura,descontento o incomodidad que  formula una persona en relación con una conducta que considera irregular de uno  o varios empleados y/o servidores  públiccos en desarrollo de sus funciones.",
+      "asociated_icon": "thumbs-down",
       "max_response_days": 15,
       "min_response_days": 1
     }
@@ -26,8 +26,8 @@
     "pk": 3,
     "fields": {
       "name": "Reclamo",
-      "subject": "Lorem ipsum dolor sit amet consectetur adipisicing elit. Nesciunt omnis eligendi quidem quaerat modi necessitatibus sint excepturi eveniet at laudantium est distinctio, temporibus earum assumenda aperiam. Nihil ex libero repudiandae.",
-      "asociated_icon": "activity",
+      "description": "Es el derecho que tiene toda persona de exigir,  reinvindicar o demandar una solución, ya sea por motivo general o particular, referente a la prestación indebida de un servicio o a la falta de atención de una solicitud.",
+      "asociated_icon": "message-circle",
       "max_response_days": 15,
       "min_response_days": 1
     }
@@ -37,8 +37,8 @@
     "pk": 4,
     "fields": {
       "name": "Sugerencia",
-      "subject": "Lorem ipsum dolor sit amet consectetur adipisicing elit. Nesciunt omnis eligendi quidem quaerat modi necessitatibus sint excepturi eveniet at laudantium est distinctio, temporibus earum assumenda aperiam. Nihil ex libero repudiandae.",
-      "asociated_icon": "activity",
+      "description": "Es la manifestación de una idea o propuesta para mejorar el servicio o la gestión de la entidad.",
+      "asociated_icon": "list",
       "max_response_days": 15,
       "min_response_days": 1
     }
@@ -48,8 +48,8 @@
     "pk": 5,
     "fields": {
       "name": "Denuncia",
-      "subject": "Lorem ipsum dolor sit amet consectetur adipisicing elit. Nesciunt omnis eligendi quidem quaerat modi necessitatibus sint excepturi eveniet at laudantium est distinctio, temporibus earum assumenda aperiam. Nihil ex libero repudiandae.",
-      "asociated_icon": "activity",
+      "description": "Es la puesta en conocimiento ante una autoridad competente de una conducta posiblemente irregular, para que se adelante la correspondiente investigación penal, fiscal, administrativa-sancionatoria o etíco-profecional.",
+      "asociated_icon": "volume-2",
       "max_response_days": 15,
       "min_response_days": 1
     }
@@ -59,8 +59,8 @@
     "pk": 6,
     "fields": {
       "name": "Felicitación",
-      "subject": "Lorem ipsum dolor sit amet consectetur adipisicing elit. Nesciunt omnis eligendi quidem quaerat modi necessitatibus sint excepturi eveniet at laudantium est distinctio, temporibus earum assumenda aperiam. Nihil ex libero repudiandae.",
-      "asociated_icon": "activity",
+      "description": "Satisfacción por parte de un usuario ante la Entidad, con respecto a algun servicio, conducta o comportamiento de alguno de sus colaboradores.",
+      "asociated_icon": "check-circle",
       "max_response_days": 15,
       "min_response_days": 1
     }

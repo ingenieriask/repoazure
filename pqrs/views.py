@@ -3,7 +3,7 @@ from django.views.generic import View
 
 from correspondence.models import ReceptionMode, RadicateTypes, Radicate
 from core.models import Person, Office
-from pqrs.models import PQR
+from pqrs.models import PQR,Type
 from pqrs.forms import SearchPersonForm, PersonForm, PqrRadicateForm
 from core.utils_db import process_email,get_system_parameter
 from django.http import HttpResponseRedirect, HttpResponse, JsonResponse
@@ -137,6 +137,11 @@ def create_pqr(request, person):
         form.person = person
 
     return render(request, 'pqrs/create_pqr.html', context={'form': form, 'person': person})
+
+
+def PQRSType(request):
+    pqrs_types = Type.objects.all()
+    return render(request, 'pqrs/pqrs_type.html', context={'types': pqrs_types})
 
 class PqrDetailView(DetailView):
     model = Radicate
