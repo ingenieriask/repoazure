@@ -106,8 +106,8 @@
           <div class="col-xl-12 card" style="height: 30vh">
             <div class="card-body d-flex">
               <h1 class="text-center m-auto">
-                Informacion conplementaria <br />
-                definiciones tiempos normativos etc.
+                {% if rino_parameter %} {{rino_parameter}} {% else %} Add a
+                Message {% endif %}
               </h1>
             </div>
           </div>
