@@ -2,7 +2,6 @@ from django.db import models
 from django.conf import settings
 from django.urls import reverse
 from core.utils import anonymize
-from django.utils import timezone
 
 from django.contrib.auth.models import User
 
@@ -178,25 +177,7 @@ class AppParameter(models.Model):
     value = models.TextField()
 
     def __str__(self):
-        return f"{self.name} {self.value}"
+        return f"{self.name}:{self.value}"
 
     class Meta:
         db_table = "core_app_parameter"
-
-class ConsecutiveFormat(models.Model):
-    format = models.CharField(max_length=256, null=False, blank=False)
-    effective_date = models.DateTimeField(default=timezone.now, null=False, blank=False)
-
-    def __str__(self):
-        return f"'{self.format}' {self.effective_date}"
-
-    class Meta:
-        db_table = "core_consecutive_format"
-
-class Consecutive(models.Model):
-    current = models.BigIntegerField(null=False)
-    date = models.DateTimeField(default=timezone.now, null=False, blank=False)
-    type = models.CharField(max_length=256, null=False, blank=False)
-
-    def __str__(self):
-        return f"{self.current} {self.date} {self.type}"

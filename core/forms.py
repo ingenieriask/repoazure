@@ -5,8 +5,6 @@ from crispy_forms.layout import Layout, Submit, Row, Column, Field, ButtonHolder
 from core.models import Person
 from crispy_forms.layout import Field
 from core.utils import get_field_value
-from core.widgets import ConsecutiveFormatWidget
-from core.services import RecordCodeService
 
 class CustomFileInput(Field):
     template = 'core/custom_fileinput.html'
@@ -113,21 +111,3 @@ class AbstractPersonForm(forms.ModelForm):
                 css_class="card mb-3",
             )
         )
-
-
-class ConsecutiveFormatForm(forms.ModelForm):
-    '''Custom format for admin page'''
-
-    def clean(self, *args, **kwargs):
-        cleaned_data = super(ConsecutiveFormatForm, self).clean()
-        self.cleaned_data['format'] = RecordCodeService.compile(
-                                            self.data['format'], 
-                                            self.data['digits'])
-        return cleaned_data
-
-    class Meta:
-        fields = ('format', 'effective_date')
-
-        widgets = {
-            'format': ConsecutiveFormatWidget()
-        }
