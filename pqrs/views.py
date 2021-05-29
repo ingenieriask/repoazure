@@ -5,7 +5,7 @@ from correspondence.models import ReceptionMode, RadicateTypes, Radicate
 from core.models import Person, Office
 from pqrs.models import PQR
 from pqrs.forms import SearchPersonForm, PersonForm, PqrRadicateForm
-from core.utils_db import process_email
+from core.utils_db import process_email,get_system_parameter
 from django.http import HttpResponseRedirect, HttpResponse, JsonResponse
 from django.shortcuts import get_list_or_404, get_object_or_404, render
 from django.urls import reverse
@@ -39,7 +39,8 @@ logger = logging.getLogger(__name__)
 
 # Create your views here.
 def index(request):
-    return render(request, 'pqrs/index.html', {})
+    rino_parameter= get_system_parameter('RINO_PQR_INFO')
+    return render(request, 'pqrs/index.html', {'rino_parameter':rino_parameter.value})
 
 def send_email_person(request, pk):
     unique_id = get_random_string(length=32)
