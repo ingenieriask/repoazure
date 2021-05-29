@@ -1,8 +1,11 @@
 from django.core.mail.backends.smtp import EmailBackend
 from django.core.mail import EmailMessage
 import logging
+from datetime import datetime
+from django.db import transaction
+import  re
 
-from core.models import AppParameter
+from core.models import AppParameter, ConsecutiveFormat, Consecutive
 
 logger = logging.getLogger(__name__)
 
@@ -31,8 +34,6 @@ class MailService(object):
         if not from_email:
             from_email = cls._params['EMAIL_HOST_USER']
 
-        print('send mail')
-
         # Configure email handler
         eb = EmailBackend(
             host=cls._params['EMAIL_HOST'], 
@@ -50,4 +51,68 @@ class MailService(object):
             eb.close()
         except Exception as Error:
             logger.error(Error)
+
+class RecordCodeService(object):
+
+    tokens = ['{consecutive}', '{year}', '{type}']
+    digits_token = 'consecutive'
+
+    @classmethod
+    def compile(cls, format, digits):
+        '''Generate format from edited data'''
+
+        code = re.sub(r'\s*', r'', format)
+        code = re.sub(r',', r'', code)
+        code = re.sub(f'{{{cls.digits_token}}}', f'{{{cls.digits_token}:0{digits}d}}', code)
+        return code
+
+    @classmethod
+    def decompile(cls, code):
+        '''Decompile the format for edition'''
+
+        if not code:
+            return '', 10
+        digits_pattern = r'\{' + cls.digits_token + r':0(\d+)d\}'
+        code = re.sub(r'\s*', r'', code)
+        format = code.replace('}', '},').replace('{', ',{').replace(',,', ',').strip(',')
+        format = re.sub(digits_pattern, f'{{{cls.digits_token}}}', format)
+        r = re.search(digits_pattern, code)
+        digits = int(r.group(1)) if r else 0
+        return format, digits
+
+
+    @classmethod
+    @transaction.atomic
+    def get_consecutive(cls, type):
+        '''Retrieve the next consecutive code for a given type'''
+
+        now = datetime.now()
+
+        format = ConsecutiveFormat.objects.filter(
+            effective_date__lte=now
+        ).latest('effective_date').format
+
+        # Retrieve the last consecutive code
+        try:
+            consecutive = Consecutive.objects.get(type=type)
+        except Consecutive.DoesNotExist:
+            consecutive = Consecutive(current=0, type=type)
+
+        # Update the consecutive code
+        if consecutive.date.year != now.year:
+            consecutive.current = 1
+        else:
+            consecutive.current += 1
+
+        consecutive.date = now
+        consecutive.save()
+        
+        # Generate formatted code
+        params = {
+            'type': type,
+            'year': now.year,
+            'consecutive': consecutive.current
+        }
+
+        return format.format(**params)
 

@@ -6,9 +6,9 @@ from correspondence.models import Radicate
 
 
 class Type(models.Model):
-    name = models.CharField(max_length=128,editable=False)
-    subject = models.TextField(blank=False, null=False, max_length=2000,default='')
-    asociated_icon = models.CharField(blank=False, null=False, max_length=50,default='')
+    name = models.CharField(max_length=128, editable=False)
+    subject = models.TextField(blank=False, null=False, max_length=2000, default='')
+    asociated_icon = models.CharField(blank=False, null=False, max_length=50, default='')
     max_response_days = models.SmallIntegerField(blank=False, null=False, default=15)
     min_response_days = models.SmallIntegerField(blank=False, null=False, default=1)
     def __str__(self):

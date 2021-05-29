@@ -4,17 +4,18 @@
     "private": true,
     "devDependencies": {},
     "dependencies": {
-        "jquery": "3.3.1",
-        "bootstrap": "4.3.1",
         "@fortawesome/fontawesome-free": "5.5.0",
+        "@popperjs/core": "2.9.2",
+        "bootstrap": "4.3.1",
+        "bootstrap-fileinput": "5.0.9",
+        "bootstrap-select": "1.13.14",
+        "chart.js": "2.9.4",
         "datatables.net-bs4": "1.10.22",
         "daterangepicker": "3.1.0",
-        "bootstrap-select": "1.13.14",
-        "jquery-ui-dist": "1.12.1",
-        "bootstrap-fileinput": "5.0.9",
         "feather-icons": "4.28.0",
-        "@popperjs/core": "2.9.2",
-        "chart.js": "2.9.4",
-        "moment": "2.18.1"
+        "jquery": "3.3.1",
+        "jquery-ui-dist": "1.12.1",
+        "moment": "2.18.1",
+        "suggestags": "^1.26.0"
     }
 }

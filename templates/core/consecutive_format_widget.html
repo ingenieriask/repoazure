@@ -1,0 +1,70 @@
+{% load static %}
+
+<link href="{% static 'node_modules/bootstrap/dist/css/bootstrap.min.css' %}" rel="stylesheet" />
+<link href="{% static 'node_modules/jquery-ui-dist/jquery-ui.min.css' %}" rel="stylesheet" />
+<link href="{% static 'node_modules/suggestags/css/amsify.suggestags.css' %}" rel="stylesheet" />
+<link href="{% static 'node_modules/@fortawesome/fontawesome-free/css/all.min.css' %}" rel="stylesheet" />
+
+<style type="text/css" scoped>
+    form .aligned ul { 
+        margin-left: 10px !important;
+    }
+    .amsify-select-tag {
+        color: #fff;
+    }
+    form .aligned li { 
+        display: inline-block;
+        border-radius: 4px;
+        background-color: grey;
+        color: white;
+        border-color: grey;
+        border-width: 5px;
+        margin: 5px;
+        font-size: 17px;
+        font-weight:600;
+        line-height: 25px;
+        padding-bottom: 5px;
+    }
+    .submit-row a.deletelink {
+        height: 35px;
+    }
+</style>
+
+<div class="row">
+    <div class="col-lg-2 small">
+        <label>Número de dígitos del consecutivo</label>
+    </div>
+    <div class="col-lg-2 small">
+        <input class="form-control" type="number" id="id-digits" name="digits" value="{{ widget.digits }}">
+    </div>
+    <div class="col-lg-2 small">
+        <label>Formato</label>
+    </div>
+    <div class="col-lg-10 small">
+        <input class="form-control" type="text"  id="id-{{ widget.name }}" name="{{ widget.name }}" value="{{ widget.value }}"/>
+    </div>
+</div>
+<div class="row">
+    <div class="col-lg-2 small">
+        <label></label>
+    </div>
+</div>
+
+<script src="{% static 'node_modules/jquery/dist/jquery.min.js' %}"></script>
+<script src="{% static 'node_modules/suggestags/js/jquery.amsify.suggestags.js' %}"></script>
+
+<script>
+    var options = {{ widget.options | safe }}
+    var colors = {{ widget.colors | safe }}
+
+    $('input[name="{{ widget.name }}"]').amsifySuggestags({
+        suggestions: options,
+        classes: colors,
+        trimValue: true,
+        checkSimilar: true,
+        showAllSuggestions: true,
+        defaultLabel:'TODO'
+    });
+</script>
+
+
