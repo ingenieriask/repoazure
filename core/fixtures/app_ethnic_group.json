@@ -1,0 +1,30 @@
+[
+  {
+    "model": "core.ethnicgroup",
+    "pk": 1,
+    "fields": {
+      "name": "Indigena"
+    }
+  },
+  {
+    "model": "core.ethnicgroup",
+    "pk": 2,
+    "fields": {
+      "name": "Afrodescendiente"
+    }
+  },
+  {
+    "model": "core.ethnicgroup",
+    "pk": 3,
+    "fields": {
+      "name": "Minoria"
+    }
+  },
+  {
+    "model": "core.ethnicgroup",
+    "pk": 4,
+    "fields": {
+      "name": "No Aplica"
+    }
+  }
+]

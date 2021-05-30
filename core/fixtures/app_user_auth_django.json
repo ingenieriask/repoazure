@@ -1,0 +1,344 @@
+[
+  {
+    "model": "auth.user",
+    "pk": 2,
+    "fields": {
+      "password": "admin123456",
+      "last_login": "2021-05-30T08:32:05.330",
+      "is_superuser": false,
+      "username": "pedrosalas",
+      "first_name": "Pedro",
+      "last_name": "Salas",
+      "email": "pedro@gmail.com",
+      "is_staff": false,
+      "is_active": true,
+      "date_joined": "2021-05-26T10:56:08.879",
+      "groups": [],
+      "user_permissions": []
+    }
+  },
+  {
+    "model": "auth.user",
+    "pk": 3,
+    "fields": {
+      "password": "admin123456",
+      "last_login": "2021-05-30T08:32:05.330",
+      "is_superuser": false,
+      "username": "camilope",
+      "first_name": "Camilo",
+      "last_name": "Perez",
+      "email": "camilope@gmail.com",
+      "is_staff": false,
+      "is_active": true,
+      "date_joined": "2021-05-26T10:56:08.879",
+      "groups": [],
+      "user_permissions": []
+    }
+  },
+  {
+    "model": "auth.user",
+    "pk": 4,
+    "fields": {
+      "password": "admin123456",
+      "last_login": "2021-05-30T08:32:05.330",
+      "is_superuser": false,
+      "username": "pepeja",
+      "first_name": "Pepe",
+      "last_name": "Jaimes",
+      "email": "pepe@gmail.com",
+      "is_staff": false,
+      "is_active": true,
+      "date_joined": "2021-05-26T10:56:08.879",
+      "groups": [],
+      "user_permissions": []
+    }
+  },
+  {
+    "model": "auth.user",
+    "pk": 5,
+    "fields": {
+      "password": "admin123456",
+      "last_login": "2021-05-30T08:32:05.330",
+      "is_superuser": false,
+      "username": "andresto",
+      "first_name": "Andres",
+      "last_name": "Toro",
+      "email": "andres@gmail.com",
+      "is_staff": false,
+      "is_active": true,
+      "date_joined": "2021-05-26T10:56:08.879",
+      "groups": [],
+      "user_permissions": []
+    }
+  },
+  {
+    "model": "auth.user",
+    "pk": 6,
+    "fields": {
+      "password": "admin123456",
+      "last_login": "2021-05-30T08:32:05.330",
+      "is_superuser": false,
+      "username": "pepitogi",
+      "first_name": "Pepeito",
+      "last_name": "Gimenez",
+      "email": "pepito@gmail.com",
+      "is_staff": false,
+      "is_active": true,
+      "date_joined": "2021-05-26T10:56:08.879",
+      "groups": [],
+      "user_permissions": []
+    }
+  },
+  {
+    "model": "auth.user",
+    "pk": 7,
+    "fields": {
+      "password": "admin123456",
+      "last_login": "2021-05-30T08:32:05.330",
+      "is_superuser": false,
+      "username": "camiloro",
+      "first_name": "Camilo",
+      "last_name": "Rodriguez",
+      "email": "Camilo@gmail.com",
+      "is_staff": false,
+      "is_active": true,
+      "date_joined": "2021-05-26T10:56:08.879",
+      "groups": [],
+      "user_permissions": []
+    }
+  },
+  {
+    "model": "auth.user",
+    "pk": 8,
+    "fields": {
+      "password": "admin123456",
+      "last_login": "2021-05-30T08:32:05.330",
+      "is_superuser": false,
+      "username": "sebastianro",
+      "first_name": "Sebastian",
+      "last_name": "Rodriguez",
+      "email": "sebastian@gmail.com",
+      "is_staff": false,
+      "is_active": true,
+      "date_joined": "2021-05-26T10:56:08.879",
+      "groups": [],
+      "user_permissions": []
+    }
+  },
+  {
+    "model": "auth.user",
+    "pk": 9,
+    "fields": {
+      "password": "admin123456",
+      "last_login": "2021-05-30T08:32:05.330",
+      "is_superuser": false,
+      "username": "nicolasgra",
+      "first_name": " Nicolas",
+      "last_name": "Rodriguez",
+      "email": "nicolas@gmail.com",
+      "is_staff": false,
+      "is_active": true,
+      "date_joined": "2021-05-26T10:56:08.879",
+      "groups": [],
+      "user_permissions": []
+    }
+  },
+  {
+    "model": "auth.user",
+    "pk": 10,
+    "fields": {
+      "password": "admin123456",
+      "last_login": "2021-05-30T08:32:05.330",
+      "is_superuser": false,
+      "username": "joregeve",
+      "first_name": "Jorge",
+      "last_name": "Vega",
+      "email": "jorge@gmail.com",
+      "is_staff": false,
+      "is_active": true,
+      "date_joined": "2021-05-26T10:56:08.879",
+      "groups": [],
+      "user_permissions": []
+    }
+  },
+  {
+    "model": "auth.user",
+    "pk": 11,
+    "fields": {
+      "password": "admin123456",
+      "last_login": "2021-05-30T08:32:05.330",
+      "is_superuser": false,
+      "username": "jorgero",
+      "first_name": "Jorge",
+      "last_name": "Rodriguez",
+      "email": "jorgero@gmail.com",
+      "is_staff": false,
+      "is_active": true,
+      "date_joined": "2021-05-26T10:56:08.879",
+      "groups": [],
+      "user_permissions": []
+    }
+  },
+  {
+    "model": "auth.user",
+    "pk": 12,
+    "fields": {
+      "password": "admin123456",
+      "last_login": "2021-05-30T08:32:05.330",
+      "is_superuser": false,
+      "username": "luisafe",
+      "first_name": "Luisa",
+      "last_name": "Fernandes",
+      "email": "luisa@gmail.com",
+      "is_staff": false,
+      "is_active": true,
+      "date_joined": "2021-05-26T10:56:08.879",
+      "groups": [],
+      "user_permissions": []
+    }
+  },
+  {
+    "model": "auth.user",
+    "pk": 13,
+    "fields": {
+      "password": "admin123456",
+      "last_login": "2021-05-30T08:32:05.330",
+      "is_superuser": false,
+      "username": "luiscama",
+      "first_name": "Luis",
+      "last_name": "Camacho",
+      "email": "luis@gmail.com",
+      "is_staff": false,
+      "is_active": true,
+      "date_joined": "2021-05-26T10:56:08.879",
+      "groups": [],
+      "user_permissions": []
+    }
+  },
+  {
+    "model": "auth.user",
+    "pk": 14,
+    "fields": {
+      "password": "admin123456",
+      "last_login": "2021-05-30T08:32:05.330",
+      "is_superuser": false,
+      "username": "sebastiancama",
+      "first_name": "Sebastian",
+      "last_name": "Camacho",
+      "email": "sebastiancama@gmail.com",
+      "is_staff": false,
+      "is_active": true,
+      "date_joined": "2021-05-26T10:56:08.879",
+      "groups": [],
+      "user_permissions": []
+    }
+  },
+  {
+    "model": "auth.user",
+    "pk": 15,
+    "fields": {
+      "password": "admin123456",
+      "last_login": "2021-05-30T08:32:05.330",
+      "is_superuser": false,
+      "username": "gustavoquin",
+      "first_name": "Gustavo",
+      "last_name": "Quintana",
+      "email": "gustavo@gmail.com",
+      "is_staff": false,
+      "is_active": true,
+      "date_joined": "2021-05-26T10:56:08.879",
+      "groups": [],
+      "user_permissions": []
+    }
+  },
+  {
+    "model": "auth.user",
+    "pk": 16,
+    "fields": {
+      "password": "admin123456",
+      "last_login": "2021-05-30T08:32:05.330",
+      "is_superuser": false,
+      "username": "alexanderfi",
+      "first_name": "Alexander",
+      "last_name": "Figueroa",
+      "email": "alexander@gmail.com",
+      "is_staff": false,
+      "is_active": true,
+      "date_joined": "2021-05-26T10:56:08.879",
+      "groups": [],
+      "user_permissions": []
+    }
+  },
+  {
+    "model": "auth.user",
+    "pk": 17,
+    "fields": {
+      "password": "admin123456",
+      "last_login": "2021-05-30T08:32:05.330",
+      "is_superuser": false,
+      "username": "nestorard",
+      "first_name": "Nestor",
+      "last_name": "Ardila",
+      "email": "nestor@gmail.com",
+      "is_staff": false,
+      "is_active": true,
+      "date_joined": "2021-05-26T10:56:08.879",
+      "groups": [],
+      "user_permissions": []
+    }
+  },
+  {
+    "model": "auth.user",
+    "pk": 18,
+    "fields": {
+      "password": "admin123456",
+      "last_login": "2021-05-30T08:32:05.330",
+      "is_superuser": false,
+      "username": "sebastianber",
+      "first_name": "Sebastian",
+      "last_name": "Bernal",
+      "email": "sebastianben@gmail.com",
+      "is_staff": false,
+      "is_active": true,
+      "date_joined": "2021-05-26T10:56:08.879",
+      "groups": [],
+      "user_permissions": []
+    }
+  },
+  {
+    "model": "auth.user",
+    "pk": 19,
+    "fields": {
+      "password": "admin123456",
+      "last_login": "2021-05-30T08:32:05.330",
+      "is_superuser": false,
+      "username": "geraldinesa",
+      "first_name": "Geraldine",
+      "last_name": "Sanabira",
+      "email": "geraldine@gmail.com",
+      "is_staff": false,
+      "is_active": true,
+      "date_joined": "2021-05-26T10:56:08.879",
+      "groups": [],
+      "user_permissions": []
+    }
+  },
+  {
+    "model": "auth.user",
+    "pk": 20,
+    "fields": {
+      "password": "admin123456",
+      "last_login": "2021-05-30T08:32:05.330",
+      "is_superuser": false,
+      "username": "miguelcu",
+      "first_name": "Miguel",
+      "last_name": "Cubides",
+      "email": "miguel@gmail.com",
+      "is_staff": false,
+      "is_active": true,
+      "date_joined": "2021-05-26T10:56:08.879",
+      "groups": [],
+      "user_permissions": []
+    }
+  }
+]

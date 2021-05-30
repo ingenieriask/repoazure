@@ -1,0 +1,74 @@
+[
+  {
+    "model": "core.state",
+    "pk": 1,
+    "fields": {
+      "name": "Boyaca",
+      "country": 1
+    }
+  },
+  {
+    "model": "core.state",
+    "pk": 2,
+    "fields": {
+      "name": "Cundinamarca",
+      "country": 1
+    }
+  },
+  {
+    "model": "core.state",
+    "pk": 3,
+    "fields": {
+      "name": "Casanare",
+      "country": 1
+    }
+  },
+  {
+    "model": "core.state",
+    "pk": 4,
+    "fields": {
+      "name": "Misiones",
+      "country": 2
+    }
+  },
+  {
+    "model": "core.state",
+    "pk": 5,
+    "fields": {
+      "name": "La Pampa",
+      "country": 2
+    }
+  },
+  {
+    "model": "core.state",
+    "pk": 6,
+    "fields": {
+      "name": "Buenos Aires",
+      "country": 2
+    }
+  },
+  {
+    "model": "core.state",
+    "pk": 7,
+    "fields": {
+      "name": "Sonoro",
+      "country": 3
+    }
+  },
+  {
+    "model": "core.state",
+    "pk": 8,
+    "fields": {
+      "name": "Durango",
+      "country": 3
+    }
+  },
+  {
+    "model": "core.state",
+    "pk": 9,
+    "fields": {
+      "name": "Chihuahua",
+      "country": 3
+    }
+  }
+]
