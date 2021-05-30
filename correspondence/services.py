@@ -17,7 +17,6 @@ class ECMService(object):
 
     @classmethod
     def get_basic_authentication(cls):
-        print('cls._params:', cls._params)
         return HTTPBasicAuth(cls._params['ECM_USER'], cls._params['ECM_PASSWORD'])
 
     def get_params(func):
@@ -105,7 +104,6 @@ class ECMService(object):
                 return json_response['entry']['id']
 
         except Exception as Error:
-            print('error:', Error)
             logger.error(Error)
 
     @classmethod
