@@ -72,8 +72,8 @@ def search_person(request):
             item = form.cleaned_data['item']
             qs = Person.objects.annotate(search=SearchVector('document_number', 'email', 'name'), ).filter(search=item)
             if not qs.count():
-                messages.warning(request, "La búsqueda no obtuvo resultados")
-                person_form = None
+                messages.warning(request, "La búsqueda no obtuvo resultados. Registre la siguiente informacion para continuar con el proceso")
+                person_form = PersonForm()
             else:
                 person_form = PersonForm()
     else:
