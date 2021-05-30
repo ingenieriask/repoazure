@@ -1,0 +1,20 @@
+[
+  {
+    "model": "core.documenttypes",
+    "pk": 1,
+    "fields": {
+      "abbr": "CC",
+      "name": "Cedula de Ciudadania",
+      "person_Type": 1
+    }
+  },
+  {
+    "model": "core.documenttypes",
+    "pk": 2,
+    "fields": {
+      "abbr": "NIT",
+      "name": "NIT de la empresa",
+      "person_Type": 2
+    }
+  }
+]

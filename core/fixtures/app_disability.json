@@ -1,0 +1,30 @@
+[
+  {
+    "model": "core.disability",
+    "pk": 1,
+    "fields": {
+      "name": "Enfermedad A"
+    }
+  },
+  {
+    "model": "core.disability",
+    "pk": 2,
+    "fields": {
+      "name": "Enferemedad B"
+    }
+  },
+  {
+    "model": "core.disability",
+    "pk": 3,
+    "fields": {
+      "name": "Enferemedad C"
+    }
+  },
+  {
+    "model": "core.disability",
+    "pk": 4,
+    "fields": {
+      "name": "No Aplica"
+    }
+  }
+]

@@ -1,0 +1,23 @@
+[
+  {
+    "model": "core.country",
+    "pk": 1,
+    "fields": {
+      "name": "Colombia"
+    }
+  },
+  {
+    "model": "core.country",
+    "pk": 2,
+    "fields": {
+      "name": "Argentina"
+    }
+  },
+  {
+    "model": "core.country",
+    "pk": 3,
+    "fields": {
+      "name": "Mexico"
+    }
+  }
+]

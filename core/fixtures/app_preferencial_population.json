@@ -1,0 +1,16 @@
+[
+  {
+    "model": "core.preferencialpopulation",
+    "pk": 1,
+    "fields": {
+      "name": "VIP"
+    }
+  },
+  {
+    "model": "core.preferencialpopulation",
+    "pk": 2,
+    "fields": {
+      "name": "NORMAL"
+    }
+  }
+]

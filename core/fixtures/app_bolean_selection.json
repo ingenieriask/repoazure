@@ -1,0 +1,16 @@
+[
+  {
+    "model": "core.booleanselection",
+    "pk": 1,
+    "fields": {
+      "name": "Aplica"
+    }
+  },
+  {
+    "model": "core.booleanselection",
+    "pk": 2,
+    "fields": {
+      "name": "No Aplica"
+    }
+  }
+]

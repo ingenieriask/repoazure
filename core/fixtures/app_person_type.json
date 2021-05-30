@@ -1,0 +1,18 @@
+[
+  {
+    "model": "core.persontype",
+    "pk": 1,
+    "fields": {
+      "abbr": "PN",
+      "name": "Persona Natural"
+    }
+  },
+  {
+    "model": "core.persontype",
+    "pk": 2,
+    "fields": {
+      "abbr": "PJ",
+      "name": "Persona Juridica"
+    }
+  }
+]

@@ -1,0 +1,164 @@
+[
+  {
+    "model": "core.city",
+    "pk": 1,
+    "fields": {
+      "name": "Sogamoso",
+      "state": 1,
+      "city_id": 1
+    }
+  },
+  {
+    "model": "core.city",
+    "pk": 2,
+    "fields": {
+      "name": "Duitama",
+      "state": 1,
+      "city_id": 2
+    }
+  },
+  {
+    "model": "core.city",
+    "pk": 3,
+    "fields": {
+      "name": "Bogota",
+      "state": 2,
+      "city_id": 3
+    }
+  },
+  {
+    "model": "core.city",
+    "pk": 4,
+    "fields": {
+      "name": "Zipaquira",
+      "state": 2,
+      "city_id": 4
+    }
+  },
+  {
+    "model": "core.city",
+    "pk": 5,
+    "fields": {
+      "name": "Yopal",
+      "state": 3,
+      "city_id": 5
+    }
+  },
+  {
+    "model": "core.city",
+    "pk": 6,
+    "fields": {
+      "name": "Aguazul",
+      "state": 3,
+      "city_id": 6
+    }
+  },
+  {
+    "model": "core.city",
+    "pk": 7,
+    "fields": {
+      "name": "Apostoles",
+      "state": 4,
+      "city_id": 7
+    }
+  },
+  {
+    "model": "core.city",
+    "pk": 8,
+    "fields": {
+      "name": "Candelaria",
+      "state": 4,
+      "city_id": 8
+    }
+  },
+  {
+    "model": "core.city",
+    "pk": 9,
+    "fields": {
+      "name": "Victoria",
+      "state": 5,
+      "city_id": 9
+    }
+  },
+  {
+    "model": "core.city",
+    "pk": 10,
+    "fields": {
+      "name": "Parera",
+      "state": 5,
+      "city_id": 10
+    }
+  },
+  {
+    "model": "core.city",
+    "pk": 11,
+    "fields": {
+      "name": "Mendoza",
+      "state": 6,
+      "city_id": 11
+    }
+  },
+  {
+    "model": "core.city",
+    "pk": 12,
+    "fields": {
+      "name": "Buenos Aires",
+      "state": 6,
+      "city_id": 12
+    }
+  },
+  {
+    "model": "core.city",
+    "pk": 13,
+    "fields": {
+      "name": "Hermosillo",
+      "state": 7,
+      "city_id": 13
+    }
+  },
+  {
+    "model": "core.city",
+    "pk": 14,
+    "fields": {
+      "name": "Nogales",
+      "state": 7,
+      "city_id": 14
+    }
+  },
+  {
+    "model": "core.city",
+    "pk": 15,
+    "fields": {
+      "name": "Hermosillo",
+      "state": 8,
+      "city_id": 15
+    }
+  },
+  {
+    "model": "core.city",
+    "pk": 16,
+    "fields": {
+      "name": "Nogales",
+      "state": 8,
+      "city_id": 16
+    }
+  },
+  {
+    "model": "core.city",
+    "pk": 17,
+    "fields": {
+      "name": "Chihuahua",
+      "state": 9,
+      "city_id": 17
+    }
+  },
+  {
+    "model": "core.city",
+    "pk": 19,
+    "fields": {
+      "name": "Delicias",
+      "state": 9,
+      "city_id": 19
+    }
+  }
+]
