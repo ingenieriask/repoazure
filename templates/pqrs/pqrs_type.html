@@ -35,7 +35,10 @@
                   data-placement="bottom"
                   title="{{type.description}}"
                 >
-                  <a class="btn col-8 d-flex">
+                  <a
+                    class="btn col-8 d-flex"
+                    href="{% url 'pqrs:search_person' %}"
+                  >
                     <h2 class="text-center m-auto">{{type.name}}</h2>
                   </a>
                   <div class="col-4">
