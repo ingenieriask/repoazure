@@ -23,37 +23,31 @@
 {% if list %}
 <div class="card mb-4">
   <div class="card-header">Resultado</div>
-  <div class="card-body">
-    <div class="datatable">
-      <table class="table table-bordered table-hover" id="radicateListTable" width="100%" cellspacing='0'>
-        <thead>
-          <tr>
-            <th scope="col">Nombres</th>
-            <th scope="col">Email</th>
-            <th scope="col">Dirección</th>
-            <th scope="col">Acciones</th>
-          </tr>
-        </thead>
-        <tbody>
-          {% for person in list %}
-            <tr>
-              <td>{{ person.get_anonymized_name }}</td>
-              <td>{{ person.get_anonymized_email }}</td>
-              <td>{{ person.get_anonymized_address }}</td>
-              <td>
-                <a title="Enviar correo"  data-toggle="tooltip"  href="{% url 'pqrs:send_email_person' pk=person.pk %}" class="btn btn-datatable btn-icon btn-transparent-dark">
-                  <i data-feather="mail"></i>
-                </a>
-              </td>
-            </tr>
-          {% endfor %}
-        </tbody>
-      </table>
-    </div>
+    <div class="card-body d-flex">
+      {% for person in list%}
+      <div class="card border-primary mb-3 ml-3" style="max-width: 18rem;">
+        <h5 class="card-header text-primary">
+          Resultado {{forloop.counter}}
+          <a title="Enviar correo"  
+            data-toggle="tooltip"  
+            href="{% url 'pqrs:send_email_person' pk=person.pk %}" 
+            class="btn btn-datatable btn-icon btn-transparent-dark">
+              <i style="height: 1.5rem;width: 1.5rem;" data-feather="mail"></i>
+          </a>
+        </h5>
+        <div class="card-body border-primary">
+          <p class="card-text">Nombre: {{ person.get_anonymized_name }}</p>
+          <p class="card-text">Email: {{ person.get_anonymized_email }}</p>
+          <p class="card-text">Address: {{person.get_anonymized_address }}</p>
+         
+        </div>
+      </div>
+    {% endfor %}
+    
     </div>
   </div>
 {% else %}
-  {% if person_form %}
+{% if person_form %}
 <div class="card mb-4">
   <div class="card-header">Persona</div>
   <div class="card-body">
@@ -62,7 +56,7 @@
       {% csrf_token %}
     </form>
   </div>
-  </div>
-    {% endif %}
+</div>
+{% endif %}
 {% endif  %}
 {% endblock %}
