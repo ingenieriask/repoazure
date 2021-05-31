@@ -5,7 +5,7 @@ from datetime import datetime
 from django.db import transaction
 import  re
 
-from core.models import AppParameter, ConsecutiveFormat, Consecutive
+from core.models import AppParameter, ConsecutiveFormat, Consecutive, FilingType
 
 logger = logging.getLogger(__name__)
 
@@ -93,9 +93,10 @@ class RecordCodeService(object):
 
         # Retrieve the last consecutive code
         try:
-            consecutive = Consecutive.objects.get(type=type)
+            consecutive = Consecutive.objects.get(type__code=type)
         except Consecutive.DoesNotExist:
-            consecutive = Consecutive(current=0, type=type)
+            filing_type = FilingType.objects.get(code=type)
+            consecutive = Consecutive(current=0, type=filing_type)
 
         # Update the consecutive code
         if consecutive.date.year != now.year:

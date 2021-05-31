@@ -1,5 +1,5 @@
 from django import forms
-
+from django.core.exceptions import ValidationError
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Submit, Row, Column, Field, ButtonHolder, Button, Div, HTML
 from core.models import Person
@@ -117,8 +117,23 @@ class AbstractPersonForm(forms.ModelForm):
 class ConsecutiveFormatForm(forms.ModelForm):
     '''Custom format for admin page'''
 
+    digits_range = (2, 12)
+
     def clean(self, *args, **kwargs):
         cleaned_data = super(ConsecutiveFormatForm, self).clean()
+
+        if RecordCodeService.tokens[0][:-1] not in self.data['format']:
+            raise ValidationError("El número consecutivo es requerido")
+        if not self.data['digits']:
+            raise ValidationError("Número de dígitos del consecutivo es requerido")
+         
+        if not self.data['digits'].isdigit()  \
+            or int(self.data['digits']) < ConsecutiveFormatForm.digits_range[0] \
+            or int(self.data['digits']) > ConsecutiveFormatForm.digits_range[1]:
+            raise ValidationError("Valor o rango invalido para el número de dígitos del consecutivo")
+
+        print("self.data['digits']:", self.data['digits'])
+
         self.cleaned_data['format'] = RecordCodeService.compile(
                                             self.data['format'], 
                                             self.data['digits'])
