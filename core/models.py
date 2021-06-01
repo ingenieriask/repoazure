@@ -203,10 +203,18 @@ class ConsecutiveFormat(models.Model):
     class Meta:
         db_table = "core_consecutive_format"
 
+class FilingType(models.Model):
+    name = models.CharField(max_length=128,blank=False, null=False,default='')
+    description = models.CharField(blank=False, null=False, max_length=256,default='')
+    asociated_icon = models.CharField(blank=False, null=False, max_length=50,default='')
+    code = models.IntegerField(blank=False, null=False,default=0)
+    def __str__(self):
+        return f"{self.name} {self.code}"
+
 class Consecutive(models.Model):
     current = models.BigIntegerField(null=False)
     date = models.DateTimeField(default=timezone.now, null=False, blank=False)
-    type = models.CharField(max_length=256, null=False, blank=False)
+    type = models.ForeignKey(FilingType, on_delete=models.PROTECT, null=True, blank=True)
 
     def __str__(self):
         return f"{self.current} {self.date} {self.type}"
