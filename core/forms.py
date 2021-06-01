@@ -33,10 +33,19 @@ class AbstractPersonForm(forms.ModelForm):
     class Meta:
         model = Person
 
-        fields = ['document_type', 'document_number', 'name', 'email', 'city', 'address', 'parent', 'preferencial_population', 'conflict_victim', 'disabilities', 'ethnic_group']
+        fields = ['document_type', 'document_number','phone_number',
+                 'request_response','expedition_date','person_type', 'name',
+                  'lasts_name', 'email', 'city', 'address', 'parent', 'preferencial_population',
+                   'conflict_victim', 'disabilities', 'ethnic_group']
         labels = {'document_type': 'Tipo de documento',
                   'document_number': 'Número de documento',
-                  'name': 'Nombres', 'email': 'Correo electrónico',
+                  'expedition_date': 'Fecha de expedición',
+                  'request_response': '¿Por cual medio desea recibir su respuesta?',
+                  'name': 'Nombres',
+                   'phone_number': 'Telefóno/Célular',
+                  'lasts_name': 'Apellidos', 
+                   'email': 'Correo electrónico',
+                  'person_type': 'Tipo persona',
                   'city': 'Ciudad / Municipio', 'address': 'Dirección de contacto',
                   'parent': 'Entidad',
                   'preferencial_population': 'Población Preferencial (Selección Múltiple)',
@@ -46,11 +55,14 @@ class AbstractPersonForm(forms.ModelForm):
 
         widgets = {
             'document_type': forms.Select(attrs={'class': 'selectpicker'}),
+            'request_response': forms.Select(attrs={'class': 'selectpicker'}),
+            'person_type': forms.Select(attrs={'class': 'selectpicker'}),
+            'expedition_date': forms.DateInput(format='%Y-%m-%d',attrs={ 'placeholder': 'digite la fecha'}),
             'city': forms.Select(attrs={'class': 'selectpicker', 'data-live-search': 'true', 'data-size': '7'}),
             'parent': forms.Select(attrs={'class': 'selectpicker', 'data-live-search': 'true', 'data-size': '7'}),
-            'preferencial_population': forms.SelectMultiple(attrs={'class': 'selectpicker show-tick', 'data-size': '7'}),
+            'preferencial_population': forms.CheckboxSelectMultiple(),
             'conflict_victim': forms.Select(attrs={'class': 'selectpicker', 'data-size': '7'}),
-            'disabilities': forms.SelectMultiple(attrs={'class': 'selectpicker', 'data-size': '7'}),
+            'disabilities': forms.CheckboxSelectMultiple(),
             'ethnic_group': forms.Select(attrs={'class': 'selectpicker', 'data-live-search': 'true', 'data-size': '7'}),
         }
 
@@ -59,32 +71,39 @@ class AbstractPersonForm(forms.ModelForm):
         self.helper = FormHelper(self)
         self.helper.layout = Layout(
             Div(
-                Div(HTML('Datos básicos'),
+                Div(HTML('Información General'),
                     css_class='card-header'),
                 Div(
+                    
                     Row(
-                        Column('document_type', css_class='form-group col-md-6 mb-0'),
-                        Column('document_number', css_class='form-group col-md-6 mb-0'),
+                        Column('name', css_class='form-group col-md-6 mb-0'),
+                        Column('lasts_name', css_class='form-group col-md-6 mb-0'),
                         css_class='form-row'
                     ),
                     Row(
-                        Column('name', css_class='form-group col-md-12 mb-0'),
+                        Column('document_type', css_class='form-group col-md-4 mb-0'),
+                        Column('document_number', css_class='form-group col-md-4 mb-0'),
+                        Column('expedition_date', css_class='form-group col-md-4 mb-0'),
                         css_class='form-row'
-                    ),css_class='card-body'
+                    ),
+                    Row( Column('person_type', css_class='form-group col-md-4 mb-0'),)
+                    ,css_class='card-body'
                 ), css_class="card mb-3",
             ),
             Div(
-                Div(HTML('Datos de contacto'),
+                Div(HTML('Información de contacto'),
                     css_class='card-header'),
                 Div(
+                    Row( Column('request_response', css_class='form-group col-md-6 mb-0'),),
                     Row(
                         Column('email', css_class='form-group col-md-6 mb-0'),
                         Column('email_confirmation', css_class='form-group col-md-6 mb-0'),
                         css_class='form-row'
                     ),
                     Row(
-                        Column('city', css_class='form-group col-md-6 mb-0'),
-                        Column('address', css_class='form-group col-md-6 mb-0'),
+                        Column('city', css_class='form-group col-md-4 mb-0'),
+                        Column('phone_number', css_class='form-group col-md-4 mb-0'),
+                        Column('address', css_class='form-group col-md-4 mb-0'),
                         css_class='form-row'
                     ),css_class='card-body'
                 ), css_class="card mb-3",
@@ -93,19 +112,14 @@ class AbstractPersonForm(forms.ModelForm):
                     css_class='card-header'),
                 Div(
                     Row(
-                        Column('preferencial_population', css_class='form-group col-md-12 mb-0'),
+                        Column('conflict_victim', css_class='form-group col-md-6 mb-0'),
+                        Column('ethnic_group', css_class='form-group col-md-6 mb-0'),
+
                         css_class='form-row'
                     ),
                     Row(
-                        Column('conflict_victim', css_class='form-group col-md-12 mb-0'),
-                        css_class='form-row'
-                    ),
-                    Row(
-                        Column('disabilities', css_class='form-group col-md-12 mb-0'),
-                        css_class='form-row'
-                    ),
-                    Row(
-                        Column('ethnic_group', css_class='form-group col-md-12 mb-0'),
+                        Column('preferencial_population', css_class='form-group col-md-6 mb-0'),
+                        Column('disabilities', css_class='form-group col-md-6 mb-0'),
                         css_class='form-row'
                     ),
                     css_class='card-body'

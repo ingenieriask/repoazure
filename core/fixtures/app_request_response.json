@@ -1,0 +1,26 @@
+[
+  {
+    "model": "core.requestresponse",
+    "pk": 1,
+    "fields": {
+      "abbr": "CE",
+      "name": "Correo electrónico"
+    }
+  },
+  {
+    "model": "core.requestresponse",
+    "pk": 2,
+    "fields": {
+      "abbr": "DC",
+      "name": "Dirección de correspondencia"
+    }
+  },
+  {
+    "model": "core.requestresponse",
+    "pk": 3,
+    "fields": {
+      "abbr": "AM",
+      "name": "Ambos"
+    }
+  }
+]

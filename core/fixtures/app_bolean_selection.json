@@ -3,14 +3,14 @@
     "model": "core.booleanselection",
     "pk": 1,
     "fields": {
-      "name": "Aplica"
+      "name": "SI"
     }
   },
   {
     "model": "core.booleanselection",
     "pk": 2,
     "fields": {
-      "name": "No Aplica"
+      "name": "NO"
     }
   }
 ]

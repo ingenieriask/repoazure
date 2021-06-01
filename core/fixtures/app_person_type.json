@@ -4,7 +4,7 @@
     "pk": 1,
     "fields": {
       "abbr": "PN",
-      "name": "Persona Natural"
+      "name": "Natural"
     }
   },
   {
@@ -12,7 +12,7 @@
     "pk": 2,
     "fields": {
       "abbr": "PJ",
-      "name": "Persona Juridica"
+      "name": "Juridica"
     }
   }
 ]

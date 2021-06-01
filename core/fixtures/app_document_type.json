@@ -4,17 +4,47 @@
     "pk": 1,
     "fields": {
       "abbr": "CC",
-      "name": "Cedula de Ciudadania",
-      "person_Type": 1
+      "name": "Cédula de Ciudadanía"
     }
   },
   {
     "model": "core.documenttypes",
     "pk": 2,
     "fields": {
+      "abbr": "CE",
+      "name": "Cédula de Extranjería"
+    }
+  },
+  {
+    "model": "core.documenttypes",
+    "pk": 3,
+    "fields": {
       "abbr": "NIT",
-      "name": "NIT de la empresa",
-      "person_Type": 2
+      "name": "Numéro único de identificacion Personal"
+    }
+  },
+  {
+    "model": "core.documenttypes",
+    "pk":4,
+    "fields": {
+      "abbr": "TI",
+      "name": "Tarjeta de Identidad"
+    }
+  },
+  {
+    "model": "core.documenttypes",
+    "pk": 5,
+    "fields": {
+      "abbr": "RC",
+      "name": "Registro Civil"
+    }
+  },
+  {
+    "model": "core.documenttypes",
+    "pk": 5,
+    "fields": {
+      "abbr": "PT",
+      "name": "Pasaporte"
     }
   }
 ]
