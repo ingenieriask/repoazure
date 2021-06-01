@@ -1,5 +1,5 @@
 from django.contrib import admin
-from pqrs.models import Type, SubType, PQR,PQRSInbound
+from pqrs.models import Type, SubType, PQR
 
 class TypeAdmin(admin.ModelAdmin):
     fieldsets = [
@@ -10,4 +10,3 @@ class TypeAdmin(admin.ModelAdmin):
 admin.site.register(Type, TypeAdmin)
 admin.site.register(SubType)
 admin.site.register(PQR)
-admin.site.register(PQRSInbound)

@@ -3,14 +3,49 @@
     "model": "core.preferencialpopulation",
     "pk": 1,
     "fields": {
-      "name": "VIP"
+      "name": "Mujeres gestantes o con niño en brazos"
     }
   },
   {
     "model": "core.preferencialpopulation",
     "pk": 2,
     "fields": {
-      "name": "NORMAL"
+      "name": "Menor de edad, niño, niña y adolescentes"
+    }
+  },
+  {
+    "model": "core.preferencialpopulation",
+    "pk": 3,
+    "fields": {
+      "name": "Habitante de calle"
+    }
+  },
+  {
+    "model": "core.preferencialpopulation",
+    "pk": 4,
+    "fields": {
+      "name": "Periodista en ejercicio de su profeción"
+    }
+  },
+  {
+    "model": "core.preferencialpopulation",
+    "pk": 5,
+    "fields": {
+      "name": "Personas desplazadas o en situación de extrema pobreza"
+    }
+  },
+  {
+    "model": "core.preferencialpopulation",
+    "pk": 6,
+    "fields": {
+      "name": "Adulto mayor"
+    }
+  },
+  {
+    "model": "core.preferencialpopulation",
+    "pk": 7,
+    "fields": {
+      "name": "Personal de la fuerza publica"
     }
   }
 ]

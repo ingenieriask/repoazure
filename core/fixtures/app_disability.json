@@ -3,28 +3,56 @@
     "model": "core.disability",
     "pk": 1,
     "fields": {
-      "name": "Enfermedad A"
+      "name": "Física"
     }
   },
   {
     "model": "core.disability",
     "pk": 2,
     "fields": {
-      "name": "Enferemedad B"
+      "name": "Auditiva"
     }
   },
   {
     "model": "core.disability",
     "pk": 3,
     "fields": {
-      "name": "Enferemedad C"
+      "name": "Sordoceguera"
     }
   },
   {
     "model": "core.disability",
     "pk": 4,
     "fields": {
-      "name": "No Aplica"
+      "name": "Intelectual"
+    }
+  },
+  {
+    "model": "core.disability",
+    "pk": 5,
+    "fields": {
+      "name": "Psicosocial"
+    }
+  },
+  {
+    "model": "core.disability",
+    "pk": 6,
+    "fields": {
+      "name": "Multiple"
+    }
+  },
+  {
+    "model": "core.disability",
+    "pk": 7,
+    "fields": {
+      "name": "Talla baja"
+    }
+  },
+  {
+    "model": "core.disability",
+    "pk": 8,
+    "fields": {
+      "name": "Ninguna"
     }
   }
 ]
