@@ -122,19 +122,29 @@ class PersonType(models.Model):
 class DocumentTypes(models.Model):
     abbr = models.CharField(max_length=10)
     name = models.CharField(max_length=64)
-    person_Type = models.ForeignKey(PersonType, on_delete=models.CASCADE, null=True, blank=True)
 
     def __str__(self):
         return self.name
 
+class RequestResponse(models.Model):
+    abbr = models.CharField(max_length=10)
+    name = models.CharField(max_length=64)
+
+    def __str__(self):
+        return self.name
 
 # Generic person class, attributes for senders and receivers
 class Person(BaseModel):
     is_anonymous = models.BooleanField(blank=False, null=False, default=False)
+    phone_number = models.CharField(blank=True, null=True ,max_length=12)
     document_type = models.ForeignKey(DocumentTypes, on_delete=models.PROTECT, null=True, blank=True)
+    request_response = models.ForeignKey(RequestResponse, on_delete=models.PROTECT, null=True, blank=True)
+    person_type = models.ForeignKey(PersonType, related_name='personType',on_delete=models.PROTECT, null=True, blank=True)
     document_number = models.CharField(max_length=25, null=True, unique=True, db_index=True)
+    expedition_date= models.DateField(auto_now=False)
     email = models.EmailField(null=True, blank=True)
-    name = models.CharField(max_length=256, null=False, blank=False, unique=True)
+    name = models.CharField(max_length=256, null=False, blank=False)
+    lasts_name = models.CharField(max_length=256, null=False, blank=False)
     city = models.ForeignKey(City, on_delete=models.PROTECT, related_name='persons', null=True, blank=True)
     address = models.CharField(max_length=256, null=True, blank=True, unique=False)
     parent = models.ForeignKey('self', on_delete=models.PROTECT, blank=True, null=True)
