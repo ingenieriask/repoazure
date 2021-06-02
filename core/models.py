@@ -218,3 +218,10 @@ class Consecutive(models.Model):
 
     def __str__(self):
         return f"{self.current} {self.date} {self.type}"
+
+class NonWorkingDayType(models.Model):
+    name = models.CharField(max_length=128,blank=False, null=False,default='')
+
+class NonWorkingDay(models.Model):
+    date = models.DateField(default=timezone.now, null=False, blank=False) 
+    type = models.ForeignKey(NonWorkingDayType, on_delete=models.PROTECT, null=True, blank=True)

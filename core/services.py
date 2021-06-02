@@ -3,7 +3,9 @@ from django.core.mail import EmailMessage
 import logging
 from datetime import datetime
 from django.db import transaction
-import  re
+import re
+import requests
+import json
 
 from core.models import AppParameter, ConsecutiveFormat, Consecutive, FilingType
 
@@ -115,3 +117,29 @@ class RecordCodeService(object):
         }
 
         return format.format(**params)
+
+class CalendarService(object):
+    '''Service for calculate working days'''
+
+    # https://date.nager.at/
+    # API limitations:
+    # 50 requests per day
+    holiday_api_endpoint = 'https://date.nager.at/api/v3/publicholidays'
+
+    holidays = {}
+    
+    @classmethod
+    def get_holidays(cls, year, country_code):
+
+        if cls.holidays and f'{country_code}-{year}' in cls.holidays:
+            return cls.holidays[f'{country_code}-{year}']
+
+        try:
+            r = requests.get(f'{cls.holiday_api_endpoint}/{year}/{country_code}')
+            if r.ok:
+                json_response = json.loads(r.text)
+                cls.holidays[f'{country_code}-{year}'] = json_response
+                return json_response
+
+        except Exception as Err:
+            logger.error(Err)
