@@ -77,6 +77,7 @@ class Office(models.Model):
 
 class Country(models.Model):
     name = models.CharField(max_length=128)
+    code = models.CharField(max_length=4)
 
     def __str__(self):
         return self.name
@@ -225,3 +226,7 @@ class NonWorkingDayType(models.Model):
 class NonWorkingDay(models.Model):
     date = models.DateField(default=timezone.now, null=False, blank=False) 
     type = models.ForeignKey(NonWorkingDayType, on_delete=models.PROTECT, null=True, blank=True)
+
+class Holidays(models.Model):
+    date = models.DateField(default=timezone.now, null=False, blank=False) 
+    country = models.ForeignKey(Country, on_delete=models.PROTECT, null=True, blank=True)
