@@ -182,7 +182,11 @@ def select(requests):
 
 def show_poll(request, pk):
     
-    poll = Poll.objects.get(id=pk)
+    try:
+        poll = Poll.objects.get(id=pk)
+    except:
+        messages.error(request, "Poll does not exists!")
+        return render(request, 'pqrs/show_poll.html')
 
     if request.method=='POST':
         
