@@ -10,40 +10,41 @@ function requestSender() {
       data: $("#sender_create_form").serializeArray(),
       dataType: "json",
       success: function (data) {
-        createCellsTable(data, sender_data);
-        localStorage.setItem(String(sender_data["document_number"]), JSON.stringify(sender_data));
-        $("#sender_create_form").trigger("reset");
+        if (data["success"]) {
+          createCellsTable(data, sender_data);
+          localStorage.setItem(String(sender_data["document_number"]), JSON.stringify(sender_data));
+          $("#sender_create_form").trigger("reset");
+        } else {
+          $("#alertMessageContainer").show();
+          $("#alertMessageContent").html(data["data"]);
+        }
       },
     });
   }
 }
 function createCellsTable(data, sender_data) {
-  if (data["success"]) {
-    $("#form_container").prop("hidden", false);
-    var trContainer = document.createElement("tr");
-    var tdName = document.createElement("td");
-    tdName.innerHTML = sender_data["name"] + " " + sender_data["lasts_name"];
-    var tdDcoument = document.createElement("td");
-    tdDcoument.innerHTML = data["document_type_abbr"] + " " + sender_data["document_number"];
-    var tdAccion = document.createElement("td");
-    var modButton = document.createElement("button");
-    modButton.innerHTML = "Modificar";
-    modButton.setAttribute("class", "btn btn-success mx-auto");
-    modButton.setAttribute("onclick", "modifyRequest('" + sender_data["document_number"] + "')");
-    var delButton = document.createElement("button");
-    delButton.innerHTML = "Eliminar";
-    delButton.setAttribute("class", "btn btn-danger mx-auto");
-    delButton.setAttribute("onclick", "deleteRequest('" + sender_data["document_number"] + "',this)");
-    tdAccion.appendChild(modButton);
-    tdAccion.appendChild(delButton);
-    trContainer.appendChild(tdName);
-    trContainer.appendChild(tdDcoument);
-    trContainer.appendChild(tdAccion);
-    document.getElementById("tb_request_sender").appendChild(trContainer);
-  } else {
-    $("#alertMessageContainer").show();
-    $("#alertMessageContent").html(data["data"]);
-  }
+  console.log(data);
+  $("#form_container").prop("hidden", false);
+  var trContainer = document.createElement("tr");
+  var tdName = document.createElement("td");
+  tdName.innerHTML = sender_data["name"] + " " + sender_data["lasts_name"];
+  var tdDcoument = document.createElement("td");
+  tdDcoument.innerHTML = data["document_type_abbr"] + " " + sender_data["document_number"];
+  var tdAccion = document.createElement("td");
+  var modButton = document.createElement("button");
+  modButton.innerHTML = "Modificar";
+  modButton.setAttribute("class", "btn btn-success mx-auto");
+  modButton.setAttribute("onclick", "modifyRequest('" + sender_data["document_number"] + "')");
+  var delButton = document.createElement("button");
+  delButton.innerHTML = "Eliminar";
+  delButton.setAttribute("class", "btn btn-danger mx-auto");
+  delButton.setAttribute("onclick", "deleteRequest('" + sender_data["document_number"] + "',this)");
+  tdAccion.appendChild(modButton);
+  tdAccion.appendChild(delButton);
+  trContainer.appendChild(tdName);
+  trContainer.appendChild(tdDcoument);
+  trContainer.appendChild(tdAccion);
+  document.getElementById("tb_request_sender").appendChild(trContainer);
 }
 function modifyRequest(id) {
   var retrievedObject = JSON.parse(window.localStorage.getItem(id));
