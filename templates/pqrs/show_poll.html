@@ -1,16 +1,34 @@
 {% extends 'pqrs/template.html' %}
 {% block content %}
-    <div class="container content-align-center">
-        <div class="row">
-            {{poll_form}}
-            {% for question in poll_form.questions.all %}
-                <div>
-                    <p>{{ question.description }}</p>
-                    {{ for answer in question.answer_options.all }}
-                        <p>{{answer.number}}</p>
-                    {{end for}}
+    <div class="card">
+        <div class="card-header">
+            Encuesta de satisfacción PQRSD
+        </div>
+        <div class="card-body">
+            <form method="POST">
+                {% csrf_token %}
+                {% for question in poll.questions.all %}
+                <div class="row">
+                    <div class="col">
+                        <p>{{ question.description }}</p>
+                    </div>
                 </div>
-            {% endfor %}
+                <div class="row">
+                    <div class="col">
+                        <select class="custom-select">
+                            {% for answer in question.answer_options.all %}
+                            <option value={{answer.number}}>{{ answer.description }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+                {% endfor %}
+                <div class="row mt-4">
+                    <div class="col text-center">
+                        <button class="btn btn-primary" type="submit">ENVIAR</button>
+                    </div>
+                </div>
+            </form>
         </div>
     </div>
    
