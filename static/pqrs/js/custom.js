@@ -1,45 +1,49 @@
 function requestSender() {
-  $.ajax({
-    url: "/pqrs/multi-request/",
-    type: "POST",
-    data: $("#sender_create_form").serializeArray(),
-    dataType: "json",
-    success: function (data) {
-      if (data["success"]) {
-        var datos = data["data"];
-        $("#form_container").prop("hidden", false);
-        var newrow =
-          "<tr>" +
-          "<td class='text-center'>" +
-          datos["name"] +
-          " " +
-          datos["lasts_name"] +
-          "</td>" +
-          "<td class='text-center'>" +
-          data["document_type_abbr"] +
-          " " +
-          datos["document_number"] +
-          "</td>" +
-          "<td class='d-flex'>" +
-          '<input type="button" value="Modificar" class="btn btn-success mx-auto" ' +
-          "onclick='modifyRequest(\"" +
-          datos["document_number"] +
-          "\")'/>" +
-          '<input type="button" value="Eliminar" class="btn btn-danger mx-auto" ' +
-          "onclick='deleteRequest(\"" +
-          datos["document_number"] +
-          "\",this)'/>" +
-          "</td>" +
-          "</tr>";
-        localStorage.setItem(String(datos["document_number"]), JSON.stringify(datos));
-        $("#tb_request_sender").append(newrow);
+  var sender_data = $("#sender_create_form").serializeObject();
+  if (sender_data["person_type"] != "1") {
+    $("#alertMessageContainer").show();
+    $("#alertMessageContent").html("Como persona Juridica solo se puede agregar una sola peticion");
+  } else {
+    $.ajax({
+      url: "/pqrs/multi-request/",
+      type: "POST",
+      data: $("#sender_create_form").serializeArray(),
+      dataType: "json",
+      success: function (data) {
+        createCellsTable(data, sender_data);
+        localStorage.setItem(String(sender_data["document_number"]), JSON.stringify(sender_data));
         $("#sender_create_form").trigger("reset");
-      }
-    },
-    error: function () {
-      console.log("fuck");
-    },
-  });
+      },
+    });
+  }
+}
+function createCellsTable(data, sender_data) {
+  if (data["success"]) {
+    $("#form_container").prop("hidden", false);
+    var trContainer = document.createElement("tr");
+    var tdName = document.createElement("td");
+    tdName.innerHTML = sender_data["name"] + " " + sender_data["lasts_name"];
+    var tdDcoument = document.createElement("td");
+    tdDcoument.innerHTML = data["document_type_abbr"] + " " + sender_data["document_number"];
+    var tdAccion = document.createElement("td");
+    var modButton = document.createElement("button");
+    modButton.innerHTML = "Modificar";
+    modButton.setAttribute("class", "btn btn-success mx-auto");
+    modButton.setAttribute("onclick", "modifyRequest('" + sender_data["document_number"] + "')");
+    var delButton = document.createElement("button");
+    delButton.innerHTML = "Eliminar";
+    delButton.setAttribute("class", "btn btn-danger mx-auto");
+    delButton.setAttribute("onclick", "deleteRequest('" + sender_data["document_number"] + "',this)");
+    tdAccion.appendChild(modButton);
+    tdAccion.appendChild(delButton);
+    trContainer.appendChild(tdName);
+    trContainer.appendChild(tdDcoument);
+    trContainer.appendChild(tdAccion);
+    document.getElementById("tb_request_sender").appendChild(trContainer);
+  } else {
+    $("#alertMessageContainer").show();
+    $("#alertMessageContent").html(data["data"]);
+  }
 }
 function modifyRequest(id) {
   var retrievedObject = JSON.parse(window.localStorage.getItem(id));

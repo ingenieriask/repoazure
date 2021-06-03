@@ -152,7 +152,7 @@ def multi_create_request(request):
         if form.is_valid():
             form.save()
             document_type = DocumentTypes.objects.filter(pk = data['document_type'])
-            return HttpResponse(json.dumps({'data':data,'success':True,'document_type_abbr':str(document_type[0].abbr)}),status=status.HTTP_200_OK)
+            return HttpResponse(json.dumps({'success':True,'document_type_abbr':str(document_type[0].abbr)}),status=status.HTTP_200_OK)
         else:
             data = "Usuario ya creado"
             return HttpResponse(
