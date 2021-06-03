@@ -4,11 +4,8 @@ from django.views.generic import View
 from rest_framework import status
 from rest_framework.response import Response 
 from correspondence.models import ReceptionMode, RadicateTypes, Radicate
-<<<<<<< HEAD
 from core.models import Person, Office, Poll, PollInstance
-=======
 from core.models import Person, Office, DocumentTypes, Poll, PollInstance
->>>>>>> 4f36226a2d636abf40739fe849a17ddade2183aa
 from pqrs.models import PQR,Type
 from pqrs.forms import SearchPersonForm, PersonForm, PqrRadicateForm
 from core.utils_db import process_email,get_system_parameter
