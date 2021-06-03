@@ -159,3 +159,4 @@ class ConsecutiveFormatForm(forms.ModelForm):
         widgets = {
             'format': ConsecutiveFormatWidget()
         }
+

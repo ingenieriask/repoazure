@@ -1,8 +1,8 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.views.generic import View
 
 from correspondence.models import ReceptionMode, RadicateTypes, Radicate
-from core.models import Person, Office
+from core.models import Person, Office, Poll, PollInstance
 from pqrs.models import PQR,Type
 from pqrs.forms import SearchPersonForm, PersonForm, PqrRadicateForm
 from core.utils_db import process_email,get_system_parameter
@@ -178,3 +178,23 @@ class PersonUpdateView(UpdateView):
 
 def select(requests):
     return render(requests, 'pqrs/select.html', {})
+
+
+def show_poll(request, pk):
+    
+    try:
+        poll = Poll.objects.get(id=pk)
+    except:
+        messages.error(request, "Poll does not exists!")
+        return render(request, 'pqrs/show_poll.html')
+
+    if request.method=='POST':
+        
+        arr = []
+        for elem in request.POST.items():
+            arr.append(elem[1])
+        
+        arr = arr[1:]
+        PollInstance(poll = poll, answers = arr).save()
+        
+    return render(request, 'pqrs/show_poll.html', {'poll': poll})

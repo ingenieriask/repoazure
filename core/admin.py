@@ -1,7 +1,9 @@
 from django.contrib import admin
 from core.models import State, City, Office, Country, PreferencialPopulation, \
     Disability, BooleanSelection, EthnicGroup, ResponseMode, SystemParameter, \
-    AppParameter, ConsecutiveFormat, FilingType
+    AppParameter, ConsecutiveFormat, FilingType, AnswerOption, Question, Poll, \
+    PollInstance
+    
 from core.forms import ConsecutiveFormatForm
 
 class ConsecutiveFormatAdmin(admin.ModelAdmin):
@@ -21,3 +23,7 @@ admin.site.register(SystemParameter)
 admin.site.register(AppParameter)
 admin.site.register(ConsecutiveFormat, ConsecutiveFormatAdmin)
 admin.site.register(FilingType)
+admin.site.register(AnswerOption)
+admin.site.register(Question)
+admin.site.register(Poll)
+admin.site.register(PollInstance)

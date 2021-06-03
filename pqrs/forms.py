@@ -2,7 +2,7 @@ from django import forms
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Submit, Row, Column
 from django.contrib.auth.models import User
-from core.models import City, PreferencialPopulation, Person
+from core.models import City, PreferencialPopulation
 from core.forms import AbstractPersonForm
 from correspondence.models import Radicate, UserProfileInfo, Record
 from pqrs.models import PQR
@@ -67,3 +67,4 @@ class PqrRadicateForm(forms.ModelForm):
             ),
             Submit('submit', 'Radicar')
         )
+        
