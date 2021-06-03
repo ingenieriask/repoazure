@@ -132,25 +132,7 @@ class AbstractPersonForm(forms.ModelForm):
                 css_class="card mb-3",
             ),
         )
-    
-    def save(self, commit=True):
-        instance = forms.ModelForm.save(self, False)
-        old_save_m2m = self.save_m2m
-        def save_m2m():
-            old_save_m2m()
-            instance.person_set.clear()
-            for disability in self.cleaned_data['disabilities']:
-                b = Disability.objects.get(name=disability )
-                print(disability,b)
-                instance.person_set.add(b)
-            for prefe_popu in self.cleaned_data['preferencial_population']:
-                pre_po = Disability.objects.get(name=prefe_popu )
-                print(prefe_popu,pre_po)
-                instance.person_set.add(prefe_popu)
 
-        self.save_m2m = save_m2m
-        instance.save()
-        self.save_m2m()
 
 
 class ConsecutiveFormatForm(forms.ModelForm):
