@@ -2,7 +2,7 @@ from django import forms
 from django.core.exceptions import ValidationError
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Submit, Row, Column, Field, ButtonHolder, Button, Div, HTML
-from core.models import Person
+from core.models import Person,Disability,PreferencialPopulation
 from crispy_forms.layout import Field
 from core.utils import get_field_value
 from core.widgets import ConsecutiveFormatWidget
@@ -15,7 +15,15 @@ class CustomFileInput(Field):
 class AbstractPersonForm(forms.ModelForm):
 
     email_confirmation = forms.CharField(label='Confirmación del correo electrónico', required=True)
-
+    preferencial_population=forms.ModelMultipleChoiceField(
+        queryset=PreferencialPopulation.objects.all(),
+        widget=forms.CheckboxSelectMultiple(),
+        label='Población Preferencial (Selección Múltiple)')
+    disabilities= forms.ModelMultipleChoiceField(
+        queryset=Disability.objects.all(),
+        widget=forms.CheckboxSelectMultiple(),
+        label='Población en situación de discapacidad (Selección Múltiple)')
+    
     def clean_email_confirmation(self):
         cd = self.cleaned_data
         if (get_field_value(cd, 'email_confirmation') != get_field_value(cd, 'email')):
@@ -48,21 +56,17 @@ class AbstractPersonForm(forms.ModelForm):
                   'person_type': 'Tipo persona',
                   'city': 'Ciudad / Municipio', 'address': 'Dirección de contacto',
                   'parent': 'Entidad',
-                  'preferencial_population': 'Población Preferencial (Selección Múltiple)',
                   'conflict_victim': 'Población víctima del conflicto armado',
-                  'disabilities': 'Población en situación de discapacidad (Selección Múltiple)',
                   'ethnic_group': 'Grupo Étnico'}
-
+        
         widgets = {
             'document_type': forms.Select(attrs={'class': 'selectpicker'}),
             'request_response': forms.Select(attrs={'class': 'selectpicker'}),
             'person_type': forms.Select(attrs={'class': 'selectpicker'}),
-            'expedition_date': forms.DateInput(format='%Y-%m-%d',attrs={ 'placeholder': 'digite la fecha'}),
+            'expedition_date': forms.DateInput(format='%Y-%m-%d',attrs={ 'placeholder': 'digite la fecha','type': 'date'} ),
             'city': forms.Select(attrs={'class': 'selectpicker', 'data-live-search': 'true', 'data-size': '7'}),
             'parent': forms.Select(attrs={'class': 'selectpicker', 'data-live-search': 'true', 'data-size': '7'}),
-            'preferencial_population': forms.CheckboxSelectMultiple(),
             'conflict_victim': forms.Select(attrs={'class': 'selectpicker', 'data-size': '7'}),
-            'disabilities': forms.CheckboxSelectMultiple(),
             'ethnic_group': forms.Select(attrs={'class': 'selectpicker', 'data-live-search': 'true', 'data-size': '7'}),
         }
 
@@ -124,9 +128,12 @@ class AbstractPersonForm(forms.ModelForm):
                     ),
                     css_class='card-body'
                 ),
+                
                 css_class="card mb-3",
-            )
+            ),
         )
+
+
 
 class ConsecutiveFormatForm(forms.ModelForm):
     '''Custom format for admin page'''

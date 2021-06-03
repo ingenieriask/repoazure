@@ -1,6 +1,6 @@
 from django import forms
 from crispy_forms.helper import FormHelper
-from crispy_forms.layout import Layout, Submit, Row, Column
+from crispy_forms.layout import Layout, Submit, Row, Column, ButtonHolder, Button, Div, HTML
 from django.contrib.auth.models import User
 from core.models import City, PreferencialPopulation, Person
 from core.forms import AbstractPersonForm
@@ -9,7 +9,6 @@ from pqrs.models import PQR
 from core.forms import CustomFileInput
 from pinax.eventlog.models import log, Log
 from django.urls import reverse
-from crispy_forms.layout import Field, ButtonHolder, Button, Div, HTML
 from django.core.exceptions import ValidationError
 from django.utils.translation import gettext_lazy as _
 
@@ -18,7 +17,16 @@ from captcha.fields import CaptchaField
 class PersonForm(AbstractPersonForm):
     def __init__(self, *args, **kwargs):
         super(PersonForm, self).__init__(*args, **kwargs)
-        self.helper.layout.extend([Submit('submit', 'Siguiente')])
+        self.helper.layout.extend([
+            Div(
+                Submit('submit','Readicar PQRS',
+                css_class="btn btn-primary mx-auto",
+                onclick="javascript: form.action='/pqrs/create-person/';"
+                ),Button('submit','Agregar Siguiente',
+                css_class="btn btn-primary mx-auto",
+                onclick="requestSender()"
+                ),css_class="d-flex"),
+                ])
         # print(kwargs['instance'], self.Meta.model.uuid)
         # self.Meta.model.uuid = kwargs['uuid']
         # self.Meta.model.reverse_url = 'correspondence:detail_person'
