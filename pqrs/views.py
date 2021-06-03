@@ -2,11 +2,10 @@ from django.shortcuts import render, redirect
 from django.views.generic import View
 
 from correspondence.models import ReceptionMode, RadicateTypes, Radicate
-from core.models import Person, Office, Poll
+from core.models import Person, Office, Poll, PollInstance
 from pqrs.models import PQR,Type
-from pqrs.forms import SearchPersonForm, PersonForm, PqrRadicateForm, PollInstanceForm
+from pqrs.forms import SearchPersonForm, PersonForm, PqrRadicateForm
 from core.utils_db import process_email,get_system_parameter
-from core.forms import PollForm
 from django.http import HttpResponseRedirect, HttpResponse, JsonResponse
 from django.shortcuts import get_list_or_404, get_object_or_404, render
 from django.urls import reverse
@@ -184,14 +183,14 @@ def select(requests):
 def show_poll(request, pk):
     
     poll = Poll.objects.get(id=pk)
-    
-    if request.method == 'GET':
 
-        return render(request, 'pqrs/show_poll.html', {'poll': poll})
-    
-    elif request.method=='POST':
-        answers = PollInstanceForm(poll, request.POST)
-        if answers.is_valid:
-            print(answers)
-    
-    return render(request, 'pqrs/show_poll.html')
+    if request.method=='POST':
+        
+        arr = []
+        for elem in request.POST.items():
+            arr.append(elem[1])
+        
+        arr = arr[1:]
+        PollInstance(poll = poll, answers = arr).save()
+        
+    return render(request, 'pqrs/show_poll.html', {'poll': poll})

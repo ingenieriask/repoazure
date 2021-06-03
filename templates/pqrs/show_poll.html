@@ -9,13 +9,13 @@
                 {% csrf_token %}
                 {% for question in poll.questions.all %}
                 <div class="row">
-                    <div class="col">
+                    <div class="col mt-4">
                         <p>{{ question.description }}</p>
                     </div>
                 </div>
                 <div class="row">
                     <div class="col">
-                        <select class="custom-select">
+                        <select class="custom-select" name={{question.description}}>
                             {% for answer in question.answer_options.all %}
                             <option value={{answer.number}}>{{ answer.description }}</option>
                             {% endfor %}

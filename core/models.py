@@ -244,6 +244,6 @@ class Poll(models.Model):
 
 # Specific instance of a poll model, has one poll to extend from the generic poll model
 class PollInstance(models.Model):
-    poll = models.OneToOneField(Poll, on_delete=models.CASCADE)
+    poll = models.ForeignKey(Poll, on_delete=models.CASCADE)
     answers = ArrayField(models.PositiveIntegerField())
     
