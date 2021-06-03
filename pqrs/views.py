@@ -1,8 +1,10 @@
 from django.shortcuts import render
 from django.views.generic import View
 
+from rest_framework import status
+from rest_framework.response import Response 
 from correspondence.models import ReceptionMode, RadicateTypes, Radicate
-from core.models import Person, Office
+from core.models import Person, Office,DocumentTypes
 from pqrs.models import PQR,Type
 from pqrs.forms import SearchPersonForm, PersonForm, PqrRadicateForm
 from core.utils_db import process_email,get_system_parameter
@@ -33,7 +35,6 @@ import xlsxwriter
 import re
 import redis
 from requests.auth import HTTPBasicAuth
-
 
 logger = logging.getLogger(__name__)
 
@@ -143,6 +144,20 @@ def PQRSType(request):
     pqrs_types = Type.objects.all()
     return render(request, 'pqrs/pqrs_type.html', context={'types': pqrs_types})
 
+
+def multi_create_request(request):
+    if request.method == 'POST':
+        data = request.POST
+        form = PersonForm(data)
+        if form.is_valid():
+            form.save()
+            document_type = DocumentTypes.objects.filter(pk = data['document_type'])
+            return HttpResponse(json.dumps({'data':data,'success':True,'document_type_abbr':str(document_type[0].abbr)}),status=status.HTTP_200_OK)
+        else:
+            data = "Usuario ya creado"
+            return HttpResponse(
+                json.dumps({'data':data,'success':False}),status=status.HTTP_200_OK
+            )
 class PqrDetailView(DetailView):
     model = Radicate
     template_name = 'pqrs/pqr_detail.html'
