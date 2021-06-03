@@ -1,0 +1,18 @@
+{% extends 'pqrs/template.html' %}
+{% block content %}
+    <div class="container content-align-center">
+        <div class="row">
+            {{poll_form}}
+            {% for question in poll_form.questions.all %}
+                <div>
+                    <p>{{ question.description }}</p>
+                    {{ for answer in question.answer_options.all }}
+                        <p>{{answer.number}}</p>
+                    {{end for}}
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+   
+
+{% endblock %}

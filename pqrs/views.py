@@ -2,10 +2,11 @@ from django.shortcuts import render
 from django.views.generic import View
 
 from correspondence.models import ReceptionMode, RadicateTypes, Radicate
-from core.models import Person, Office
+from core.models import Person, Office, Poll
 from pqrs.models import PQR,Type
 from pqrs.forms import SearchPersonForm, PersonForm, PqrRadicateForm
 from core.utils_db import process_email,get_system_parameter
+from core.forms import PollForm
 from django.http import HttpResponseRedirect, HttpResponse, JsonResponse
 from django.shortcuts import get_list_or_404, get_object_or_404, render
 from django.urls import reverse
@@ -178,3 +179,15 @@ class PersonUpdateView(UpdateView):
 
 def select(requests):
     return render(requests, 'pqrs/select.html', {})
+
+
+def show_poll(request, pk):
+    
+    if request.method == 'GET':
+        
+        obj = Poll.objects.get(id=pk)
+        for a in obj.questions.all():
+            for b in a.answer_options.all():
+                print(a.description)
+        return render(request, 'pqrs/show_poll.html', {'poll_form': obj})
+    

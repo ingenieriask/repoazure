@@ -2,7 +2,7 @@ from django import forms
 from django.core.exceptions import ValidationError
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Submit, Row, Column, Field, ButtonHolder, Button, Div, HTML
-from core.models import Person
+from core.models import Person, Poll
 from crispy_forms.layout import Field
 from core.utils import get_field_value
 from core.widgets import ConsecutiveFormatWidget
@@ -159,3 +159,10 @@ class ConsecutiveFormatForm(forms.ModelForm):
         widgets = {
             'format': ConsecutiveFormatWidget()
         }
+
+class PollForm(forms.ModelForm):
+    
+    class Meta:
+        model = Poll
+        fields = '__all__'
+        

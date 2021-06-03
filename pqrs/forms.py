@@ -2,7 +2,7 @@ from django import forms
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Submit, Row, Column
 from django.contrib.auth.models import User
-from core.models import City, PreferencialPopulation, Person
+from core.models import City, PreferencialPopulation, Person, Poll
 from core.forms import AbstractPersonForm
 from correspondence.models import Radicate, UserProfileInfo, Record
 from pqrs.models import PQR
@@ -66,4 +66,22 @@ class PqrRadicateForm(forms.ModelForm):
                 css_class='form-row'
             ),
             Submit('submit', 'Radicar')
+        )
+        
+        
+class PollForm(forms.ModelForm):
+    
+    class Meta:
+        model = Poll
+        exclude = ['type_poll']
+        
+    def __init__(self, *args, **kwargs):
+        super(PollForm, self).__init__(*args, **kwargs)
+        self.helper = FormHelper(self)
+        self.helper.layout = Layout(
+            Row(
+                Column('questions', css_class='form-group col-md-12 mb-0'),
+                css_class='form_row'
+            ),
+            Submit('submit', 'Submit')
         )
