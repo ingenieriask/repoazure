@@ -22,54 +22,54 @@
 {% if list %}
 <div class="card mb-4">
   <div class="card-header">Resultado</div>
-  <div class="card-body d-flex">
-    {% for person in list%}
-    <div class="card border-primary mb-3 ml-3" style="max-width: 18rem">
-      <h5 class="card-header text-primary">
-        Resultado {{forloop.counter}}
-        <a
-          title="Enviar correo"
-          data-toggle="tooltip"
-          href="{% url 'pqrs:send_email_person' pk=person.pk %}"
-          class="btn btn-datatable btn-icon btn-transparent-dark"
-        >
-          <i style="height: 1.5rem; width: 1.5rem" data-feather="mail"></i>
-        </a>
-      </h5>
-      <div class="card-body border-primary">
-        <p class="card-text">Nombre: {{ person.get_anonymized_name }}</p>
-        <p class="card-text">Email: {{ person.get_anonymized_email }}</p>
-        <p class="card-text">Address: {{person.get_anonymized_address }}</p>
+  <div class="card-body">
+    <div class="row">
+      {% for person in list%}
+      <div class="col-md-4">
+        <div class="card border-primary mb-3">
+          <h5 class="card-header text-primary">
+            Resultado {{forloop.counter}}
+            <a
+              title="Enviar correo"
+              data-toggle="tooltip"
+              href="{% url 'pqrs:send_email_person' pk=person.pk %}"
+              class="btn btn-datatable btn-icon btn-transparent-dark"
+            >
+              <i style="height: 1.5rem; width: 1.5rem" data-feather="mail"></i>
+            </a>
+          </h5>
+          <div class="card-body border-primary">
+            <p class="card-text">Nombre: {{ person.get_anonymized_name }}</p>
+            <p class="card-text">Email: {{ person.get_anonymized_email }}</p>
+            <p class="card-text">Address: {{person.get_anonymized_address }}</p>
+          </div>
+        </div>
       </div>
+      {% endfor %}
     </div>
-    {% endfor %}
   </div>
 </div>
 {% else %} {% if person_form %}
 <div class="card mb-4">
   <div class="card-header">Persona</div>
   <div class="card-body">
-    <form method="post" id='sender_create_form'>{% crispy person_form %} {% csrf_token %}</form>
+    <form method="post" id="sender_create_form">{% crispy person_form %} {% csrf_token %}</form>
   </div>
 </div>
 <div class="card mb-4" id="form_container" hidden>
   <div class="card-header">Persona</div>
-  <div class="card-body" >
-        <table class="table table-hover">
-        <thead>
-          <tr>
-            <th class='text-center' scope="col">Nombre y apellido</th>
-            <th class='text-center' scope="col">Tipo y Numero de Documento</th>
-            <th class='text-center' scope="col">Acci&oacute;n</th>
-          </tr>
-        </thead>
-        <tbody id='tb_request_sender'>
-        </tbody>
-      </table>
-
+  <div class="card-body">
+    <table class="table table-hover">
+      <thead>
+        <tr>
+          <th class="text-center" scope="col">Nombre y apellido</th>
+          <th class="text-center" scope="col">Tipo y Numero de Documento</th>
+          <th class="text-center" scope="col">Acci&oacute;n</th>
+        </tr>
+      </thead>
+      <tbody id="tb_request_sender"></tbody>
+    </table>
   </div>
 </div>
 
-  {% endif %} {% endif %} {% endblock %}
-  </div>
-</div>
+{% endif %} {% endif %} {% endblock %}
