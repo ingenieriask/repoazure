@@ -47,5 +47,12 @@
     "fields": {
       "name": "Personal de la fuerza publica"
     }
+  },
+  {
+    "model": "core.preferencialpopulation",
+    "pk": 8,
+    "fields": {
+      "name": "Ninguna"
+    }
   }
 ]
