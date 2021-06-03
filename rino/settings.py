@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/3.0/ref/settings/
 
 import os
 import environ
+import json
 
 from django.contrib.messages import constants as messages
 
@@ -191,6 +192,10 @@ MEDIA_LOCATION = "media"
 
 AZURE_ACCOUNT_NAME = "storagerino"
 CORS_ORIGIN_ALLOW_ALL = True
+
+SESSION_ENGINE = 'redis_sessions.session'
+
+SESSION_REDIS = json.loads(env.str('RINO_SESSION_REDIS'))
 
 CORS_ORIGIN_WHITELIST = (
   'http://localhost:8000',
