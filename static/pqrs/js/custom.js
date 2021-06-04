@@ -23,7 +23,6 @@ function requestSender() {
   }
 }
 function createCellsTable(data, sender_data) {
-  console.log(data);
   $("#form_container").prop("hidden", false);
   var trContainer = document.createElement("tr");
   var tdName = document.createElement("td");
