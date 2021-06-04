@@ -8,7 +8,7 @@ import requests
 import json
 
 from core.models import AppParameter, ConsecutiveFormat, Consecutive, Country, FilingType, \
-    Holidays
+    Holiday
 
 logger = logging.getLogger(__name__)
 
@@ -133,7 +133,7 @@ class CalendarService(object):
 
         country_code = country_code.upper()
 
-        holidays = Holidays.objects.filter(
+        holidays = Holiday.objects.filter(
             date__year= year,
             country__code=country_code,
         )
@@ -146,7 +146,7 @@ class CalendarService(object):
             if r.ok:
                 json_response = json.loads(r.text)
                 country = Country.objects.get(code=country_code)
-                holidays = Holidays.objects.bulk_create([Holidays(**{
+                holidays = Holiday.objects.bulk_create([Holiday(**{
                         'date': h['date'],
                         'country': country,
                         'local_name': 'localName'

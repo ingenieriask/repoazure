@@ -227,7 +227,7 @@ class NonWorkingDay(models.Model):
     date = models.DateField(default=timezone.now, null=False, blank=False) 
     type = models.ForeignKey(NonWorkingDayType, on_delete=models.PROTECT, null=True, blank=True)
 
-class Holidays(models.Model):
+class Holiday(models.Model):
     date = models.DateField(default=timezone.now, null=False, blank=False) 
     country = models.ForeignKey(Country, on_delete=models.PROTECT, null=True, blank=True)
     local_name = models.CharField(max_length=256)

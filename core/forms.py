@@ -129,7 +129,7 @@ class AbstractPersonForm(forms.ModelForm):
         )
 
 class ConsecutiveFormatForm(forms.ModelForm):
-    '''Custom format for admin page'''
+    '''Custom consecutive number configuration form for admin page'''
 
     digits_range = (2, 12)
 
@@ -151,6 +151,22 @@ class ConsecutiveFormatForm(forms.ModelForm):
         self.cleaned_data['format'] = RecordCodeService.compile(
                                             self.data['format'], 
                                             self.data['digits'])
+        return cleaned_data
+
+    class Meta:
+        fields = ('format', 'effective_date')
+
+        widgets = {
+            'format': ConsecutiveFormatWidget()
+        }
+
+class NonWorkingDayFormatForm(forms.ModelForm):
+    '''Custom non-working days configuration form for admin page'''
+
+    def clean(self, *args, **kwargs):
+        cleaned_data = super(ConsecutiveFormatForm, self).clean()
+
+        # TODO
         return cleaned_data
 
     class Meta:
