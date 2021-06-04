@@ -32,7 +32,7 @@ SECRET_KEY = env.str('RINO_SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['192.168.1.103', 'localhost', '192.168.1.108', 'djrino.azurewebsites.net', 'rino.skillnet.com.co', 'rino.skillnet.co']
+ALLOWED_HOSTS = ['192.168.1.103', 'localhost', '192.168.1.108', 'djrino.azurewebsites.net', 'rino.skillnet.com.co', 'rino.skillnet.co', '127.0.0.1']
 
 # Application definition
 
@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'polls',
     'crispy_forms',
     'core',
     'correspondence',

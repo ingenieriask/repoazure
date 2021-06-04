@@ -1,13 +1,14 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import redirect, render
+from django.urls.base import reverse_lazy
 from django.views.generic import View
+from django.template.loader import render_to_string
 
 from rest_framework import status
 from rest_framework.response import Response 
 from correspondence.models import ReceptionMode, RadicateTypes, Radicate
-from core.models import Person, Office, Poll, PollInstance
-from core.models import Person, Office, DocumentTypes, Poll, PollInstance
+from core.models import Person, Office, DocumentTypes, Poll, PollInstance,PersonRequest
 from pqrs.models import PQR,Type
-from pqrs.forms import SearchPersonForm, PersonForm, PqrRadicateForm
+from pqrs.forms import SearchPersonForm, PersonForm, PqrRadicateForm,PersonRequestForm
 from core.utils_db import process_email,get_system_parameter
 from django.http import HttpResponseRedirect, HttpResponse, JsonResponse
 from django.shortcuts import get_list_or_404, get_object_or_404, render
@@ -140,25 +141,27 @@ def create_pqr(request, person):
 
     return render(request, 'pqrs/create_pqr.html', context={'form': form, 'person': person})
 
-
 def PQRSType(request):
     pqrs_types = Type.objects.all()
     return render(request, 'pqrs/pqrs_type.html', context={'types': pqrs_types})
 
 
-def multi_create_request(request):
-    if request.method == 'POST':
-        data = request.POST
-        form = PersonForm(data)
-        if form.is_valid():
-            form.save()
-            document_type = DocumentTypes.objects.filter(pk = data['document_type'])
-            return HttpResponse(json.dumps({'success':True,'document_type_abbr':str(document_type[0].abbr)}),status=status.HTTP_200_OK)
+def multi_create_request(request,person,*args, **kwargs):
+    person = get_object_or_404(Person, id=person)
+    if request.method == 'GET':
+        document_type = DocumentTypes.objects.filter(name =person.document_type)[0].abbr
+        if 'arguments' in kwargs:
+            argumentss = kwargs['arguments']
+            other_people = str(argumentss).split('&')
+            objects_person_request = [ PersonRequest.objects.filter(document_number=str(i))[0] for i in other_people]     
+            context ={'document_type_abbr':document_type , 'person':person,'args':argumentss,'other_people':objects_person_request}
         else:
-            data = "Usuario ya creado"
-            return HttpResponse(
-                json.dumps({'data':data,'success':False}),status=status.HTTP_200_OK
-            )
+            context ={'document_type_abbr':document_type , 'person':person,}
+    else:
+        context=None
+    return render(request,'pqrs/multi_request_table.html',{'context':context})
+
+
 class PqrDetailView(DetailView):
     model = Radicate
     template_name = 'pqrs/pqr_detail.html'
@@ -175,6 +178,26 @@ class PersonCreateView(CreateView):
     form_class = PersonForm
     template_name = 'pqrs/person_form.html'
 
+class PersonRequestCreateView(CreateView):
+    model = PersonRequest
+    form_class = PersonRequestForm
+    template_name = 'pqrs/person_form.html'
+
+    def form_valid(self, form):
+        self.object = form.save(commit=False)
+        self.object.save()
+        if 'arguments' in self.kwargs :
+            extra_people = str(self.kwargs['arguments'])+'&'+form.cleaned_data['document_number'] 
+        else:
+            extra_people = form.cleaned_data['document_number']
+        
+        return redirect('/pqrs/multi-request/'+str(self.kwargs['person'])+'/'+extra_people+'/')  
+
+    def get_form_kwargs(self):
+        kwargs = super( PersonRequestCreateView, self).get_form_kwargs()
+        # update the kwargs for the form init method with yours
+        kwargs.update(self.kwargs)  # self.kwargs contains all url conf params
+        return kwargs
 
 class PersonDetailView(DetailView):
     model = Person

@@ -2,7 +2,7 @@ from django import forms
 from django.core.exceptions import ValidationError
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Submit, Row, Column, Field, ButtonHolder, Button, Div, HTML
-from core.models import Person,Disability,PreferencialPopulation
+from core.models import Person,Disability,PreferencialPopulation,Disability, PersonRequest,PreferencialPopulation
 from crispy_forms.layout import Field
 from core.utils import get_field_value
 from core.widgets import ConsecutiveFormatWidget
@@ -133,7 +133,72 @@ class AbstractPersonForm(forms.ModelForm):
             ),
         )
 
+class AbstractPersonRequestForm(forms.ModelForm):
+    class Meta:
+        model = PersonRequest
 
+        fields = ['document_type', 'document_number','phone_number',
+                 'expedition_date','person_type', 'name',
+                  'lasts_name', 'email', 'city', 'address',]
+        labels = {'document_type': 'Tipo de documento',
+                  'document_number': 'Número de documento',
+                  'expedition_date': 'Fecha de expedición',
+                  'name': 'Nombres',
+                   'phone_number': 'Telefóno/Célular',
+                  'lasts_name': 'Apellidos', 
+                   'email': 'Correo electrónico',
+                  'person_type': 'Tipo persona',
+                  'city': 'Ciudad / Municipio', 'address': 'Dirección de contacto',}
+        
+        widgets = {
+            'document_type': forms.Select(attrs={'class': 'selectpicker'}),
+            'person_type': forms.Select(attrs={'class': 'selectpicker'}),
+            'expedition_date': forms.DateInput(format='%Y-%m-%d',attrs={ 'placeholder': 'digite la fecha','type': 'date'} ),
+            'city': forms.Select(attrs={'class': 'selectpicker', 'data-live-search': 'true', 'data-size': '7'}),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super(AbstractPersonRequestForm, self).__init__(*args, **kwargs)
+        self.helper = FormHelper(self)
+        self.helper.layout = Layout(
+            Div(
+                Div(HTML('Información General'),
+                    css_class='card-header'),
+                Div(
+                    
+                    Row(
+                        Column('name', css_class='form-group col-md-6 mb-0'),
+                        Column('lasts_name', css_class='form-group col-md-6 mb-0'),
+                        css_class='form-row'
+                    ),
+                    Row(
+                        Column('document_type', css_class='form-group col-md-4 mb-0'),
+                        Column('document_number', css_class='form-group col-md-4 mb-0'),
+                        Column('expedition_date', css_class='form-group col-md-4 mb-0'),
+                        css_class='form-row'
+                    ),
+                    Row( Column('person_type', css_class='form-group col-md-4 mb-0'),)
+                    ,css_class='card-body'
+                ), css_class="card mb-3",
+            ),
+            Div(
+                Div(HTML('Información de contacto'),
+                    css_class='card-header'),
+                Div(
+                    Row(
+                        Column('email', css_class='form-group col-md-6 mb-0'),
+                        Column('address', css_class='form-group col-md-6 mb-0'),
+                        css_class='form-row'
+                    ),
+                    Row(
+                        Column('city', css_class='form-group col-md-6 mb-0'),
+                        Column('phone_number', css_class='form-group col-md-6 mb-0'),
+
+                        css_class='form-row'
+                    ),css_class='card-body'
+                ), css_class="card mb-3",
+            ),
+        )
 
 class ConsecutiveFormatForm(forms.ModelForm):
     '''Custom format for admin page'''
@@ -166,4 +231,3 @@ class ConsecutiveFormatForm(forms.ModelForm):
         widgets = {
             'format': ConsecutiveFormatWidget()
         }
-

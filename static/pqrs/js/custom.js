@@ -1,30 +1,12 @@
 function requestSender() {
-  var sender_data = $("#sender_create_form").serializeObject();
-  if (sender_data["person_type"] != "1") {
-    $("#alertMessageContainer").show();
-    $("#alertMessageContent").html("Como persona Juridica solo se puede agregar una sola peticion");
-  } else {
-    $.ajax({
-      url: "/pqrs/multi-request/",
-      type: "POST",
-      data: $("#sender_create_form").serializeArray(),
-      dataType: "json",
-      success: function (data) {
-        if (data["success"]) {
-          createCellsTable(data, sender_data);
-          localStorage.setItem(String(sender_data["document_number"]), JSON.stringify(sender_data));
-          $("#sender_create_form").trigger("reset");
-        } else {
-          $("#alertMessageContainer").show();
-          $("#alertMessageContent").html(data["data"]);
-        }
-      },
-    });
-  }
+  $.ajax({
+    url: "/pqrs/multi-request/",
+    type: "POST",
+    data: $("#sender_create_form").serializeArray(),
+    dataType: "json",
+  });
 }
 function createCellsTable(data, sender_data) {
-  console.log(data);
-  $("#form_container").prop("hidden", false);
   var trContainer = document.createElement("tr");
   var tdName = document.createElement("td");
   tdName.innerHTML = sender_data["name"] + " " + sender_data["lasts_name"];
