@@ -15,6 +15,5 @@ urlpatterns = [
     path('select/', views.select, name='select'),
     path('edit-person/<int:pk>/<str:uuid>/', views.PersonUpdateView.as_view(), name='edit_person'),
     path('create-person/', views.PersonCreateView.as_view(), name='create_person'),
-    path('show_poll/<int:pk>/', views.show_poll, name="show_poll"),
     path('multi-request/', views.multi_create_request, name='multi_request')
 ]
