@@ -7,7 +7,8 @@ import re
 import requests
 import json
 
-from core.models import AppParameter, ConsecutiveFormat, Consecutive, FilingType
+from core.models import AppParameter, ConsecutiveFormat, Consecutive, Country, FilingType, \
+    Holidays
 
 logger = logging.getLogger(__name__)
 
@@ -125,21 +126,33 @@ class CalendarService(object):
     # API limitations:
     # 50 requests per day
     holiday_api_endpoint = 'https://date.nager.at/api/v3/publicholidays'
-
-    holidays = {}
     
     @classmethod
     def get_holidays(cls, year, country_code):
+        '''Return the list of holidays for a given year and country'''
 
-        if cls.holidays and f'{country_code}-{year}' in cls.holidays:
-            return cls.holidays[f'{country_code}-{year}']
+        country_code = country_code.upper()
 
+        holidays = Holidays.objects.filter(
+            date__year= year,
+            country__code=country_code,
+        )
+        if holidays.exists():
+            print('from local db')
+            return holidays
+        # Retrieve data from external API if not exist in local database
         try:
             r = requests.get(f'{cls.holiday_api_endpoint}/{year}/{country_code}')
             if r.ok:
                 json_response = json.loads(r.text)
-                cls.holidays[f'{country_code}-{year}'] = json_response
-                return json_response
+                country = Country.objects.get(code=country_code)
+                holidays = Holidays.objects.bulk_create([Holidays(**{
+                        'date': h['date'],
+                        'country': country,
+                        'local_name': 'localName'
+                    }) for h in json_response]
+                )
+                return holidays
 
         except Exception as Err:
             logger.error(Err)

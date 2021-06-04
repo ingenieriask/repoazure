@@ -230,3 +230,4 @@ class NonWorkingDay(models.Model):
 class Holidays(models.Model):
     date = models.DateField(default=timezone.now, null=False, blank=False) 
     country = models.ForeignKey(Country, on_delete=models.PROTECT, null=True, blank=True)
+    local_name = models.CharField(max_length=256)

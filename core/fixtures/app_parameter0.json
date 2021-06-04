@@ -1,0 +1,17 @@
+[
+	{"model": "core.appparameter", "pk": 1, "fields": {"name": "EMAIL_USE_TLS", "value": "True"}}, 
+	{"model": "core.appparameter", "pk": 2, "fields": {"name": "EMAIL_HOST", "value": "smtp.gmail.com"}},
+	{"model": "core.appparameter", "pk": 3, "fields": {"name": "EMAIL_HOST_USER", "value": "javanegasr@gmail.com"}},
+	{"model": "core.appparameter", "pk": 4, "fields": {"name": "EMAIL_HOST_PASSWORD", "value": "jibjtvgtpuytvjfm"}},
+	{"model": "core.appparameter", "pk": 5, "fields": {"name": "EMAIL_PORT", "value": "587"}},
+	{"model": "core.appparameter", "pk": 6, "fields": {"name": "EMAIL_BACKEND", "value": "djcelery_email.backends.CeleryEmailBackend"}},
+	{"model": "core.appparameter", "pk": 7, "fields": {"name": "ECM_USER", "value": "admin"}},
+	{"model": "core.appparameter", "pk": 8, "fields": {"name": "ECM_PASSWORD", "value": "admin"}},
+	{"model": "core.appparameter", "pk": 9, "fields": {"name": "ECM_SEARCH_URL", "value": "http://localhost:8080/alfresco/api/-default-/public/search/versions/1/search"}},
+	{"model": "core.appparameter", "pk": 10, "fields": {"name": "ECM_UPLOAD_URL", "value": "http://localhost:8080/alfresco/api/-default-/public/alfresco/versions/1/nodes/9377e00d-3b91-4cc3-846a-8b1ad9c0e4fd/children"}},
+	{"model": "core.appparameter", "pk": 11, "fields": {"name": "ECM_RECORD_URL", "value": "http://localhost:8080/alfresco/api/-default-/public/alfresco/versions/1/nodes/1460c8cd-1e62-44f9-bea8-a138b6ca4957/children?autoRename=false"}},
+	{"model": "core.appparameter", "pk": 12, "fields": {"name": "ECM_RECORD_ASSIGN_URL", "value": "http://localhost:8080/alfresco/api/-default-/public/alfresco/versions/1/nodes/"}},
+	{"model": "core.appparameter", "pk": 13, "fields": {"name": "ECM_RECORD_UPDATE_URL", "value": "http://localhost:8080/alfresco/api/-default-/public/alfresco/versions/1/nodes/"}},
+	{"model": "core.appparameter", "pk": 14, "fields": {"name": "ECM_REQUEST_RENDITIONS", "value": "http://localhost:8080/alfresco/api/-default-/public/alfresco/versions/1/nodes/{nodeId}/renditions"}},
+	{"model": "core.appparameter", "pk": 15, "fields": {"name": "ECM_PREVIEW_URL", "value": "http://localhost:8080/alfresco/api/-default-/public/alfresco/versions/1/nodes/{nodeId}/renditions/imgpreview/content?attachment=false&placeholder=true"}}
+]
