@@ -7,7 +7,7 @@
         <div class="card-body">
             <form method="POST">
                 {% csrf_token %}
-                {% for question in poll.questions.all %}
+                {% for question in poll_questions %}
                 <div class="row">
                     <div class="col mt-4">
                         <p>{{ question.description }}</p>
@@ -15,7 +15,7 @@
                 </div>
                 <div class="row">
                     <div class="col">
-                        <select class="custom-select" name={{question.description}}>
+                        <select class="custom-select" name="{{question.number}}">
                             {% for answer in question.answer_options.all %}
                             <option value={{answer.number}}>{{ answer.description }}</option>
                             {% endfor %}

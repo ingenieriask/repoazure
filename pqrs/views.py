@@ -206,11 +206,16 @@ def show_poll(request, pk):
 
     if request.method=='POST':
         
-        arr = []
-        for elem in request.POST.items():
-            arr.append(elem[1])
+        answers_list = []
+        answers = list(request.POST.items())[1:]
+        answers.sort()
+        for answer in answers:
+            answers_list.append(answer[1])
+            
+        PollInstance(poll = poll, answers = answers_list).save()
         
-        arr = arr[1:]
-        PollInstance(poll = poll, answers = arr).save()
+        return HttpResponseRedirect(reverse('pqrs:show_poll', args=(pk,)))
         
-    return render(request, 'pqrs/show_poll.html', {'poll': poll})
+    poll_questions = poll.questions.order_by('number')
+    
+    return render(request, 'pqrs/show_poll.html', {'poll_questions': poll_questions})
