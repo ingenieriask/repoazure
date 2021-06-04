@@ -4,8 +4,8 @@ from django.views.generic import View
 from rest_framework import status
 from rest_framework.response import Response 
 from correspondence.models import ReceptionMode, RadicateTypes, Radicate
-from core.models import Person, Office, Poll, PollInstance
-from core.models import Person, Office, DocumentTypes, Poll, PollInstance
+from core.models import Person, Office
+from core.models import Person, Office, DocumentTypes
 from pqrs.models import PQR,Type
 from pqrs.forms import SearchPersonForm, PersonForm, PqrRadicateForm
 from core.utils_db import process_email,get_system_parameter
@@ -196,26 +196,3 @@ def select(requests):
     return render(requests, 'pqrs/select.html', {})
 
 
-def show_poll(request, pk):
-    
-    try:
-        poll = Poll.objects.get(id=pk)
-    except:
-        messages.error(request, "Poll does not exists!")
-        return render(request, 'pqrs/show_poll.html')
-
-    if request.method=='POST':
-        
-        answers_list = []
-        answers = list(request.POST.items())[1:]
-        answers.sort()
-        for answer in answers:
-            answers_list.append(answer[1])
-            
-        PollInstance(poll = poll, answers = answers_list).save()
-        
-        return HttpResponseRedirect(reverse('pqrs:show_poll', args=(pk,)))
-        
-    poll_questions = poll.questions.order_by('number')
-    
-    return render(request, 'pqrs/show_poll.html', {'poll_questions': poll_questions})
