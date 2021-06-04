@@ -7,6 +7,8 @@ from rest_framework import status
 from rest_framework.response import Response 
 from correspondence.models import ReceptionMode, RadicateTypes, Radicate
 from core.models import Person, Office, Poll, PollInstance,PersonRequest
+from core.models import Person, Office
+from core.models import Person, Office, DocumentTypes
 from pqrs.models import PQR,Type
 from pqrs.forms import SearchPersonForm, PersonForm, PqrRadicateForm,PersonRequestForm
 from core.utils_db import process_email,get_system_parameter
