@@ -157,8 +157,9 @@ def multi_create_request(request):
         else:
             data = "Usuario ya creado"
             return HttpResponse(
-                json.dumps({'data':data,'success':False}),status=status.HTTP_200_OK
+                json.dumps({'form':str(form),'data':data,'success':False}),status=status.HTTP_200_OK
             )
+
 class PqrDetailView(DetailView):
     model = Radicate
     template_name = 'pqrs/pqr_detail.html'
