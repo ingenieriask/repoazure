@@ -5,7 +5,7 @@
     <a type="button" href="{% url 'pqrs:create_person_request'  arguments=context.args %}" class="btn btn-primary mb-2"
       >Agregar Solicitante</a
     >
-    <table class="table table-hover">
+    <table class="table table-hover" id="tb_request_sender">
       <thead>
         <tr>
           <th scope="col">Nombre y apellido</th>
@@ -13,7 +13,7 @@
           <th scope="col">Acci&oacute;n</th>
         </tr>
       </thead>
-      <tbody id="tb_request_sender">
+      <tbody>
         {% if context %}
         <tr>
           <td>{{context.person.name}} {{context.person.lasts_name}}</td>
