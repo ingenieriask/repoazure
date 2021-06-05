@@ -6,42 +6,8 @@ function requestSender() {
     dataType: "json",
   });
 }
-function createCellsTable(data, sender_data) {
-  var trContainer = document.createElement("tr");
-  var tdName = document.createElement("td");
-  tdName.innerHTML = sender_data["name"] + " " + sender_data["lasts_name"];
-  var tdDcoument = document.createElement("td");
-  tdDcoument.innerHTML = data["document_type_abbr"] + " " + sender_data["document_number"];
-  var tdAccion = document.createElement("td");
-  var modButton = document.createElement("button");
-  modButton.innerHTML = "Modificar";
-  modButton.setAttribute("class", "btn btn-success mx-auto");
-  modButton.setAttribute("onclick", "modifyRequest('" + sender_data["document_number"] + "')");
-  var delButton = document.createElement("button");
-  delButton.innerHTML = "Eliminar";
-  delButton.setAttribute("class", "btn btn-danger mx-auto");
-  delButton.setAttribute("onclick", "deleteRequest('" + sender_data["document_number"] + "',this)");
-  tdAccion.appendChild(modButton);
-  tdAccion.appendChild(delButton);
-  trContainer.appendChild(tdName);
-  trContainer.appendChild(tdDcoument);
-  trContainer.appendChild(tdAccion);
-  document.getElementById("tb_request_sender").appendChild(trContainer);
-}
-function modifyRequest(id) {
-  var retrievedObject = JSON.parse(window.localStorage.getItem(id));
-  $('input[name="name"]').val(retrievedObject["name"]);
-  $('input[name="lasts_name"]').val(retrievedObject["lasts_name"]);
-  $('input[name="document_number"]').val(retrievedObject["document_number"]);
-  $('input[name="email"]').val(retrievedObject["email"]);
-  $('input[name="email_confirmation"]').val(retrievedObject["email_confirmation"]);
-  $('input[name="phone_number"]').val(retrievedObject["phone_number"]);
-  $('input[name="address"]').val(retrievedObject["address"]);
-  $('input[name="expedition_date"]').val(retrievedObject["expedition_date"]);
-  console.log(retrievedObject);
-}
-
-function deleteRequest(id, objeto) {
-  $(objeto).parent().parent().remove();
-  localStorage.removeItem(id);
-}
+$(document).ready(function () {
+  if ($("#tb_request_sender")) {
+    $("#tb_request_sender").DataTable();
+  }
+});

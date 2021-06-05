@@ -8,7 +8,7 @@ from rest_framework.response import Response
 from correspondence.models import ReceptionMode, RadicateTypes, Radicate
 from core.models import Person, Office, DocumentTypes, Poll, PollInstance,PersonRequest
 from pqrs.models import PQR,Type
-from pqrs.forms import SearchPersonForm, PersonForm, PqrRadicateForm,PersonRequestForm
+from pqrs.forms import SearchPersonForm, PersonForm, PqrRadicateForm,PersonRequestForm,PersonFormUpdate,PersonRequestFormUpdate
 from core.utils_db import process_email,get_system_parameter
 from django.http import HttpResponseRedirect, HttpResponse, JsonResponse
 from django.shortcuts import get_list_or_404, get_object_or_404, render
@@ -146,20 +146,28 @@ def PQRSType(request):
     return render(request, 'pqrs/pqrs_type.html', context={'types': pqrs_types})
 
 
-def multi_create_request(request,person,*args, **kwargs):
-    person = get_object_or_404(Person, id=person)
+def multi_create_request(request,person):
+    personsarray =str(person).split('&')
+    personInstance = get_object_or_404(Person, id=int(personsarray[0]))
     if request.method == 'GET':
-        document_type = DocumentTypes.objects.filter(name =person.document_type)[0].abbr
-        if 'arguments' in kwargs:
-            argumentss = kwargs['arguments']
-            other_people = str(argumentss).split('&')
-            objects_person_request = [ PersonRequest.objects.filter(document_number=str(i))[0] for i in other_people]     
-            context ={'document_type_abbr':document_type , 'person':person,'args':argumentss,'other_people':objects_person_request}
+        document_type = DocumentTypes.objects.filter(name =personInstance.document_type)[0].abbr
+        argsReturn= "".join([str(elem)+'&' for elem in personsarray])[:-1]
+        if len(personsarray)>1:
+            argumentss = personsarray[1:]
+            other_people = argumentss
+            objects_person_request = [ PersonRequest.objects.filter(id=int(i))[0] for i in other_people]     
+            context ={'document_type_abbr':document_type , 'person':personInstance,'args':argsReturn,'other_people':objects_person_request}
         else:
-            context ={'document_type_abbr':document_type , 'person':person,}
+            context ={'document_type_abbr':document_type , 'person':personInstance,'args':argsReturn}
+        return render(request,'pqrs/multi_request_table.html',{'context':context})
+
     else:
-        context=None
-    return render(request,'pqrs/multi_request_table.html',{'context':context})
+        form = SearchPersonForm()
+        qs = None
+        person_form = None
+
+    return render(request, 'pqrs/search_person_form.html', context={'form': form, 'list': qs, 'person_form': person_form})
+    
 
 
 class PqrDetailView(DetailView):
@@ -186,12 +194,8 @@ class PersonRequestCreateView(CreateView):
     def form_valid(self, form):
         self.object = form.save(commit=False)
         self.object.save()
-        if 'arguments' in self.kwargs :
-            extra_people = str(self.kwargs['arguments'])+'&'+form.cleaned_data['document_number'] 
-        else:
-            extra_people = form.cleaned_data['document_number']
-        
-        return redirect('/pqrs/multi-request/'+str(self.kwargs['person'])+'/'+extra_people+'/')  
+        person = str(self.kwargs['arguments'])+'&'+str(self.object.id)
+        return redirect('/pqrs/multi-request/'+str(person)+'/')  
 
     def get_form_kwargs(self):
         kwargs = super( PersonRequestCreateView, self).get_form_kwargs()
@@ -202,6 +206,38 @@ class PersonRequestCreateView(CreateView):
 class PersonDetailView(DetailView):
     model = Person
 
+class PersonUpdateViewNew(UpdateView):
+    model = Person
+    form_class = PersonFormUpdate
+    template_name = 'pqrs/person_form.html'
+    
+    def form_valid(self, form):
+        self.object = form.save(commit=False)
+        self.object.save()
+        return redirect('/pqrs/multi-request/'+str(self.kwargs['arguments'])+'/')  
+
+    def get_form_kwargs(self):
+        kwargs = super( PersonUpdateViewNew, self).get_form_kwargs()
+        # update the kwargs for the form init method with yours
+        kwargs.update(self.kwargs)  # self.kwargs contains all url conf params
+        return kwargs
+
+class PersonUpdateViewNewRequest(UpdateView):
+    model = PersonRequest
+    form_class = PersonRequestFormUpdate
+    template_name = 'pqrs/person_form.html'
+    
+    def form_valid(self, form):
+        self.object = form.save(commit=False)
+        self.object.save()
+        return redirect('/pqrs/multi-request/'+str(self.kwargs['arguments'])+'/')  
+
+    def get_form_kwargs(self):
+        kwargs = super( PersonUpdateViewNewRequest, self).get_form_kwargs()
+        # update the kwargs for the form init method with yours
+        kwargs.update(self.kwargs)  # self.kwargs contains all url conf params
+        return kwargs
+             
 class PersonUpdateView(UpdateView):
     model = Person
     form_class = PersonForm

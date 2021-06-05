@@ -2,6 +2,7 @@ from django import forms
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Submit, Row, Column, ButtonHolder, Button, Div, HTML
 from django.contrib.auth.models import User
+from django.db.models import fields
 from core.models import City, PreferencialPopulation, Person
 from core.forms import AbstractPersonForm,AbstractPersonRequestForm
 from correspondence.models import Radicate, UserProfileInfo, Record
@@ -29,13 +30,28 @@ class PersonForm(AbstractPersonForm):
         # self.Meta.model.reverse_url = 'correspondence:detail_person'
         self.Meta.model.reverse_url = 'pqrs:multi_request'
 
+class PersonFormUpdate(AbstractPersonForm):
+    def __init__(self,pk=None, arguments=None, *args, **kwargs):
+        super(PersonFormUpdate, self).__init__(*args, **kwargs)
+        self.helper.layout.extend([
+            Div(
+                Submit('submit','Siguiente',
+                css_class="btn btn-primary mx-auto",
+                ),css_class="d-flex"),
+                ])
+class PersonRequestFormUpdate(AbstractPersonRequestForm):
+    def __init__(self,pk=None, arguments=None, *args, **kwargs):
+        super(PersonRequestFormUpdate, self).__init__(*args, **kwargs)
+        self.helper.layout.extend([
+            Div(
+                Submit('submit','Siguiente',
+                css_class="btn btn-primary mx-auto",
+                ),css_class="d-flex"),
+                ])
 class PersonRequestForm(AbstractPersonRequestForm):
     def __init__(self,person=None, arguments=None,*args, **kwargs):
         super(PersonRequestForm, self).__init__(*args, **kwargs)
-        if arguments:
-            funonclick = "javascript: form.action='/pqrs/create-person-request/"+str(person)+"/'"+str(arguments)+"/;"
-        else:
-            funonclick = "javascript: form.action='/pqrs/create-person-request/"+str(person)+"/'"
+        funonclick = "javascript: form.action='/pqrs/create-person-request/"+str(arguments)+"/'"
         self.helper.layout.extend([
             Div(
                 Submit('submit','Siguiente',
