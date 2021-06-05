@@ -159,9 +159,15 @@ def multi_create_request(request,person):
             context ={'document_type_abbr':document_type , 'person':personInstance,'args':argsReturn,'other_people':objects_person_request}
         else:
             context ={'document_type_abbr':document_type , 'person':personInstance,'args':str(personInstance.id)}
+        return render(request,'pqrs/multi_request_table.html',{'context':context})
+        
     else:
-        context=None
-    return render(request,'pqrs/multi_request_table.html',{'context':context})
+        form = SearchPersonForm()
+        qs = None
+        person_form = None
+
+    return render(request, 'pqrs/search_person_form.html', context={'form': form, 'list': qs, 'person_form': person_form})
+    
 
 
 class PqrDetailView(DetailView):
