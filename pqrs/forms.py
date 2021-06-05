@@ -49,7 +49,7 @@ class PersonRequestFormUpdate(AbstractPersonRequestForm):
                 ),css_class="d-flex"),
                 ])
 class PersonRequestForm(AbstractPersonRequestForm):
-    def __init__(self, arguments=None,*args, **kwargs):
+    def __init__(self,person=None, arguments=None,*args, **kwargs):
         super(PersonRequestForm, self).__init__(*args, **kwargs)
         funonclick = "javascript: form.action='/pqrs/create-person-request/"+str(arguments)+"/'"
         self.helper.layout.extend([
