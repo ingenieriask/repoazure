@@ -15,9 +15,10 @@ urlpatterns = [
     path('select/', views.select, name='select'),
     #path('edit-person/<int:pk>/<str:uuid>/', views.PersonUpdateView.as_view(), name='edit_person'),
     path('edit-person/<str:arguments>/<int:pk>/', views.PersonUpdateViewNew.as_view(), name='edit_person'),
+    path('edit-person-request/<str:arguments>/<int:pk>/', views.PersonUpdateViewNew.as_view(), name='edit_person_request'),
     path('create-person/', views.PersonCreateView.as_view(), name='create_person'),
     path('show_poll/<int:pk>/', views.show_poll, name="show_poll"),
     path('multi-request/<str:person>/', views.multi_create_request, name='multi_request'),
-    path('create-person-request/<str:arguments>/<int:person>', views.PersonRequestCreateView.as_view(), name='create_person_request'),
+    path('create-person-request/<str:arguments>/', views.PersonRequestCreateView.as_view(), name='create_person_request'),
     
 ]
