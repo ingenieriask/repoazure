@@ -24,7 +24,7 @@
               href="{% url 'pqrs:edit_person' arguments=context.args  pk=context.person.id  %}"
               >Modificar</a
             >
-            <input type="button" value="Eliminar" class="btn btn-danger" disabled />
+            <a type="button" href="{% url 'pqrs:search_person' %}" class="btn btn-danger">Eliminar</a>
           </td>
         </tr>
         {% if context.other_people %} {% for people in context.other_people %}
@@ -37,7 +37,12 @@
               href="{% url 'pqrs:edit_person_request' arguments=context.args  pk=people.id  %}"
               >Modificar</a
             >
-            <input type="button" value="Eliminar" class="btn btn-danger" onclick="$(this).parent().parent().remove()" />
+            <a
+              type="button"
+              href="{% url 'pqrs:delete_person_request' arguments=context.args id=people.id %}"
+              class="btn btn-danger"
+              >Eliminar</a
+            >
           </td>
         </tr>
         {% endfor %} {% endif %} {% endif %}

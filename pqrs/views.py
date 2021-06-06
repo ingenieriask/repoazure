@@ -167,7 +167,12 @@ def multi_create_request(request,person):
         person_form = None
 
     return render(request, 'pqrs/search_person_form.html', context={'form': form, 'list': qs, 'person_form': person_form})
-    
+
+def dete_person_request(request,arguments,id):
+    argumentsRemove =str(arguments).split('&')
+    argumentsRemove.remove(str(id))
+    argsReturn= "".join([str(elem)+'&' for elem in argumentsRemove])[:-1]
+    return redirect('pqrs:multi_request',str(argsReturn))
 
 
 class PqrDetailView(DetailView):
@@ -195,7 +200,7 @@ class PersonRequestCreateView(CreateView):
         self.object = form.save(commit=False)
         self.object.save()
         person = str(self.kwargs['arguments'])+'&'+str(self.object.id)
-        return redirect('/pqrs/multi-request/'+str(person)+'/')  
+        return redirect('pqrs:multi_request',str(person))
 
     def get_form_kwargs(self):
         kwargs = super( PersonRequestCreateView, self).get_form_kwargs()
@@ -214,7 +219,7 @@ class PersonUpdateViewNew(UpdateView):
     def form_valid(self, form):
         self.object = form.save(commit=False)
         self.object.save()
-        return redirect('/pqrs/multi-request/'+str(self.kwargs['arguments'])+'/')  
+        return redirect('pqrs:multi_request',str(self.kwargs['arguments']))
 
     def get_form_kwargs(self):
         kwargs = super( PersonUpdateViewNew, self).get_form_kwargs()
@@ -230,7 +235,7 @@ class PersonUpdateViewNewRequest(UpdateView):
     def form_valid(self, form):
         self.object = form.save(commit=False)
         self.object.save()
-        return redirect('/pqrs/multi-request/'+str(self.kwargs['arguments'])+'/')  
+        return redirect('pqrs:multi_request',str(self.kwargs['arguments']))
 
     def get_form_kwargs(self):
         kwargs = super( PersonUpdateViewNewRequest, self).get_form_kwargs()

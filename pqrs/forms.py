@@ -33,21 +33,16 @@ class PersonForm(AbstractPersonForm):
 class PersonFormUpdate(AbstractPersonForm):
     def __init__(self,pk=None, arguments=None, *args, **kwargs):
         super(PersonFormUpdate, self).__init__(*args, **kwargs)
+        self.fields['document_type'].disabled = True
+        self.fields['document_number'].disabled = True
+        self.fields['person_type'].disabled = True
         self.helper.layout.extend([
             Div(
                 Submit('submit','Siguiente',
                 css_class="btn btn-primary mx-auto",
                 ),css_class="d-flex"),
                 ])
-class PersonRequestFormUpdate(AbstractPersonRequestForm):
-    def __init__(self,pk=None, arguments=None, *args, **kwargs):
-        super(PersonRequestFormUpdate, self).__init__(*args, **kwargs)
-        self.helper.layout.extend([
-            Div(
-                Submit('submit','Siguiente',
-                css_class="btn btn-primary mx-auto",
-                ),css_class="d-flex"),
-                ])
+
 class PersonRequestForm(AbstractPersonRequestForm):
     def __init__(self,person=None, arguments=None,*args, **kwargs):
         super(PersonRequestForm, self).__init__(*args, **kwargs)
@@ -60,6 +55,18 @@ class PersonRequestForm(AbstractPersonRequestForm):
                 ),css_class="d-flex"),
                 ])
 
+class PersonRequestFormUpdate(AbstractPersonRequestForm):
+    def __init__(self,pk=None, arguments=None, *args, **kwargs):
+        super(PersonRequestFormUpdate, self).__init__(*args, **kwargs)
+        self.fields['document_type'].disabled = True
+        self.fields['document_number'].disabled = True
+        self.fields['person_type'].disabled = True
+        self.helper.layout.extend([
+            Div(
+                Submit('submit','Siguiente',
+                css_class="btn btn-primary mx-auto",
+                ),css_class="d-flex"),
+                ])
 class SearchPersonForm(forms.Form):
     item = forms.CharField(label='Palabra clave', help_text='Datos a buscar')
 
