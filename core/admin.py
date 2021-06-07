@@ -1,14 +1,21 @@
 from django.contrib import admin
 from core.models import State, City, Office, Country, PreferencialPopulation, \
     Disability, BooleanSelection, EthnicGroup, ResponseMode, SystemParameter, \
-    AppParameter, ConsecutiveFormat, FilingType, NonWorkingDay, NonWorkingDayType
-from core.forms import ConsecutiveFormatForm, NonWorkingDayForm
+    AppParameter, ConsecutiveFormat, FilingType, NonWorkingDay, NonWorkingDayType, \
+    Calendar
+from core.forms import ConsecutiveFormatForm, CalendarForm
 
 class ConsecutiveFormatAdmin(admin.ModelAdmin):
     form = ConsecutiveFormatForm
 
-class NonWorkingDayAdmin(admin.ModelAdmin):
-    form = NonWorkingDayForm
+    def has_add_permission(self, request):
+        return False
+
+    def has_delete_permission(self, request, obj=None):
+        return False
+
+class CalendarAdmin(admin.ModelAdmin):
+    form = CalendarForm
 
 # Register your models here.
 admin.site.register(State)
@@ -26,3 +33,4 @@ admin.site.register(ConsecutiveFormat, ConsecutiveFormatAdmin)
 admin.site.register(FilingType)
 admin.site.register(NonWorkingDay)
 admin.site.register(NonWorkingDayType)
+admin.site.register(Calendar, CalendarAdmin)

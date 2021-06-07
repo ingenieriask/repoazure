@@ -6,6 +6,8 @@ from django.db import transaction
 import re
 import requests
 import json
+import pandas as pd
+from datetime import date
 
 from core.models import AppParameter, ConsecutiveFormat, Consecutive, Country, FilingType, \
     Holiday
@@ -127,6 +129,10 @@ class CalendarService(object):
     # 50 requests per day
     holiday_api_endpoint = 'https://date.nager.at/api/v3/publicholidays'
     
+    @classmethod
+    def get_days_of_year():
+        return 
+
     @classmethod
     def get_holidays(cls, year, country_code):
         '''Return the list of holidays for a given year and country'''

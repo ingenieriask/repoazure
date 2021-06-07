@@ -223,9 +223,13 @@ class Consecutive(models.Model):
 class NonWorkingDayType(models.Model):
     name = models.CharField(max_length=128,blank=False, null=False,default='')
 
+class Calendar(models.Model):
+    year = models.IntegerField(null=False, unique=True)
+
 class NonWorkingDay(models.Model):
     date = models.DateField(default=timezone.now, null=False, blank=False) 
     type = models.ForeignKey(NonWorkingDayType, on_delete=models.PROTECT, null=True, blank=True)
+    calendar = models.ForeignKey(Calendar, on_delete=models.PROTECT, null=True, blank=True)
 
 class Holiday(models.Model):
     date = models.DateField(default=timezone.now, null=False, blank=False) 

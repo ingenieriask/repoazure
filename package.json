@@ -15,7 +15,9 @@
         "feather-icons": "4.28.0",
         "jquery": "3.3.1",
         "jquery-ui-dist": "1.12.1",
+        "js-year-calendar": "1.0.2",
         "moment": "2.18.1",
-        "suggestags": "^1.26.0"
+        "suggestags": "1.26.0",
+        "pandas": "1.2.4"
     }
 }

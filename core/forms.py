@@ -5,7 +5,7 @@ from crispy_forms.layout import Layout, Submit, Row, Column, Field, ButtonHolder
 from core.models import Person
 from crispy_forms.layout import Field
 from core.utils import get_field_value
-from core.widgets import ConsecutiveFormatWidget
+from core.widgets import ConsecutiveFormatWidget, NonWorkingCalendarWidget
 from core.services import RecordCodeService
 
 class CustomFileInput(Field):
@@ -160,18 +160,17 @@ class ConsecutiveFormatForm(forms.ModelForm):
             'format': ConsecutiveFormatWidget()
         }
 
-class NonWorkingDayFormatForm(forms.ModelForm):
+class CalendarForm(forms.ModelForm):
     '''Custom non-working days configuration form for admin page'''
 
     def clean(self, *args, **kwargs):
-        cleaned_data = super(ConsecutiveFormatForm, self).clean()
+        cleaned_data = super(CalendarForm, self).clean()
 
         # TODO
         return cleaned_data
 
     class Meta:
-        fields = ('format', 'effective_date')
-
+        fields = ('year',)
         widgets = {
-            'format': ConsecutiveFormatWidget()
+            'year': NonWorkingCalendarWidget()
         }

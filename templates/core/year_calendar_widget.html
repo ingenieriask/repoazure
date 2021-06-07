@@ -1,0 +1,124 @@
+{% load static %}
+
+<link href="{% static 'node_modules/bootstrap/dist/css/bootstrap.min.css' %}" rel="stylesheet" />
+<link href="{% static 'node_modules/js-year-calendar/dist/js-year-calendar.min.css' %}" rel="stylesheet" />
+
+<div class="calendar"></div>
+
+<script src="{% static 'node_modules/jquery/dist/jquery.min.js' %}"></script>
+<script src="{% static 'node_modules/bootstrap/dist/js/bootstrap.bundle.min.js' %}"></script>
+<script src="{% static 'node_modules/js-year-calendar/dist/js-year-calendar.min.js' %}"></script>
+
+<script>
+    const calendar = new Calendar(document.querySelector('.calendar'), {
+        clickDay: function(e) {
+            alert('Click on day ' + e.date.toString());
+
+            events = calendar.getEvents(e.date)
+            console.info('events:', events)
+            if (events.length) {
+                console.info('events:', events.length)
+                deleteEvent(events[0])
+                $(e.element).popover('hide');
+            } 
+            else {
+                calendar.addEvent(
+                    {
+                        id: e.date.toString(),
+                        name: 'new event',
+                        startDate: e.date,
+                        endDate: e.date,
+                        type: 3,
+                        color: "blue"
+                    }
+                )
+            }
+        },
+        mouseOnDay: function(e) {
+            if(e.events.length > 0) {
+                var content = '';
+                
+                for(var i in e.events) {
+                    content += '<div class="event-tooltip-content">'
+                                    + '<div class="event-name" style="color:' + e.events[i].color + '">' + e.events[i].name + '</div>'
+                                    + '<div class="event-location">' + e.events[i].location + '</div>'
+                                + '</div>';
+                }
+            
+                $(e.element).popover({ 
+                    trigger: 'manual',
+                    container: 'body',
+                    html:true,
+                    content: content
+                });
+                
+                $(e.element).popover('show');
+            }
+        },
+        mouseOutDay: function(e) {
+            if(e.events.length > 0) {
+                $(e.element).popover('hide');
+            }
+        },
+        style:'background',
+        enableRangeSelection: false,
+        dataSource: [
+            {
+                startDate: new Date(2021, 1, 4),
+                endDate: new Date(2021, 1, 15)
+            }
+        ]
+    });
+
+    let dataSource = [
+        {
+            id: (new Date(2021, 1, 1)).toString(),
+            name: 'Microsoft Convergence',
+            startDate: new Date(2021, 1, 1),
+            endDate: new Date(2021, 1, 1),
+            type: 1,
+            color: "yellow"
+        }, {
+            id: (new Date(2021, 2, 2)).toString(),
+            name: 'Microsoft Convergence',
+            startDate: new Date(2021, 2, 2),
+            endDate: new Date(2021, 2, 2),
+            type: 2,
+            color: "red"
+        }
+    ]
+
+    calendar.setDataSource(dataSource)
+
+    calendar.addEvent(
+        {
+            id: (new Date(2021, 2, 3)).toString(),
+            name: 'new event',
+            startDate: new Date(2021, 2, 3),
+            endDate: new Date(2021, 2, 3),
+            type: 3,
+            color: "blue"
+        }
+    )
+    calendar.setDisabledDays(
+        [new Date(2021, 2, 4), new Date(2021, 2, 5)]
+    )
+
+    //console.info(calendar.getEvents())
+
+    function deleteEvent(event) {
+        var dataSource = calendar.getDataSource();
+        
+        calendar.setDataSource(dataSource.filter(item => item.id != event.id));
+    }
+
+    events = calendar.getEvents(new Date(2021, 2, 4))
+    console.info('events:', events)
+    if (events.length) {
+        console.info('events:', events.length)
+        deleteEvent(events[0])
+    } 
+
+</script>
+
+
