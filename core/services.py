@@ -91,7 +91,6 @@ class RecordCodeService(object):
         '''Retrieve the next consecutive code for a given type'''
 
         now = datetime.now()
-
         format = ConsecutiveFormat.objects.filter(
             effective_date__lte=now
         ).latest('effective_date').format
@@ -134,6 +133,18 @@ class CalendarService(object):
         return 
 
     @classmethod
+    def get_weekends(cls, year, week_day_code):
+
+        week_day = {'SAT': 'W-SUN', 'SUN': 'W-MON'}
+
+        '''Return the list of saturdays or sundays of an entire year'''
+        return pd.date_range(
+            start=f'{year}-01-01', 
+            end=f'{int(year) + 1}-01-01', 
+            freq=week_day[week_day_code],
+            closed='left').strftime(r'%Y-%m-%d').tolist()
+
+    @classmethod
     def get_holidays(cls, year, country_code):
         '''Return the list of holidays for a given year and country'''
 
@@ -155,7 +166,7 @@ class CalendarService(object):
                 holidays = Holiday.objects.bulk_create([Holiday(**{
                         'date': h['date'],
                         'country': country,
-                        'local_name': 'localName'
+                        'local_name': h['localName']
                     }) for h in json_response]
                 )
                 return holidays

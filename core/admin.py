@@ -17,6 +17,12 @@ class ConsecutiveFormatAdmin(admin.ModelAdmin):
 class CalendarAdmin(admin.ModelAdmin):
     form = CalendarForm
 
+    def has_add_permission(self, request):
+        return False
+
+    def has_delete_permission(self, request, obj=None):
+        return False
+
 # Register your models here.
 admin.site.register(State)
 admin.site.register(City)

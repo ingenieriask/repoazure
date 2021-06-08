@@ -1,35 +1,54 @@
 {% load static %}
 
+<link href="{% static 'correspondence/css/js-year-calendar.css' %}" rel="stylesheet" />
 <link href="{% static 'node_modules/bootstrap/dist/css/bootstrap.min.css' %}" rel="stylesheet" />
-<link href="{% static 'node_modules/js-year-calendar/dist/js-year-calendar.min.css' %}" rel="stylesheet" />
 
-<div class="calendar"></div>
+<div class="row">
+    <div class="col-lg-12">
+        <button class="btn btn-primary" id="calendar-holidays" data-toggle="button" aria-pressed="false"></button>
+        <button class="btn btn-primary" id="calendar-sundays" data-toggle="button" aria-pressed="false"></button>
+        <button class="btn btn-primary" id="calendar-saturdays" data-toggle="button" aria-pressed="false"></button>
+        <input id="calendar-data" name="calendarData" type="hidden" value="">
+        <input id="calendar-year" name="year" type="hidden" value="">
+    </div>
+</div>
+<div class="row">
+    <div class="col-lg-12"></div>
+        <div id="calendar"></div>
+    </div>
+</div>
 
 <script src="{% static 'node_modules/jquery/dist/jquery.min.js' %}"></script>
 <script src="{% static 'node_modules/bootstrap/dist/js/bootstrap.bundle.min.js' %}"></script>
 <script src="{% static 'node_modules/js-year-calendar/dist/js-year-calendar.min.js' %}"></script>
 
 <script>
-    const calendar = new Calendar(document.querySelector('.calendar'), {
-        clickDay: function(e) {
-            alert('Click on day ' + e.date.toString());
 
+    const dayType = {
+        'holiday': {'type': 'holiday', 'name': 'Día festivo', 'color': '#37AFA9', 'disable': 'Desmarcar festivos', 'enable': 'Marcar festivos'},
+        'custom': {'type': 'custom', 'name': 'No laboral personalizado', 'color': '#AEC8C9'},
+        'sat': {'type': 'sat', 'name': 'Sábado', 'color': '#E3E3CD', 'disable': 'Desmarcar sábados', 'enable': 'Marcar sábados'},
+        'sun': {'type': 'sun', 'name': 'Domingo', 'color': '#E3E3CD', 'disable': 'Desmarcar domingos', 'enable': 'Marcar domingos'}
+    }
+
+    const calendar = new Calendar(document.querySelector('#calendar'), {
+        clickDay: function(e) {
             events = calendar.getEvents(e.date)
-            console.info('events:', events)
             if (events.length) {
-                console.info('events:', events.length)
-                deleteEvent(events[0])
+                let dataSource = calendar.getDataSource();
+                calendar.setDataSource(dataSource.filter(item => item.id != events[0].id));
                 $(e.element).popover('hide');
             } 
             else {
                 calendar.addEvent(
                     {
                         id: e.date.toString(),
-                        name: 'new event',
+                        name: dayType['custom']['name'],
+                        description: '',
                         startDate: e.date,
                         endDate: e.date,
-                        type: 3,
-                        color: "blue"
+                        type: dayType['custom']['type'],
+                        color: dayType['custom']['color']
                     }
                 )
             }
@@ -40,9 +59,9 @@
                 
                 for(var i in e.events) {
                     content += '<div class="event-tooltip-content">'
-                                    + '<div class="event-name" style="color:' + e.events[i].color + '">' + e.events[i].name + '</div>'
-                                    + '<div class="event-location">' + e.events[i].location + '</div>'
-                                + '</div>';
+                            + '<div class="event-name" style="color:' + e.events[i].color + '">' + e.events[i].name + '</div>'
+                            + (e.events[i].description ? '<div class="event-location">' + e.events[i].description + '</div>' : '')
+                            + '</div>';
                 }
             
                 $(e.element).popover({ 
@@ -70,6 +89,120 @@
         ]
     });
 
+    function checkByDateType(dayCode) {
+        let dataSource = calendar.getDataSource();
+        return dataSource.some(event => event.type === dayType[dayCode]['type'])
+    }
+
+    function addHolidays() {
+        var country = 'CO';
+        var year = 2021;
+        // GET AJAX request
+        $.ajax({
+            type: 'GET',
+            url: "{% url 'holidays' %}",
+            data: {"year": year, "country": country},
+            success: function (response) {
+                response.forEach(function (value) {
+                    event =  {
+                        id: value.date,
+                        name: dayType['holiday']['name'],
+                        description: value.local_name,
+                        startDate: new Date(value.date),
+                        endDate: new Date(value.date),
+                        type: dayType['holiday']['type'],
+                        color: dayType['holiday']['color']
+                    }
+                    calendar.addEvent(event)
+                });
+            },
+            error: function (response) {
+                console.log(response)
+            }
+        })
+    }
+
+    function deleteByDateType(dayCode) {
+        let dataSource = calendar.getDataSource();
+        calendar.setDataSource(dataSource.filter(item => item.type != dayType[dayCode]['type']));
+        console.info('deleteHolidays')
+    }
+
+    function addWeekends(dayCode) {
+        var year = 2021;
+        // GET AJAX request
+        $.ajax({
+            type: 'GET',
+            url: "{% url 'weekends' %}",
+            data: {"year": year, "day": dayCode},
+            success: function (response) {
+                response.forEach(function (value) {
+                    event =  {
+                        id: value.date,
+                        name: dayType[dayCode]['name'],
+                        description: '',
+                        startDate: new Date(value.date),
+                        endDate: new Date(value.date),
+                        type: dayType[dayCode]['type'],
+                        color: dayType[dayCode]['color']
+                    }
+                    calendar.addEvent(event)
+                });
+            },
+            error: function (response) {
+                console.log(response)
+            }
+        })
+    }
+
+    function updateByDateType(dayCode) {
+        exists = checkByDateType(dayCode)
+        if (exists) {
+            deleteByDateType(dayCode)
+        } else {
+            if (dayCode === 'holiday'){
+                addHolidays()
+            } else {
+                addWeekends(dayCode)
+            }
+        }
+        $('#calendar-data').val(JSON.stringify(calendar.getDataSource()));
+        return exists
+    }
+
+    function setText(itemId, dayCode) {
+        $(itemId).text(updateByDateType(dayCode) ? dayType[dayCode]['enable'] : dayType[dayCode]['disable']);
+    }
+
+    function initText(itemId, dayCode) {
+        $(itemId).text(!checkByDateType(dayCode) ? dayType[dayCode]['enable'] : dayType[dayCode]['disable']);
+    }
+
+    initText("#calendar-holidays", 'holiday')
+    initText("#calendar-sundays", 'sun')
+    initText("#calendar-saturdays", 'sat')
+
+    $('#calendar-holidays').click(function (e) {
+        e.preventDefault();
+        setText("#calendar-holidays", 'holiday')
+    })
+
+    $('#calendar-sundays').click(function (e) {
+        e.preventDefault();
+        setText('#calendar-sundays', 'sun') 
+    })
+
+    $('#calendar-saturdays').click(function (e) {
+        e.preventDefault();
+        setText('#calendar-saturdays', 'sat') 
+    })
+
+    document.querySelector('#calendar').addEventListener('yearChanged', function(e) {
+        console.log("New year selected: ", e);
+        console.log("New year selected: " + e.currentYear);
+        $('#calendar-data').val(JSON.stringify(calendar.getYear()));
+    })
+
     let dataSource = [
         {
             id: (new Date(2021, 1, 1)).toString(),
@@ -90,34 +223,15 @@
 
     calendar.setDataSource(dataSource)
 
-    calendar.addEvent(
-        {
-            id: (new Date(2021, 2, 3)).toString(),
-            name: 'new event',
-            startDate: new Date(2021, 2, 3),
-            endDate: new Date(2021, 2, 3),
-            type: 3,
-            color: "blue"
-        }
-    )
-    calendar.setDisabledDays(
-        [new Date(2021, 2, 4), new Date(2021, 2, 5)]
-    )
-
-    //console.info(calendar.getEvents())
-
-    function deleteEvent(event) {
-        var dataSource = calendar.getDataSource();
-        
-        calendar.setDataSource(dataSource.filter(item => item.id != event.id));
-    }
-
     events = calendar.getEvents(new Date(2021, 2, 4))
     console.info('events:', events)
     if (events.length) {
         console.info('events:', events.length)
         deleteEvent(events[0])
     } 
+
+    calendar.setYear(2021)
+    $('#calendar-data').val(JSON.stringify(calendar.getYear()));
 
 </script>
 

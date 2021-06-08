@@ -4,6 +4,7 @@ from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Submit, Row, Column, Field, ButtonHolder, Button, Div, HTML
 from core.models import Person
 from crispy_forms.layout import Field
+import json
 from core.utils import get_field_value
 from core.widgets import ConsecutiveFormatWidget, NonWorkingCalendarWidget
 from core.services import RecordCodeService
@@ -165,6 +166,10 @@ class CalendarForm(forms.ModelForm):
 
     def clean(self, *args, **kwargs):
         cleaned_data = super(CalendarForm, self).clean()
+
+        if self.data['calendarData'].strip():
+            events = json.loads(self.data['calendarData'])
+            print('events:', events)
 
         # TODO
         return cleaned_data
