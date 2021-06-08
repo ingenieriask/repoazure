@@ -20,6 +20,5 @@ urlpatterns = [
     path('edit-person-request/<str:arguments>/<int:pk>/', views.PersonUpdateViewNewRequest.as_view(), name='edit_person_request'),
     path('multi-request/<str:person>/', views.multi_create_request, name='multi_request'),
     path('delete-person/<str:arguments>/<int:id>/',views.dete_person_request, name='delete_person_request'),
-    path('show_poll/<int:pk>/', views.show_poll, name="show_poll"),
-    
+
 ]
