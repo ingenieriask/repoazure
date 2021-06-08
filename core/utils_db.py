@@ -6,6 +6,8 @@ import logging
 import re
 import json
 
+from core.services import MailService
+
 logger = logging.getLogger(__name__)
 
 def get_system_parameter(format_name):
@@ -19,14 +21,13 @@ def process_email(format_name, recipient_list, data):
         email_format = get_system_parameter(format_name)
         email_format = json.loads(email_format.value)
 
-        msg = EmailMultiAlternatives(
+        MailService.send_mail(
             replace_data(email_format['subject'], data),
             replace_data(email_format['body'], data),
             'rino@skillnet.com.co',
-            [recipient_list],
+            [recipient_list]
         )
-        msg.content_subtype = "html"
-        msg.send()
+
     except Exception as Error:
         print('error de envío de correo', Error)
         logger.error(Error)
