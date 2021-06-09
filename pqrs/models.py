@@ -1,7 +1,8 @@
 from django.db import models
 from django.urls import reverse
 from django.db.models import CheckConstraint, Q, F
-from core.models import ResponseMode, BaseModel, Person
+from django.utils import tree
+from core.models import ResponseMode, BaseModel, Person,PersonRequest
 from correspondence.models import Radicate
 
 
@@ -56,4 +57,8 @@ class PQR(Radicate):
         #         self.user_updated = user
         super(PQR, self).save()
 
+class PqrsObject(models.Model):
+    pqr_type = models.ForeignKey(Type,on_delete=models.PROTECT,related_name='pqrs_object_type',null =False)
+    principal_person = models.ForeignKey(Person, on_delete=models.PROTECT,related_name='pqrs_object_principal_person',null=False)
+    multi_request_person = models.ManyToManyField(PersonRequest, related_name="multi_pqrs_request_person",null=True)
     
