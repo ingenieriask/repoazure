@@ -5,6 +5,8 @@ from django.utils import tree
 from core.models import ResponseMode, BaseModel, Person,PersonRequest
 from correspondence.models import Radicate
 import uuid
+from .validators import validate_file_size
+
 
 class Type(models.Model):
     name = models.CharField(max_length=128,editable=False)
@@ -46,8 +48,8 @@ class PqrsContent(Radicate):
     # person = models.ForeignKey(Person, on_delete=models.PROTECT, related_name='pqr_person')
     # subject = models.CharField(max_length=256)
     data = models.TextField(max_length=2000)
-    # document_file = models.FileField(upload_to="uploads/", blank=False, null=True)
     response_mode = models.ForeignKey(ResponseMode, on_delete=models.PROTECT, related_name='pqrs_response_mode')
+    files_uploaded = models.FileField(upload_to="uploads/", validators=[validate_file_size], blank=True, null=True)
     # number = models.TextField(max_length=30, null=False, db_index=True)
     subtype = models.ForeignKey(SubType, on_delete=models.PROTECT, related_name='pqr_type', null=True)
     pqrsobject = models.ForeignKey(PQRS,related_name='pqr_type_object', on_delete=models.PROTECT)

@@ -71,11 +71,16 @@ class PqrRadicateForm(forms.ModelForm):
 
     class Meta:
         model = PqrsContent
-        fields = ('subject', 'data', 'response_mode', 'captcha')
+        fields = ('subject', 'data', 'response_mode', 'files_uploaded', 'captcha'
+                )
         labels = {'subject': 'Asunto',
                   'data': 'Detalle de la solicitud',
+                  'files_uploaded': 'Anexos, Documentos (Múltiples archivos - Tamaño máximo = 10 MB)',
                   'response_mode': 'Medio de respuesta'}
-
+        
+        widgets = {
+            'files_uploaded' : forms.ClearableFileInput(attrs={'multiple': True}),
+        }
 
     def __init__(self, *args, **kwargs):
         super(PqrRadicateForm, self).__init__(*args, **kwargs)
@@ -91,6 +96,10 @@ class PqrRadicateForm(forms.ModelForm):
             ),
             Row(
                 Column('response_mode', css_class='form-group col-md-12 mb-0'),
+                css_class='form-row'
+            ),
+            Row(
+                Column('files_uploaded', css_class='form-group col-12 mb-0'),
                 css_class='form-row'
             ),
             Row(
