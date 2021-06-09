@@ -58,7 +58,7 @@ class PQR(Radicate):
         super(PQR, self).save()
 
 class PqrsObject(models.Model):
-    pqr_type = models.ForeignKey(Type,on_delete=models.PROTECT,related_name='pqrs_object_type',null =False)
-    principal_person = models.ForeignKey(Person, on_delete=models.PROTECT,related_name='pqrs_object_principal_person',null=False)
-    multi_request_person = models.ManyToManyField(PersonRequest, related_name="multi_pqrs_request_person",null=True)
+    pqr_type = models.ForeignKey(Type,on_delete=models.PROTECT,related_name='pqrs_object_type',null =True)
+    principal_person = models.ForeignKey(Person, on_delete=models.PROTECT,related_name='pqrs_object_principal_person',null=True)
+    multi_request_person = models.ManyToManyField(PersonRequest, related_name="multi_pqrs_request_person")
     
