@@ -188,7 +188,7 @@ class CalendarService(object):
                 json_response = json.loads(r.text)
                 country = Country.objects.get(code=country_code)
                 holidays = Holiday.objects.bulk_create([Holiday(**{
-                        'date': h['date'],
+                        'date': datetime.strptime(h['date'], r'%Y-%m-%d'),
                         'country': country,
                         'local_name': h['localName']
                     }) for h in json_response]

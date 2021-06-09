@@ -184,9 +184,9 @@ DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'
 
 AZURE_STORAGE_KEY = env.bool('AZURE_STORAGE_KEY')
 
-
-#DEFAULT_FILE_STORAGE = 'rino.custom_azure.AzureMediaStorage'
-#STATICFILES_STORAGE = 'rino.custom_azure.AzureStaticStorage'
+if not DEBUG:
+    DEFAULT_FILE_STORAGE = 'rino.custom_azure.AzureMediaStorage'
+    STATICFILES_STORAGE = 'rino.custom_azure.AzureStaticStorage'
 
 STATIC_LOCATION = "static"
 MEDIA_LOCATION = "media"
