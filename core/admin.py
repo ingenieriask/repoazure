@@ -1,8 +1,7 @@
 from django.contrib import admin
 from core.models import State, City, Office, Country, PreferencialPopulation, \
     Disability, BooleanSelection, EthnicGroup, ResponseMode, SystemParameter, \
-    AppParameter, ConsecutiveFormat, FilingType, AnswerOption, Question, Poll, \
-    PollInstance, CalendarDay, CalendarDayType, Calendar
+    AppParameter, ConsecutiveFormat, FilingType, CalendarDay, CalendarDayType, Calendar
 from core.forms import ConsecutiveFormatForm, CalendarForm
 
 class ConsecutiveFormatAdmin(admin.ModelAdmin):
