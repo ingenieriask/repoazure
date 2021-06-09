@@ -3,10 +3,9 @@
 <div class="card mb-4">
   <div class="card-header">Búsqueda de remitentes</div>
   <div class="card-body">
-    <form action="{% url 'pqrs:search_person'%}" method="post">
+    <form action="{% url 'pqrs:search_person' pqrs_type=pqrs_type %}" method="post">
       {{ form | crispy }} {% csrf_token %}
       <input type="submit" name="search" value="Buscar" class="btn btn-success lift" />
-      <!--<a title="Radicar" data-toggle="tooltip"  href="{% url 'pqrs:create_person' %}" class="btn btn-success lift">Radicar</a>-->
     </form>
     <div class="alert alert-success mt-4" role="alert">
       <h4 class="alert-heading">Remitentes</h4>
@@ -53,7 +52,9 @@
 <div class="card mb-4">
   <div class="card-header">Persona</div>
   <div class="card-body">
-    <form method="post" id="sender_create_form">{% crispy person_form %} {% csrf_token %}</form>
+    <form method="post" id="sender_create_form" action="{% url 'pqrs:create_person' pqrs_type=pqrs_type %}">
+      {% crispy person_form %} {% csrf_token %}
+    </form>
   </div>
 </div>
 

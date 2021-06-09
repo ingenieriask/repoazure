@@ -29,23 +29,12 @@
           <div class="col-xxl-4 col-xl-4 col-md-4 my-4">
             <div class="card">
               <div class="card-body">
-                <div
-                  class="card-title row"
-                  data-toggle="tooltip"
-                  data-placement="bottom"
-                  title="{{type.description}}"
-                >
-                  <a
-                    class="btn col-8 d-flex"
-                    href="{% url 'pqrs:search_person' %}"
-                  >
+                <div class="card-title row" data-toggle="tooltip" data-placement="bottom" title="{{type.description}}">
+                  <a class="btn col-8 d-flex" href="{% url 'pqrs:search_person' pqrs_type=type.id %}">
                     <h2 class="text-center m-auto">{{type.name}}</h2>
                   </a>
                   <div class="col-4">
-                    <i
-                      style="width: 100%; height: 100%"
-                      data-feather="{{type.asociated_icon}}"
-                    ></i>
+                    <i style="width: 100%; height: 100%" data-feather="{{type.asociated_icon}}"></i>
                   </div>
                 </div>
               </div>
