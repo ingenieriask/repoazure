@@ -21,17 +21,3 @@
 </div>
 {% endblock %}
 
-{% block script %}
-$("#id_document_file").fileinput({
-        theme: 'fas',
-        allowedFileExtensions: ['pdf','docx','png','jpg','jpeg'],
-        overwriteInitial: true,
-        maxFileSize:20000,
-        maxFilesNum: 1,
-        language: 'es',
-        slugCallback: function (filename) {
-            return filename.replace('(', '_').replace(']', '_');
-        }
-      });
-{% endblock %}
-

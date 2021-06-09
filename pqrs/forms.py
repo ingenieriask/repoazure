@@ -82,13 +82,12 @@ class PqrRadicateForm(forms.ModelForm):
 
     class Meta:
         model = PQR
-        fields = ('subject', 'data', 'response_mode', 'document_file_one', 
-                  'document_file_two', 'document_file_three', 'captcha'
+        fields = ('subject', 'data', 'response_mode', 'file_uploaded', 'captcha'
                 )
         labels = {'subject': 'Asunto',
                   'data': 'Detalle de la solicitud',
+                  'file_uploaded': 'Anexos, Documentos',
                   'response_mode': 'Medio de respuesta'}
-
 
     def __init__(self, *args, **kwargs):
         super(PqrRadicateForm, self).__init__(*args, **kwargs)
@@ -107,16 +106,8 @@ class PqrRadicateForm(forms.ModelForm):
                 css_class='form-row'
             ),
             Row(
-                Column('document_file_one', css_class='form-group col-12 mb-0'),
-                css_class='form-row'    
-            ),
-            Row(
-                Column('document_file_two', css_class='form-group col-12 mb-0'),
-                css_class='form-row'    
-            ),
-            Row(
-                Column('document_file_three', css_class='form-group col-12 mb-0'),
-                css_class='form-row'    
+                Column('file_uploaded', css_class='form-group col-12 mb-0'),
+                css_class='form-row'
             ),
             Row(
                 Column('captcha', css_class='form-group col-md-12 mb-0'),

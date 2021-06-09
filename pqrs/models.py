@@ -34,16 +34,14 @@ class SubType(models.Model):
             super(SubType, self).save(*args, **kwargs)
         else:
             raise Exception("max_response_days should be lower or equal to type.max_response_days")
-            
+
 # Create your models here.
 class PQR(Radicate):
     # person = models.ForeignKey(Person, on_delete=models.PROTECT, related_name='pqr_person')
     # subject = models.CharField(max_length=256)
     data = models.TextField(max_length=2000)
-    document_file_one = models.FileField(upload_to="uploads/", validators=[validate_file_size])
-    document_file_two = models.FileField(upload_to="uploads/", validators=[validate_file_size])
-    document_file_three = models.FileField(upload_to="uploads/", validators=[validate_file_size])
     response_mode = models.ForeignKey(ResponseMode, on_delete=models.PROTECT, related_name='pqrs_response_mode')
+    file_uploaded = models.FileField(upload_to="uploads/", validators=[validate_file_size], blank=True, null=True)
     # number = models.TextField(max_length=30, null=False, db_index=True)
     subtype = models.ForeignKey(SubType, on_delete=models.PROTECT, related_name='pqr_type', null=True)
 
@@ -58,5 +56,3 @@ class PQR(Radicate):
         #     else:
         #         self.user_updated = user
         super(PQR, self).save()
-
-    
