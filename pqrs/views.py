@@ -141,6 +141,63 @@ def create_pqr(request, person):
 
     return render(request, 'pqrs/create_pqr.html', context={'form': form, 'person': person})
 
+def create_pqr(request, pqrs):
+    BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    pqrsoparent = get_object_or_404(PQRS, uuid=pqrs)
+    person = get_object_or_404(Person, id=int(pqrsoparent.principal_person.id))
+
+    if request.method == 'POST':
+        form = PqrRadicateForm(request.POST, request.FILES)
+
+        if form.is_valid():
+            instance = form.save(commit=False)
+            cleaned_data = form.cleaned_data
+            form.document_file = request.FILES['document_file']
+            now = datetime.now()
+            instance.number = now.strftime("%Y%m%d%H%M%S")
+            instance.reception_mode = get_object_or_404(ReceptionMode, abbr='VIR')
+            instance.type = get_object_or_404(RadicateTypes, abbr='PQR')
+            instance.office = get_object_or_404(Office, abbr='PQR')
+            # instance.creator = request.user.profile_user
+            # instance.current_user = request.user.profile_user
+            instance.person = person
+            radicate = form.save()
+
+            log(
+                user=request.user,
+                action="PQR_CREATED",
+                obj=radicate,
+                extra={
+                    "number": radicate.number,
+                    "message": "El radicado %s ha sido creado" % (radicate.number)
+                }
+            )
+
+            process_email('EMAIL_PQR_CREATE', instance.person.email, instance)
+
+            files = open(os.path.join(BASE_DIR, radicate.document_file.path), "rb")
+
+            node_id = ECMService.upload(files)
+
+            if node_id:
+                radicate.set_cmis_id(node_id)
+
+                if ECMService.request_renditions(node_id):
+                    messages.success(request, "El radicado se ha creado correctamente")
+                    url = reverse('correspondence:detail_radicate', kwargs={'pk': radicate.pk})
+                    return HttpResponseRedirect(url)
+
+                messages.error(request, "Ha ocurrido un error al guardar el archivo en el gestor de contenido")
+        else:
+            logger.error("Invalid create radicate form")
+            return render(request, 'pqrs/create_pqr.html', context={'form': form, 'person': person})
+    else:
+        form = PqrRadicateForm(initial={'person': person.id})
+        form.person = person
+
+    return render(request, 'pqrs/create_pqr.html', context={'form': form, 'person': person})
+
+
 def PQRSType(request):
     pqrs_types = Type.objects.all()
     return render(request, 'pqrs/pqrs_type.html', context={'types': pqrs_types})
