@@ -7,7 +7,7 @@ from rest_framework import status
 from rest_framework.response import Response 
 from correspondence.models import ReceptionMode, RadicateTypes, Radicate
 from core.models import Person, Office, DocumentTypes, Poll, PollInstance,PersonRequest
-from pqrs.models import PQR,Type
+from pqrs.models import PQR,Type,PqrsObject
 from pqrs.forms import SearchPersonForm, PersonForm, PqrRadicateForm,PersonRequestForm,PersonFormUpdate,PersonRequestFormUpdate
 from core.utils_db import process_email,get_system_parameter
 from django.http import HttpResponseRedirect, HttpResponse, JsonResponse
@@ -68,7 +68,7 @@ def validate_email_person(request, uuid):
             url = reverse('pqrs:edit_person', kwargs={'pk': person.pk, 'uuid': uuid})
             return HttpResponseRedirect(url)
 
-def search_person(request):
+def search_person(request,pqrs_type):
     if request.method == 'POST':
         form = SearchPersonForm(request.POST)
         if form.is_valid():
@@ -84,7 +84,7 @@ def search_person(request):
         qs = None
         person_form = None
 
-    return render(request, 'pqrs/search_person_form.html', context={'form': form, 'list': qs, 'person_form': person_form})
+    return render(request, 'pqrs/search_person_form.html', context={'form': form, 'list': qs, 'person_form': person_form ,"pqrs_type":pqrs_type})
 
 def create_pqr(request, person):
     BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -147,18 +147,15 @@ def PQRSType(request):
 
 
 def multi_create_request(request,person):
-    personsarray =str(person).split('&')
-    personInstance = get_object_or_404(Person, id=int(personsarray[0]))
+    pqrs_object = get_object_or_404(PqrsObject, id=int(person))
     if request.method == 'GET':
-        document_type = DocumentTypes.objects.filter(name =personInstance.document_type)[0].abbr
-        argsReturn= "".join([str(elem)+'&' for elem in personsarray])[:-1]
-        if len(personsarray)>1:
-            argumentss = personsarray[1:]
-            other_people = argumentss
-            objects_person_request = [ PersonRequest.objects.filter(id=int(i))[0] for i in other_people]     
-            context ={'document_type_abbr':document_type , 'person':personInstance,'args':argsReturn,'other_people':objects_person_request}
-        else:
-            context ={'document_type_abbr':document_type , 'person':personInstance,'args':argsReturn}
+        document_type = DocumentTypes.objects.filter(name =pqrs_object.principal_person.document_type)[0].abbr
+        context ={
+            'document_type_abbr':document_type,
+            'person':pqrs_object.principal_person,
+            'pqrs_type_option':pqrs_object.pqr_type.id,
+            'pqrs_type':person,
+            'other_people':pqrs_object.multi_request_person.all()}
         return render(request,'pqrs/multi_request_table.html',{'context':context})
 
     else:
@@ -168,11 +165,10 @@ def multi_create_request(request,person):
 
     return render(request, 'pqrs/search_person_form.html', context={'form': form, 'list': qs, 'person_form': person_form})
 
-def dete_person_request(request,arguments,id):
-    argumentsRemove =str(arguments).split('&')
-    argumentsRemove.remove(str(id))
-    argsReturn= "".join([str(elem)+'&' for elem in argumentsRemove])[:-1]
-    return redirect('pqrs:multi_request',str(argsReturn))
+def dete_person_request(request,pqrs_type,id):
+    personsDelte = get_object_or_404(PersonRequest,id=id)
+    personsDelte.delete()
+    return redirect('pqrs:multi_request',pqrs_type)
 
 
 class PqrDetailView(DetailView):
@@ -190,6 +186,14 @@ class PersonCreateView(CreateView):
     model = Person
     form_class = PersonForm
     template_name = 'pqrs/person_form.html'
+    
+    def form_valid(self, form):
+        self.object = form.save(commit=False)
+        self.object.save()
+        pqrsTy = get_object_or_404(Type, id=int(self.kwargs['pqrs_type']))
+        pqrsObject=PqrsObject(pqr_type = pqrsTy,principal_person = self.object)
+        pqrsObject.save()
+        return redirect('pqrs:multi_request',pqrsObject.id)
 
 class PersonRequestCreateView(CreateView):
     model = PersonRequest
@@ -199,8 +203,9 @@ class PersonRequestCreateView(CreateView):
     def form_valid(self, form):
         self.object = form.save(commit=False)
         self.object.save()
-        person = str(self.kwargs['arguments'])+'&'+str(self.object.id)
-        return redirect('pqrs:multi_request',str(person))
+        pqrsObject = get_object_or_404(PqrsObject,id=int(self.kwargs['pqrs_type']))
+        pqrsObject.multi_request_person.add(self.object)
+        return redirect('pqrs:multi_request',pqrsObject.id)
 
     def get_form_kwargs(self):
         kwargs = super( PersonRequestCreateView, self).get_form_kwargs()
@@ -219,7 +224,7 @@ class PersonUpdateViewNew(UpdateView):
     def form_valid(self, form):
         self.object = form.save(commit=False)
         self.object.save()
-        return redirect('pqrs:multi_request',str(self.kwargs['arguments']))
+        return redirect('pqrs:multi_request',self.kwargs['pqrs_type'])
 
     def get_form_kwargs(self):
         kwargs = super( PersonUpdateViewNew, self).get_form_kwargs()
@@ -235,7 +240,7 @@ class PersonUpdateViewNewRequest(UpdateView):
     def form_valid(self, form):
         self.object = form.save(commit=False)
         self.object.save()
-        return redirect('pqrs:multi_request',str(self.kwargs['arguments']))
+        return redirect('pqrs:multi_request',self.kwargs['pqrs_type'])
 
     def get_form_kwargs(self):
         kwargs = super( PersonUpdateViewNewRequest, self).get_form_kwargs()

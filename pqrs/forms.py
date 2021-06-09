@@ -22,7 +22,6 @@ class PersonForm(AbstractPersonForm):
             Div(
                 Submit('submit','Siguiente',
                 css_class="btn btn-primary mx-auto",
-                onclick="javascript: form.action='/pqrs/create-person/';"
                 ),css_class="d-flex"),
                 ])
         # print(kwargs['instance'], self.Meta.model.uuid)
@@ -31,7 +30,7 @@ class PersonForm(AbstractPersonForm):
         self.Meta.model.reverse_url = 'pqrs:multi_request'
 
 class PersonFormUpdate(AbstractPersonForm):
-    def __init__(self,pk=None, arguments=None, *args, **kwargs):
+    def __init__(self,pk=None, pqrs_type=None, *args, **kwargs):
         super(PersonFormUpdate, self).__init__(*args, **kwargs)
         self.fields['document_type'].disabled = True
         self.fields['document_number'].disabled = True
@@ -44,19 +43,17 @@ class PersonFormUpdate(AbstractPersonForm):
                 ])
 
 class PersonRequestForm(AbstractPersonRequestForm):
-    def __init__(self,person=None, arguments=None,*args, **kwargs):
+    def __init__(self,person=None, pqrs_type=None,*args, **kwargs):
         super(PersonRequestForm, self).__init__(*args, **kwargs)
-        funonclick = "javascript: form.action='/pqrs/create-person-request/"+str(arguments)+"/'"
         self.helper.layout.extend([
             Div(
                 Submit('submit','Siguiente',
                 css_class="btn btn-primary mx-auto",
-                onclick=funonclick
                 ),css_class="d-flex"),
                 ])
 
 class PersonRequestFormUpdate(AbstractPersonRequestForm):
-    def __init__(self,pk=None, arguments=None, *args, **kwargs):
+    def __init__(self,pk=None, pqrs_type=None, *args, **kwargs):
         super(PersonRequestFormUpdate, self).__init__(*args, **kwargs)
         self.fields['document_type'].disabled = True
         self.fields['document_number'].disabled = True
