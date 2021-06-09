@@ -2,12 +2,26 @@ from django.contrib import admin
 from core.models import State, City, Office, Country, PreferencialPopulation, \
     Disability, BooleanSelection, EthnicGroup, ResponseMode, SystemParameter, \
     AppParameter, ConsecutiveFormat, FilingType, AnswerOption, Question, Poll, \
-    PollInstance
-    
-from core.forms import ConsecutiveFormatForm
+    PollInstance, CalendarDay, CalendarDayType, Calendar
+from core.forms import ConsecutiveFormatForm, CalendarForm
 
 class ConsecutiveFormatAdmin(admin.ModelAdmin):
     form = ConsecutiveFormatForm
+
+    def has_add_permission(self, request):
+        return False
+
+    def has_delete_permission(self, request, obj=None):
+        return False
+
+class CalendarAdmin(admin.ModelAdmin):
+    form = CalendarForm
+
+    def has_add_permission(self, request):
+        return False
+
+    def has_delete_permission(self, request, obj=None):
+        return False
 
 # Register your models here.
 admin.site.register(State)
@@ -27,3 +41,6 @@ admin.site.register(AnswerOption)
 admin.site.register(Question)
 admin.site.register(Poll)
 admin.site.register(PollInstance)
+admin.site.register(CalendarDay)
+admin.site.register(CalendarDayType)
+admin.site.register(Calendar, CalendarAdmin)

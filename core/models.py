@@ -78,6 +78,7 @@ class Office(models.Model):
 
 class Country(models.Model):
     name = models.CharField(max_length=128)
+    code = models.CharField(max_length=4)
 
     def __str__(self):
         return self.name
@@ -237,7 +238,6 @@ class Consecutive(models.Model):
 
     def __str__(self):
         return f"{self.current} {self.date} {self.type}"
-    
 
 # Generic answer options model    
 class AnswerOption(models.Model):
@@ -273,4 +273,32 @@ class PollInstance(models.Model):
     
     def __str__(self):
         return f"{self.poll} {self.answers}"
-    
+
+class CalendarDayType(models.Model):
+    name = models.CharField(max_length=128, blank=False, null=False,default='')
+
+    def __str__(self):
+        return self.name
+
+class Calendar(models.Model):
+    name = models.CharField(max_length=128, blank=False, null=False, default='', 
+                            verbose_name='Calendar')
+
+    def __str__(self):
+        return self.name
+
+class CalendarDay(models.Model):
+    date = models.DateField(default=timezone.now, null=False, blank=False) 
+    type = models.ForeignKey(CalendarDayType, on_delete=models.PROTECT, null=True, blank=True)
+    calendar = models.ForeignKey(Calendar, on_delete=models.PROTECT, null=True, blank=True)
+
+    def __str__(self):
+        return f"{self.date} {self.type}"
+
+class Holiday(models.Model):
+    date = models.DateField(default=timezone.now, null=False, blank=False) 
+    country = models.ForeignKey(Country, on_delete=models.PROTECT, null=True, blank=True)
+    local_name = models.CharField(max_length=256)
+
+    def __str__(self):
+        return f"{self.date} {self.local_name}"

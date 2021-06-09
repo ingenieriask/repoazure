@@ -3,9 +3,14 @@ from django.core.mail import EmailMessage
 import logging
 from datetime import datetime
 from django.db import transaction
-import  re
+import re
+import requests
+import json
+import pandas as pd
+from datetime import date
 
-from core.models import AppParameter, ConsecutiveFormat, Consecutive, FilingType
+from core.models import AppParameter, ConsecutiveFormat, Consecutive, Country, FilingType, \
+    Holiday, CalendarDay, CalendarDayType, Calendar
 
 logger = logging.getLogger(__name__)
 
@@ -86,7 +91,6 @@ class RecordCodeService(object):
         '''Retrieve the next consecutive code for a given type'''
 
         now = datetime.now()
-
         format = ConsecutiveFormat.objects.filter(
             effective_date__lte=now
         ).latest('effective_date').format
@@ -115,3 +119,81 @@ class RecordCodeService(object):
         }
 
         return format.format(**params)
+
+class CalendarService(object):
+    '''Service for calculate working days'''
+
+    # https://date.nager.at/
+    # API limitations:
+    # 50 requests per day
+    holiday_api_endpoint = 'https://date.nager.at/api/v3/publicholidays'
+    
+    @classmethod
+    def get_days_of_year():
+        return 
+
+    @classmethod
+    def get_calendar_days(cls, year):
+        return CalendarDay.objects.filter(date__year=year)
+
+    @classmethod
+    def update_calendar_days(cls, year, nonworking_days):
+
+        nonworking_days = {date(*map(int, d['id'].split('T')[0].split('-'))) for d in nonworking_days if 'id' in d}
+        days = CalendarDay.objects.filter(date__year=year)
+        working_day = CalendarDayType.objects.get(name='workingday')
+        nonWorking_day = CalendarDayType.objects.get(name='non-workingday')
+        nonWorking_day = CalendarDayType.objects.get(name='non-workingday')
+        calendar = Calendar.objects.first()
+        new = not days.exists()
+        if new:
+            day_range = pd.date_range(
+                start=f'{year}-01-01', 
+                end=f'{int(year) + 1}-01-01', 
+                closed='left')
+            days = [CalendarDay(date=d, calendar=calendar) for d in day_range.date]
+        for d in days:
+            d.type = nonWorking_day if d.date in nonworking_days else working_day
+        if new:
+            return CalendarDay.objects.bulk_create(days)
+        return CalendarDay.objects.bulk_update(days, ['type'])
+
+    @classmethod
+    def get_weekends(cls, year, week_day_code):
+        '''Return the list of saturdays or sundays of an entire year'''
+
+        days =  pd.date_range(
+            start=f'{year}-01-01', 
+            end=f'{int(year) + 1}-01-01', 
+            freq=f'W-{week_day_code}', #week_day[week_day_code],
+            closed='left').tolist()
+        return days
+
+    @classmethod
+    def get_holidays(cls, year, country_code):
+        '''Return the list of holidays for a given year and country'''
+
+        country_code = country_code.upper()
+
+        holidays = Holiday.objects.filter(
+            date__year=year,
+            country__code=country_code,
+        )
+        if holidays.exists():
+            return holidays
+        # Retrieve data from external API if not exist in local database
+        try:
+            r = requests.get(f'{cls.holiday_api_endpoint}/{year}/{country_code}')
+            if r.ok:
+                json_response = json.loads(r.text)
+                country = Country.objects.get(code=country_code)
+                holidays = Holiday.objects.bulk_create([Holiday(**{
+                        'date': h['date'],
+                        'country': country,
+                        'local_name': h['localName']
+                    }) for h in json_response]
+                )
+                return holidays
+
+        except Exception as Err:
+            logger.error(Err)

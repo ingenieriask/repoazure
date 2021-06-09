@@ -1,0 +1,5 @@
+[
+	{"model": "core.calendar", "pk": 1, "fields": {"name": "main calendar"}},
+	{"model": "core.calendardaytype", "pk": 1, "fields": {"name": "workingday"}},
+	{"model": "core.calendardaytype", "pk": 2, "fields": {"name": "non-workingday"}}
+]

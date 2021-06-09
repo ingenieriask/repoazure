@@ -4,9 +4,10 @@ from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Submit, Row, Column, Field, ButtonHolder, Button, Div, HTML
 from core.models import Person,Disability,PreferencialPopulation,Disability, PersonRequest,PreferencialPopulation
 from crispy_forms.layout import Field
+import json
 from core.utils import get_field_value
-from core.widgets import ConsecutiveFormatWidget
-from core.services import RecordCodeService
+from core.widgets import ConsecutiveFormatWidget, NonWorkingCalendarWidget
+from core.services import RecordCodeService, CalendarService
 
 class CustomFileInput(Field):
     template = 'core/custom_fileinput.html'
@@ -201,7 +202,7 @@ class AbstractPersonRequestForm(forms.ModelForm):
         )
 
 class ConsecutiveFormatForm(forms.ModelForm):
-    '''Custom format for admin page'''
+    '''Custom consecutive number configuration form for admin page'''
 
     digits_range = (2, 12)
 
@@ -218,8 +219,6 @@ class ConsecutiveFormatForm(forms.ModelForm):
             or int(self.data['digits']) > ConsecutiveFormatForm.digits_range[1]:
             raise ValidationError("Valor o rango invalido para el número de dígitos del consecutivo")
 
-        print("self.data['digits']:", self.data['digits'])
-
         self.cleaned_data['format'] = RecordCodeService.compile(
                                             self.data['format'], 
                                             self.data['digits'])
@@ -230,4 +229,22 @@ class ConsecutiveFormatForm(forms.ModelForm):
 
         widgets = {
             'format': ConsecutiveFormatWidget()
+        }
+
+class CalendarForm(forms.ModelForm):
+    '''Custom non-working days configuration form for admin page'''
+
+    def clean(self, *args, **kwargs):
+        cleaned_data = super(CalendarForm, self).clean()
+
+        if self.data['calendarData'].strip() and self.data['year']:
+            events = json.loads(self.data['calendarData'])
+            year = int(self.data['year'])
+            CalendarService.update_calendar_days(year, events)
+
+        return cleaned_data
+
+    class Meta:
+        widgets = {
+            'name': NonWorkingCalendarWidget()
         }

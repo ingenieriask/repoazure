@@ -1,8 +1,7 @@
 from django.test import TestCase
-from core.services import MailService, RecordCodeService
+from core.services import MailService, RecordCodeService, CalendarService
 from correspondence.services import ECMService
 
-'''
 class MailServiceTestCase(TestCase):
 
     fixtures = ['app_parameter.json', ]
@@ -20,7 +19,7 @@ class ECMServiceTestCase(TestCase):
 
     def test_create_record(self):
         ECMService.create_record('test')
-'''
+
 class RecordCodeServiceTestCase(TestCase):
 
     fixtures = ['record_consecutive.json', 'app_filing_type.json']
@@ -45,3 +44,17 @@ class RecordCodeServiceTestCase(TestCase):
         digits = 3
         code = RecordCodeService.compile(format, digits)
         self.assertEqual(code, 'prefix{type}-{year}{consecutive:03d}sufix')
+
+class CalendarServiceTestCase(TestCase):
+
+    fixtures = ['app_country.json', ]
+
+    def test_get_holidays(self):
+        year = 2021
+        country_code = 'CO'
+        holidays = CalendarService.get_holidays(year, country_code)
+        print(holidays)
+        self.assertTrue(holidays)
+        holidays = CalendarService.get_holidays(year, country_code)
+        print(holidays)
+        self.assertTrue(holidays)

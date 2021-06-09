@@ -20,6 +20,7 @@ from pqrs import views as pqrs_views
 from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib.auth import views as auth_views
+from core import views as core_views
 
 urlpatterns = [
     path('captcha/', include('captcha.urls')),
@@ -36,7 +37,10 @@ urlpatterns = [
     path('password-reset/', auth_views.PasswordResetView.as_view(), name='password_reset'),
     path('password-reset/done/', auth_views.PasswordResetDoneView.as_view(), name='password_reset_done'),
     path('reset/<uidb64>/<token>/', auth_views.PasswordResetConfirmView.as_view(), name='password_reset_confirm'),
-    path('reset/done/', auth_views.PasswordResetCompleteView.as_view(), name='password_reset_complete')
+    path('reset/done/', auth_views.PasswordResetCompleteView.as_view(), name='password_reset_complete'),
+    path('calendar/holidays/', core_views.holidays, name='holidays'),
+    path('calendar/weekends/', core_views.weekends, name='weekends'),
+    path('calendar/not-working-days/', core_views.not_working_days, name='not_working_days')
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT) # to import static in deployment
 
 

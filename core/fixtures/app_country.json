@@ -3,21 +3,24 @@
     "model": "core.country",
     "pk": 1,
     "fields": {
-      "name": "Colombia"
+      "name": "Colombia",
+      "code": "CO"
     }
   },
   {
     "model": "core.country",
     "pk": 2,
     "fields": {
-      "name": "Argentina"
+      "name": "Argentina",
+      "code": "AR"
     }
   },
   {
     "model": "core.country",
     "pk": 3,
     "fields": {
-      "name": "Mexico"
+      "name": "Mexico",
+      "code": "MX"
     }
   }
 ]
