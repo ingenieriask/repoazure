@@ -1,8 +1,11 @@
 from django import forms
 from django.template import loader
 from django.utils.safestring import mark_safe
+from django.http import JsonResponse
 import json
+from datetime import date
 from core.services import RecordCodeService
+from core.models import CalendarDay
 
 class ConsecutiveFormatWidget(forms.Widget):
     '''Custom widget for the consecutive format definition'''
@@ -12,13 +15,12 @@ class ConsecutiveFormatWidget(forms.Widget):
     def get_context(self, name, value, attrs=None):
 
         format, digits = RecordCodeService.decompile(value)
-
         return {'widget': {
             'name': name,
             'value': format,
             'digits': digits,
-            'options': json.dumps(RecordCodeService.tokens),
-            'colors': json.dumps(['bg-primary', 'bg-success', 'bg-warning'])
+            'options': RecordCodeService.tokens,
+            'colors': ['bg-primary', 'bg-success', 'bg-warning']
         }}
 
     def render(self, name, value, attrs=None, renderer=None):
@@ -32,12 +34,11 @@ class NonWorkingCalendarWidget(forms.Widget):
     template_name = 'core/year_calendar_widget.html'
 
     def get_context(self, name, value, attrs=None):
-
-        print(value)
-
+        year = date.today().year
         return {'widget': {
-            'name': 'name',
-            'value': 'value',
+            'name': name,
+            'value': value,
+            'year': year,
         }}
 
     def render(self, name, value, attrs=None, renderer=None):

@@ -17,7 +17,6 @@
         "jquery-ui-dist": "1.12.1",
         "js-year-calendar": "1.0.2",
         "moment": "2.18.1",
-        "suggestags": "1.26.0",
-        "pandas": "1.2.4"
+        "suggestags": "1.26.0"
     }
 }

@@ -7,7 +7,7 @@ from crispy_forms.layout import Field
 import json
 from core.utils import get_field_value
 from core.widgets import ConsecutiveFormatWidget, NonWorkingCalendarWidget
-from core.services import RecordCodeService
+from core.services import RecordCodeService, CalendarService
 
 class CustomFileInput(Field):
     template = 'core/custom_fileinput.html'
@@ -147,8 +147,6 @@ class ConsecutiveFormatForm(forms.ModelForm):
             or int(self.data['digits']) > ConsecutiveFormatForm.digits_range[1]:
             raise ValidationError("Valor o rango invalido para el número de dígitos del consecutivo")
 
-        print("self.data['digits']:", self.data['digits'])
-
         self.cleaned_data['format'] = RecordCodeService.compile(
                                             self.data['format'], 
                                             self.data['digits'])
@@ -167,15 +165,14 @@ class CalendarForm(forms.ModelForm):
     def clean(self, *args, **kwargs):
         cleaned_data = super(CalendarForm, self).clean()
 
-        if self.data['calendarData'].strip():
+        if self.data['calendarData'].strip() and self.data['year']:
             events = json.loads(self.data['calendarData'])
-            print('events:', events)
+            year = int(self.data['year'])
+            CalendarService.update_calendar_days(year, events)
 
-        # TODO
         return cleaned_data
 
     class Meta:
-        fields = ('year',)
         widgets = {
-            'year': NonWorkingCalendarWidget()
+            'name': NonWorkingCalendarWidget()
         }

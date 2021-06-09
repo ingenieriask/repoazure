@@ -1,7 +1,7 @@
 from django.contrib import admin
 from core.models import State, City, Office, Country, PreferencialPopulation, \
     Disability, BooleanSelection, EthnicGroup, ResponseMode, SystemParameter, \
-    AppParameter, ConsecutiveFormat, FilingType, NonWorkingDay, NonWorkingDayType, \
+    AppParameter, ConsecutiveFormat, FilingType, CalendarDay, CalendarDayType, \
     Calendar
 from core.forms import ConsecutiveFormatForm, CalendarForm
 
@@ -37,6 +37,6 @@ admin.site.register(SystemParameter)
 admin.site.register(AppParameter)
 admin.site.register(ConsecutiveFormat, ConsecutiveFormatAdmin)
 admin.site.register(FilingType)
-admin.site.register(NonWorkingDay)
-admin.site.register(NonWorkingDayType)
+admin.site.register(CalendarDay)
+admin.site.register(CalendarDayType)
 admin.site.register(Calendar, CalendarAdmin)

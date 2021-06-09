@@ -220,18 +220,31 @@ class Consecutive(models.Model):
     def __str__(self):
         return f"{self.current} {self.date} {self.type}"
 
-class NonWorkingDayType(models.Model):
-    name = models.CharField(max_length=128,blank=False, null=False,default='')
+class CalendarDayType(models.Model):
+    name = models.CharField(max_length=128, blank=False, null=False,default='')
+
+    def __str__(self):
+        return self.name
 
 class Calendar(models.Model):
-    year = models.IntegerField(null=False, unique=True)
+    name = models.CharField(max_length=128, blank=False, null=False, default='', 
+                            verbose_name='Calendar')
 
-class NonWorkingDay(models.Model):
+    def __str__(self):
+        return self.name
+
+class CalendarDay(models.Model):
     date = models.DateField(default=timezone.now, null=False, blank=False) 
-    type = models.ForeignKey(NonWorkingDayType, on_delete=models.PROTECT, null=True, blank=True)
+    type = models.ForeignKey(CalendarDayType, on_delete=models.PROTECT, null=True, blank=True)
     calendar = models.ForeignKey(Calendar, on_delete=models.PROTECT, null=True, blank=True)
+
+    def __str__(self):
+        return f"{self.date} {self.type}"
 
 class Holiday(models.Model):
     date = models.DateField(default=timezone.now, null=False, blank=False) 
     country = models.ForeignKey(Country, on_delete=models.PROTECT, null=True, blank=True)
     local_name = models.CharField(max_length=256)
+
+    def __str__(self):
+        return f"{self.date} {self.local_name}"

@@ -1,5 +1,3 @@
 [
-	{"model": "core.consecutiveformat", "pk": 1, "fields": {"format": "Prefix{year}{consecutive:03d}{type}", "effective_date": "2020-05-20 0:0:0"}}, 
-	{"model": "core.consecutiveformat", "pk": 2, "fields": {"format": "{type}{year}{consecutive:03d}suffix", "effective_date": "2021-05-27 12:0:0"}},
-	{"model": "core.consecutiveformat", "pk": 3, "fields": {"format": "Prefix{year}{consecutive:03d}{type}suffix", "effective_date": "2022-05-10 16:58:45"}}
+	{"model": "core.consecutiveformat", "pk": 1, "fields": {"format": "{year}{consecutive:08d}{type}", "effective_date": "2020-05-20 0:0:0"}}
 ]

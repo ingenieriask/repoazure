@@ -34,10 +34,10 @@
     <div class="col-lg-2">
         <label>Número de dígitos del consecutivo</label>
     </div>
-    <div class="col-lg-1">
+    <div class="col-lg-2">
         <input class="form-control" type="number" id="id-digits" name="digits" min="2" max="12" value="{{ widget.digits }}">
     </div>
-    <div class="col-lg-9">
+    <div class="col-lg-8">
     </div>
     <div class="col-lg-2">
         <label>Formato</label>
@@ -55,9 +55,12 @@
 <script src="{% static 'node_modules/jquery/dist/jquery.min.js' %}"></script>
 <script src="{% static 'node_modules/suggestags/js/jquery.amsify.suggestags.js' %}"></script>
 
+{{ widget.options|json_script:"options" }}
+{{ widget.colors|json_script:"colors" }}
+
 <script>
-    var options = {{ widget.options | safe }}
-    var colors = {{ widget.colors | safe }}
+    var options = JSON.parse(document.getElementById('options').textContent);
+    var colors = JSON.parse(document.getElementById('colors').textContent);
 
     $('input[name="{{ widget.name }}"]').amsifySuggestags({
         suggestions: options,

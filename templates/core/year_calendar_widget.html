@@ -8,32 +8,61 @@
         <button class="btn btn-primary" id="calendar-holidays" data-toggle="button" aria-pressed="false"></button>
         <button class="btn btn-primary" id="calendar-sundays" data-toggle="button" aria-pressed="false"></button>
         <button class="btn btn-primary" id="calendar-saturdays" data-toggle="button" aria-pressed="false"></button>
-        <input id="calendar-data" name="calendarData" type="hidden" value="">
-        <input id="calendar-year" name="year" type="hidden" value="">
+        <button class="btn btn-danger" id="calendar-erase" data-toggle="button" aria-pressed="false">Borrar todo</button>
+        <input id="id-calendar-data" name="calendarData" type="hidden" value="">
+        <input id="id-calendar-year" name="year" type="hidden" value="">
+        <input id="id-{{ widget.name }}" name="{{ widget.name }}" type="hidden" value="{{ widget.value }}">
     </div>
 </div>
 <div class="row">
-    <div class="col-lg-12"></div>
+    <div class="col-lg-2 small">
+        <label></label>
+    </div>
+</div>
+<div class="row">
+    <div class="col-lg-12">
         <div id="calendar"></div>
     </div>
 </div>
+
+<div class="modal fade" id="year-change-modal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+        <div class="modal-header">
+            <h5 class="modal-title" id="exampleModalLabel">Cambiar de año</h5>
+        </div>
+        <div class="modal-body">
+            Los cambios realizados en el año actual serán descartados
+        </div>
+        <div class="modal-footer">
+            <button type="button" id="year-change-cancel" class="btn btn-secondary">Cancelar</button>
+            <button type="button" id="year-change-confirm" class="btn btn-primary">Confirmar</button>
+        </div>
+        </div>
+    </div>
+  </div>
 
 <script src="{% static 'node_modules/jquery/dist/jquery.min.js' %}"></script>
 <script src="{% static 'node_modules/bootstrap/dist/js/bootstrap.bundle.min.js' %}"></script>
 <script src="{% static 'node_modules/js-year-calendar/dist/js-year-calendar.min.js' %}"></script>
 
+{{ widget.year|json_script:"year" }}
+
 <script>
+
+    var year = JSON.parse(document.getElementById('year').textContent);
+    var updated = false;
 
     const dayType = {
         'holiday': {'type': 'holiday', 'name': 'Día festivo', 'color': '#37AFA9', 'disable': 'Desmarcar festivos', 'enable': 'Marcar festivos'},
-        'custom': {'type': 'custom', 'name': 'No laboral personalizado', 'color': '#AEC8C9'},
+        'custom': {'type': 'custom', 'name': 'No laboral', 'color': '#AEC8C9'},
         'sat': {'type': 'sat', 'name': 'Sábado', 'color': '#E3E3CD', 'disable': 'Desmarcar sábados', 'enable': 'Marcar sábados'},
         'sun': {'type': 'sun', 'name': 'Domingo', 'color': '#E3E3CD', 'disable': 'Desmarcar domingos', 'enable': 'Marcar domingos'}
     }
 
     const calendar = new Calendar(document.querySelector('#calendar'), {
         clickDay: function(e) {
-            events = calendar.getEvents(e.date)
+            events = calendar.getEvents(e.date);
             if (events.length) {
                 let dataSource = calendar.getDataSource();
                 calendar.setDataSource(dataSource.filter(item => item.id != events[0].id));
@@ -42,7 +71,7 @@
             else {
                 calendar.addEvent(
                     {
-                        id: e.date.toString(),
+                        id: e.date.toISOString().substring(0, 19),
                         name: dayType['custom']['name'],
                         description: '',
                         startDate: e.date,
@@ -50,8 +79,9 @@
                         type: dayType['custom']['type'],
                         color: dayType['custom']['color']
                     }
-                )
+                );
             }
+            setData();
         },
         mouseOnDay: function(e) {
             if(e.events.length > 0) {
@@ -81,12 +111,6 @@
         },
         style:'background',
         enableRangeSelection: false,
-        dataSource: [
-            {
-                startDate: new Date(2021, 1, 4),
-                endDate: new Date(2021, 1, 15)
-            }
-        ]
     });
 
     function checkByDateType(dayCode) {
@@ -96,7 +120,7 @@
 
     function addHolidays() {
         var country = 'CO';
-        var year = 2021;
+        var year = calendar.getYear();
         // GET AJAX request
         $.ajax({
             type: 'GET',
@@ -113,8 +137,10 @@
                         type: dayType['holiday']['type'],
                         color: dayType['holiday']['color']
                     }
-                    calendar.addEvent(event)
+                    calendar.addEvent(event, false);
                 });
+                calendar.render();
+                setData();
             },
             error: function (response) {
                 console.log(response)
@@ -125,11 +151,11 @@
     function deleteByDateType(dayCode) {
         let dataSource = calendar.getDataSource();
         calendar.setDataSource(dataSource.filter(item => item.type != dayType[dayCode]['type']));
-        console.info('deleteHolidays')
+        setData();
     }
 
     function addWeekends(dayCode) {
-        var year = 2021;
+        var year = calendar.getYear();
         // GET AJAX request
         $.ajax({
             type: 'GET',
@@ -146,8 +172,10 @@
                         type: dayType[dayCode]['type'],
                         color: dayType[dayCode]['color']
                     }
-                    calendar.addEvent(event)
+                    calendar.addEvent(event, false);
                 });
+                calendar.render();
+                setData();
             },
             error: function (response) {
                 console.log(response)
@@ -166,8 +194,11 @@
                 addWeekends(dayCode)
             }
         }
-        $('#calendar-data').val(JSON.stringify(calendar.getDataSource()));
         return exists
+    }
+
+    function setTextDisable(itemId, dayCode) {
+        $(itemId).text(dayType[dayCode]['enable']);
     }
 
     function setText(itemId, dayCode) {
@@ -197,42 +228,80 @@
         setText('#calendar-saturdays', 'sat') 
     })
 
-    document.querySelector('#calendar').addEventListener('yearChanged', function(e) {
-        console.log("New year selected: ", e);
-        console.log("New year selected: " + e.currentYear);
-        $('#calendar-data').val(JSON.stringify(calendar.getYear()));
+    $('#calendar-erase').click(function (e) {
+        e.preventDefault();
+        calendar.setDataSource([])
+        setData();
+        setTextDisable("#calendar-holidays", 'holiday')
+        setTextDisable('#calendar-sundays', 'sun') 
+        setTextDisable('#calendar-saturdays', 'sat') 
     })
 
-    let dataSource = [
-        {
-            id: (new Date(2021, 1, 1)).toString(),
-            name: 'Microsoft Convergence',
-            startDate: new Date(2021, 1, 1),
-            endDate: new Date(2021, 1, 1),
-            type: 1,
-            color: "yellow"
-        }, {
-            id: (new Date(2021, 2, 2)).toString(),
-            name: 'Microsoft Convergence',
-            startDate: new Date(2021, 2, 2),
-            endDate: new Date(2021, 2, 2),
-            type: 2,
-            color: "red"
+    function getNotWorkingDays() {
+        var year = calendar.getYear();
+        // GET AJAX request
+        $.ajax({
+            type: 'GET',
+            url: "{% url 'not_working_days' %}",
+            data: {"year": year},
+            success: function (response) {
+                events = []
+                response[0].forEach(function (value) {
+                    events.push({
+                        id: value.date,
+                        name: dayType['custom']['name'],
+                        description: '',
+                        startDate: new Date(value.date),
+                        endDate: new Date(value.date),
+                        type: dayType['custom']['type'],
+                        color: dayType['custom']['color']
+                    })
+                });
+                calendar.setDataSource(events)
+                setData();
+                updated = false;
+            },
+            error: function (response) {
+                console.log(response)
+            }
+        })
+    }
+
+    function setData() {
+        $('#id-calendar-data').val(JSON.stringify(calendar.getDataSource()));
+        updated = true
+    }
+
+    function setYear() {
+        $('#id-calendar-year').val(calendar.getYear());
+        getNotWorkingDays();
+        updated = false;
+    }
+
+    calendar.setYear(year)
+
+    $('#year-change-confirm').click(function (e) {
+        e.preventDefault();
+        setYear();
+        $('#year-change-modal').modal('hide')
+    })
+
+    $('#year-change-cancel').click(function (e) {
+        e.preventDefault();
+        calendar.setYear($('#id-calendar-year').val());
+        $('#year-change-modal').modal('hide')
+    })
+
+    document.querySelector('#calendar').addEventListener('yearChanged', function(e) {
+        if (updated) {
+            $('#year-change-modal').modal('show')
+        } else {
+            setYear()
         }
-    ]
+        
+    })
 
-    calendar.setDataSource(dataSource)
-
-    events = calendar.getEvents(new Date(2021, 2, 4))
-    console.info('events:', events)
-    if (events.length) {
-        console.info('events:', events.length)
-        deleteEvent(events[0])
-    } 
-
-    calendar.setYear(2021)
-    $('#calendar-data').val(JSON.stringify(calendar.getYear()));
-
+    setYear();
 </script>
 
 

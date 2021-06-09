@@ -10,7 +10,7 @@ import pandas as pd
 from datetime import date
 
 from core.models import AppParameter, ConsecutiveFormat, Consecutive, Country, FilingType, \
-    Holiday
+    Holiday, CalendarDay, CalendarDayType, Calendar
 
 logger = logging.getLogger(__name__)
 
@@ -133,16 +133,41 @@ class CalendarService(object):
         return 
 
     @classmethod
+    def get_calendar_days(cls, year):
+        return CalendarDay.objects.filter(date__year=year)
+
+    @classmethod
+    def update_calendar_days(cls, year, nonworking_days):
+
+        nonworking_days = {date(*map(int, d['id'].split('T')[0].split('-'))) for d in nonworking_days if 'id' in d}
+        days = CalendarDay.objects.filter(date__year=year)
+        working_day = CalendarDayType.objects.get(name='workingday')
+        nonWorking_day = CalendarDayType.objects.get(name='non-workingday')
+        nonWorking_day = CalendarDayType.objects.get(name='non-workingday')
+        calendar = Calendar.objects.first()
+        new = not days.exists()
+        if new:
+            day_range = pd.date_range(
+                start=f'{year}-01-01', 
+                end=f'{int(year) + 1}-01-01', 
+                closed='left')
+            days = [CalendarDay(date=d, calendar=calendar) for d in day_range.date]
+        for d in days:
+            d.type = nonWorking_day if d.date in nonworking_days else working_day
+        if new:
+            return CalendarDay.objects.bulk_create(days)
+        return CalendarDay.objects.bulk_update(days, ['type'])
+
+    @classmethod
     def get_weekends(cls, year, week_day_code):
-
-        week_day = {'SAT': 'W-SUN', 'SUN': 'W-MON'}
-
         '''Return the list of saturdays or sundays of an entire year'''
-        return pd.date_range(
+
+        days =  pd.date_range(
             start=f'{year}-01-01', 
             end=f'{int(year) + 1}-01-01', 
-            freq=week_day[week_day_code],
-            closed='left').strftime(r'%Y-%m-%d').tolist()
+            freq=f'W-{week_day_code}', #week_day[week_day_code],
+            closed='left').tolist()
+        return days
 
     @classmethod
     def get_holidays(cls, year, country_code):
@@ -151,11 +176,10 @@ class CalendarService(object):
         country_code = country_code.upper()
 
         holidays = Holiday.objects.filter(
-            date__year= year,
+            date__year=year,
             country__code=country_code,
         )
         if holidays.exists():
-            print('from local db')
             return holidays
         # Retrieve data from external API if not exist in local database
         try:
