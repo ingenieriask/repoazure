@@ -7,7 +7,7 @@ from rest_framework import status
 from rest_framework.response import Response 
 from correspondence.models import ReceptionMode, RadicateTypes, Radicate
 from core.models import Person, Office, DocumentTypes, Poll, PollInstance,PersonRequest
-from pqrs.models import PQR,Type,PqrsObject
+from pqrs.models import PQRS,Type,PqrsContent
 from pqrs.forms import SearchPersonForm, PersonForm, PqrRadicateForm,PersonRequestForm,PersonFormUpdate,PersonRequestFormUpdate
 from core.utils_db import process_email,get_system_parameter
 from django.http import HttpResponseRedirect, HttpResponse, JsonResponse
@@ -147,7 +147,7 @@ def PQRSType(request):
 
 
 def multi_create_request(request,person):
-    pqrs_object = get_object_or_404(PqrsObject, id=int(person))
+    pqrs_object = get_object_or_404(PQRS, uuid=int(person))
     if request.method == 'GET':
         document_type = DocumentTypes.objects.filter(name =pqrs_object.principal_person.document_type)[0].abbr
         context ={
@@ -191,9 +191,9 @@ class PersonCreateView(CreateView):
         self.object = form.save(commit=False)
         self.object.save()
         pqrsTy = get_object_or_404(Type, id=int(self.kwargs['pqrs_type']))
-        pqrsObject=PqrsObject(pqr_type = pqrsTy,principal_person = self.object)
+        pqrsObject=PQRS(pqr_type = pqrsTy,principal_person = self.object)
         pqrsObject.save()
-        return redirect('pqrs:multi_request',pqrsObject.id)
+        return redirect('pqrs:multi_request',pqrsObject.uuid)
 
 class PersonRequestCreateView(CreateView):
     model = PersonRequest
@@ -203,9 +203,9 @@ class PersonRequestCreateView(CreateView):
     def form_valid(self, form):
         self.object = form.save(commit=False)
         self.object.save()
-        pqrsObject = get_object_or_404(PqrsObject,id=int(self.kwargs['pqrs_type']))
+        pqrsObject = get_object_or_404(PQRS,id=int(self.kwargs['pqrs_type']))
         pqrsObject.multi_request_person.add(self.object)
-        return redirect('pqrs:multi_request',pqrsObject.id)
+        return redirect('pqrs:multi_request',pqrsObject.uuid)
 
     def get_form_kwargs(self):
         kwargs = super( PersonRequestCreateView, self).get_form_kwargs()
