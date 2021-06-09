@@ -1,16 +1,8 @@
+from pqrs.models import PqrsContent
 from django import forms
 from crispy_forms.helper import FormHelper
-from crispy_forms.layout import Layout, Submit, Row, Column, ButtonHolder, Button, Div, HTML
-from django.contrib.auth.models import User
-from django.db.models import fields
-from core.models import City, PreferencialPopulation, Person
+from crispy_forms.layout import Layout, Submit, Row, Column, Div
 from core.forms import AbstractPersonForm,AbstractPersonRequestForm
-from correspondence.models import Radicate, UserProfileInfo, Record
-from pqrs.models import PQR
-from core.forms import CustomFileInput
-from pinax.eventlog.models import log, Log
-from django.urls import reverse
-from django.core.exceptions import ValidationError
 from django.utils.translation import gettext_lazy as _
 
 from captcha.fields import CaptchaField
@@ -78,7 +70,7 @@ class PqrRadicateForm(forms.ModelForm):
         return cleaned_data
 
     class Meta:
-        model = PQR
+        model = PqrsContent
         fields = ('subject', 'data', 'response_mode', 'captcha')
         labels = {'subject': 'Asunto',
                   'data': 'Detalle de la solicitud',

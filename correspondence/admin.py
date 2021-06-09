@@ -1,7 +1,7 @@
 from django.contrib import admin
 from correspondence.models import Radicate, Raft, Subraft, Doctype, DocsRetention, Record, \
     RadicateTypes, ReceptionMode, ProcessType, SecurityLevel, FilePhases, FinalDisposition, Template
-from core.models import Person, UserProfileInfo, DocumentTypes, PersonType
+from core.models import Person, PersonRequest, UserProfileInfo, DocumentTypes, PersonType
 
 # Register your models here.
 admin.site.register(Raft)
@@ -9,6 +9,7 @@ admin.site.register(Subraft)
 admin.site.register(Doctype)
 admin.site.register(UserProfileInfo)
 admin.site.register(Person)
+admin.site.register(PersonRequest)
 admin.site.register(DocsRetention)
 admin.site.register(Record)
 admin.site.register(DocumentTypes)

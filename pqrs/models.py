@@ -4,7 +4,7 @@ from django.db.models import CheckConstraint, Q, F
 from django.utils import tree
 from core.models import ResponseMode, BaseModel, Person,PersonRequest
 from correspondence.models import Radicate
-
+import uuid
 
 class Type(models.Model):
     name = models.CharField(max_length=128,editable=False)
@@ -34,9 +34,15 @@ class SubType(models.Model):
             super(SubType, self).save(*args, **kwargs)
         else:
             raise Exception("max_response_days should be lower or equal to type.max_response_days")
-            
+
+class PQRS(models.Model):
+    uuid = models.UUIDField(editable=False, default=uuid.uuid4, unique=True)
+    pqr_type = models.ForeignKey(Type,on_delete=models.PROTECT,related_name='pqrs_object_type',null =True)
+    principal_person = models.ForeignKey(Person, on_delete=models.PROTECT,related_name='pqrs_object_principal_person',null=True)
+    multi_request_person = models.ManyToManyField(PersonRequest, related_name="multi_pqrs_request_person")
+         
 # Create your models here.
-class PQR(Radicate):
+class PqrsContent(Radicate):
     # person = models.ForeignKey(Person, on_delete=models.PROTECT, related_name='pqr_person')
     # subject = models.CharField(max_length=256)
     data = models.TextField(max_length=2000)
@@ -44,7 +50,7 @@ class PQR(Radicate):
     response_mode = models.ForeignKey(ResponseMode, on_delete=models.PROTECT, related_name='pqrs_response_mode')
     # number = models.TextField(max_length=30, null=False, db_index=True)
     subtype = models.ForeignKey(SubType, on_delete=models.PROTECT, related_name='pqr_type', null=True)
-
+    pqrsobject = models.ForeignKey(PQRS,related_name='pqr_type_object', on_delete=models.PROTECT)
     def get_absolute_url(self):
         return reverse('pqrs_detail', args=[self.id])
 
@@ -55,10 +61,5 @@ class PQR(Radicate):
         #         self.user_creation = user
         #     else:
         #         self.user_updated = user
-        super(PQR, self).save()
+        super(PqrsContent, self).save()
 
-class PqrsObject(models.Model):
-    pqr_type = models.ForeignKey(Type,on_delete=models.PROTECT,related_name='pqrs_object_type',null =True)
-    principal_person = models.ForeignKey(Person, on_delete=models.PROTECT,related_name='pqrs_object_principal_person',null=True)
-    multi_request_person = models.ManyToManyField(PersonRequest, related_name="multi_pqrs_request_person")
-    

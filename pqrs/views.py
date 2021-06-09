@@ -7,7 +7,7 @@ from rest_framework import status
 from rest_framework.response import Response 
 from correspondence.models import ReceptionMode, RadicateTypes, Radicate
 from core.models import Person, Office, DocumentTypes, Poll, PollInstance,PersonRequest
-from pqrs.models import PQR,Type,PqrsObject
+from pqrs.models import PQRS,Type,PqrsContent
 from pqrs.forms import SearchPersonForm, PersonForm, PqrRadicateForm,PersonRequestForm,PersonFormUpdate,PersonRequestFormUpdate
 from core.utils_db import process_email,get_system_parameter
 from django.http import HttpResponseRedirect, HttpResponse, JsonResponse
@@ -141,13 +141,70 @@ def create_pqr(request, person):
 
     return render(request, 'pqrs/create_pqr.html', context={'form': form, 'person': person})
 
+def create_pqr(request, pqrs):
+    BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    pqrsoparent = get_object_or_404(PQRS, uuid=pqrs)
+    person = get_object_or_404(Person, id=int(pqrsoparent.principal_person.id))
+
+    if request.method == 'POST':
+        form = PqrRadicateForm(request.POST, request.FILES)
+
+        if form.is_valid():
+            instance = form.save(commit=False)
+            cleaned_data = form.cleaned_data
+            form.document_file = request.FILES['document_file']
+            now = datetime.now()
+            instance.number = now.strftime("%Y%m%d%H%M%S")
+            instance.reception_mode = get_object_or_404(ReceptionMode, abbr='VIR')
+            instance.type = get_object_or_404(RadicateTypes, abbr='PQR')
+            instance.office = get_object_or_404(Office, abbr='PQR')
+            # instance.creator = request.user.profile_user
+            # instance.current_user = request.user.profile_user
+            instance.person = person
+            radicate = form.save()
+
+            log(
+                user=request.user,
+                action="PQR_CREATED",
+                obj=radicate,
+                extra={
+                    "number": radicate.number,
+                    "message": "El radicado %s ha sido creado" % (radicate.number)
+                }
+            )
+
+            process_email('EMAIL_PQR_CREATE', instance.person.email, instance)
+
+            files = open(os.path.join(BASE_DIR, radicate.document_file.path), "rb")
+
+            node_id = ECMService.upload(files)
+
+            if node_id:
+                radicate.set_cmis_id(node_id)
+
+                if ECMService.request_renditions(node_id):
+                    messages.success(request, "El radicado se ha creado correctamente")
+                    url = reverse('correspondence:detail_radicate', kwargs={'pk': radicate.pk})
+                    return HttpResponseRedirect(url)
+
+                messages.error(request, "Ha ocurrido un error al guardar el archivo en el gestor de contenido")
+        else:
+            logger.error("Invalid create radicate form")
+            return render(request, 'pqrs/create_pqr.html', context={'form': form, 'person': person})
+    else:
+        form = PqrRadicateForm(initial={'person': person.id})
+        form.person = person
+
+    return render(request, 'pqrs/create_pqr.html', context={'form': form, 'person': person})
+
+
 def PQRSType(request):
     pqrs_types = Type.objects.all()
     return render(request, 'pqrs/pqrs_type.html', context={'types': pqrs_types})
 
 
 def multi_create_request(request,person):
-    pqrs_object = get_object_or_404(PqrsObject, id=int(person))
+    pqrs_object = get_object_or_404(PQRS, uuid=int(person))
     if request.method == 'GET':
         document_type = DocumentTypes.objects.filter(name =pqrs_object.principal_person.document_type)[0].abbr
         context ={
@@ -191,9 +248,9 @@ class PersonCreateView(CreateView):
         self.object = form.save(commit=False)
         self.object.save()
         pqrsTy = get_object_or_404(Type, id=int(self.kwargs['pqrs_type']))
-        pqrsObject=PqrsObject(pqr_type = pqrsTy,principal_person = self.object)
+        pqrsObject=PQRS(pqr_type = pqrsTy,principal_person = self.object)
         pqrsObject.save()
-        return redirect('pqrs:multi_request',pqrsObject.id)
+        return redirect('pqrs:multi_request',pqrsObject.uuid)
 
 class PersonRequestCreateView(CreateView):
     model = PersonRequest
@@ -203,9 +260,9 @@ class PersonRequestCreateView(CreateView):
     def form_valid(self, form):
         self.object = form.save(commit=False)
         self.object.save()
-        pqrsObject = get_object_or_404(PqrsObject,id=int(self.kwargs['pqrs_type']))
+        pqrsObject = get_object_or_404(PQRS,id=int(self.kwargs['pqrs_type']))
         pqrsObject.multi_request_person.add(self.object)
-        return redirect('pqrs:multi_request',pqrsObject.id)
+        return redirect('pqrs:multi_request',pqrsObject.uuid)
 
     def get_form_kwargs(self):
         kwargs = super( PersonRequestCreateView, self).get_form_kwargs()
