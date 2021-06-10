@@ -94,9 +94,10 @@ def create_pqr(request, person):
         form = PqrRadicateForm(request.POST, request.FILES)
 
         if form.is_valid():
+
             instance = form.save(commit=False)
             cleaned_data = form.cleaned_data
-            form.document_file = request.FILES['document_file']
+            form.files_uploaded = request.FILES.getlist('files_uploaded')
             now = datetime.now()
             instance.number = now.strftime("%Y%m%d%H%M%S")
             instance.reception_mode = get_object_or_404(ReceptionMode, abbr='VIR')
@@ -147,7 +148,7 @@ def create_pqr_multiple(request, pqrs):
     person = get_object_or_404(Person, id=int(pqrsoparent.principal_person.id))
 
     if request.method == 'POST':
-        form = PqrRadicateForm(request.POST, request.FILES)
+        form = PqrRadicateForm(request.POST)
 
         if form.is_valid():
             instance = form.save(commit=False)
