@@ -18,8 +18,6 @@ from django.contrib.messages import constants as messages
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-TEMPLATE_DIR = os.path.join(BASE_DIR, 'templates')
-MEDIA_DIR = os.path.join(BASE_DIR, 'media')
 
 env = environ.Env()
 environ.Env.read_env()  # reading .env file
@@ -27,15 +25,16 @@ environ.Env.read_env()  # reading .env file
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/3.0/howto/deployment/checklist/
 
-SECRET_KEY = env.str('RINO_SECRET_KEY')
-
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = env.bool('RINO_DEBUG')
 
-ALLOWED_HOSTS = ['192.168.1.103', 'localhost', '192.168.1.108', 'djrino.azurewebsites.net', 'rino.skillnet.com.co', 'rino.skillnet.co', '127.0.0.1', '172.18.48.47']
+TEMPLATE_DIR = os.path.join(BASE_DIR, 'templates') if DEBUG else env.str('TEMPLATE_DIR') 
+MEDIA_DIR = os.path.join(BASE_DIR, 'media') if DEBUG else env.str('MEDIA_DIR') 
+
+SECRET_KEY = env.str('RINO_SECRET_KEY')
+ALLOWED_HOSTS = env.json('ALLOWED_HOSTS')
 
 # Application definition
-
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -123,28 +122,24 @@ AUTH_PASSWORD_VALIDATORS = [
 # https://docs.djangoproject.com/en/3.0/topics/i18n/
 
 LANGUAGE_CODE = 'es-co'
-
 TIME_ZONE = 'America/Bogota'
-
 USE_I18N = True
-
 USE_L10N = True
-
 USE_TZ = False
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.0/howto/static-files/
 
-STATIC_URL = '/static/'
-STATIC_ROOT = os.path.join(BASE_DIR, "assets")
+STATIC_URL = '/static/' if DEBUG else env.str('STATIC_URL')
+STATIC_ROOT = os.path.join(BASE_DIR, 'assets') if DEBUG else env.str('STATIC_ROOT')
 
 STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, "static"),
-    ('node_modules', os.path.join(BASE_DIR, 'node_modules/')),
-]
+        os.path.join(BASE_DIR, "static"),
+        ('node_modules', os.path.join(BASE_DIR, 'node_modules/')),
+    ] if DEBUG else env.json('STATICFILES_DIRS')
 
-MEDIA_ROOT = MEDIA_DIR
-MEDIA_URL = '/media/'
+MEDIA_ROOT = MEDIA_DIR if DEBUG else env.str('MEDIA_ROOT')
+MEDIA_URL = '/media/' if DEBUG else env.str('MEDIA_URL')
 
 LOGIN_URL = 'login'
 LOGOUT_URL = 'logout'
@@ -154,17 +149,6 @@ LOGIN_REDIRECT_URL = '/correspondence/charts'
 XS_SHARING_ALLOWED_METHODS = ['POST', 'GET', 'OPTIONS', 'PUT', 'DELETE']
 
 # Config constants
-'''
-ECM_USER = env.str('RINO_ECM_USER')
-ECM_PASSWORD = env.str('RINO_ECM_PASSWORD')
-ECM_SEARCH_URL = env.str('RINO_ECM_SEARCH_URL')
-ECM_UPLOAD_URL = env.str('RINO_ECM_UPLOAD_URL')
-ECM_RECORD_URL = env.str('RINO_ECM_RECORD_URL')
-ECM_RECORD_ASSIGN_URL = env.str('RINO_ECM_RECORD_ASSIGN_URL')
-ECM_RECORD_UPDATE_URL = env.str('RINO_ECM_RECORD_UPDATE_URL')
-ECM_REQUEST_RENDITIONS = env.str('RINO_ECM_REQUEST_RENDITIONS')
-ECM_PREVIEW_URL = env.str('RINO_ECM_PREVIEW_URL')
-'''
 CONVERT_URL = 'http://localhost:3000/convert/office'
 
 MESSAGE_TAGS = {
@@ -175,18 +159,22 @@ MESSAGE_TAGS = {
     messages.ERROR: 'alert-danger',
 }
 
-DEBUG = env.bool('RINO_DEBUG')
-
 AUTH_USER_MODEL = 'auth.User'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'
 
-
 AZURE_STORAGE_KEY = env.bool('AZURE_STORAGE_KEY')
 
-if not DEBUG:
+if AZURE_STORAGE_KEY:
     DEFAULT_FILE_STORAGE = 'rino.custom_azure.AzureMediaStorage'
     STATICFILES_STORAGE = 'rino.custom_azure.AzureStaticStorage'
+
+EMAIL_BACKEND = env.str('EMAIL_BACKEND')
+EMAIL_USE_TLS = env.bool('EMAIL_USE_TLS')
+EMAIL_HOST = env.str('EMAIL_HOST')
+EMAIL_HOST_USER = env.str('EMAIL_HOST_USER')
+EMAIL_HOST_PASSWORD = env.str('EMAIL_HOST_PASSWORD')
+EMAIL_PORT = env.int('EMAIL_PORT')
 
 STATIC_LOCATION = "static"
 MEDIA_LOCATION = "media"
@@ -196,7 +184,7 @@ CORS_ORIGIN_ALLOW_ALL = True
 
 SESSION_ENGINE = 'redis_sessions.session'
 
-SESSION_REDIS = json.loads(env.str('RINO_SESSION_REDIS'))
+SESSION_REDIS = env.json('RINO_SESSION_REDIS')
 
 CORS_ORIGIN_WHITELIST = (
   'http://localhost:8000',
@@ -210,4 +198,4 @@ CELERY_EMAIL_TASK_CONFIG = {
 CELERY_EMAIL_CHUNK_SIZE = 1
 CELERY_RESULT_BACKEND = 'django-db'
 
-EMAIL_BACKEND ="djcelery_email.backends.CeleryEmailBackend"
+#DEBUG = True
