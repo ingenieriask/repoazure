@@ -1,3 +1,4 @@
+import uuid
 from django.shortcuts import redirect, render
 from django.urls.base import reverse_lazy
 from django.views.generic import View
@@ -260,7 +261,7 @@ class PersonRequestCreateView(CreateView):
     def form_valid(self, form):
         self.object = form.save(commit=False)
         self.object.save()
-        pqrsObject = get_object_or_404(PQRS,id=int(self.kwargs['pqrs_type']))
+        pqrsObject = get_object_or_404(PQRS,uuid=self.kwargs['pqrs_type'])
         pqrsObject.multi_request_person.add(self.object)
         return redirect('pqrs:multi_request',pqrsObject.uuid)
 
