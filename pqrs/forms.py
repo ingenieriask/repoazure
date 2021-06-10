@@ -2,7 +2,7 @@ from pqrs.models import PqrsContent
 from django import forms
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Submit, Row, Column, Div
-from core.forms import AbstractPersonForm,AbstractPersonRequestForm
+from core.forms import AbstractPersonForm,AbstractPersonRequestForm,AbstractPersonAttorny
 from django.utils.translation import gettext_lazy as _
 
 from captcha.fields import CaptchaField
@@ -27,6 +27,16 @@ class PersonFormUpdate(AbstractPersonForm):
         self.fields['document_type'].disabled = True
         self.fields['document_number'].disabled = True
         self.fields['person_type'].disabled = True
+        self.helper.layout.extend([
+            Div(
+                Submit('submit','Siguiente',
+                css_class="btn btn-primary mx-auto",
+                ),css_class="d-flex"),
+                ])
+
+class PersonAttorny(AbstractPersonAttorny):
+    def __init__(self,pqrs_type=None,  *args, **kwargs):
+        super(PersonAttorny, self).__init__(*args, **kwargs)
         self.helper.layout.extend([
             Div(
                 Submit('submit','Siguiente',
