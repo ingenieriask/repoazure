@@ -7,7 +7,7 @@ app_name = 'pqrs'
 urlpatterns = [
     path('', views.index, name='index'),
     path('pqrs-create/<int:person>/', views.create_pqr, name='pqrs_create'),
-    path('pqrs-create/<uuid:pqrs>/', views.create_pqr, name='pqrs_create'),
+    path('pqrs-create/<uuid:pqrs>/', views.create_pqr_multiple, name='pqrs_create_multiple_person'),
     path('pqrs-detail/<int:pk>/', views.PqrDetailView.as_view(), name="pqrs_detail"),
     path('pqrs-type/', views.PQRSType, name='pqrs_type'),
     path('search-person/<int:pqrs_type>/', views.search_person, name='search_person'),
@@ -21,6 +21,6 @@ urlpatterns = [
     path('edit-person-request/<uuid:pqrs_type>/<int:pk>/', views.PersonUpdateViewNewRequest.as_view(), name='edit_person_request'),
     path('multi-request/<uuid:person>/', views.multi_create_request, name='multi_request'),
     path('delete-person/<uuid:pqrs_type>/<int:id>/',views.dete_person_request, name='delete_person_request'),
-    path('show_poll/<int:pk>/', views.show_poll, name="show_poll"),
+    #path('show_poll/<int:pk>/', views.show_poll, name="show_poll"),
     
 ]

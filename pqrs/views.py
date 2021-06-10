@@ -141,7 +141,7 @@ def create_pqr(request, person):
 
     return render(request, 'pqrs/create_pqr.html', context={'form': form, 'person': person})
 
-def create_pqr(request, pqrs):
+def create_pqr_multiple(request, pqrs):
     BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     pqrsoparent = get_object_or_404(PQRS, uuid=pqrs)
     person = get_object_or_404(Person, id=int(pqrsoparent.principal_person.id))
