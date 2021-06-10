@@ -52,7 +52,7 @@ class PqrsContent(Radicate):
     files_uploaded = models.FileField(upload_to="uploads/", validators=[validate_file_size], blank=True, null=True)
     # number = models.TextField(max_length=30, null=False, db_index=True)
     subtype = models.ForeignKey(SubType, on_delete=models.PROTECT, related_name='pqr_type', null=True)
-    pqrsobject = models.ForeignKey(PQRS,related_name='pqr_type_object', on_delete=models.PROTECT)
+    pqrsobject = models.ForeignKey(PQRS,related_name='pqr_type_object', on_delete=models.PROTECT,blank=True, null=True)
     def get_absolute_url(self):
         return reverse('pqrs_detail', args=[self.id])
 

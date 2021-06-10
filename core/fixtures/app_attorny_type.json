@@ -1,0 +1,23 @@
+[
+  {
+    "model": "core.attornytype",
+    "pk": 1,
+    "fields": {
+      "name": "Abogado"
+    }
+  },
+  {
+    "model": "core.attornytype",
+    "pk": 2,
+    "fields": {
+      "name": "Padre"
+    }
+  },
+  {
+    "model": "core.attornytype",
+    "pk": 3,
+    "fields": {
+      "name": "Tutor Legal"
+    }
+  }
+]
