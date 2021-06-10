@@ -48,6 +48,11 @@ class Disability(models.Model):
     def __str__(self):
         return self.name
 
+class AttornyType(models.Model):
+    name = models.CharField(max_length=128)
+
+    def __str__(self):
+        return self.name
 
 class BooleanSelection(models.Model):
     name = models.CharField(max_length=128)
@@ -136,26 +141,7 @@ class RequestResponse(models.Model):
         return self.name
 
 
-class PersonRequest(BaseModel):
-    phone_number = models.CharField(blank=True, null=True ,max_length=12)
-    document_type = models.ForeignKey(DocumentTypes, on_delete=models.PROTECT, null=True, blank=True)
-    person_type = models.ForeignKey(PersonType, related_name='personPeititionType',on_delete=models.PROTECT, null=True, blank=True)
-    document_number = models.CharField(max_length=25, null=True, unique=True, db_index=True)
-    expedition_date= models.DateField(auto_now=False)
-    email = models.EmailField(null=True, blank=True)
-    name = models.CharField(max_length=256, null=False, blank=False)
-    lasts_name = models.CharField(max_length=256, null=False, blank=False)
-    city = models.ForeignKey(City, on_delete=models.PROTECT, related_name='personsCityPetition', null=True, blank=True)
-    address = models.CharField(max_length=256, null=True, blank=True, unique=False)
-    uuid = ''
-    
-    def __str__(self):
-        return self.name
-    
-    
-# Generic person class, attributes for senders and receivers
-class Person(BaseModel):
-    is_anonymous = models.BooleanField(blank=False, null=False, default=False)
+class PersonBase(BaseModel):
     phone_number = models.CharField(blank=True, null=True ,max_length=12)
     document_type = models.ForeignKey(DocumentTypes, on_delete=models.PROTECT, null=True, blank=True)
     request_response = models.ForeignKey(RequestResponse, on_delete=models.PROTECT, null=True, blank=True)
@@ -167,11 +153,22 @@ class Person(BaseModel):
     lasts_name = models.CharField(max_length=256, null=False, blank=False)
     city = models.ForeignKey(City, on_delete=models.PROTECT, related_name='persons', null=True, blank=True)
     address = models.CharField(max_length=256, null=True, blank=True, unique=False)
+    
+    def __str__(self):
+        return self.name
+
+class Attorny(PersonBase):
+    attorny_type=models.ForeignKey(AttornyType, related_name='attorny_type', on_delete=models.PROTECT,null=True, blank=True)
+    professional_card = models.CharField(max_length=25, null=True,blank=True)
+# Generic person class, attributes for senders and receivers
+class Person(PersonBase):
+    is_anonymous = models.BooleanField(blank=False, null=False, default=False)
     parent = models.ForeignKey('self', on_delete=models.PROTECT, blank=True, null=True)
     preferencial_population = models.ManyToManyField(PreferencialPopulation, blank=True)
     conflict_victim = models.ForeignKey(BooleanSelection, on_delete=models.PROTECT, related_name='victimPerson', null=True, blank=True)
     disabilities = models.ManyToManyField(Disability, blank=True)
     ethnic_group = models.ForeignKey(EthnicGroup, on_delete=models.PROTECT, null=True, blank=True)
+    attornyCheck = models.BooleanField(default=False,blank=True, null=True)
     reverse_url = 'correspondence:detail_person'
     uuid = ''
 
@@ -196,6 +193,33 @@ class Person(BaseModel):
             address_list.append((2, self.parent.address))
 
         return address_list
+
+
+def get_first_name(self):
+    return self.first_name + ' ' + self.last_name
+    
+User.add_to_class("__str__", get_first_name)
+
+class PersonRequest(BaseModel):
+    phone_number = models.CharField(blank=True, null=True ,max_length=12)
+    document_type = models.ForeignKey(DocumentTypes, on_delete=models.PROTECT, null=True, blank=True)
+    person_type = models.ForeignKey(PersonType, related_name='personPeititionType',on_delete=models.PROTECT, null=True, blank=True)
+    document_number = models.CharField(max_length=25, null=True, unique=True, db_index=True)
+    expedition_date= models.DateField(auto_now=False)
+    email = models.EmailField(null=True, blank=True)
+    name = models.CharField(max_length=256, null=False, blank=False)
+    lasts_name = models.CharField(max_length=256, null=False, blank=False)
+    city = models.ForeignKey(City, on_delete=models.PROTECT, related_name='personsCityPetition', null=True, blank=True)
+    address = models.CharField(max_length=256, null=True, blank=True, unique=False)
+    uuid = ''
+    
+    def __str__(self):
+        return self.name
+
+
+class Atttorny_Person(models.Model):
+    attorny = models.ForeignKey(Attorny, related_name="attorny_extends", on_delete=models.PROTECT)
+    person =models.ForeignKey(Person, related_name="persons_extends", on_delete=models.PROTECT)
 
 
 def get_first_name(self):
