@@ -2,6 +2,7 @@ from django import forms
 from django.core.exceptions import ValidationError
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Submit, Row, Column, Field, ButtonHolder, Button, Div, HTML
+from django.db.models import query
 from core.models import Attorny, AttornyType, Person,Disability,PreferencialPopulation,Disability, PersonRequest,PreferencialPopulation
 from crispy_forms.layout import Field
 import json
@@ -215,6 +216,10 @@ class AbstractPersonRequestForm(forms.ModelForm):
 
 
 class AbstractPersonAttorny(forms.ModelForm):
+    attorny_type = forms.ModelChoiceField(
+        queryset=AttornyType.objects.all(),
+        required=True,
+        label='Tipo apoderado')
     email_confirmation = forms.CharField(label='Confirmación del correo electrónico', required=True)
     def clean_email_confirmation(self):
         cd = self.cleaned_data
@@ -235,7 +240,7 @@ class AbstractPersonAttorny(forms.ModelForm):
 
         fields = ['document_type', 'document_number','phone_number',
                  'expedition_date','person_type', 'name',
-                  'lasts_name', 'email', 'city', 'address','professional_card','attorny_type']
+                  'lasts_name', 'email', 'city', 'address','professional_card',]
         labels = {'document_type': 'Tipo de documento',
                   'document_number': 'Número de documento',
                   'expedition_date': 'Fecha de expedición',
@@ -246,7 +251,6 @@ class AbstractPersonAttorny(forms.ModelForm):
                   'person_type': 'Tipo persona',
                   'city': 'Ciudad / Municipio', 
                   'address': 'Dirección de contacto',
-                  'attorny_type':'Tipo apoderado',
                   'professional_card':'Número Tarjeta Profecional (Abogado)'}
         
         widgets = {
@@ -254,7 +258,6 @@ class AbstractPersonAttorny(forms.ModelForm):
             'person_type': forms.Select(attrs={'class': 'selectpicker'}),
             'expedition_date': forms.DateInput(format='%Y-%m-%d',attrs={ 'placeholder': 'digite la fecha','type': 'date'} ),
             'city': forms.Select(attrs={'class': 'selectpicker', 'data-live-search': 'true', 'data-size': '7'}),
-            'attorny_type': forms.Select(attrs={'class': 'selectpicker'}),
         }
 
     def __init__(self, *args, **kwargs):

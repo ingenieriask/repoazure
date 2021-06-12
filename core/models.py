@@ -158,8 +158,10 @@ class PersonBase(BaseModel):
         return self.name
 
 class Attorny(PersonBase):
-    attorny_type=models.ForeignKey(AttornyType, related_name='attorny_type', on_delete=models.PROTECT,null=True, blank=True)
     professional_card = models.CharField(max_length=25, null=True,blank=True)
+    def __str__(self):
+        return f"{self.name} {self.lasts_name}"
+
 # Generic person class, attributes for senders and receivers
 class Person(PersonBase):
     is_anonymous = models.BooleanField(blank=False, null=False, default=False)
@@ -216,16 +218,18 @@ class PersonRequest(BaseModel):
     def __str__(self):
         return self.name
 
-
-class Atttorny_Person(models.Model):
-    attorny = models.ForeignKey(Attorny, related_name="attorny_extends", on_delete=models.PROTECT)
-    person =models.ForeignKey(Person, related_name="persons_extends", on_delete=models.PROTECT)
-
-
 def get_first_name(self):
     return self.first_name + ' ' + self.last_name
     
 User.add_to_class("__str__", get_first_name)
+
+
+class Atttorny_Person(models.Model):
+    attorny = models.ForeignKey(Attorny, related_name="attorny_extends", on_delete=models.PROTECT)
+    person =models.ForeignKey(Person, related_name="persons_extends", on_delete=models.PROTECT)
+    attorny_type=models.ForeignKey(AttornyType, related_name='attorny_type', on_delete=models.PROTECT,null=True, blank=True)
+    def __str__(self):
+        return f"{self.attorny.name}-{self.attorny_type.name}-{self.person.name}"
 
 class AppParameter(models.Model):
     name = models.CharField(unique=True, max_length=128)
