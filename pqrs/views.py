@@ -7,7 +7,7 @@ from django.template.loader import render_to_string
 from rest_framework import status
 from rest_framework.response import Response 
 from correspondence.models import ReceptionMode, RadicateTypes, Radicate
-from core.models import Attorny, Atttorny_Person, Person, Office, DocumentTypes, PersonRequest
+from core.models import Attorny, AttornyType, Atttorny_Person, Person, Office, DocumentTypes, PersonRequest
 from pqrs.models import PQRS,Type,PqrsContent
 from pqrs.forms import SearchPersonForm, PersonForm, PqrRadicateForm,PersonRequestForm,PersonFormUpdate,PersonRequestFormUpdate,PersonAttorny
 from core.utils_db import process_email,get_system_parameter
@@ -317,7 +317,8 @@ class PersonAtronyCreate(CreateView):
         self.object = form.save(commit=False)
         self.object.save()
         pqrsObject = get_object_or_404(PQRS, uuid=self.kwargs['pqrs_type'])
-        atornyPerson = Atttorny_Person(attorny=self.object,person=pqrsObject.principal_person)
+        attorny_type=get_object_or_404(AttornyType,id=int(form['attorny_type'].value()))
+        atornyPerson = Atttorny_Person(attorny=self.object,person=pqrsObject.principal_person,attorny_type=attorny_type)
         atornyPerson.save()
         return redirect('pqrs:multi_request',pqrsObject.uuid)
         
