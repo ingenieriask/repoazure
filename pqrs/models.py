@@ -2,10 +2,10 @@ from django.db import models
 from django.urls import reverse
 from django.db.models import CheckConstraint, Q, F
 from django.utils import tree
+from django.contrib.postgres.fields import ArrayField
 from core.models import ResponseMode, BaseModel, Person,PersonRequest
 from correspondence.models import Radicate
 import uuid
-from .validators import validate_file_size
 
 
 class Type(models.Model):
@@ -42,17 +42,17 @@ class PQRS(models.Model):
     pqr_type = models.ForeignKey(Type,on_delete=models.PROTECT,related_name='pqrs_object_type',null =True)
     principal_person = models.ForeignKey(Person, on_delete=models.PROTECT,related_name='pqrs_object_principal_person',null=True)
     multi_request_person = models.ManyToManyField(PersonRequest, related_name="multi_pqrs_request_person")
-         
+
 # Create your models here.
 class PqrsContent(Radicate):
     # person = models.ForeignKey(Person, on_delete=models.PROTECT, related_name='pqr_person')
     # subject = models.CharField(max_length=256)
     data = models.TextField(max_length=2000)
     response_mode = models.ForeignKey(ResponseMode, on_delete=models.PROTECT, related_name='pqrs_response_mode')
-    files_uploaded = models.FileField(upload_to="uploads/", validators=[validate_file_size], blank=True, null=True)
+    files_uploaded_list = ArrayField(models.CharField(max_length=300, blank=True), null=True, blank=True)
     # number = models.TextField(max_length=30, null=False, db_index=True)
     subtype = models.ForeignKey(SubType, on_delete=models.PROTECT, related_name='pqr_type', null=True)
-    pqrsobject = models.ForeignKey(PQRS,related_name='pqr_type_object', on_delete=models.PROTECT)
+    pqrsobject = models.ForeignKey(PQRS, related_name='pqr_type_object', on_delete=models.PROTECT,blank=True, null=True)
     def get_absolute_url(self):
         return reverse('pqrs_detail', args=[self.id])
 

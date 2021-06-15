@@ -145,11 +145,14 @@ class ECMService(object):
         ''' '''
 
         try:
+
             res_upload = requests.post(
                 cls._params['ECM_UPLOAD_URL'],
                 files={"filedata": file},
                 data={"nodeType": "cm:content"},
                 auth=cls.get_basic_authentication())
+            print(res_upload)
+            print(res_upload.text)
 
             if res_upload.ok:  
                 json_response = (json.loads(res_upload.text))

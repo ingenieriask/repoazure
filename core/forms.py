@@ -12,7 +12,6 @@ from core.services import RecordCodeService, CalendarService
 class CustomFileInput(Field):
     template = 'core/custom_fileinput.html'
 
-
 class AbstractPersonForm(forms.ModelForm):
 
     email_confirmation = forms.CharField(label='Confirmación del correo electrónico', required=True)

@@ -3,6 +3,7 @@ from django.urls.base import reverse_lazy
 from django.views.generic import View
 from django.template.loader import render_to_string
 
+
 from rest_framework import status
 from rest_framework.response import Response 
 from correspondence.models import ReceptionMode, RadicateTypes, Radicate
@@ -24,6 +25,8 @@ from django.views.generic.list import ListView
 from django.views.generic.edit import UpdateView
 from core.utils_redis import add_to_redis, read_from_redis
 from correspondence.services import ECMService
+from django.core.files.temp import NamedTemporaryFile
+from django.core.files import File
 
 from pinax.eventlog.models import log, Log
 
@@ -91,13 +94,13 @@ def create_pqr(request, person):
     person = get_object_or_404(Person, id=person)
 
     if request.method == 'POST':
+
         form = PqrRadicateForm(request.POST, request.FILES)
 
         if form.is_valid():
-
+            
             instance = form.save(commit=False)
             cleaned_data = form.cleaned_data
-            form.files_uploaded = request.FILES.getlist('files_uploaded')
             now = datetime.now()
             instance.number = now.strftime("%Y%m%d%H%M%S")
             instance.reception_mode = get_object_or_404(ReceptionMode, abbr='VIR')
@@ -106,6 +109,19 @@ def create_pqr(request, person):
             # instance.creator = request.user.profile_user
             # instance.current_user = request.user.profile_user
             instance.person = person
+            
+            addedFilesPathList = []
+            
+            if not os.path.exists('media/uploads/pqrs_radicates/'+instance.number):
+                os.makedirs('media/uploads/pqrs_radicates/'+instance.number)
+            
+            for fileUploaded in request.FILES.getlist('uploaded_files'):
+                with open ('media/uploads/pqrs_radicates/'+instance.number+'/'+str(fileUploaded), 'wb') as fileInProject:
+                    fileInProject.write(fileUploaded.read())
+                    addedFilesPathList.append('media/uploads/pqrs_radicates/'+instance.number+'/'+str(fileUploaded))
+
+            instance.files_uploaded_list = addedFilesPathList
+            
             radicate = form.save()
 
             log(
@@ -118,11 +134,20 @@ def create_pqr(request, person):
                 }
             )
 
-            process_email('EMAIL_PQR_CREATE', instance.person.email, instance)
-
-            files = open(os.path.join(BASE_DIR, radicate.document_file.path), "rb")
-
-            node_id = ECMService.upload(files)
+            #process_email('EMAIL_PQR_CREATE', instance.person.email, instance)
+            
+            for fileUploaded in request.FILES.getlist('uploaded_files'):
+            #files = open(os.path.join(BASE_DIR, radicate.document_file.path), "rb")
+                document_temp_file = NamedTemporaryFile()
+                for chunk in fileUploaded.chunks():
+                    document_temp_file.write(chunk)
+                    
+                document_temp_file.seek(0)
+                document_temp_file.flush()
+                
+                temp_file = File(document_temp_file, name=fileUploaded.name)
+                
+                node_id = ECMService.upload(temp_file)
 
             if node_id:
                 radicate.set_cmis_id(node_id)
