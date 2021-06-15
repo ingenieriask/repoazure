@@ -2,12 +2,9 @@ from django.db import models
 from django.urls import reverse
 from django.db.models import CheckConstraint, Q, F
 from django.utils import tree
-<<<<<<< HEAD
 from core.models import ResponseMode, Person,PersonRequest,Alerts
-=======
 from django.contrib.postgres.fields import ArrayField
 from core.models import ResponseMode, BaseModel, Person,PersonRequest
->>>>>>> feature/file_upload
 from correspondence.models import Radicate
 import uuid
 
