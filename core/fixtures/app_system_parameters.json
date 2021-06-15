@@ -1,0 +1,10 @@
+[
+  {
+    "model": "core.systemparameter",
+    "pk": 1,
+    "fields": {
+      "name": "RINO_PQR_INFO",
+      "value": "Rino info"
+    }
+  }
+]

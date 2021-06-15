@@ -128,4 +128,7 @@ Thumbs.db
 node_modules/
 core/fixtures/app_parameter.json
 
+# Usefull comands Nicolas
+
+commands.txt
 **/migrations/**

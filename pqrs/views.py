@@ -1,3 +1,4 @@
+import uuid
 from django.shortcuts import redirect, render
 from django.urls.base import reverse_lazy
 from django.views.generic import View
@@ -7,9 +8,9 @@ from django.template.loader import render_to_string
 from rest_framework import status
 from rest_framework.response import Response 
 from correspondence.models import ReceptionMode, RadicateTypes, Radicate
-from core.models import Person, Office, DocumentTypes, PersonRequest
+from core.models import Attorny, AttornyType, Atttorny_Person, Person, Office, DocumentTypes, PersonRequest
 from pqrs.models import PQRS,Type,PqrsContent
-from pqrs.forms import SearchPersonForm, PersonForm, PqrRadicateForm,PersonRequestForm,PersonFormUpdate,PersonRequestFormUpdate
+from pqrs.forms import SearchPersonForm, PersonForm, PqrRadicateForm,PersonRequestForm,PersonFormUpdate,PersonRequestFormUpdate,PersonAttorny
 from core.utils_db import process_email,get_system_parameter
 from django.http import HttpResponseRedirect, HttpResponse, JsonResponse
 from django.shortcuts import get_list_or_404, get_object_or_404, render
@@ -276,6 +277,8 @@ class PersonCreateView(CreateView):
         pqrsTy = get_object_or_404(Type, id=int(self.kwargs['pqrs_type']))
         pqrsObject=PQRS(pqr_type = pqrsTy,principal_person = self.object)
         pqrsObject.save()
+        if self.object.attornyCheck or form['document_type'].value()==4:
+            return redirect('pqrs:create_person_attorny',pqrsObject.uuid)
         return redirect('pqrs:multi_request',pqrsObject.uuid)
 
 class PersonRequestCreateView(CreateView):
@@ -286,7 +289,7 @@ class PersonRequestCreateView(CreateView):
     def form_valid(self, form):
         self.object = form.save(commit=False)
         self.object.save()
-        pqrsObject = get_object_or_404(PQRS,id=int(self.kwargs['pqrs_type']))
+        pqrsObject = get_object_or_404(PQRS,uuid=self.kwargs['pqrs_type'])
         pqrsObject.multi_request_person.add(self.object)
         return redirect('pqrs:multi_request',pqrsObject.uuid)
 
@@ -330,7 +333,27 @@ class PersonUpdateViewNewRequest(UpdateView):
         # update the kwargs for the form init method with yours
         kwargs.update(self.kwargs)  # self.kwargs contains all url conf params
         return kwargs
-             
+
+class PersonAtronyCreate(CreateView):
+    model = Attorny
+    form_class = PersonAttorny
+    template_name = 'pqrs/person_form.html'
+    
+    def form_valid(self, form):
+        self.object = form.save(commit=False)
+        self.object.save()
+        pqrsObject = get_object_or_404(PQRS, uuid=self.kwargs['pqrs_type'])
+        attorny_type=get_object_or_404(AttornyType,id=int(form['attorny_type'].value()))
+        atornyPerson = Atttorny_Person(attorny=self.object,person=pqrsObject.principal_person,attorny_type=attorny_type)
+        atornyPerson.save()
+        return redirect('pqrs:multi_request',pqrsObject.uuid)
+        
+    def get_form_kwargs(self):
+        kwargs = super( PersonAtronyCreate, self).get_form_kwargs()
+        # update the kwargs for the form init method with yours
+        kwargs.update(self.kwargs)  # self.kwargs contains all url conf params
+        return kwargs
+
 class PersonUpdateView(UpdateView):
     model = Person
     form_class = PersonForm
