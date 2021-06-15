@@ -66,7 +66,6 @@ class Radicate(models.Model):
     person = models.ForeignKey(Person, on_delete=models.CASCADE, related_name='radicates_person', default=False)
     current_user = models.ForeignKey(UserProfileInfo, on_delete=models.CASCADE, related_name='radicates_user', blank=True, null=True)
     reception_mode = models.ForeignKey(ReceptionMode, on_delete=models.CASCADE, null=False, blank=False)
-    cmis_id = models.TextField(max_length=128, null=True)
     use_parent_address = models.BooleanField(default=False)
     office = models.ForeignKey(Office, on_delete=models.CASCADE, related_name='radicates_office', default='1')
     doctype = models.ForeignKey(Doctype, on_delete=models.CASCADE, related_name='radicates_doctype', blank=True, null=True)
@@ -80,10 +79,12 @@ class Radicate(models.Model):
     def get_absolute_url(self):
         return reverse('correspondence:detail_radicate', args=[str(self.id)])
 
-    def set_cmis_id(self, cmis_id):
-        self.cmis_id = cmis_id
-        self.save()
-
+class AlfrescoFile(models.Model):
+    cmis_id = models.TextField(max_length=128, null=True) 
+    radicate = models.ForeignKey(Radicate, on_delete=models.CASCADE)
+    
+    def __str__(self):
+        return self.cmis_id
 
 class DocsRetention(models.Model):
     subraft = models.ForeignKey(Subraft, on_delete=models.PROTECT, related_name='retentions')
