@@ -251,7 +251,7 @@ class PersonCreateView(CreateView):
         pqrsTy = get_object_or_404(Type, id=int(self.kwargs['pqrs_type']))
         pqrsObject=PQRS(pqr_type = pqrsTy,principal_person = self.object)
         pqrsObject.save()
-        if self.object.attornyCheck:
+        if self.object.attornyCheck or form['document_type'].value()==4:
             return redirect('pqrs:create_person_attorny',pqrsObject.uuid)
         return redirect('pqrs:multi_request',pqrsObject.uuid)
 
