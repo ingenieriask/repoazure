@@ -40,7 +40,8 @@ urlpatterns = [
     path('reset/done/', auth_views.PasswordResetCompleteView.as_view(), name='password_reset_complete'),
     path('calendar/holidays/', core_views.holidays, name='holidays'),
     path('calendar/weekends/', core_views.weekends, name='weekends'),
-    path('calendar/not-working-days/', core_views.not_working_days, name='not_working_days')
+    path('calendar/not-working-days/', core_views.not_working_days, name='not_working_days'),
+    #path('password_reset/', include('password_reset.urls', namespace='password_reset'))
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT) # to import static in deployment
 
 

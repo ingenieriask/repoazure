@@ -55,7 +55,8 @@ INSTALLED_APPS = [
     'storages',
     'corsheaders',
     'djcelery_email',
-    'django_celery_results'
+    'django_celery_results',
+    #'password_reset'
 ]
 
 CRISPY_TEMPLATE_PACK = 'bootstrap4'
