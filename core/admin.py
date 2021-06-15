@@ -1,7 +1,7 @@
 from django.contrib import admin
 from core.models import Attorny, AttornyType, Atttorny_Person, State, City, Office, Country, PreferencialPopulation, \
     Disability, BooleanSelection, EthnicGroup, ResponseMode, SystemParameter, \
-    AppParameter, ConsecutiveFormat, FilingType, CalendarDay, CalendarDayType, Calendar
+    AppParameter, ConsecutiveFormat, FilingType, CalendarDay, CalendarDayType, Calendar,Alerts
 from core.forms import ConsecutiveFormatForm, CalendarForm
 
 class ConsecutiveFormatAdmin(admin.ModelAdmin):
@@ -26,6 +26,7 @@ class CalendarAdmin(admin.ModelAdmin):
 admin.site.register(Attorny)
 admin.site.register(AttornyType)
 admin.site.register(Atttorny_Person)
+admin.site.register(Alerts)
 admin.site.register(State)
 admin.site.register(City)
 admin.site.register(Country)

@@ -2,7 +2,7 @@ from django.db import models
 from django.urls import reverse
 from django.db.models import CheckConstraint, Q, F
 from django.utils import tree
-from core.models import ResponseMode, BaseModel, Person,PersonRequest
+from core.models import ResponseMode, Person,PersonRequest,Alerts
 from correspondence.models import Radicate
 import uuid
 from .validators import validate_file_size
@@ -27,7 +27,7 @@ class SubType(models.Model):
     first_alert = models.SmallIntegerField(blank=False, null=False, default=4)
     second_alert = models.SmallIntegerField(blank=False, null=False, default=9)
     third_alert = models.SmallIntegerField(blank=False, null=False, default=14)
-
+    alerts = models.ManyToManyField(Alerts, related_name="alerts_subtype",blank=True)
     def __str__(self):
         return self.type.name + ' / ' + self.name
     

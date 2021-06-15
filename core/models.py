@@ -1,9 +1,10 @@
 from django.db import models
 from django.conf import settings
+from django.http import response
 from django.urls import reverse
 from core.utils import anonymize
 from django.utils import timezone
-
+from colorfield.fields import ColorField
 from django.contrib.auth.models import User
 from django.contrib.postgres.fields import ArrayField
 
@@ -108,7 +109,12 @@ class City(models.Model):
     def __str__(self):
         return self.name + ' / ' + self.state.name
 
-
+class Alerts(models.Model):
+    name=models.CharField(max_length=128,blank=False,null=False)
+    response_time = models.SmallIntegerField(blank=False, null=False, default=1)
+    color = ColorField(default='#FF0000')
+    def __str__(self):
+        return self.name
 # UserProfileInfo, has one user for extend the basic user info
 class UserProfileInfo(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profile_user')
