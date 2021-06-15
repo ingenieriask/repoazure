@@ -67,3 +67,4 @@ django-celery-email==3.0.0
 django-celery-results==2.0.1
 django-redis-sessions==0.6.2
 pandas==1.2.4
+django-colorfield==0.4.1
