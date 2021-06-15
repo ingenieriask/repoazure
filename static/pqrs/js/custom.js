@@ -12,11 +12,11 @@ $(document).ready(function () {
   }
 });
 
-$("#id_files_uploaded").fileinput({
+$("#id_uploaded_files").fileinput({
   theme: 'fas',
   allowedFileExtensions: ['pdf','docx','png','jpg','jpeg'],
   overwriteInitial: true,
-  maxFileSize:20000,
+  maxFileSize:10000,
   language: 'es',
   slugCallback: function (filename) {
       return filename.replace('(', '_').replace(']', '_');

@@ -145,6 +145,7 @@ class ECMService(object):
         ''' '''
 
         try:
+
             res_upload = requests.post(
                 cls._params['ECM_UPLOAD_URL'],
                 files={"filedata": file},

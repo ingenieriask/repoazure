@@ -1,6 +1,7 @@
 from django.contrib import admin
 from correspondence.models import Radicate, Raft, Subraft, Doctype, DocsRetention, Record, \
-    RadicateTypes, ReceptionMode, ProcessType, SecurityLevel, FilePhases, FinalDisposition, Template
+    RadicateTypes, ReceptionMode, ProcessType, SecurityLevel, FilePhases, FinalDisposition, Template, \
+    AlfrescoFile
 from core.models import Person, PersonRequest, UserProfileInfo, DocumentTypes, PersonType
 
 # Register your models here.
@@ -21,6 +22,7 @@ admin.site.register(FilePhases)
 admin.site.register(FinalDisposition)
 admin.site.register(PersonType)
 admin.site.register(Template)
+admin.site.register(AlfrescoFile)
 
 @admin.register(Radicate)
 class RadicateAdmin(admin.ModelAdmin):

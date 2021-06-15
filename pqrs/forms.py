@@ -4,6 +4,7 @@ from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Submit, Row, Column, Div
 from core.forms import AbstractPersonForm,AbstractPersonRequestForm,AbstractPersonAttorny
 from django.utils.translation import gettext_lazy as _
+from core.forms import CustomFileInput
 
 from captcha.fields import CaptchaField
 
@@ -71,7 +72,9 @@ class SearchPersonForm(forms.Form):
 
 class PqrRadicateForm(forms.ModelForm):
     captcha = CaptchaField()
-
+    uploaded_files = forms.FileField(widget=forms.ClearableFileInput(attrs={'multiple': True}), required=False,
+                                    label="Anexos, Documentos (Múltiples archivos - Tamaño máximo = 10 MB)")
+    
     def clean(self):
         cleaned_data = super().clean()
         print('resultade de captcha', cleaned_data.get('captcha'), cleaned_data.get('captcha') is None)
@@ -81,16 +84,11 @@ class PqrRadicateForm(forms.ModelForm):
 
     class Meta:
         model = PqrsContent
-        fields = ('subject', 'data', 'response_mode', 'files_uploaded', 'captcha'
+        fields = ('subject', 'data', 'response_mode', 'files_uploaded_list', 'captcha'
                 )
         labels = {'subject': 'Asunto',
                   'data': 'Detalle de la solicitud',
-                  'files_uploaded': 'Anexos, Documentos (Múltiples archivos - Tamaño máximo = 10 MB)',
                   'response_mode': 'Medio de respuesta'}
-        
-        widgets = {
-            'files_uploaded' : forms.ClearableFileInput(attrs={'multiple': True}),
-        }
 
     def __init__(self, *args, **kwargs):
         super(PqrRadicateForm, self).__init__(*args, **kwargs)
@@ -109,13 +107,15 @@ class PqrRadicateForm(forms.ModelForm):
                 css_class='form-row'
             ),
             Row(
-                Column('files_uploaded', css_class='form-group col-12 mb-0'),
+                Column(CustomFileInput('uploaded_files'),css_class='form-group col-12 mb-0'),
                 css_class='form-row'
             ),
             Row(
                 Column('captcha', css_class='form-group col-md-12 mb-0'),
                 css_class='form-row'
             ),
+            
             Submit('submit', 'Radicar')
         )
+
         

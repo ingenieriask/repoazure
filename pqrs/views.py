@@ -4,9 +4,10 @@ from django.urls.base import reverse_lazy
 from django.views.generic import View
 from django.template.loader import render_to_string
 
+
 from rest_framework import status
 from rest_framework.response import Response 
-from correspondence.models import ReceptionMode, RadicateTypes, Radicate
+from correspondence.models import ReceptionMode, RadicateTypes, Radicate, AlfrescoFile
 from core.models import Attorny, AttornyType, Atttorny_Person, Person, Office, DocumentTypes, PersonRequest
 from pqrs.models import PQRS,Type,PqrsContent
 from pqrs.forms import SearchPersonForm, PersonForm, PqrRadicateForm,PersonRequestForm,PersonFormUpdate,PersonRequestFormUpdate,PersonAttorny
@@ -25,6 +26,8 @@ from django.views.generic.list import ListView
 from django.views.generic.edit import UpdateView
 from core.utils_redis import add_to_redis, read_from_redis
 from correspondence.services import ECMService
+from django.core.files.temp import NamedTemporaryFile
+from django.core.files import File
 
 from pinax.eventlog.models import log, Log
 
@@ -92,12 +95,13 @@ def create_pqr(request, person):
     person = get_object_or_404(Person, id=person)
 
     if request.method == 'POST':
+
         form = PqrRadicateForm(request.POST, request.FILES)
 
         if form.is_valid():
+            
             instance = form.save(commit=False)
             cleaned_data = form.cleaned_data
-            form.document_file = request.FILES['document_file']
             now = datetime.now()
             instance.number = now.strftime("%Y%m%d%H%M%S")
             instance.reception_mode = get_object_or_404(ReceptionMode, abbr='VIR')
@@ -106,6 +110,19 @@ def create_pqr(request, person):
             # instance.creator = request.user.profile_user
             # instance.current_user = request.user.profile_user
             instance.person = person
+            
+            addedFilesPathList = []
+            
+            if not os.path.exists('media/uploads/pqrs_radicates/'+instance.number):
+                os.makedirs('media/uploads/pqrs_radicates/'+instance.number)
+            
+            for fileUploaded in request.FILES.getlist('uploaded_files'):
+                with open ('media/uploads/pqrs_radicates/'+instance.number+'/'+str(fileUploaded), 'wb') as fileInProject:
+                    fileInProject.write(fileUploaded.read())
+                    addedFilesPathList.append('media/uploads/pqrs_radicates/'+instance.number+'/'+str(fileUploaded))
+
+            instance.files_uploaded_list = addedFilesPathList
+            
             radicate = form.save()
 
             log(
@@ -118,21 +135,28 @@ def create_pqr(request, person):
                 }
             )
 
-            process_email('EMAIL_PQR_CREATE', instance.person.email, instance)
+            #process_email('EMAIL_PQR_CREATE', instance.person.email, instance)
+            
+            for fileUploaded in request.FILES.getlist('uploaded_files'):
+                document_temp_file = NamedTemporaryFile()
+                for chunk in fileUploaded.chunks():
+                    document_temp_file.write(chunk)
+                    
+                document_temp_file.seek(0)
+                document_temp_file.flush()
 
-            files = open(os.path.join(BASE_DIR, radicate.document_file.path), "rb")
+                node_id = ECMService.upload(File(document_temp_file, name=fileUploaded.name))
+                
+                alfrescoFile = AlfrescoFile(cmis_id=node_id, radicate= radicate)
+                alfrescoFile.save()
+            
+                if not node_id or not ECMService.request_renditions(node_id):
+                    messages.error(request, "Ha ocurrido un error al guardar el archivo en el gestor de contenido")
 
-            node_id = ECMService.upload(files)
-
-            if node_id:
-                radicate.set_cmis_id(node_id)
-
-                if ECMService.request_renditions(node_id):
-                    messages.success(request, "El radicado se ha creado correctamente")
-                    url = reverse('correspondence:detail_radicate', kwargs={'pk': radicate.pk})
-                    return HttpResponseRedirect(url)
-
-                messages.error(request, "Ha ocurrido un error al guardar el archivo en el gestor de contenido")
+            messages.success(request, "El radicado se ha creado correctamente")
+            url = reverse('correspondence:detail_radicate', kwargs={'pk': radicate.pk})
+            return HttpResponseRedirect(url)
+                
         else:
             logger.error("Invalid create radicate form")
             return render(request, 'pqrs/create_pqr.html', context={'form': form, 'person': person})
@@ -148,7 +172,7 @@ def create_pqr_multiple(request, pqrs):
     person = get_object_or_404(Person, id=int(pqrsoparent.principal_person.id))
 
     if request.method == 'POST':
-        form = PqrRadicateForm(request.POST, request.FILES)
+        form = PqrRadicateForm(request.POST)
 
         if form.is_valid():
             instance = form.save(commit=False)
@@ -162,6 +186,19 @@ def create_pqr_multiple(request, pqrs):
             # instance.creator = request.user.profile_user
             # instance.current_user = request.user.profile_user
             instance.person = person
+            
+            addedFilesPathList = []
+            
+            if not os.path.exists('media/uploads/pqrs_radicates/'+instance.number):
+                os.makedirs('media/uploads/pqrs_radicates/'+instance.number)
+            
+            for fileUploaded in request.FILES.getlist('uploaded_files'):
+                with open ('media/uploads/pqrs_radicates/'+instance.number+'/'+str(fileUploaded), 'wb') as fileInProject:
+                    fileInProject.write(fileUploaded.read())
+                    addedFilesPathList.append('media/uploads/pqrs_radicates/'+instance.number+'/'+str(fileUploaded))
+
+            instance.files_uploaded_list = addedFilesPathList
+            
             radicate = form.save()
 
             log(
@@ -174,21 +211,28 @@ def create_pqr_multiple(request, pqrs):
                 }
             )
 
-            process_email('EMAIL_PQR_CREATE', instance.person.email, instance)
+            #process_email('EMAIL_PQR_CREATE', instance.person.email, instance)
 
-            files = open(os.path.join(BASE_DIR, radicate.document_file.path), "rb")
+            for fileUploaded in request.FILES.getlist('uploaded_files'):
+                document_temp_file = NamedTemporaryFile()
+                for chunk in fileUploaded.chunks():
+                    document_temp_file.write(chunk)
+                    
+                document_temp_file.seek(0)
+                document_temp_file.flush()
 
-            node_id = ECMService.upload(files)
+                node_id = ECMService.upload(File(document_temp_file, name=fileUploaded.name))
+                
+                alfrescoFile = AlfrescoFile(cmis_id=node_id, radicate= radicate)
+                alfrescoFile.save()
+            
+                if not node_id or not ECMService.request_renditions(node_id):
+                    messages.error(request, "Ha ocurrido un error al guardar el archivo en el gestor de contenido")
 
-            if node_id:
-                radicate.set_cmis_id(node_id)
-
-                if ECMService.request_renditions(node_id):
-                    messages.success(request, "El radicado se ha creado correctamente")
-                    url = reverse('correspondence:detail_radicate', kwargs={'pk': radicate.pk})
-                    return HttpResponseRedirect(url)
-
-                messages.error(request, "Ha ocurrido un error al guardar el archivo en el gestor de contenido")
+            messages.success(request, "El radicado se ha creado correctamente")
+            url = reverse('correspondence:detail_radicate', kwargs={'pk': radicate.pk})
+            return HttpResponseRedirect(url)
+        
         else:
             logger.error("Invalid create radicate form")
             return render(request, 'pqrs/create_pqr.html', context={'form': form, 'person': person})
