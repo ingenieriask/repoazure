@@ -22,4 +22,5 @@ urlpatterns = [
     path('edit-person-request/<uuid:pqrs_type>/<int:pk>/', views.PersonUpdateViewNewRequest.as_view(), name='edit_person_request'),
     path('multi-request/<uuid:person>/', views.multi_create_request, name='multi_request'),
     path('delete-person/<uuid:pqrs_type>/<int:id>/',views.dete_person_request, name='delete_person_request'),
+    path('radicate/inbox/', views.RadicateInbox.as_view(), name='radicate_inbox'),
 ]

@@ -1,0 +1,73 @@
+{% extends 'pqrs/template.html' %}
+
+{% block content %}
+  <div class="card mb-4">
+      <div class="card-body">
+        <div class="text-right m-2">
+        </div>
+        <div class="datatable">
+          <table class="table table-bordered table-hover" id="radicateList" width="100%" cellspacing='0'>
+            <thead>
+              <tr>
+                <th>Número de radicado</th>
+                <th>Fecha de radicación</th>
+                <th>Asunto</th>
+                <th>Solicitante</th>
+                <th>Tipo y Tema PQRSD</th>
+                <th>Días hábiles para dar respuesta</th>
+                <th>Estado</th>
+                <th>Detalles</th>
+              </tr>
+            </thead>
+            
+            <tbody>
+              {% for radicate in radicates %}
+              <tr>
+                <td>{{ radicate.date_radicated }}</td>
+                <td>{{ radicate.number }}</td>
+                <td>{{ radicate.subject }}</td>
+                <td>{{ radicate.person.name }}</td>
+                <td><div class="badge badge-success badge-pill">Radicado</div></td>
+                <td>
+                    <button class="btn btn-datatable btn-icon btn-transparent-dark mr-2"><i data-feather="more-vertical"></i></button>
+                    <a href="{% url 'correspondence:detail_radicate' pk=radicate.pk %}" class="btn btn-datatable btn-icon btn-transparent-dark"><i data-feather="eye"></i></a>
+                    {% if radicate.document_file %}
+                      <a href="{{ radicate.document_file.url }}" class="btn btn-datatable btn-icon btn-transparent-dark"><i data-feather="file"></i></a>
+                    {% endif %}
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+  </div>
+{% endblock %}
+
+{% block script %}
+{% load static %}
+
+    $(document).ready(function() {
+        
+        $('#radicateList').DataTable( {
+            "language": {
+                "url": "{% static 'pqrs/js/dataTableSpanish.json' %}",
+                sSearch: ''
+            },
+            "dom": "b<'row'<'#keyword.mr-auto'f><'col-2'B><'col-4'l>>" +
+                    "<'row'<'col-sm-12'tr>>" +
+                    "<'row'<'col-sm-12 col-md-5'i>P<'col-sm-12 col-md-7'p>>",
+            buttons: [
+                {
+                    text: 'My button',
+                    action: function ( e, dt, node, config ) {
+                        alert( 'Button activated' );
+                    }
+                }
+            ]
+        });
+    } );
+
+    
+
+{% endblock %}

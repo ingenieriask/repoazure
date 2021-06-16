@@ -384,6 +384,17 @@ class PersonUpdateView(UpdateView):
             messages.error(request, "error de validacion")
             return render(request, 'pqrs/search_person_answer_form.html', context={ 'msg': 'El token es inválido' })
     
-
+    
 def select(requests):
     return render(requests, 'pqrs/select.html', {})
+
+
+class RadicateInbox(ListView):
+    model = Radicate
+    context_object_name = 'radicates'
+    template_name = 'pqrs/radicate_inbox.html'
+
+    def get_queryset(self):
+        queryset = super(RadicateInbox, self).get_queryset()
+        queryset = queryset.filter(current_user=self.request.user.profile_user.pk)
+        return queryset
