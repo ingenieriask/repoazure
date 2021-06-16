@@ -50,28 +50,35 @@ def index(request):
     rino_parameter= get_system_parameter('RINO_PQR_INFO')
     return render(request, 'pqrs/index.html', {'rino_parameter':rino_parameter.value})
 
-def send_email_person(request, pk):
+def send_email_person(request, pk, pqrs_type):
     unique_id = get_random_string(length=32)
-    add_to_redis(unique_id, pk, 'email')
+    toSave = json.dumps({
+        "personPk": pk,
+        "pqrs_type": pqrs_type
+    })
+    add_to_redis(unique_id, toSave, 'email')
     person = Person.objects.get(pk=pk)
     base_url =  "{0}://{1}/pqrs/validate-email-person/{2}".format(request.scheme, request.get_host(), unique_id)
     person.url = base_url
     process_email('EMAIL_PQR_VALIDATE_PERSON', person.email, person)
     return render(request, 'pqrs/search_person_answer_form.html', context={ 'msg': 'Se ha enviado un correo electrónico con la información para registrar el caso' })
 
-def validate_email_person(request, uuid):
-    pk = read_from_redis(uuid, 'email')
-    if pk is None:
+def validate_email_person(request, uuid_redis):
+    redis_pk = read_from_redis(uuid_redis, 'email')
+    if redis_pk is None:
         return render(request, 'pqrs/search_person_answer_form.html', context={ 'msg': 'El token ha caducado' })
-    
     else:
-        person = Person.objects.get(pk=pk)
+        pk = json.loads(redis_pk)
+        person = Person.objects.get(pk=pk["personPk"])
         if person is None:
             return render(request, 'pqrs/search_person_answer_form.html', context={ 'msg': 'El token es inválido' })
         else:
+            pqrsTy = get_object_or_404(Type, id=int(pk["pqrs_type"]))
+            pqrsObject=PQRS(pqr_type = pqrsTy,principal_person = person)
+            pqrsObject.save()
             # url = reverse('pqrs:edit_person', kwargs={'pk': person.pk})
-            url = reverse('pqrs:edit_person', kwargs={'uuid': uuid, 'pk': person.pk})
-            return HttpResponseRedirect(url)
+            # return HttpResponseRedirect(url)
+            return redirect('pqrs:edit_person',pqrsObject.uuid,person.pk)
 
 def search_person(request,pqrs_type):
     if request.method == 'POST':
