@@ -261,7 +261,9 @@ class FilingType(models.Model):
     name = models.CharField(max_length=128,blank=False, null=False,default='')
     description = models.CharField(blank=False, null=False, max_length=256,default='')
     asociated_icon = models.CharField(blank=False, null=False, max_length=50,default='')
-    code = models.IntegerField(blank=False, null=False,default=0)
+    code = models.CharField(max_length=16,blank=False, null=False,default='')
+    identifier = models.CharField(max_length=16,blank=False, null=False,default='')
+    
     def __str__(self):
         return f"{self.name} {self.code}"
 

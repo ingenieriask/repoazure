@@ -6,7 +6,8 @@
       "name": "Entrada",
       "description": "Lorem ipsum dolor sit amet consectetur adipisicing elit. Nesciunt omnis eligendi quidem quaerat modi necessitatibus sint excepturi eveniet at laudantium est distinctio, temporibus earum assumenda aperiam. Nihil ex libero repudiandae.",
       "asociated_icon": "activity",
-      "code": 1
+      "code": "1",
+      "identifier": "input"
     }
   },
   {
@@ -16,7 +17,8 @@
       "name": "Salida",
       "description": "Lorem ipsum dolor sit amet consectetur adipisicing elit. Nesciunt omnis eligendi quidem quaerat modi necessitatibus sint excepturi eveniet at laudantium est distinctio, temporibus earum assumenda aperiam. Nihil ex libero repudiandae.",
       "asociated_icon": "activity",
-      "code": 2
+      "code": "2",
+      "identifier": "output"
     }
   },
   {
@@ -26,7 +28,8 @@
       "name": "Memorando",
       "description": "Lorem ipsum dolor sit amet consectetur adipisicing elit. Nesciunt omnis eligendi quidem quaerat modi necessitatibus sint excepturi eveniet at laudantium est distinctio, temporibus earum assumenda aperiam. Nihil ex libero repudiandae.",
       "asociated_icon": "activity",
-      "code": 3
+      "code": "3",
+      "identifier": "memo"
     }
   }
 ]
