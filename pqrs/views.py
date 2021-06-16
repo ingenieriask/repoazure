@@ -102,7 +102,7 @@ def create_pqr_multiple(request, pqrs):
             instance = form.save(commit=False)
             instance.reception_mode = get_object_or_404(ReceptionMode, abbr='VIR')
             instance.type = get_object_or_404(RadicateTypes, abbr='PQR')
-            instance.number = RecordCodeService.get_consecutive(1)
+            instance.number = RecordCodeService.get_consecutive(RecordCodeService.Type.INPUT)
             instance.office = get_object_or_404(Office, abbr='PQR')
             # instance.creator = request.user.profile_user
             # instance.current_user = request.user.profile_user
