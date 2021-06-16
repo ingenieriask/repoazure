@@ -142,14 +142,13 @@ class ECMService(object):
     @classmethod
     @get_params
     def upload(cls, file):
-        ''' '''
+        ''' Upload file to ECM'''
 
         try:
-
             res_upload = requests.post(
                 cls._params['ECM_UPLOAD_URL'],
                 files={"filedata": file},
-                data={"nodeType": "cm:content"},
+                data={"nodeType": "cm:content", "autoRename": "true"},
                 auth=cls.get_basic_authentication())
 
             if res_upload.ok:  
