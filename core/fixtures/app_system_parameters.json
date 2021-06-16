@@ -6,5 +6,29 @@
       "name": "RINO_PQR_INFO",
       "value": "Rino info"
     }
+  },
+  {
+    "model": "core.systemparameter",
+    "pk": 2,
+    "fields": {
+      "name": "REDIS_CONF",
+      "value": "{\"host\":\"localhost\",\"port\":6379,\"types_conf\":[{\"type\":\"email\",\"data\":{\"db\":0,\"expiration_seconds\":1000}}]}"
+    }
+  },
+  {
+    "model": "core.systemparameter",
+    "pk": 3,
+    "fields": {
+      "name": "EMAIL_PQR_VALIDATE_PERSON",
+      "value": "{\"body\": \"<b>Señor(a)</b><br/><param>person.name</param><br/><br/><br/>Recibimos su solicitud para presentar una PQRDS en nuestro sistema, para validar su identidad y continuar con el proceso, haga clic en el siguiente enlace:<br/> <br/><br/><a href=\\\"<param>url</param>\\\"><h3>Presentar PQRDS</h3></a><br/> <br/><br/>Tenga en cuenta que este enlace es de único uso y válido por 1 hora de lo contrario debe iniciar nuevamente el proceso y solicitar un nuevo enlace.<br/> <br/><br/><i> Si usted no inició ningún proceso por favor haga caso omiso a este mensaje. </i>\", \"subject\": \"Radicación de PQR\"}"
+    }
+  },
+  {
+    "model": "core.systemparameter",
+    "pk": 4,
+    "fields": {
+      "name": "EMAIL_PQR_CREATE",
+      "value": "{\"body\":\"<strong>Cordial saludo,</strong> <p><strong>RINO</strong>, le informa que recibió su solicitud, la cual fue radicada con el número <strong><param>number</param></strong>. Por favor si requiere conocer el estado de su trámite indicar este número de radicado.</p>Contenido: <p><param>data</param></p><p>Puede hacer seguimiento al trámite de su solicitud dentro de los plazos establecidos en la Ley, ingresando a nuestra página web<a href=\\\"<param>url</param>\\\"><h3>Haga clic aquí</h3></a></p>\",\"subject\":\"Radicación de PQR\"}"
+    }
   }
 ]

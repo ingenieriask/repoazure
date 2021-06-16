@@ -50,6 +50,7 @@ class MailService(object):
         try:
             eb.open()
             email = EmailMessage(subject, body, from_email, to)
+            email.content_subtype = "html"
 
             # Send email
             eb.send_messages([email])

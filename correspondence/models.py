@@ -80,8 +80,8 @@ class Radicate(models.Model):
         return reverse('correspondence:detail_radicate', args=[str(self.id)])
 
 class AlfrescoFile(models.Model):
-    cmis_id = models.TextField(max_length=128, null=True) 
-    radicate = models.ForeignKey(Radicate, on_delete=models.CASCADE)
+    cmis_id = models.TextField(max_length=128, null=True)
+    radicate = models.ForeignKey(Radicate, on_delete=models.PROTECT, related_name='files')
     
     def __str__(self):
         return self.cmis_id

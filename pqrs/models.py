@@ -50,7 +50,6 @@ class PqrsContent(Radicate):
     # subject = models.CharField(max_length=256)
     data = models.TextField(max_length=2000)
     response_mode = models.ForeignKey(ResponseMode, on_delete=models.PROTECT, related_name='pqrs_response_mode')
-    files_uploaded_list = ArrayField(models.CharField(max_length=300, blank=True), null=True, blank=True)
     # number = models.TextField(max_length=30, null=False, db_index=True)
     subtype = models.ForeignKey(SubType, on_delete=models.PROTECT, related_name='pqr_type', null=True)
     pqrsobject = models.ForeignKey(PQRS,related_name='pqr_type_object', on_delete=models.PROTECT,blank=True, null=True)
