@@ -50,6 +50,7 @@ class MailService(object):
         try:
             eb.open()
             email = EmailMessage(subject, body, from_email, to)
+            email.content_subtype = "html"
 
             # Send email
             eb.send_messages([email])
@@ -162,12 +163,11 @@ class CalendarService(object):
     def get_weekends(cls, year, week_day_code):
         '''Return the list of saturdays or sundays of an entire year'''
 
-        days =  pd.date_range(
+        return pd.date_range(
             start=f'{year}-01-01', 
             end=f'{int(year) + 1}-01-01', 
             freq=f'W-{week_day_code}', #week_day[week_day_code],
             closed='left').tolist()
-        return days
 
     @classmethod
     def get_holidays(cls, year, country_code):

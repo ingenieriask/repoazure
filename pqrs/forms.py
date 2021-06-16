@@ -84,8 +84,7 @@ class PqrRadicateForm(forms.ModelForm):
 
     class Meta:
         model = PqrsContent
-        fields = ('subject', 'data', 'response_mode', 'files_uploaded_list', 'captcha'
-                )
+        fields = ('subject', 'data', 'response_mode', 'captcha')
         labels = {'subject': 'Asunto',
                   'data': 'Detalle de la solicitud',
                   'response_mode': 'Medio de respuesta'}
