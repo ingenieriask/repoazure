@@ -84,15 +84,22 @@ class PqrRadicateForm(forms.ModelForm):
 
     class Meta:
         model = PqrsContent
-        fields = ('subject', 'data', 'response_mode', 'captcha')
+        fields = ('subject', 'data', 'topic', 'interestGroup', 'response_mode', 'captcha')
         labels = {'subject': 'Asunto',
                   'data': 'Detalle de la solicitud',
+                  'topic': 'Tema',
+                  'interestGroup': 'Grupo de interés',
                   'response_mode': 'Medio de respuesta'}
 
     def __init__(self, *args, **kwargs):
         super(PqrRadicateForm, self).__init__(*args, **kwargs)
         self.helper = FormHelper(self)
         self.helper.layout = Layout(
+            Row(
+                Column('topic', css_class='form-group col-md-6 mb-0'),
+                Column('interestGroup', css_class='form-group col-md-6 mb-0'),
+                css_class='form-row'
+            ),
             Row(
                 Column('subject', css_class='form-group col-md-12 mb-0'),
                 css_class='form-row'
