@@ -4,7 +4,7 @@ from django.shortcuts import redirect, render
 
 from correspondence.models import ReceptionMode, RadicateTypes, Radicate, AlfrescoFile
 from core.models import Attorny, AttornyType, Atttorny_Person, City, LegalPerson, Person, Office, DocumentTypes, PersonRequest, PersonType
-from pqrs.models import PQRS,Type
+from pqrs.models import PQRS,Type, PqrsContent
 from pqrs.forms import LegalPersonForm, SearchPersonForm, PersonForm, PqrRadicateForm,PersonRequestForm,PersonFormUpdate,PersonRequestFormUpdate,PersonAttorny
 from core.utils_db import process_email,get_system_parameter
 from django.http import HttpResponseRedirect
@@ -13,6 +13,7 @@ from django.urls import reverse
 from django.contrib import messages
 from django.contrib.postgres.search import SearchVector
 from django.utils.crypto import get_random_string
+from django.views.generic import ListView
 from django.views.generic.detail import DetailView
 from django.views.generic.edit import CreateView
 from django.views.generic.edit import UpdateView
