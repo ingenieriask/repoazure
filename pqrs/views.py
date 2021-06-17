@@ -1,28 +1,20 @@
 import uuid
+from django.db.models.expressions import Value
 from django.shortcuts import redirect, render
-from django.urls.base import reverse_lazy
-from django.views.generic import View
-from django.template.loader import render_to_string
 
-
-from rest_framework import status
-from rest_framework.response import Response 
 from correspondence.models import ReceptionMode, RadicateTypes, Radicate, AlfrescoFile
-from core.models import Attorny, AttornyType, Atttorny_Person, Person, Office, DocumentTypes, PersonRequest
-from pqrs.models import PQRS,Type,PqrsContent
-from pqrs.forms import SearchPersonForm, PersonForm, PqrRadicateForm,PersonRequestForm,PersonFormUpdate,PersonRequestFormUpdate,PersonAttorny
+from core.models import Attorny, AttornyType, Atttorny_Person, City, LegalPerson, Person, Office, DocumentTypes, PersonRequest, PersonType
+from pqrs.models import PQRS,Type
+from pqrs.forms import LegalPersonForm, SearchPersonForm, PersonForm, PqrRadicateForm,PersonRequestForm,PersonFormUpdate,PersonRequestFormUpdate,PersonAttorny
 from core.utils_db import process_email,get_system_parameter
-from django.http import HttpResponseRedirect, HttpResponse, JsonResponse
-from django.shortcuts import get_list_or_404, get_object_or_404, render
+from django.http import HttpResponseRedirect
+from django.shortcuts import get_object_or_404, render
 from django.urls import reverse
-from django.conf import settings
 from django.contrib import messages
-from django.contrib.postgres.search import SearchVector, TrigramSimilarity, SearchQuery, SearchRank, SearchHeadline
-from datetime import datetime
+from django.contrib.postgres.search import SearchVector
 from django.utils.crypto import get_random_string
 from django.views.generic.detail import DetailView
 from django.views.generic.edit import CreateView
-from django.views.generic.list import ListView
 from django.views.generic.edit import UpdateView
 from core.utils_redis import add_to_redis, read_from_redis
 from correspondence.services import ECMService
@@ -80,23 +72,38 @@ def validate_email_person(request, uuid_redis):
             # return HttpResponseRedirect(url)
             return redirect('pqrs:edit_person',pqrsObject.uuid,person.pk)
 
-def search_person(request,pqrs_type):
+def search_person(request,pqrs_type,person_type):
+    if person_type == 1:
+        template_return = 'pqrs/search_person_form.html'
+    elif person_type == 2:
+        template_return = 'pqrs/search_legal_person_form.html'
     if request.method == 'POST':
         form = SearchPersonForm(request.POST)
         if form.is_valid():
             item = form.cleaned_data['item']
-            qs = Person.objects.annotate(search=SearchVector('document_number', 'email', 'name'), ).filter(search=item)
+            if person_type == 1:
+                qs = Person.objects.annotate(search=SearchVector('document_number', 'email', 'name'), ).filter(search=item)
+                person_form = PersonForm()
+            elif person_type == 2:
+                qs = LegalPerson.objects.annotate(search=SearchVector('document_company_number','company_name'), ).filter(search=item)
+                person_form = LegalPersonForm()
             if not qs.count():
                 messages.warning(request, "La búsqueda no obtuvo resultados. Registre la siguiente informacion para continuar con el proceso")
-                person_form = PersonForm()
-            else:
-                person_form = PersonForm()
     else:
         form = SearchPersonForm()
         qs = None
         person_form = None
 
-    return render(request, 'pqrs/search_person_form.html', context={'form': form, 'list': qs, 'person_form': person_form ,"pqrs_type":pqrs_type})
+    return render(
+        request,
+        template_return,
+        context={
+            'form': form,
+            'list': qs, 
+            'person_form': person_form ,
+            "pqrs_type":pqrs_type,
+            'person_type':person_type})
+
 
 def create_pqr_multiple(request, pqrs):
     pqrsoparent = get_object_or_404(PQRS, uuid=pqrs)
@@ -165,6 +172,15 @@ def PQRSType(request):
     pqrs_types = Type.objects.all()
     return render(request, 'pqrs/pqrs_type.html', context={'types': pqrs_types})
 
+def person_type(request,pqrs_type):
+    rino_parameter= get_system_parameter('RINO_PQR_MESSAGE_DOCUMENT')
+    person_type = PersonType.objects.all()
+    return render(
+        request, 'pqrs/person_type.html', 
+        context={
+            'person_type_message':rino_parameter.value,
+            'person_type':person_type,
+            'pqrs_type':pqrs_type})
 
 def multi_create_request(request,person):
     pqrs_object = get_object_or_404(PQRS, uuid=int(person))
@@ -216,6 +232,36 @@ class PersonCreateView(CreateView):
         if self.object.attornyCheck or form['document_type'].value()==4:
             return redirect('pqrs:create_person_attorny',pqrsObject.uuid)
         return redirect('pqrs:multi_request',pqrsObject.uuid)
+
+class LegalPersonCreateView(CreateView):
+    model = LegalPerson
+    form_class = LegalPersonForm
+    template_name = 'pqrs/person_form.html'
+    
+    def form_valid(self, form):
+        self.object = LegalPerson(
+            verification_code =form['verification_code'].value(),
+            company_name =form['company_name'].value(),
+            document_company_number =form['document_company_number'].value(),
+            document_number =form['document_company_number'].value(),
+        )
+        self.object.save()
+        pqrsTy = get_object_or_404(Type, id=int(self.kwargs['pqrs_type']))
+        person_legal = Person(
+            name=form['name'].value(),
+            lasts_name=form['lasts_name'].value(),
+            document_type=DocumentTypes.objects.filter(id=int(form['document_type'].value()))[0],
+            document_number=form['document_number'].value(),
+            expedition_date=form['expedition_date'].value(),
+            email=form['email'].value(),
+            city=City.objects.filter(id=int(form['city'].value()))[0],
+            phone_number=form['phone_number'].value(),
+            address=form['address'].value(),
+        )
+        person_legal.save()
+        pqrsObject=PQRS(pqr_type = pqrsTy,principal_person = person_legal)
+        pqrsObject.save()
+        return redirect('pqrs:pqrs_create_multiple_person',pqrsObject.uuid)
 
 class PersonRequestCreateView(CreateView):
     model = PersonRequest
