@@ -244,6 +244,8 @@ class LegalPersonCreateView(CreateView):
             company_name =form['company_name'].value(),
             document_company_number =form['document_company_number'].value(),
             document_number =form['document_company_number'].value(),
+            email=form['email'].value(),
+            representative = f"{form['name'].value()} {form['lasts_name'].value()}"
         )
         self.object.save()
         pqrsTy = get_object_or_404(Type, id=int(self.kwargs['pqrs_type']))
@@ -257,6 +259,7 @@ class LegalPersonCreateView(CreateView):
             city=City.objects.filter(id=int(form['city'].value()))[0],
             phone_number=form['phone_number'].value(),
             address=form['address'].value(),
+            parent= self.object
         )
         person_legal.save()
         pqrsObject=PQRS(pqr_type = pqrsTy,principal_person = person_legal)

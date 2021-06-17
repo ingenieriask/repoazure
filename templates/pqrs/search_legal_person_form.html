@@ -38,9 +38,9 @@
             </a>
           </h5>
           <div class="card-body border-primary">
-            <p class="card-text">Nombre: {{ person.name }}</p>
-            <p class="card-text">Email: {{ person.email }}</p>
-            <p class="card-text">Address: {{person.address }}</p>
+            <p class="card-text">Razon social: {{ person.company_name }}</p>
+            <p class="card-text">Email: {{ person.get_anonymized_email }}</p>
+            <p class="card-text">Representante: {{person.get_anonymized_representative }}</p>
           </div>
         </div>
       </div>
