@@ -4,7 +4,7 @@ from django.shortcuts import redirect, render
 
 from correspondence.models import ReceptionMode, RadicateTypes, Radicate, AlfrescoFile
 from core.models import Attorny, AttornyType, Atttorny_Person, City, LegalPerson, Person, Office, DocumentTypes, PersonRequest, PersonType
-from pqrs.models import PQRS,Type
+from pqrs.models import PQRS,Type, PqrsContent
 from pqrs.forms import LegalPersonForm, SearchPersonForm, PersonForm, PqrRadicateForm,PersonRequestForm,PersonFormUpdate,PersonRequestFormUpdate,PersonAttorny
 from core.utils_db import process_email,get_system_parameter
 from django.http import HttpResponseRedirect
@@ -13,6 +13,7 @@ from django.urls import reverse
 from django.contrib import messages
 from django.contrib.postgres.search import SearchVector
 from django.utils.crypto import get_random_string
+from django.views.generic import ListView
 from django.views.generic.detail import DetailView
 from django.views.generic.edit import CreateView
 from django.views.generic.edit import UpdateView
@@ -42,35 +43,28 @@ def index(request):
     rino_parameter= get_system_parameter('RINO_PQR_INFO')
     return render(request, 'pqrs/index.html', {'rino_parameter':rino_parameter.value})
 
-def send_email_person(request, pk, pqrs_type):
+def send_email_person(request, pk):
     unique_id = get_random_string(length=32)
-    toSave = json.dumps({
-        "personPk": pk,
-        "pqrs_type": pqrs_type
-    })
-    add_to_redis(unique_id, toSave, 'email')
+    add_to_redis(unique_id, pk, 'email')
     person = Person.objects.get(pk=pk)
     base_url =  "{0}://{1}/pqrs/validate-email-person/{2}".format(request.scheme, request.get_host(), unique_id)
     person.url = base_url
     process_email('EMAIL_PQR_VALIDATE_PERSON', person.email, person)
     return render(request, 'pqrs/search_person_answer_form.html', context={ 'msg': 'Se ha enviado un correo electrónico con la información para registrar el caso' })
 
-def validate_email_person(request, uuid_redis):
-    redis_pk = read_from_redis(uuid_redis, 'email')
-    if redis_pk is None:
+def validate_email_person(request, uuid):
+    pk = read_from_redis(uuid, 'email')
+    if pk is None:
         return render(request, 'pqrs/search_person_answer_form.html', context={ 'msg': 'El token ha caducado' })
+    
     else:
-        pk = json.loads(redis_pk)
-        person = Person.objects.get(pk=pk["personPk"])
+        person = Person.objects.get(pk=pk)
         if person is None:
             return render(request, 'pqrs/search_person_answer_form.html', context={ 'msg': 'El token es inválido' })
         else:
-            pqrsTy = get_object_or_404(Type, id=int(pk["pqrs_type"]))
-            pqrsObject=PQRS(pqr_type = pqrsTy,principal_person = person)
-            pqrsObject.save()
             # url = reverse('pqrs:edit_person', kwargs={'pk': person.pk})
-            # return HttpResponseRedirect(url)
-            return redirect('pqrs:edit_person',pqrsObject.uuid,person.pk)
+            url = reverse('pqrs:edit_person', kwargs={'uuid': uuid, 'pk': person.pk})
+            return HttpResponseRedirect(url)
 
 def search_person(request,pqrs_type,person_type):
     if person_type == 1:
@@ -116,7 +110,7 @@ def create_pqr_multiple(request, pqrs):
             instance = form.save(commit=False)
             instance.reception_mode = get_object_or_404(ReceptionMode, abbr='VIR')
             instance.type = get_object_or_404(RadicateTypes, abbr='PQR')
-            instance.number = RecordCodeService.get_consecutive(RecordCodeService.Type.INPUT)
+            instance.number = RecordCodeService.get_consecutive(1)
             instance.office = get_object_or_404(Office, abbr='PQR')
             # instance.creator = request.user.profile_user
             # instance.current_user = request.user.profile_user
@@ -358,6 +352,12 @@ class PersonUpdateView(UpdateView):
             messages.error(request, "error de validacion")
             return render(request, 'pqrs/search_person_answer_form.html', context={ 'msg': 'El token es inválido' })
     
-
+    
 def select(requests):
     return render(requests, 'pqrs/select.html', {})
+
+
+class RadicateInbox(ListView):
+    model = PqrsContent
+    context_object_name = 'pqrs'
+    template_name = 'pqrs/radicate_inbox.html'
