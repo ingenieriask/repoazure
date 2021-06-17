@@ -1,5 +1,5 @@
 from django.contrib import admin
-from core.models import Attorny, AttornyType, Atttorny_Person, State, City, Office, Country, PreferencialPopulation, \
+from core.models import Attorny, AttornyType, Atttorny_Person, LegalPerson, State, City, Office, Country, PreferencialPopulation, \
     Disability, BooleanSelection, EthnicGroup, ResponseMode, SystemParameter, \
     AppParameter, ConsecutiveFormat, FilingType, CalendarDay, CalendarDayType, Calendar,Alerts
 from core.forms import ConsecutiveFormatForm, CalendarForm
@@ -42,4 +42,5 @@ admin.site.register(ConsecutiveFormat, ConsecutiveFormatAdmin)
 admin.site.register(FilingType)
 admin.site.register(CalendarDay)
 admin.site.register(CalendarDayType)
+admin.site.register(LegalPerson)
 admin.site.register(Calendar, CalendarAdmin)
