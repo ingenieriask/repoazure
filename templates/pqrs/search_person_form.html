@@ -3,7 +3,7 @@
 <div class="card mb-4">
   <div class="card-header">Búsqueda de remitentes</div>
   <div class="card-body">
-    <form action="{% url 'pqrs:search_person' pqrs_type=pqrs_type %}" method="post">
+    <form action="{% url 'pqrs:search_person' pqrs_type=pqrs_type person_type=person_type%}" method="post">
       {{ form | crispy }} {% csrf_token %}
       <input type="submit" name="search" value="Buscar" class="btn btn-success lift" />
     </form>
