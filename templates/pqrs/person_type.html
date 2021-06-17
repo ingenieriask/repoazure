@@ -1,0 +1,54 @@
+{% extends 'pqrs/template.html' %} {% load static %}
+<!-- BLOCK Content -->
+{% block content %}
+<div class="row">
+  <div class="col-xl-12 mb-12">
+    <div class="card">
+      <div class="card-body">
+        <div class="row no-gutters">
+          <div class="col-auto card-icon-aside md-4">
+            <i class="feather-xl text-primary mb-3" data-feather="package"></i>
+          </div>
+          <div class="col">
+            <div class="card-body py-5">
+              <h1 class="card-title text-primary text-center">RINO PQRDS</h1>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <img
+              class="img-fluid"
+              src="{% static 'correspondence/assets/img/illustrations/browser-stats.svg' %}"
+              alt="..."
+              style="width: 8rem"
+            />
+          </div>
+        </div>
+        {% if person_type %}
+        <div class="row">
+          <div class="col-xxl-12 col-xl-12 col-md-12 my-4">
+            <h2 class="text-center mx-auto mb-2">Tipo Persona</h2>
+            <h3 class="text-center mx-auto mb-2">{{person_type_message}}</h3>
+          </div>
+          {% for personType in person_type %}
+          <div class="col-xxl-6 col-xl-6 col-md-6 my-4">
+            <div class="card">
+              <div class="card-body">
+                <a
+                  class="btn col-12 d-flex"
+                  href="{% url 'pqrs:search_person' pqrs_type=pqrs_type person_type=personType.id %}"
+                >
+                  <h2 class="text-center m-auto">{{personType.name}}</h2>
+                </a>
+              </div>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+        {% else %}
+        <h1>Upss Algo Paso</h1>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
