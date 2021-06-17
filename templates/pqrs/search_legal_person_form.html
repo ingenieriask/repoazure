@@ -1,0 +1,61 @@
+{% extends 'pqrs/template.html' %} {% block content %} {% load crispy_forms_tags %}
+
+<div class="card mb-4">
+  <div class="card-header">Búsqueda de remitentes legales</div>
+  <div class="card-body">
+    <form action="{% url 'pqrs:search_person' pqrs_type=pqrs_type person_type=person_type%}" method="post">
+      {{ form | crispy }} {% csrf_token %}
+      <input type="submit" name="search" value="Buscar" class="btn btn-success lift" />
+    </form>
+    <div class="alert alert-success mt-4" role="alert">
+      <h4 class="alert-heading">Remitentes</h4>
+      <p>
+        Debes realizar una búsqueda de remitentes legales antes de la entrada de documentos, puedes realizarla con
+        nombres personales, direcciones, correo electrónico o nombre de la organización
+      </p>
+      <hr />
+      <p class="mb-0">Una vez encontrado el remitente legal puedes seguir con los pasos</p>
+    </div>
+  </div>
+</div>
+{% if list %}
+<div class="card mb-4">
+  <div class="card-header">Resultado</div>
+  <div class="card-body">
+    <div class="row">
+      {% for person in list%}
+      <div class="col-md-4">
+        <div class="card border-primary mb-3">
+          <h5 class="card-header text-primary">
+            Resultado {{forloop.counter}}
+            <a
+              title="Enviar correo"
+              data-toggle="tooltip"
+              href="{% url 'pqrs:send_email_person' pk=person.pk pqrs_type=pqrs_type %}"
+              class="btn btn-datatable btn-icon btn-transparent-dark"
+            >
+              <i style="height: 1.5rem; width: 1.5rem" data-feather="mail"></i>
+            </a>
+          </h5>
+          <div class="card-body border-primary">
+            <p class="card-text">Nombre: {{ person.name }}</p>
+            <p class="card-text">Email: {{ person.email }}</p>
+            <p class="card-text">Address: {{person.address }}</p>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+{% else %} {% if person_form %}
+<div class="card mb-4">
+  <div class="card-header">Persona Legal</div>
+  <div class="card-body">
+    <form method="post" id="sender_create_form" action="{% url 'pqrs:create_legal_person' pqrs_type=pqrs_type %}">
+      {% crispy person_form %} {% csrf_token %}
+    </form>
+  </div>
+</div>
+
+{% endif %} {% endif %} {% endblock %}
