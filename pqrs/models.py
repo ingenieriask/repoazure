@@ -84,6 +84,7 @@ class PqrsContent(Radicate):
     interestGroup = models.ForeignKey(InterestGroup, on_delete=models.PROTECT, related_name='pqr_interest_group', null=False, blank= False, default=None)
     subtype = models.ForeignKey(SubType, on_delete=models.PROTECT, related_name='pqr_type', null=True)
     pqrsobject = models.ForeignKey(PQRS,related_name='pqr_type_object', on_delete=models.PROTECT,blank=True, null=True)
+    agreement_personal_data = models.BooleanField()
     def get_absolute_url(self):
         return reverse('pqrs_detail', args=[self.id])
 
