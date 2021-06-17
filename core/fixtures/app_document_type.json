@@ -25,7 +25,7 @@
   },
   {
     "model": "core.documenttypes",
-    "pk":4,
+    "pk": 4,
     "fields": {
       "abbr": "TI",
       "name": "Tarjeta de Identidad"
@@ -45,6 +45,14 @@
     "fields": {
       "abbr": "PT",
       "name": "Pasaporte"
+    }
+  },
+  {
+    "model": "core.documenttypes",
+    "pk": 6,
+    "fields": {
+      "abbr": "NIT-EX",
+      "name": "Numéro único de identificacion Personal Extranjeria"
     }
   }
 ]
