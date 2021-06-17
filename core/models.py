@@ -172,9 +172,16 @@ class LegalPerson(PersonBase):
     verification_code =models.CharField(max_length=10, null=False,blank=False)
     company_name = models.CharField(max_length=256,null=False,blank=False)
     document_company_number = models.CharField(max_length=25, null=True, unique=True, db_index=True)
-
+    representative = models.CharField(max_length=256,null=True,blank=True)
     def __str__(self):
-        return self.name
+        return self.company_name
+
+    def get_anonymized_email(self):
+        return anonymize(self.email)
+
+    def get_anonymized_representative(self):
+        return anonymize(self.representative)
+
 class Person(PersonBase):
     is_anonymous = models.BooleanField(blank=False, null=False, default=False)
     parent = models.ForeignKey(LegalPerson, on_delete=models.PROTECT, blank=True, null=True)
