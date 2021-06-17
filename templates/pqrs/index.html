@@ -37,7 +37,7 @@
                       a trav&eacute;s de la cual se da a conocer una inconformidad o 
                       una irredularidad o se formula una petici&oacute;n "
                 >
-                  <a class="btn col-md-8 d-flex" href="pqrs-type/">
+                  <a class="btn col-md-8 d-flex" href="{% url 'pqrs:pqrs_type' applicanType=1%}">
                     <h2 class="text-center m-auto">SOLICITANTE</h2>
                   </a>
                   <div class="col-md-4 d-flex">
@@ -59,7 +59,7 @@
                   que puede presentar una persona que no desea identificarse
                   o ser identificada"
                 >
-                  <a class="btn col-md-8 d-flex">
+                  <a class="btn col-md-8 d-flex" href="{% url 'pqrs:pqrs_type' applicanType=2%}">
                     <h2 class="text-center m-auto">SOLICITANTE ANONIMO</h2>
                   </a>
                   <div class="col-md-4 d-flex">
@@ -82,7 +82,11 @@
                   ante el Ministerio publico el procedimiento especial de 
                   solicitud con identificaci&oacute;n reservada"
                 >
-                  <a class="btn col-md-8 d-flex" target="_blank" href="https://www.procuraduria.gov.co/portal/solicitud_informacion_identificacion_reservada.page">
+                  <a
+                    class="btn col-md-8 d-flex"
+                    target="_blank"
+                    href="https://www.procuraduria.gov.co/portal/solicitud_informacion_identificacion_reservada.page"
+                  >
                     <h2 class="text-center m-auto">IDENTIDAD RESERVADA</h2>
                   </a>
                   <div class="col-md-4 d-flex">
