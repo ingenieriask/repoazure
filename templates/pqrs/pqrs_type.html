@@ -30,7 +30,10 @@
             <div class="card">
               <div class="card-body">
                 <div class="card-title row" data-toggle="tooltip" data-placement="bottom" title="{{type.description}}">
-                  <a class="btn col-8 d-flex" href="{% url 'pqrs:person_type' pqrs_type=type.id %}">
+                  <a
+                    class="btn col-8 d-flex"
+                    href="{% url 'pqrs:person_type' pqrs_type=type.id applicanType=applicant_type%}"
+                  >
                     <h2 class="text-center m-auto">{{type.name}}</h2>
                   </a>
                   <div class="col-4">

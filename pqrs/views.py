@@ -168,19 +168,26 @@ def create_pqr_multiple(request, pqrs):
     return render(request, 'pqrs/create_pqr.html', context={'form': form, 'person': person})
 
 
-def PQRSType(request):
+def PQRSType(request,applicanType):
     pqrs_types = Type.objects.all()
-    return render(request, 'pqrs/pqrs_type.html', context={'types': pqrs_types})
+    return render(request, 'pqrs/pqrs_type.html', context={'types': pqrs_types,"applicant_type":applicanType})
 
-def person_type(request,pqrs_type):
-    rino_parameter= get_system_parameter('RINO_PQR_MESSAGE_DOCUMENT')
-    person_type = PersonType.objects.all()
-    return render(
-        request, 'pqrs/person_type.html', 
-        context={
-            'person_type_message':rino_parameter.value,
-            'person_type':person_type,
-            'pqrs_type':pqrs_type})
+def person_type(request,pqrs_type,applicanType):
+    if applicanType==1:
+        rino_parameter= get_system_parameter('RINO_PQR_MESSAGE_DOCUMENT')
+        person_type = PersonType.objects.all()
+        return render(
+            request, 'pqrs/person_type.html', 
+            context={
+                'person_type_message':rino_parameter.value,
+                'person_type':person_type,
+                'pqrs_type':pqrs_type})
+    else:
+        pqrsTy = get_object_or_404(Type, id=int(pqrs_type))
+        person_anonnymous = get_object_or_404(Person,id=1)
+        pqrsObject=PQRS(pqr_type =pqrsTy,principal_person=person_anonnymous)
+        pqrsObject.save()
+        return redirect('pqrs:pqrs_create_multiple_person',pqrsObject.uuid)
 
 def multi_create_request(request,person):
     pqrs_object = get_object_or_404(PQRS, uuid=int(person))

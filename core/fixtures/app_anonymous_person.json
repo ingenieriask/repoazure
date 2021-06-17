@@ -1,0 +1,25 @@
+[
+  {
+    "model": "core.personbase",
+    "pk": 1,
+    "fields": {
+      "phone_number": "",
+      "document_type": 1,
+      "person_type": 1,
+      "document_number": "1",
+      "email": "",
+      "name": "Persona Anonicma",
+      "lasts_name": "",
+      "city": 1,
+      "address": ""
+    }
+  },
+  {
+    "model": "core.person",
+    "pk": 1,
+    "fields": {
+      "expedition_date": "2000-01-01",
+      "is_anonymous": true
+    }
+  }
+]
