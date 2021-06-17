@@ -37,13 +37,13 @@
                 <td style="text-align: center;">
                     <svg height="8mm" width="8mm">
                         {% if pqrs.date_radicated|sumDates:pqrs.subtype.max_response_days > pqrs.subtype.first_alert  %}
-                            <circle cx="4mm" cy="4mm" r="3mm" style="fill: yellow;" />
-                        {% elif pqrs.date_radicated|sumDates:pqrs.subtype.max_response_days > pqrs.subtype.second_alert  %}
-                            <circle cx="4mm" cy="4mm" r="3mm" style="fill: orange;" />
-                        {% elif pqrs.date_radicated|sumDates:pqrs.subtype.max_response_days > pqrs.subtype.third_alert  %}
-                            <circle cx="4mm" cy="4mm" r="3mm" style="fill: red;" />
-                        {% else %}
                             <circle cx="4mm" cy="4mm" r="3mm" style="fill: green;" />
+                        {% elif pqrs.date_radicated|sumDates:pqrs.subtype.max_response_days > pqrs.subtype.second_alert  %}
+                            <circle cx="4mm" cy="4mm" r="3mm" style="fill: yellow;" />
+                        {% elif pqrs.date_radicated|sumDates:pqrs.subtype.max_response_days > pqrs.subtype.third_alert  %}
+                            <circle cx="4mm" cy="4mm" r="3mm" style="fill: orange;" />
+                        {% else %}
+                            <circle cx="4mm" cy="4mm" r="3mm" style="fill: red;" />
                         {% endif %}
                     </svg>
                     {{ pqrs.date_radicated|sumDates:pqrs.subtype.max_response_days }}    

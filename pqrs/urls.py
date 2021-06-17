@@ -6,13 +6,13 @@ app_name = 'pqrs'
 
 urlpatterns = [
     path('', views.index, name='index'),
-    path('pqrs-create/<int:person>/', views.create_pqr, name='pqrs_create'),
+    # path('pqrs-create/<int:person>/', views.create_pqr, name='pqrs_create'),
     path('pqrs-create/<uuid:pqrs>/', views.create_pqr_multiple, name='pqrs_create_multiple_person'),
     path('pqrs-detail/<int:pk>/', views.PqrDetailView.as_view(), name="pqrs_detail"),
     path('pqrs-type/', views.PQRSType, name='pqrs_type'),
     path('search-person/<int:pqrs_type>/', views.search_person, name='search_person'),
-    path('send-email-person/<int:pk>/<int:pqrs_type>/', views.send_email_person, name='send_email_person'),
-    path('validate-email-person/<str:uuid_redis>/', views.validate_email_person, name='validate_email_person'),
+    path('send-email-person/<int:pk>/', views.send_email_person, name='send_email_person'),
+    path('validate-email-person/<str:uuid>/', views.validate_email_person, name='validate_email_person'),
     path('select/', views.select, name='select'),
     #path('edit-person/<int:pk>/<str:uuid>/', views.PersonUpdateView.as_view(), name='edit_person'),
     path('create-person/<str:pqrs_type>/', views.PersonCreateView.as_view(), name='create_person'),
