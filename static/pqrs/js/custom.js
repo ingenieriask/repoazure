@@ -22,3 +22,12 @@ $("#id_uploaded_files").fileinput({
       return filename.replace('(', '_').replace(']', '_');
   }
 });
+
+$('#close-dialog').click(function (e) {
+  e.preventDefault();
+  $('#agreement-modal').modal('hide')
+})
+
+$('#link_agreement').click(function (e) {
+  $('#agreement-modal').modal('show')
+})

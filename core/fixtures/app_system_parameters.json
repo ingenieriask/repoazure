@@ -30,5 +30,13 @@
       "name": "EMAIL_PQR_CREATE",
       "value": "{\"body\":\"<strong>Cordial saludo,</strong> <p><strong>RINO</strong>, le informa que recibió su solicitud, la cual fue radicada con el número <strong><param>number</param></strong>. Por favor si requiere conocer el estado de su trámite indicar este número de radicado.</p>Contenido: <p><param>data</param></p><p>Puede hacer seguimiento al trámite de su solicitud dentro de los plazos establecidos en la Ley, ingresando a nuestra página web<a href=\\\"<param>url</param>\\\"><h3>Haga clic aquí</h3></a></p>\",\"subject\":\"Radicación de PQR\"}"
     }
+  },
+  {
+    "model": "core.systemparameter",
+    "pk": 5,
+    "fields": {
+      "name": "AGREEMENT_DATA",
+      "value": "{\"title\": \"Tratamiento de datos personales\",\"body\": \"Autorizo el tratamiento de mis datos personales suministrados en el presente formulario de acuerdo con las normas aplicables, especialmente en la Ley 1581 de 2012 y el decreto 1377 de 2013, mediante la cual se dictan disposiciones generales para la protección de datos personales.<br/>La Entidad / Empresa propenderá por la seguridad y confidencialidad de datos sensibles o personales que se hayan recogido para los fines de la presente solicitud y garantizará su debida custodia, uso, circulación y supresión\"}"
+    }
   }
 ]

@@ -1,12 +1,26 @@
 from pqrs.models import PqrsContent
 from django import forms
 from crispy_forms.helper import FormHelper
-from crispy_forms.layout import Layout, Submit, Row, Column, Div
+from crispy_forms.layout import Layout, Submit, Row, Column, Div, Field
+from crispy_forms.utils import TEMPLATE_PACK
 from core.forms import AbstractPersonForm,AbstractPersonRequestForm,AbstractPersonAttorny
 from django.utils.translation import gettext_lazy as _
 from core.forms import CustomFileInput
-
+from core.utils_db import get_json_system_parameter
 from captcha.fields import CaptchaField
+
+class AgreementModal(Field):
+    template='pqrs/agreement_modal.html'
+    extra_context = {}
+
+    def __init__(self, *args, **kwargs):
+        self.extra_context = kwargs.pop('extra_context', self.extra_context)
+        super(AgreementModal, self).__init__(*args, **kwargs)
+
+    def render(self, form, form_style, context, template_pack=TEMPLATE_PACK, extra_context=None, **kwargs):
+        if self.extra_context:
+            extra_context = extra_context.update(self.extra_context) if extra_context else self.extra_context
+        return super(AgreementModal, self).render(form, form_style, context, template_pack, extra_context, **kwargs)
 
 class PersonForm(AbstractPersonForm):
     def __init__(self, *args, **kwargs):
@@ -74,6 +88,10 @@ class PqrRadicateForm(forms.ModelForm):
     captcha = CaptchaField()
     uploaded_files = forms.FileField(widget=forms.ClearableFileInput(attrs={'multiple': True}), required=False,
                                     label="Anexos, Documentos (Múltiples archivos - Tamaño máximo = 10 MB)")
+    agreement_personal_data = forms.BooleanField(widget=forms.CheckboxInput, required=True, 
+        label="Acepto el tratamiento de datos personales"
+        )
+    # agreement_personal_data.title="Tratamiento de datos personales"
     
     def clean(self):
         cleaned_data = super().clean()
@@ -93,6 +111,7 @@ class PqrRadicateForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super(PqrRadicateForm, self).__init__(*args, **kwargs)
+        agreement_data = get_json_system_parameter('AGREEMENT_DATA')
         self.helper = FormHelper(self)
         self.helper.layout = Layout(
             Row(
@@ -114,6 +133,10 @@ class PqrRadicateForm(forms.ModelForm):
             ),
             Row(
                 Column(CustomFileInput('uploaded_files'),css_class='form-group col-12 mb-0'),
+                css_class='form-row'
+            ),
+            Row(
+                Column(AgreementModal('agreement_personal_data', extra_context=agreement_data),css_class='form-group col-12 mb-0'),
                 css_class='form-row'
             ),
             Row(
