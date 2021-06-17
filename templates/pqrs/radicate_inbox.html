@@ -28,7 +28,7 @@
                 <td style="text-align: center;">{{ pqrs.number }}</td>
                 <td style="text-align: center;">{{ pqrs.date_radicated }}</td>
                 <td style="text-align: center;">{{ pqrs.subject }}</td>
-                {% if person.is_anonymous == True %}
+                {% if pqrs.person.is_anonymous == True %}
                     <td style="text-align: center;">ANÓNIMO</td>
                 {% else %}
                     <td style="text-align: center;">{{ pqrs.person.name }}</td>
@@ -36,25 +36,13 @@
                 <td style="text-align: center;">{{ pqrs.type }} - {{ pqrs.subtype.name }}</td>
                 <td style="text-align: center;">
                     <svg height="8mm" width="8mm">
-                        {% if pqrs.date_radicated|sumDates:pqrs.subtype.max_response_days > pqrs.subtype.first_alert  %}
-                            <circle cx="4mm" cy="4mm" r="3mm" style="fill: green;" />
-                        {% elif pqrs.date_radicated|sumDates:pqrs.subtype.max_response_days > pqrs.subtype.second_alert  %}
-                            <circle cx="4mm" cy="4mm" r="3mm" style="fill: yellow;" />
-                        {% elif pqrs.date_radicated|sumDates:pqrs.subtype.max_response_days > pqrs.subtype.third_alert  %}
-                            <circle cx="4mm" cy="4mm" r="3mm" style="fill: orange;" />
-                        {% else %}
-                            <circle cx="4mm" cy="4mm" r="3mm" style="fill: red;" />
-                        {% endif %}
+                      <circle cx="4mm" cy="4mm" r="3mm" style="fill: {{ pqrs.subtype.alerts.all|getColorTrafficLight:pqrs.date_radicated }};" />
                     </svg>
-                    {{ pqrs.date_radicated|sumDates:pqrs.subtype.max_response_days }}    
+                    {{ pqrs.date_radicated|getMissingDays:pqrs.subtype.max_response_days }}    
                 </td>
                 <td style="text-align: center;">RADICADO</td>
                 <td style="text-align: center;">
-                    <button class="btn btn-datatable btn-icon btn-transparent-dark mr-2"><i data-feather="more-vertical"></i></button>
-                    <i data-feather="eye"></i></a>
-                    {% if pqrs.document_file %}
-                      <a href="{{ pqrs.document_file.url }}" class="btn btn-datatable btn-icon btn-transparent-dark"><i data-feather="file"></i></a>
-                    {% endif %}
+                    <i class="fas fa-plus-circle fa-2x" style="color: #0000ff;"></i>
                 </td>
               </tr>
               {% endfor %}

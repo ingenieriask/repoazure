@@ -300,8 +300,7 @@ def select(requests):
     return render(requests, 'pqrs/select.html', {})
 
 
-def RadicateInbox(request):
-    
-    pqrs = PqrsContent.objects.all()
-
-    return render(request, 'pqrs/radicate_inbox.html', context={'pqrs': pqrs})
+class RadicateInbox(ListView):
+    model = PqrsContent
+    context_object_name = 'pqrs'
+    template_name = 'pqrs/radicate_inbox.html'

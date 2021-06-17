@@ -147,6 +147,14 @@ class CalendarService(object):
         for day in days:
             workingdays += 1 if day.type.name == "workingday" else 0
         return max_response_days - workingdays
+    
+    @classmethod
+    def get_business_days_since(cls, request_day):
+        days = CalendarDay.objects.filter(date__range=[request_day, date.today()])
+        workingdays = 0
+        for day in days:
+            workingdays += 1 if day.type.name == "workingday" else 0
+        return workingdays
 
     @classmethod
     def get_calendar_days(cls, year):
