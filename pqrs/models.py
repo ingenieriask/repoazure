@@ -6,8 +6,37 @@ from core.models import ResponseMode, Person,PersonRequest,Alerts
 from django.contrib.postgres.fields import ArrayField
 from core.models import ResponseMode, BaseModel, Person,PersonRequest
 from correspondence.models import Radicate
+from crum import get_current_user
 import uuid
 
+
+class Topic(BaseModel):
+    name = models.CharField(max_length=64)
+    description = models.TextField(max_length=128, null=False)
+    def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
+        user = get_current_user()
+        if user is not None:
+            if not self.pk:
+                self.user_creation = user
+            else:
+                self.user_updated = user
+        super(Topic, self).save()
+    def __str__(self):
+        return self.name
+
+class InterestGroup(BaseModel):
+    name = models.CharField(max_length=64)
+    description = models.TextField(max_length=128, null=False)
+    def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
+        user = get_current_user()
+        if user is not None:
+            if not self.pk:
+                self.user_creation = user
+            else:
+                self.user_updated = user
+        super(InterestGroup, self).save()
+    def __str__(self):
+        return self.name
 
 class Type(models.Model):
     name = models.CharField(max_length=128,editable=False)
@@ -51,8 +80,11 @@ class PqrsContent(Radicate):
     data = models.TextField(max_length=2000)
     response_mode = models.ForeignKey(ResponseMode, on_delete=models.PROTECT, related_name='pqrs_response_mode')
     # number = models.TextField(max_length=30, null=False, db_index=True)
+    topic = models.ForeignKey(Topic, on_delete=models.PROTECT, related_name='pqr_topic', null=False, blank= False, default=None)
+    interestGroup = models.ForeignKey(InterestGroup, on_delete=models.PROTECT, related_name='pqr_interest_group', null=False, blank= False, default=None)
     subtype = models.ForeignKey(SubType, on_delete=models.PROTECT, related_name='pqr_type', null=True)
     pqrsobject = models.ForeignKey(PQRS,related_name='pqr_type_object', on_delete=models.PROTECT,blank=True, null=True)
+    agreement_personal_data = models.BooleanField()
     def get_absolute_url(self):
         return reverse('pqrs_detail', args=[self.id])
 
@@ -64,4 +96,3 @@ class PqrsContent(Radicate):
         #     else:
         #         self.user_updated = user
         super(PqrsContent, self).save()
-

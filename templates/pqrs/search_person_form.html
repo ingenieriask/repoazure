@@ -31,7 +31,7 @@
             <a
               title="Enviar correo"
               data-toggle="tooltip"
-              href="{% url 'pqrs:send_email_person' pk=person.pk %}"
+              href="{% url 'pqrs:send_email_person' pk=person.pk pqrs_type=pqrs_type %}"
               class="btn btn-datatable btn-icon btn-transparent-dark"
             >
               <i style="height: 1.5rem; width: 1.5rem" data-feather="mail"></i>

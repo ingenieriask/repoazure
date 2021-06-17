@@ -1,0 +1,25 @@
+{% load static %}
+{% load crispy_forms_field %}
+<script>
+    
+</script>
+<div class="form-group">
+    {% crispy_field field %}
+    <a id="link_agreement" for="{{ field.id_for_label }}" href="#">{{ field.label }}</a>
+</div>
+
+<div class="modal fade" id="agreement-modal" tabindex="-1" aria-labelledby="agreementModal" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+        <div class="modal-header">
+            <h5 class="modal-title" id="agreementModal">{{title}}</h5>
+        </div>
+        <div class="modal-body">
+            {% autoescape off %} {{ body }} {% endautoescape %}
+        </div>
+        <div class="modal-footer">
+            <button type="button" id="close-dialog" class="btn btn-primary">Cerrar</button>
+        </div>
+        </div>
+    </div>
+  </div>

@@ -8,6 +8,7 @@ import requests
 import json
 import pandas as pd
 from datetime import date
+from enum import Enum
 
 from core.models import AppParameter, ConsecutiveFormat, Consecutive, Country, FilingType, \
     Holiday, CalendarDay, CalendarDayType, Calendar
@@ -60,6 +61,12 @@ class MailService(object):
 
 class RecordCodeService(object):
 
+    class Type(Enum):
+
+        INPUT = 'input'
+        OUTPUT = 'output'
+        MEMO = 'memo'
+
     tokens = ['{consecutive}', '{year}', '{type}']
     digits_token = 'consecutive'
 
@@ -88,7 +95,7 @@ class RecordCodeService(object):
 
     @classmethod
     @transaction.atomic
-    def get_consecutive(cls, type):
+    def get_consecutive(cls, identifier):
         '''Retrieve the next consecutive code for a given type'''
 
         now = datetime.now()
@@ -96,11 +103,11 @@ class RecordCodeService(object):
             effective_date__lte=now
         ).latest('effective_date').format
 
+        filing_type = FilingType.objects.get(identifier=identifier.value)
         # Retrieve the last consecutive code
         try:
-            consecutive = Consecutive.objects.get(type__code=type)
+            consecutive = Consecutive.objects.get(type=filing_type)
         except Consecutive.DoesNotExist:
-            filing_type = FilingType.objects.get(code=type)
             consecutive = Consecutive(current=0, type=filing_type)
 
         # Update the consecutive code
@@ -114,7 +121,7 @@ class RecordCodeService(object):
         
         # Generate formatted code
         params = {
-            'type': type,
+            'type': filing_type.code,
             'year': now.year,
             'consecutive': consecutive.current
         }

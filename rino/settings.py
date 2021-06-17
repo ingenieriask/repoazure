@@ -167,8 +167,16 @@ DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'
 AZURE_STORAGE_KEY = env.bool('AZURE_STORAGE_KEY')
 
 if AZURE_STORAGE_KEY:
+    STATIC_LOCATION = "static"
+    MEDIA_LOCATION = "media"
+    AZURE_ACCOUNT_NAME = "storagerino"
     DEFAULT_FILE_STORAGE = 'rino.custom_azure.AzureMediaStorage'
     STATICFILES_STORAGE = 'rino.custom_azure.AzureStaticStorage'
+    AZURE_CUSTOM_DOMAIN = f'{AZURE_ACCOUNT_NAME}.blob.core.windows.net'
+
+    STATIC_URL = f'http://rino.skillnet.com.co/{STATIC_LOCATION}/'
+    MEDIA_URL = f'http://rino.skillnet.com.co/{MEDIA_LOCATION}/'
+
 
 EMAIL_BACKEND = env.str('EMAIL_BACKEND')
 EMAIL_USE_TLS = env.bool('EMAIL_USE_TLS')
@@ -177,10 +185,7 @@ EMAIL_HOST_USER = env.str('EMAIL_HOST_USER')
 EMAIL_HOST_PASSWORD = env.str('EMAIL_HOST_PASSWORD')
 EMAIL_PORT = env.int('EMAIL_PORT')
 
-STATIC_LOCATION = "static"
-MEDIA_LOCATION = "media"
 
-AZURE_ACCOUNT_NAME = "storagerino"
 CORS_ORIGIN_ALLOW_ALL = True
 
 SESSION_ENGINE = 'redis_sessions.session'
