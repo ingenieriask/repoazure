@@ -3,7 +3,7 @@ from django import forms
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Submit, Row, Column, Div, Field
 from crispy_forms.utils import TEMPLATE_PACK
-from core.forms import AbstractPersonForm,AbstractPersonRequestForm,AbstractPersonAttorny
+from core.forms import AbstractPersonForm,AbstractPersonRequestForm,AbstractPersonAttorny,AbstractLegalPersonForm
 from django.utils.translation import gettext_lazy as _
 from core.forms import CustomFileInput
 from core.utils_db import get_json_system_parameter
@@ -31,9 +31,6 @@ class PersonForm(AbstractPersonForm):
                 css_class="btn btn-primary mx-auto",
                 ),css_class="d-flex"),
                 ])
-        # print(kwargs['instance'], self.Meta.model.uuid)
-        # self.Meta.model.uuid = kwargs['uuid']
-        # self.Meta.model.reverse_url = 'correspondence:detail_person'
         self.Meta.model.reverse_url = 'pqrs:multi_request'
 
 class PersonFormUpdate(AbstractPersonForm):
@@ -41,7 +38,16 @@ class PersonFormUpdate(AbstractPersonForm):
         super(PersonFormUpdate, self).__init__(*args, **kwargs)
         self.fields['document_type'].disabled = True
         self.fields['document_number'].disabled = True
-        self.fields['person_type'].disabled = True
+        self.helper.layout.extend([
+            Div(
+                Submit('submit','Siguiente',
+                css_class="btn btn-primary mx-auto",
+                ),css_class="d-flex"),
+                ])
+
+class LegalPersonForm(AbstractLegalPersonForm):
+    def __init__(self, *args, **kwargs):
+        super(LegalPersonForm, self).__init__(*args, **kwargs)
         self.helper.layout.extend([
             Div(
                 Submit('submit','Siguiente',
@@ -74,7 +80,6 @@ class PersonRequestFormUpdate(AbstractPersonRequestForm):
         super(PersonRequestFormUpdate, self).__init__(*args, **kwargs)
         self.fields['document_type'].disabled = True
         self.fields['document_number'].disabled = True
-        self.fields['person_type'].disabled = True
         self.helper.layout.extend([
             Div(
                 Submit('submit','Siguiente',

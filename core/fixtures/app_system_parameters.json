@@ -38,5 +38,13 @@
       "name": "AGREEMENT_DATA",
       "value": "{\"title\": \"Tratamiento de datos personales\",\"body\": \"Autorizo el tratamiento de mis datos personales suministrados en el presente formulario de acuerdo con las normas aplicables, especialmente en la Ley 1581 de 2012 y el decreto 1377 de 2013, mediante la cual se dictan disposiciones generales para la protección de datos personales.<br/>La Entidad / Empresa propenderá por la seguridad y confidencialidad de datos sensibles o personales que se hayan recogido para los fines de la presente solicitud y garantizará su debida custodia, uso, circulación y supresión\"}"
     }
+  },
+  {
+    "model": "core.systemparameter",
+    "pk": 6,
+    "fields": {
+      "name": "RINO_PQR_MESSAGE_DOCUMENT",
+      "value": "mensaje para tipo persona"
+    }
   }
 ]

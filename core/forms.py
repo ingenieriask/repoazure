@@ -3,12 +3,13 @@ from django.core.exceptions import ValidationError
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Submit, Row, Column, Field, ButtonHolder, Button, Div, HTML
 from django.db.models import query
-from core.models import Attorny, AttornyType, Person,Disability,PreferencialPopulation,Disability, PersonRequest,PreferencialPopulation
+from core.models import Attorny, AttornyType, DocumentTypes, LegalPerson, Person,Disability,PreferencialPopulation,Disability, PersonRequest,PreferencialPopulation
 from crispy_forms.layout import Field
 import json
 from core.utils import get_field_value
 from core.widgets import ConsecutiveFormatWidget, NonWorkingCalendarWidget
 from core.services import RecordCodeService, CalendarService
+from django.db.models import Q
 
 class CustomFileInput(Field):
     template = 'core/custom_fileinput.html'
@@ -42,7 +43,7 @@ class AbstractPersonForm(forms.ModelForm):
         model = Person
 
         fields = ['document_type', 'document_number','phone_number',
-                 'request_response','expedition_date','person_type', 'name',
+                 'request_response','expedition_date', 'name',
                   'lasts_name', 'email', 'city', 'address', 'parent', 'preferencial_population',
                    'conflict_victim', 'disabilities', 'ethnic_group','attornyCheck']
         labels = {'document_type': 'Tipo de documento',
@@ -53,7 +54,6 @@ class AbstractPersonForm(forms.ModelForm):
                    'phone_number': 'Telefóno/Célular',
                   'lasts_name': 'Apellidos', 
                    'email': 'Correo electrónico',
-                  'person_type': 'Tipo persona',
                   'city': 'Ciudad / Municipio', 'address': 'Dirección de contacto',
                   'parent': 'Entidad',
                   'conflict_victim': 'Población víctima del conflicto armado',
@@ -63,7 +63,6 @@ class AbstractPersonForm(forms.ModelForm):
         widgets = {
             'document_type': forms.Select(attrs={'class': 'selectpicker'}),
             'request_response': forms.Select(attrs={'class': 'selectpicker'}),
-            'person_type': forms.Select(attrs={'class': 'selectpicker'}),
             'expedition_date': forms.DateInput(format='%Y-%m-%d',attrs={ 'placeholder': 'digite la fecha','type': 'date'} ),
             'city': forms.Select(attrs={'class': 'selectpicker', 'data-live-search': 'true', 'data-size': '7'}),
             'parent': forms.Select(attrs={'class': 'selectpicker', 'data-live-search': 'true', 'data-size': '7'}),
@@ -102,8 +101,7 @@ class AbstractPersonForm(forms.ModelForm):
                         Column('document_number', css_class='form-group col-md-4 mb-0'),
                         Column('expedition_date', css_class='form-group col-md-4 mb-0'),
                         css_class='form-row'
-                    ),
-                    Row( Column('person_type', css_class='form-group col-md-4 mb-0'),)
+                    )
                     ,css_class='card-body'
                 ), css_class="card mb-3",
             ),
@@ -151,7 +149,7 @@ class AbstractPersonRequestForm(forms.ModelForm):
         model = PersonRequest
 
         fields = ['document_type', 'document_number','phone_number',
-                 'expedition_date','person_type', 'name',
+                 'expedition_date','name',
                   'lasts_name', 'email', 'city', 'address',]
         labels = {'document_type': 'Tipo de documento',
                   'document_number': 'Número de documento',
@@ -160,12 +158,10 @@ class AbstractPersonRequestForm(forms.ModelForm):
                    'phone_number': 'Telefóno/Célular',
                   'lasts_name': 'Apellidos', 
                    'email': 'Correo electrónico',
-                  'person_type': 'Tipo persona',
                   'city': 'Ciudad / Municipio', 'address': 'Dirección de contacto',}
         
         widgets = {
             'document_type': forms.Select(attrs={'class': 'selectpicker'}),
-            'person_type': forms.Select(attrs={'class': 'selectpicker'}),
             'expedition_date': forms.DateInput(format='%Y-%m-%d',attrs={ 'placeholder': 'digite la fecha','type': 'date'} ),
             'city': forms.Select(attrs={'class': 'selectpicker', 'data-live-search': 'true', 'data-size': '7'}),
         }
@@ -189,8 +185,7 @@ class AbstractPersonRequestForm(forms.ModelForm):
                         Column('document_number', css_class='form-group col-md-4 mb-0'),
                         Column('expedition_date', css_class='form-group col-md-4 mb-0'),
                         css_class='form-row'
-                    ),
-                    Row( Column('person_type', css_class='form-group col-md-4 mb-0'),)
+                    )
                     ,css_class='card-body'
                 ), css_class="card mb-3",
             ),
@@ -207,6 +202,98 @@ class AbstractPersonRequestForm(forms.ModelForm):
                         Column('city', css_class='form-group col-md-6 mb-0'),
                         Column('phone_number', css_class='form-group col-md-6 mb-0'),
 
+                        css_class='form-row'
+                    ),css_class='card-body'
+                ), css_class="card mb-3",
+            ),
+        )
+
+
+class AbstractLegalPersonForm(forms.ModelForm):
+    document_type_company = forms.ModelChoiceField(
+        queryset=DocumentTypes.objects.filter(Q(abbr='NIT') | Q(abbr="NIT-EX")),
+        label='Tipo de documento'
+    )
+    email_confirmation = forms.CharField(label='Confirmación del correo electrónico', required=True)
+    def clean_email_confirmation(self):
+        cd = self.cleaned_data
+        if (get_field_value(cd, 'email_confirmation') != get_field_value(cd, 'email')):
+            raise forms.ValidationError('El correo de validación no coincide con el correo')
+        return get_field_value(cd, 'email_confirmation')
+
+    class Meta:
+        model = LegalPerson
+        fields = [
+            'document_number','document_company_number','verification_code',
+            'phone_number','document_type',
+            'expedition_date','company_name','name','lasts_name',
+            'email', 'city', 'address']
+        labels = {
+            'verification_code':'Codigo Verificacion',
+            'company_name':'Razon Social',
+            'document_number':'Numero de documento',
+            'document_company_number': 'Número de documento',
+            'expedition_date': 'Fecha de expedición',
+            'phone_number': 'Telefóno/Célular',
+            'email': 'Correo electrónico',
+            'city': 'Ciudad / Municipio', 'address': 'Dirección de contacto',
+            'name': 'Nombres',
+            'lasts_name': 'Apellidos', }
+        
+        widgets = {
+            'expedition_date': forms.DateInput(format='%Y-%m-%d',attrs={ 'placeholder': 'digite la fecha','type': 'date'} ),
+            'city': forms.Select(attrs={'class': 'selectpicker', 'data-live-search': 'true', 'data-size': '7'}),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super(AbstractLegalPersonForm, self).__init__(*args, **kwargs)
+        self.helper = FormHelper(self)
+        self.helper.layout = Layout(
+            Div(
+                Div(HTML('Información General'),
+                    css_class='card-header'),
+                Div(
+                    
+                    Row(
+                        Column('document_type_company', css_class='form-group col-md-4 mb-0'),
+                        Column('document_company_number', css_class='form-group col-md-4 mb-0'),
+                        Column('verification_code', css_class='form-group col-md-4 mb-0'),
+                        Column('company_name', css_class='form-group col-md-12 mb-0'),
+                        css_class='form-row'
+                    )
+                    ,css_class='card-body'
+                ), css_class="card mb-3",
+            ),
+            Div(
+                Div(HTML('Información de contacto Representante legal'),
+                    css_class='card-header'),
+                Div(
+                    Row(
+                        Column('name', css_class='form-group col-md-6 mb-0'),
+                        Column('lasts_name', css_class='form-group col-md-6 mb-0'),
+                        css_class='form-row'
+                    ),
+                    Row(
+                        Column('document_type', css_class='form-group col-md-4 mb-0'),
+                        Column('document_number', css_class='form-group col-md-4 mb-0'),
+                        Column('expedition_date', css_class='form-group col-md-4 mb-0'),
+                        css_class='form-row'
+                    ),css_class='card-body'
+                ), css_class="card mb-3",
+            ),
+             Div(
+                Div(HTML('Información de contacto'),
+                    css_class='card-header'),
+                Div(
+                    Row(
+                        Column('email', css_class='form-group col-md-6 mb-0'),
+                        Column('email_confirmation', css_class='form-group col-md-6 mb-0'),
+                        css_class='form-row'
+                    ),
+                    Row(
+                        Column('city', css_class='form-group col-md-4 mb-0'),
+                        Column('phone_number', css_class='form-group col-md-4 mb-0'),
+                        Column('address', css_class='form-group col-md-4 mb-0'),
                         css_class='form-row'
                     ),css_class='card-body'
                 ), css_class="card mb-3",
@@ -238,7 +325,7 @@ class AbstractPersonAttorny(forms.ModelForm):
         model = Attorny
 
         fields = ['document_type', 'document_number','phone_number',
-                 'expedition_date','person_type', 'name',
+                 'expedition_date', 'name',
                   'lasts_name', 'email', 'city', 'address','professional_card',]
         labels = {'document_type': 'Tipo de documento',
                   'document_number': 'Número de documento',
@@ -247,14 +334,12 @@ class AbstractPersonAttorny(forms.ModelForm):
                    'phone_number': 'Telefóno/Célular',
                   'lasts_name': 'Apellidos', 
                    'email': 'Correo electrónico',
-                  'person_type': 'Tipo persona',
                   'city': 'Ciudad / Municipio', 
                   'address': 'Dirección de contacto',
                   'professional_card':'Número Tarjeta Profecional (Abogado)'}
         
         widgets = {
             'document_type': forms.Select(attrs={'class': 'selectpicker'}),
-            'person_type': forms.Select(attrs={'class': 'selectpicker'}),
             'expedition_date': forms.DateInput(format='%Y-%m-%d',attrs={ 'placeholder': 'digite la fecha','type': 'date'} ),
             'city': forms.Select(attrs={'class': 'selectpicker', 'data-live-search': 'true', 'data-size': '7'}),
         }
@@ -282,7 +367,7 @@ class AbstractPersonAttorny(forms.ModelForm):
                         Column('expedition_date', css_class='form-group col-md-4 mb-0'),
                         css_class='form-row'
                     ),
-                    Row( Column('person_type', css_class='form-group col-md-4 mb-0'),
+                    Row(
                     Column('professional_card', css_class='form-group col-md-4 mb-0'),
 
                     )

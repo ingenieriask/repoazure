@@ -7,7 +7,7 @@ import re
 import requests
 import json
 import pandas as pd
-from datetime import date
+from datetime import date, timedelta
 from enum import Enum
 
 from core.models import AppParameter, ConsecutiveFormat, Consecutive, Country, FilingType, \
@@ -139,6 +139,14 @@ class CalendarService(object):
     @classmethod
     def get_days_of_year():
         return 
+
+    @classmethod
+    def get_remaining_business_days(cls, request_day, max_response_days):
+        days = CalendarDay.objects.filter(date__range=[request_day, date.today()])
+        workingdays = 0
+        for day in days:
+            workingdays += 1 if day.type.name == "workingday" else 0
+        return max_response_days - workingdays
 
     @classmethod
     def get_calendar_days(cls, year):
