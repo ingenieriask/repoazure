@@ -51,6 +51,11 @@
         </div>
       </div>
     </div>
+    <div class="row mb-12">
+        <div class="col text-center">
+            <a class="btn btn-primary" href="{% url 'polls:show_poll' pk=1  %}">Diligenciar Encuesta</a>
+        </div>
+    </div>
     {%  if radicate.document_file %}
 <div class="row">
     <div class="col-xxl-12 col-xl-12 mb-12">
@@ -70,32 +75,4 @@
     </div>
 </div>
 {% endif %}
-<div class="row">
-  <div class="col-xxl-12 col-xl-12 mb-12">
-    <div class="card bg-light mb-3">
-    <div class="card-header">
-            Histórico
-    </div>
-        <div id="history">
-            <div class="card-body">
-              <div class="timeline timeline-xs">
-              {% for log in logs %}
-                <div class="timeline-item">
-                    <div class="timeline-item-marker">
-                        <div class="timeline-item-marker-text">{{log.timestamp | date:"d M" }}</div>
-                        <div class="timeline-item-marker-indicator bg-green"></div>
-                    </div>
-                    <div class="timeline-item-content">
-                        {{log.extra.message}} 
-                        el {{log.timestamp | date:"D d M Y P "  }}
-
-                    </div>
-                </div>
-               {% endfor %}
-             </div>
-            </div>
-        </div>
-  </div>
-  </div>
-</div>
 {% endblock %}

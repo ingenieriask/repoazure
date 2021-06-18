@@ -149,7 +149,7 @@ def create_pqr_multiple(request, pqrs):
 
             messages.success(request, "El radicado se ha creado correctamente")
             # url = reverse('correspondence:detail_radicate', kwargs={'pk': radicate.pk})
-            url = reverse('polls:show_poll', kwargs={'pk': 1})
+            url = reverse('pqrs:pqrs_finish_creation', kwargs={'pk': radicate.pk})
             return HttpResponseRedirect(url)
         
         else:
@@ -217,6 +217,9 @@ class PqrDetailView(DetailView):
         context['logs'] = Log.objects.all().filter(object_id=self.kwargs['pk'])
         return context
 
+class PqrFinishCreation(DetailView):
+    model = Radicate
+    template_name = 'pqrs/pqr_finish_creation.html'
 
 # PERSONS Views
 class PersonCreateView(CreateView):

@@ -96,7 +96,6 @@ class PqrRadicateForm(forms.ModelForm):
     agreement_personal_data = forms.BooleanField(widget=forms.CheckboxInput, required=True, 
         label="Acepto el tratamiento de datos personales"
         )
-    # agreement_personal_data.title="Tratamiento de datos personales"
     
     def clean(self):
         cleaned_data = super().clean()
@@ -107,7 +106,7 @@ class PqrRadicateForm(forms.ModelForm):
 
     class Meta:
         model = PqrsContent
-        fields = ('subject', 'data', 'topic', 'interestGroup', 'response_mode', 'captcha')
+        fields = ('subject', 'data', 'topic', 'interestGroup', 'response_mode', 'captcha', 'agreement_personal_data')
         labels = {'subject': 'Asunto',
                   'data': 'Detalle de la solicitud',
                   'topic': 'Tema',

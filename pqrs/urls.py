@@ -9,6 +9,7 @@ urlpatterns = [
     # path('pqrs-create/<int:person>/', views.create_pqr, name='pqrs_create'),
     path('pqrs-create/<uuid:pqrs>/', views.create_pqr_multiple, name='pqrs_create_multiple_person'),
     path('pqrs-detail/<int:pk>/', views.PqrDetailView.as_view(), name="pqrs_detail"),
+    path('pqrs-finish-creation/<int:pk>/', views.PqrFinishCreation.as_view(), name="pqrs_finish_creation"),
     path('pqrs-type/<int:applicanType>/', views.PQRSType, name='pqrs_type'),
     path('search-person/<int:pqrs_type>/<int:person_type>/', views.search_person, name='search_person'),
     path('person-type/<int:pqrs_type>/<int:applicanType>/', views.person_type, name='person_type'),
