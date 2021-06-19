@@ -10,6 +10,9 @@ from core.utils import get_field_value
 from core.widgets import ConsecutiveFormatWidget, NonWorkingCalendarWidget
 from core.services import RecordCodeService, CalendarService
 from django.db.models import Q
+from django.contrib.auth.models import Permission, Group
+from django.contrib.admin.widgets import FilteredSelectMultiple
+from django.contrib.auth.forms import UserChangeForm
 
 class CustomFileInput(Field):
     template = 'core/custom_fileinput.html'
@@ -442,3 +445,28 @@ class CalendarForm(forms.ModelForm):
         widgets = {
             'name': NonWorkingCalendarWidget()
         }
+
+def _get_filtered_permissions():
+    perms = Permission.objects.all()
+    perms = perms.exclude(Q(codename__contains='add_') | Q(codename__contains='change_')
+        | Q(codename__contains='delete_') | Q(codename__contains='view_'))
+    return perms
+
+class CustomGroupAdminForm(forms.ModelForm):
+    class Meta:
+        model = Group
+        fields = '__all__'
+
+    permissions = forms.ModelMultipleChoiceField(
+        _get_filtered_permissions(),
+        widget=FilteredSelectMultiple(('permissions'), False),
+        help_text = 'Hold down "Control", or "Command" on a Mac, to select more than one.'
+    )
+
+class CustomUserChangeForm(UserChangeForm):
+
+    user_permissions = forms.ModelMultipleChoiceField(
+        _get_filtered_permissions(),
+        widget=FilteredSelectMultiple(('user_permissions'), False),
+        help_text = 'Hold down "Control", or "Command" on a Mac, to select more than one.'
+    )
