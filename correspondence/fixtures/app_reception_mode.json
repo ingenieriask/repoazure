@@ -1,0 +1,10 @@
+[
+  {
+    "model": "correspondence.receptionmode",
+    "pk": 1,
+    "fields": {
+      "name": "VIR",
+      "abbr": "VIR"
+    }
+  }
+]

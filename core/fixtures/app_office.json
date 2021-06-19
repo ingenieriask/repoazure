@@ -1,0 +1,12 @@
+[
+  {
+    "model": "core.office",
+    "pk": 1,
+    "fields": {
+      "name": "pqrs",
+      "abbr": "PQR",
+      "is_active": true,
+      "date_created": "2000-01-01"
+    }
+  }
+]
