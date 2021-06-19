@@ -1,4 +1,4 @@
-from correspondence.models import Radicate, Record, Template
+from correspondence.models import AlfrescoFile, Radicate, Record, Template
 from core.models import Person
 from correspondence.forms import RadicateForm, SearchForm, UserForm, UserProfileInfoForm, PersonForm, RecordForm, \
     SearchContentForm, ChangeCurrentUserForm, ChangeRecordAssignedForm, LoginForm, TemplateForm
@@ -283,6 +283,7 @@ class RadicateDetailView(DetailView):
     def get_context_data(self, **kwargs):
         context = super(RadicateDetailView, self).get_context_data(**kwargs)
         context['logs'] = Log.objects.all().filter(object_id=self.kwargs['pk'])
+        context['file'] = AlfrescoFile.objects.all().filter(radicate=self.kwargs['pk'])
         return context
 
 
