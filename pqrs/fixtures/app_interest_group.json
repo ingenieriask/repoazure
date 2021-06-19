@@ -1,0 +1,18 @@
+[
+  {
+    "model": "pqrs.interestgroup",
+    "pk": 1,
+    "fields": {
+      "name": "Grupo de interes 1",
+      "description": "Este es el grupo de interes uno"
+    }
+  },
+  {
+    "model": "pqrs.interestgroup",
+    "pk": 2,
+    "fields": {
+      "name": "Grupo de interes 2",
+      "description": "Este es el grupo de interes dos"
+    }
+  }
+]
