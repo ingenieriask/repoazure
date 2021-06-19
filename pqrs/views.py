@@ -1,10 +1,13 @@
 import uuid
 from django.db.models.expressions import Value
 from django.shortcuts import redirect, render
+from requests.models import Request
 
 from correspondence.models import ReceptionMode, RadicateTypes, Radicate, AlfrescoFile
 from core.models import Attorny, AttornyType, Atttorny_Person, City, LegalPerson, Person, Office, DocumentTypes, PersonRequest, PersonType
 from pqrs.models import PQRS,Type, PqrsContent
+from core.models import Attorny, AttornyType, Atttorny_Person, City, LegalPerson, Person, Office, DocumentTypes, PersonRequest, PersonType, RequestResponse
+from pqrs.models import PQRS,Type
 from pqrs.forms import LegalPersonForm, SearchPersonForm, PersonForm, PqrRadicateForm,PersonRequestForm,PersonFormUpdate,PersonRequestFormUpdate,PersonAttorny
 from core.utils_db import process_email,get_system_parameter
 from django.http import HttpResponseRedirect
@@ -112,12 +115,11 @@ def create_pqr_multiple(request, pqrs):
             instance.type = get_object_or_404(RadicateTypes, abbr='PQR')
             instance.number = RecordCodeService.get_consecutive(1)
             instance.office = get_object_or_404(Office, abbr='PQR')
+            instance.response_mode = person.request_response
             # instance.creator = request.user.profile_user
             # instance.current_user = request.user.profile_user
             instance.person = person
-            
-            radicate = form.save()
-
+            radicate =  form.save()   
             log(
                 user=request.user,
                 action="PQR_CREATED",
@@ -149,8 +151,7 @@ def create_pqr_multiple(request, pqrs):
 
             messages.success(request, "El radicado se ha creado correctamente")
             # url = reverse('correspondence:detail_radicate', kwargs={'pk': radicate.pk})
-            url = reverse('pqrs:pqrs_finish_creation', kwargs={'pk': radicate.pk})
-            return HttpResponseRedirect(url)
+            return redirect('pqrs:pqrs_finish_creation', radicate.pk)
         
         else:
             logger.error("Invalid create radicate form")
