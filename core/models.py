@@ -29,12 +29,6 @@ class SystemParameter(models.Model):
         return self.name
 
 
-class ResponseMode(models.Model):
-    name = models.CharField(max_length=128)
-
-    def __str__(self):
-        return self.name
-
 
 class PreferencialPopulation(models.Model):
     name = models.CharField(max_length=128)
@@ -190,7 +184,7 @@ class Person(PersonBase):
     disabilities = models.ManyToManyField(Disability, blank=True)
     ethnic_group = models.ForeignKey(EthnicGroup, on_delete=models.PROTECT, null=True, blank=True)
     attornyCheck = models.BooleanField(default=False,blank=True, null=True)
-    request_response = models.ForeignKey(RequestResponse, on_delete=models.PROTECT, null=True, blank=True)
+    request_response = models.ForeignKey(RequestResponse, on_delete=models.PROTECT, default=1)
     reverse_url = 'correspondence:detail_person'
     uuid = ''
 
