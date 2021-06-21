@@ -1,78 +1,95 @@
-{% extends 'pqrs/template.html' %}
-
-{% block content %}
-    <div class="row mb-3">
-        <div class="col-xxl-12 col-xl-12 mb-12">
-        <div class="card mb-4 h-100 mb-3">
-            <div class="card-header">
-                    Detalle
+{% extends 'pqrs/template.html' %} {% block content %}
+<div class="row mb-3">
+  <div class="col-xxl-12 col-xl-12 mb-12">
+    <div class="card mb-4 h-100 mb-3">
+      <div class="card-header">Detalle</div>
+      <div id="detail">
+        <div class="card-body">
+          <div class="row">
+            <div class="col-md-6 text-sm">
+              <p>
+                <i data-feather="key"></i>
+                <b>Número:</b><br />{{radicate.number}}
+              </p>
+              <p>
+                <i data-feather="calendar"></i>
+                <b>Fecha:</b><br />{{radicate.date_radicated}}
+              </p>
+              <p>
+                <i data-feather="message-square"></i>
+                <b>Asunto:</b><br />{{radicate.subject}}
+              </p>
+              <p>
+                <i data-feather="list"></i>
+                <b>Recepción:</b><br />{{radicate.reception_mode}}
+              </p>
             </div>
-            <div id="detail">
-                <div class="card-body">
-                    <div class="row">
-                        <div class="col-md-6 text-sm">
-                              <p>
-                                  <i data-feather="key"></i>
-                                  <b>Número:</b><br>{{radicate.number}}
-                              </p>
-                              <p>
-                                  <i data-feather="calendar"></i>
-                                  <b>Fecha:</b><br>{{radicate.date_radicated}}
-                              </p>
-                              <p>
-                                  <i data-feather="message-square"></i>
-                                  <b>Asunto:</b><br>{{radicate.subject}}
-                              </p>
-
-                        </div>
-                        <div class="col-md-6 text-sm">
-                              <p>
-                                  <i data-feather="list"></i>
-                                  <b>Recepción:</b><br>{{radicate.reception_mode}}
-                              </p>
-                              <p>
-                                  <i data-feather="user"></i>
-                                  <b>Remitente:</b><br>{{radicate.person }}
-                              </p>
-                              <p>
-                                  <i data-feather="home"></i>
-                                  <b>Dirección:</b><br>{{radicate.person.address }} - {{ radicate.person.city }}
-                              </p>
-                        </div>
-                    </div>
-                    <div class="col-md-12 text-sm">
-                        <p>
-                            <i data-feather="message-square"></i>
-                            <b>Data:</b><br>{{radicate.pqr.data}}
-                        </p>
-                    </div>
-                </div>
+            <div class="col-md-6 text-sm">
+              {% if radicate.person.parent%}
+              <p>
+                <i data-feather="user"></i>
+                <b>Razon Social:</b><br />{{radicate.person.parent.company_name }}
+              </p>
+              <p>
+                <i data-feather="user"></i>
+                <b>Representante legal:</b><br />{{radicate.person.parent.representative }}
+              </p>
+              {%endif%} {% if radicate.person.attornyCheck%}
+              <p>
+                <i data-feather="user"></i>
+                <b>Tutor Legal:</b><br />{{personAttorny.attorny.name}} {{personAttorny.attorny.lasts_name}}
+              </p>
+              <p>
+                <i data-feather="user"></i>
+                <b>Relacion:</b><br />{{personAttorny.attorny_type.name}}
+              </p>
+              {%endif%}
+              <p>
+                <i data-feather="user"></i>
+                <b>Remitente:</b><br />{{radicate.person.name }} {{radicate.person.lasts_name}}
+              </p>
+              {% if personRequest%}
+              <p>
+                <i data-feather="user"></i>
+                <b>Remitentes Agregados:</b><br />
+                {%for personR in personRequest%} {{personR.name }} {{personR.lasts_name}} {% endfor %}
+              </p>
+              {% endif %}
+              <p>
+                <i data-feather="home"></i>
+                <b>Dirección:</b><br />{{radicate.person.address }} - {{ radicate.person.city }}
+              </p>
             </div>
+            <div class="col-md-12 text-sm">
+              <p>
+                <i data-feather="message-square"></i>
+                <b>Data:</b><br />{{radicate.pqr.data}}
+              </p>
+            </div>
+          </div>
         </div>
       </div>
     </div>
-    <div class="row mb-12">
-        <div class="col text-center">
-            <a class="btn btn-primary" href="{% url 'polls:show_poll' pk=1  %}">Diligenciar Encuesta</a>
-        </div>
-    </div>
-    {%  if radicate.document_file %}
-<div class="row">
-    <div class="col-xxl-12 col-xl-12 mb-12">
-        <div class="card text-white bg-dark mb-3">
-          <div class="card-header">
-              Documento
-          </div>
-            <div id="document">
-              <div class="card-body">
-                <div class="embed-responsive embed-responsive-16by9">
-                    <iframe class="embed-responsive-item" src="{{ radicate.document_file.url }}">
-                    </iframe>
-                </div>
-              </div>
-            </div>
-        </div>
-    </div>
+  </div>
 </div>
-{% endif %}
-{% endblock %}
+<div class="row mb-12">
+  <div class="col text-center">
+    <a class="btn btn-primary" href="{% url 'polls:show_poll' pk=1  %}">Diligenciar Encuesta</a>
+  </div>
+</div>
+{% if radicate.document_file %}
+<div class="row">
+  <div class="col-xxl-12 col-xl-12 mb-12">
+    <div class="card text-white bg-dark mb-3">
+      <div class="card-header">Documento</div>
+      <div id="document">
+        <div class="card-body">
+          <div class="embed-responsive embed-responsive-16by9">
+            <iframe class="embed-responsive-item" src="{{ radicate.document_file.url }}"> </iframe>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endif %} {% endblock %}
