@@ -63,11 +63,37 @@
                 <i data-feather="list"></i>
                 <b>Recepción:</b><br />{{ radicate.reception_mode }}
               </p>
+              {% if radicate.person.parent%}
+              <p>
+                <i data-feather="user"></i>
+                <b>Razon Social:</b><br />{{radicate.person.parent.company_name }}
+              </p>
+              <p>
+                <i data-feather="user"></i>
+                <b>Representante legal:</b><br />{{radicate.person.parent.representative }}
+              </p>
+              {%endif%} {% if radicate.person.attornyCheck%}
+              <p>
+                <i data-feather="user"></i>
+                <b>Tutor Legal:</b><br />{{personAttorny.attorny.name}} {{personAttorny.attorny.lasts_name}}
+              </p>
+              <p>
+                <i data-feather="user"></i>
+                <b>Relacion:</b><br />{{personAttorny.attorny_type.name}}
+              </p>
+              {%endif%}
               <p>
                 <i data-feather="user"></i>
                 <b>Remitente:</b><br />{{ radicate.person }}
               </p>
               <p>
+                {% if personRequest%}
+              <p>
+                <i data-feather="user"></i>
+                <b>Remitentes Agregados:</b><br />
+                {%for personR in personRequest%} {{personR.name }} {{personR.lasts_name}} {% endfor %}
+              </p>
+              {% endif %}
                 <i data-feather="list"></i>
                 <b>Tipo:</b><br />{{ radicate.type }}
               </p>

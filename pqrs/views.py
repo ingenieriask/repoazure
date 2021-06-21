@@ -222,6 +222,18 @@ class PqrFinishCreation(DetailView):
     model = Radicate
     template_name = 'pqrs/pqr_finish_creation.html'
 
+    def get_context_data(self, **kwargs):
+        context = super(PqrFinishCreation, self).get_context_data(**kwargs)
+        context['file'] = AlfrescoFile.objects.all().filter(radicate=self.kwargs['pk'])
+        objectPqrs = PQRS.objects.filter(principal_person= context['radicate'].person.pk)[0]
+        personrequest=objectPqrs.multi_request_person.all()
+        if personrequest:
+            context['personRequest'] = personrequest
+        if  context['radicate'].person.attornyCheck:
+            personAttorny = Atttorny_Person.objects.filter(person=context['radicate'].person.pk)[0]
+            context['personAttorny'] =personAttorny
+        return context
+
 # PERSONS Views
 class PersonCreateView(CreateView):
     model = Person
