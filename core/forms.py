@@ -13,6 +13,7 @@ from django.db.models import Q
 from django.contrib.auth.models import Permission, Group
 from django.contrib.admin.widgets import FilteredSelectMultiple
 from django.contrib.auth.forms import UserChangeForm
+from django.contrib.auth.forms import UserCreationForm
 
 class CustomFileInput(Field):
     template = 'core/custom_fileinput.html'
@@ -459,14 +460,16 @@ class CustomGroupAdminForm(forms.ModelForm):
 
     permissions = forms.ModelMultipleChoiceField(
         _get_filtered_permissions(),
-        widget=FilteredSelectMultiple(('permissions'), False),
-        help_text = 'Hold down "Control", or "Command" on a Mac, to select more than one.'
+        widget = FilteredSelectMultiple(('permissions'), False),
+        help_text = 'Hold down "Control", or "Command" on a Mac, to select more than one.',
+        required=False
     )
 
 class CustomUserChangeForm(UserChangeForm):
 
     user_permissions = forms.ModelMultipleChoiceField(
         _get_filtered_permissions(),
-        widget=FilteredSelectMultiple(('user_permissions'), False),
-        help_text = 'Hold down "Control", or "Command" on a Mac, to select more than one.'
+        widget = FilteredSelectMultiple(('user_permissions'), False),
+        help_text = 'Hold down "Control", or "Command" on a Mac, to select more than one.',
+        required=False
     )

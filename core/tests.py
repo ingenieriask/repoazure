@@ -1,10 +1,10 @@
 from django.test import TestCase
 from core.services import MailService, RecordCodeService, CalendarService
 from correspondence.services import ECMService
-from rolepermissions.roles import assign_role
 from django.contrib.auth.models import User
 from rolepermissions.checkers import has_permission
 from django.contrib.auth.models import Permission
+from django.contrib.auth.models import Group
 
 class MailServiceTestCase(TestCase):
 
@@ -23,17 +23,6 @@ class ECMServiceTestCase(TestCase):
 
     def test_create_record(self):
         ECMService.create_record('test')
-
-class UserRolesTestCase(TestCase):
-
-    fixtures = ['app_user_auth_django.json']
-
-    def test_get_consecutive(self):
-
-        user = User.objects.get(username='jorgero')
-        assign_role(user, 'boss_user')
-        self.assertEqual(has_permission(user, 'edition'), True)
-        self.assertEqual(has_permission(user, 'modify_classification'), False)
 
 class RecordCodeServiceTestCase(TestCase):
 
@@ -72,3 +61,26 @@ class CalendarServiceTestCase(TestCase):
         self.assertTrue(holidays)
         holidays = CalendarService.get_holidays(year, country_code)
         self.assertTrue(holidays)
+
+class UserRolesTestCase(TestCase):
+
+    fixtures = ['app_user_auth_django.json', 'group.json', 'permission.json']
+
+    def test_role_permissions(self):
+
+        user = User.objects.get(username='jorgero')
+        boss_user_role = Group.objects.get(name='ContactUs') 
+        boss_user_role.user_set.add(user)
+
+        self.assertEqual(user.has_perm('auth.edition'), True)
+        self.assertEqual(user.has_perm('auth.query'), True)
+        self.assertEqual(user.has_perm('auth.modify_classification'), True)
+
+        user2 = User.objects.get(username='joregeve')
+        boss_user_role = Group.objects.get(name='BossUser') 
+        boss_user_role.user_set.add(user2)
+
+        self.assertEqual(user2.has_perm('auth.edition'), True)
+        self.assertEqual(user2.has_perm('auth.query'), True)
+        self.assertEqual(user2.has_perm('auth.modify_classification'), False)
+
