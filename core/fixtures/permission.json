@@ -1,0 +1,110 @@
+[
+  {
+    "model": "auth.permission",
+    "pk": 10001,
+    "fields": {
+      "name": "edition",
+      "content_type_id": 4,
+      "codename": "edition"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "pk": 10002,
+    "fields": {
+      "name": "query",
+      "content_type_id": 4,
+      "codename": "query"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "pk": 10003,
+    "fields": {
+      "name": "answer",
+      "content_type_id": 4,
+      "codename": "answer"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "pk": 10004,
+    "fields": {
+      "name": "assign_in_group",
+      "content_type_id": 4,
+      "codename": "assign_in_group"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "pk": 10005,
+    "fields": {
+      "name": "receive_in_group",
+      "content_type_id": 4,
+      "codename": "receive_in_group"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "pk": 10006,
+    "fields": {
+      "name": "assign_to_anyone",
+      "content_type_id": 4,
+      "codename": "assign_to_anyone"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "pk": 10007,
+    "fields": {
+      "name": "receive_from_anyone",
+      "content_type_id": 4,
+      "codename": "receive_from_anyone"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "pk": 10008,
+    "fields": {
+      "name": "assign_in_dependency",
+      "content_type_id": 4,
+      "codename": "assign_in_dependency"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "pk": 10009,
+    "fields": {
+      "name": "receive_in_dependency_or_group",
+      "content_type_id": 4,
+      "codename": "receive_in_dependency_or_group"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "pk": 10010,
+    "fields": {
+      "name": "report",
+      "content_type_id": 4,
+      "codename": "report"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "pk": 10011,
+    "fields": {
+      "name": "delete_reported",
+      "content_type_id": 4,
+      "codename": "delete_reported"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "pk": 10012,
+    "fields": {
+      "name": "modify_classification",
+      "content_type_id": 4,
+      "codename": "modify_classification"
+    }
+  }
+]
