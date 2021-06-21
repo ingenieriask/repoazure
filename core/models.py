@@ -7,6 +7,8 @@ from django.utils import timezone
 from colorfield.fields import ColorField
 from django.contrib.auth.models import User
 from django.contrib.postgres.fields import ArrayField
+from django.db.models.signals import post_save
+from django.dispatch import receiver
 
 # Create your models here.
 
@@ -311,3 +313,26 @@ class Holiday(models.Model):
 
     def __str__(self):
         return f"{self.date} {self.local_name}"
+
+class FunctionalArea(models.Model):
+    parent = models.ForeignKey('self', on_delete=models.PROTECT, blank=True, null=True)
+    name = models.CharField(max_length=128, blank=False, null=False, default='')
+    description = models.CharField(max_length=256, null=True, blank=True, default='')
+
+    def __str__(self):
+        return self.name
+
+    class Meta:
+        db_table = "core_functional_area"
+
+class FunctionalAreaUser(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    Functional_area = models.ManyToManyField(FunctionalArea)
+
+    def __str__(self):
+        return self.user.username
+
+@receiver(post_save, sender=User)
+def create_or_update_functional_area_user(sender, instance, created, **kwargs):
+    if created:
+        FunctionalAreaUser.objects.create(user=instance)

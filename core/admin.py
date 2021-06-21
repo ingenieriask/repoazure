@@ -1,8 +1,13 @@
 from django.contrib import admin
-from core.models import Attorny, AttornyType, Atttorny_Person, LegalPerson, State, City, Office, Country, PreferencialPopulation, \
-    Disability, BooleanSelection, EthnicGroup, SystemParameter,RequestResponse, \
-    AppParameter, ConsecutiveFormat, FilingType, CalendarDay, CalendarDayType, Calendar,Alerts
-from core.forms import ConsecutiveFormatForm, CalendarForm
+from core.models import Attorny, AttornyType, Atttorny_Person, LegalPerson, State, \
+    City, Office, Country, PreferencialPopulation, Disability, BooleanSelection, \
+    EthnicGroup, RequestResponse, SystemParameter, AppParameter, ConsecutiveFormat, \
+    FilingType, CalendarDay, CalendarDayType, Calendar, Alerts, FunctionalArea, \
+    FunctionalAreaUser
+from core.forms import ConsecutiveFormatForm, CalendarForm, CustomGroupAdminForm, \
+    CustomUserChangeForm
+from django.contrib.auth.models import Group, User
+from django.contrib.auth.admin import UserAdmin
 
 class ConsecutiveFormatAdmin(admin.ModelAdmin):
     form = ConsecutiveFormatForm
@@ -21,6 +26,27 @@ class CalendarAdmin(admin.ModelAdmin):
 
     def has_delete_permission(self, request, obj=None):
         return False
+
+class CustomGroupAdmin(admin.ModelAdmin):
+    form = CustomGroupAdminForm
+    search_fields = ('name',)
+    ordering = ('name',)
+
+class FunctionalAreaInline(admin.StackedInline):
+    model = FunctionalAreaUser
+    can_delete = False
+    verbose_name_plural = 'Functional Area'
+    fk_name = 'user'
+
+class CustomUserAdmin(UserAdmin):
+
+    form = CustomUserChangeForm
+    inlines = (FunctionalAreaInline, )
+
+    def get_inline_instances(self, request, obj=None):
+        if not obj:
+            return list()
+        return super(CustomUserAdmin, self).get_inline_instances(request, obj)
 
 # Register your models here.
 admin.site.register(Attorny)
@@ -44,3 +70,8 @@ admin.site.register(CalendarDay)
 admin.site.register(CalendarDayType)
 admin.site.register(LegalPerson)
 admin.site.register(Calendar, CalendarAdmin)
+admin.site.unregister(Group)
+admin.site.register(Group, CustomGroupAdmin)
+admin.site.unregister(User)
+admin.site.register(User, CustomUserAdmin)
+admin.site.register(FunctionalArea)

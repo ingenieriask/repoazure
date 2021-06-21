@@ -57,7 +57,6 @@ INSTALLED_APPS = [
     'djcelery_email',
     'django_celery_results',
     'colorfield',
-    'rolepermissions'
 ]
 
 CRISPY_TEMPLATE_PACK = 'bootstrap4'
@@ -204,9 +203,5 @@ CELERY_EMAIL_TASK_CONFIG = {
 }
 CELERY_EMAIL_CHUNK_SIZE = 1
 CELERY_RESULT_BACKEND = 'django-db'
-
-ROLEPERMISSIONS_MODULE = 'rino.roles'
-ROLEPERMISSIONS_REGISTER_ADMIN = True
-ROLEPERMISSIONS_SUPERUSER_SUPERPOWERS = False
 
 #DEBUG = True
