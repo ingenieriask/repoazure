@@ -93,12 +93,12 @@
 
 <div class="row">
   <div class="col-lg-6">
-    {% if radicate.cmis_id %}
-    <div class="row m-3">
-      <img data-nodeid="{{ radicate.cmis_id | default_if_none:"" }}" class="img-fluid shadow" src="{% static
-      'correspondence/assets/img/default.jpeg' %}">
-    </div>
-    {% endif %}
+    {% for file in files %}
+        <div class="row m-3">
+        <img data-nodeid="{{ file.cmis_id | default_if_none:'' }}" class="img-fluid shadow" src="{% static
+        'correspondence/assets/img/default.jpeg' %}">
+        </div>
+    {% endfor %}
   </div>
   <div class="col-lg-6">
     <div class="card bg-light mb-3">
