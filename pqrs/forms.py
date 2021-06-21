@@ -106,12 +106,11 @@ class PqrRadicateForm(forms.ModelForm):
 
     class Meta:
         model = PqrsContent
-        fields = ('subject', 'data', 'topic', 'interestGroup', 'response_mode', 'captcha', 'agreement_personal_data')
+        fields = ('subject', 'data', 'topic', 'interestGroup', 'captcha', 'agreement_personal_data')
         labels = {'subject': 'Asunto',
                   'data': 'Detalle de la solicitud',
                   'topic': 'Tema',
-                  'interestGroup': 'Grupo de interés',
-                  'response_mode': 'Medio de respuesta'}
+                  'interestGroup': 'Grupo de interés'}
 
     def __init__(self, *args, **kwargs):
         super(PqrRadicateForm, self).__init__(*args, **kwargs)
@@ -129,10 +128,6 @@ class PqrRadicateForm(forms.ModelForm):
             ),
             Row(
                 Column('data', css_class='form-group col-md-12 mb-0'),
-                css_class='form-row'
-            ),
-            Row(
-                Column('response_mode', css_class='form-group col-md-12 mb-0'),
                 css_class='form-row'
             ),
             Row(

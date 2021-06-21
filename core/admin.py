@@ -1,7 +1,7 @@
 from django.contrib import admin
 from core.models import Attorny, AttornyType, Atttorny_Person, LegalPerson, State, \
     City, Office, Country, PreferencialPopulation, Disability, BooleanSelection, \
-    EthnicGroup, ResponseMode, SystemParameter, AppParameter, ConsecutiveFormat, \
+    EthnicGroup, RequestResponse, SystemParameter, AppParameter, ConsecutiveFormat, \
     FilingType, CalendarDay, CalendarDayType, Calendar, Alerts, FunctionalArea, \
     FunctionalAreaUser
 from core.forms import ConsecutiveFormatForm, CalendarForm, CustomGroupAdminForm, \
@@ -61,7 +61,7 @@ admin.site.register(PreferencialPopulation)
 admin.site.register(Disability)
 admin.site.register(BooleanSelection)
 admin.site.register(EthnicGroup)
-admin.site.register(ResponseMode)
+admin.site.register(RequestResponse)
 admin.site.register(SystemParameter)
 admin.site.register(AppParameter)
 admin.site.register(ConsecutiveFormat, ConsecutiveFormatAdmin)

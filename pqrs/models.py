@@ -2,9 +2,8 @@ from django.db import models
 from django.urls import reverse
 from django.db.models import CheckConstraint, Q, F
 from django.utils import tree
-from core.models import ResponseMode, Person,PersonRequest,Alerts
 from django.contrib.postgres.fields import ArrayField
-from core.models import ResponseMode, BaseModel, Person,PersonRequest
+from core.models import RequestResponse, BaseModel, Person,PersonRequest,Alerts
 from correspondence.models import Radicate
 from crum import get_current_user
 import uuid
@@ -78,7 +77,7 @@ class PqrsContent(Radicate):
     # person = models.ForeignKey(Person, on_delete=models.PROTECT, related_name='pqr_person')
     # subject = models.CharField(max_length=256)
     data = models.TextField(max_length=2000)
-    response_mode = models.ForeignKey(ResponseMode, on_delete=models.PROTECT, related_name='pqrs_response_mode')
+    response_mode = models.ForeignKey(RequestResponse, on_delete=models.PROTECT, related_name='pqrs_response_mode')
     # number = models.TextField(max_length=30, null=False, db_index=True)
     topic = models.ForeignKey(Topic, on_delete=models.PROTECT, related_name='pqr_topic', null=False, blank= False, default=None)
     interestGroup = models.ForeignKey(InterestGroup, on_delete=models.PROTECT, related_name='pqr_interest_group', null=False, blank= False, default=None)
