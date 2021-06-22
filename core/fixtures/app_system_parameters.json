@@ -46,5 +46,29 @@
       "name": "RINO_PQR_MESSAGE_DOCUMENT",
       "value": "mensaje para tipo persona"
     }
+  },
+  {
+    "model": "core.systemparameter",
+    "pk": 7,
+    "fields": {
+      "name": "RINO_PQR_ANONYMOUS_APPLICANT",
+      "value": "mensaje para aplicante anonimo"
+    }
+  },
+  {
+    "model": "core.systemparameter",
+    "pk": 8,
+    "fields": {
+      "name": "RINO_PQR_NORMAL_APPLICANT",
+      "value": "mensaje para aplicante normal"
+    }
+  },
+  {
+    "model": "core.systemparameter",
+    "pk": 9,
+    "fields": {
+      "name": "RINO_PQR_PRIVATE_APPLICANT",
+      "value": "mensaje para identidad privada"
+    }
   }
 ]
