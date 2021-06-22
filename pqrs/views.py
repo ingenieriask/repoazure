@@ -44,7 +44,17 @@ logger = logging.getLogger(__name__)
 # Create your views here.
 def index(request):
     rino_parameter= get_system_parameter('RINO_PQR_INFO')
-    return render(request, 'pqrs/index.html', {'rino_parameter':rino_parameter.value})
+    anonymous_applicant= get_system_parameter('RINO_PQR_ANONYMOUS_APPLICANT')
+    normal_applicant= get_system_parameter('RINO_PQR_NORMAL_APPLICANT')
+    private_applicant= get_system_parameter('RINO_PQR_PRIVATE_APPLICANT')
+    return render(
+        request, 
+        'pqrs/index.html', {
+            'rino_parameter':rino_parameter.value,
+            'anonymous_applicant':anonymous_applicant.value,
+            'normal_applicant':normal_applicant.value,
+            'private_applicant':private_applicant.value,
+            })
 
 def send_email_person(request, pk):
     unique_id = get_random_string(length=32)
@@ -165,7 +175,13 @@ def create_pqr_multiple(request, pqrs):
 
 def PQRSType(request,applicanType):
     pqrs_types = Type.objects.all()
-    return render(request, 'pqrs/pqrs_type.html', context={'types': pqrs_types,"applicant_type":applicanType})
+    return render(
+        request,
+        'pqrs/pqrs_type.html', 
+        context={
+            'types': pqrs_types,
+            "applicant_type":applicanType
+            })
 
 def person_type(request,pqrs_type,applicanType):
     if applicanType==1:
