@@ -1,64 +1,67 @@
 {% extends 'pqrs/template.html' %} {% block content %}
 <div class="card mb-4" id="form_container">
   <div class="card-header">Otro Solicitante</div>
-  <div class="card-body">
+  <div class="card-body overflow-auto">
     <a
       type="button"
       href="{% url 'pqrs:create_person_request'  pqrs_type=context.pqrs_type %}"
       class="btn btn-primary mb-2"
       >Agregar Solicitante</a
     >
-    <table class="table-responsive table-hover" id="tb_request_sender">
-      <thead>
-        <tr>
-          <th scope="col">Orden</th>
-          <th scope="col">Nombre y apellido</th>
-          <th scope="col">Tipo y Numero de Documento</th>
-          <th scope="col">Acci&oacute;n</th>
-        </tr>
-      </thead>
-      <tbody>
-        {% if context %}
-        <tr>
-          <td>1</td>
-          <td>{{context.person.name}} {{context.person.lasts_name}}</td>
-          <td>{{context.document_type_abbr}} {{context.person.document_number}}</td>
-          <td>
-            <a
-              class="btn btn-success ml-1"
-              href="{% url 'pqrs:edit_person' pqrs_type=context.pqrs_type  pk=context.person.id  %}"
-              >Modificar</a
-            >
-            <a
-              type="button"
-              href="{% url 'pqrs:search_person'  pqrs_type=context.pqrs_type_option person_type=1 %}"
-              class="btn btn-danger"
-              >Eliminar</a
-            >
-          </td>
-        </tr>
-        {% if context.other_people %} {% for people in context.other_people %}
-        <tr>
-          <td>{{forloop.counter|add:"1"}}</td>
-          <td>{{people.name}} {{people.lasts_name}}</td>
-          <td>{{context.document_type_abbr}} {{people.document_number}}</td>
-          <td>
-            <a
-              class="btn btn-success ml-1"
-              href="{% url 'pqrs:edit_person_request' pqrs_type=context.pqrs_type  pk=people.id  %}"
-              >Modificar</a
-            >
-            <a
-              type="button"
-              href="{% url 'pqrs:delete_person_request' pqrs_type=context.pqrs_type id=people.id %}"
-              class="btn btn-danger"
-              >Eliminar</a
-            >
-          </td>
-        </tr>
-        {% endfor %} {% endif %} {% endif %}
-      </tbody>
-    </table>
+    <div class="overflow-auto">
+      <table class="table table-hover" id="tb_request_sender">
+        <thead>
+          <tr>
+            <th scope="col">Orden</th>
+            <th scope="col">Nombre y apellido</th>
+            <th scope="col">Tipo y Numero de Documento</th>
+            <th scope="col">Acci&oacute;n</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% if context %}
+          <tr>
+            <td>1</td>
+            <td>{{context.person.name}} {{context.person.lasts_name}}</td>
+            <td>{{context.document_type_abbr}} {{context.person.document_number}}</td>
+            <td>
+              <a
+                class="btn btn-success ml-1"
+                href="{% url 'pqrs:edit_person' pqrs_type=context.pqrs_type  pk=context.person.id  %}"
+                >Modificar</a
+              >
+              <a
+                type="button"
+                href="{% url 'pqrs:search_person'  pqrs_type=context.pqrs_type_option person_type=1 %}"
+                class="btn btn-danger"
+                >Eliminar</a
+              >
+            </td>
+          </tr>
+          {% if context.other_people %} {% for people in context.other_people %}
+          <tr>
+            <td>{{forloop.counter|add:"1"}}</td>
+            <td>{{people.name}} {{people.lasts_name}}</td>
+            <td>{{context.document_type_abbr}} {{people.document_number}}</td>
+            <td>
+              <a
+                class="btn btn-success ml-1"
+                href="{% url 'pqrs:edit_person_request' pqrs_type=context.pqrs_type  pk=people.id  %}"
+                >Modificar</a
+              >
+              <a
+                type="button"
+                href="{% url 'pqrs:delete_person_request' pqrs_type=context.pqrs_type id=people.id %}"
+                class="btn btn-danger"
+                >Eliminar</a
+              >
+            </td>
+          </tr>
+          {% endfor %} {% endif %} {% endif %}
+        </tbody>
+      </table>
+    </div>
+
     <div class="d-flex">
       <a
         type="button"
