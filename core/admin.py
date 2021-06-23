@@ -8,6 +8,8 @@ from core.forms import ConsecutiveFormatForm, CalendarForm, CustomGroupAdminForm
     CustomUserChangeForm
 from django.contrib.auth.models import Group, User
 from django.contrib.auth.admin import UserAdmin
+from treebeard.admin import TreeAdmin
+
 
 class ConsecutiveFormatAdmin(admin.ModelAdmin):
     form = ConsecutiveFormatForm
@@ -18,6 +20,7 @@ class ConsecutiveFormatAdmin(admin.ModelAdmin):
     def has_delete_permission(self, request, obj=None):
         return False
 
+
 class CalendarAdmin(admin.ModelAdmin):
     form = CalendarForm
 
@@ -27,16 +30,19 @@ class CalendarAdmin(admin.ModelAdmin):
     def has_delete_permission(self, request, obj=None):
         return False
 
+
 class CustomGroupAdmin(admin.ModelAdmin):
     form = CustomGroupAdminForm
     search_fields = ('name',)
     ordering = ('name',)
+
 
 class FunctionalAreaInline(admin.StackedInline):
     model = FunctionalAreaUser
     can_delete = False
     verbose_name_plural = 'Functional Area'
     fk_name = 'user'
+
 
 class CustomUserAdmin(UserAdmin):
 
@@ -47,6 +53,11 @@ class CustomUserAdmin(UserAdmin):
         if not obj:
             return list()
         return super(CustomUserAdmin, self).get_inline_instances(request, obj)
+
+
+class FunctionalAreaAdmin(TreeAdmin):
+    list_display = ('name', 'parent', 'description')
+
 
 # Register your models here.
 admin.site.register(Attorny)
@@ -74,4 +85,4 @@ admin.site.unregister(Group)
 admin.site.register(Group, CustomGroupAdmin)
 admin.site.unregister(User)
 admin.site.register(User, CustomUserAdmin)
-admin.site.register(FunctionalArea)
+admin.site.register(FunctionalArea, FunctionalAreaAdmin)
