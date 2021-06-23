@@ -10,6 +10,7 @@ urlpatterns = [
     path('api/v1/radicates/', correspondence.api_views.RadicateList.as_view(), name='search_radicates'),
     url(r'^$', views.index, name='index'),
     path('search-names/', views.search_names, name='search_names'),
+    path('search-user/', views.search_user, name='search_user'),
     path('search-content/', views.search_by_content, name='search_by_content'),
     path('autocomplete/', views.autocomplete, name='autocomplete'),
     path('radicate/create/<int:person>/', views.create_radicate, name='create_radicate'),
