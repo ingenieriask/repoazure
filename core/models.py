@@ -9,14 +9,20 @@ from django.contrib.auth.models import User
 from django.contrib.postgres.fields import ArrayField
 from django.db.models.signals import post_save
 from django.dispatch import receiver
+from treebeard.al_tree import AL_Node
 
 # Create your models here.
 
+
 class BaseModel(models.Model):
-    user_creation = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE,related_name='%(app_label)s_%(class)s_creation', null=True, blank=True)
-    user_updated = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE,related_name='%(app_label)s_%(class)s_update', null=True, blank=True)
-    date_creation = models.DateTimeField(auto_now=False, auto_now_add=True, null=True, blank=True)
-    date_updated = models.DateTimeField(auto_now=True, auto_now_add=False, null=True, blank=True)
+    user_creation = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE,
+                                      related_name='%(app_label)s_%(class)s_creation', null=True, blank=True)
+    user_updated = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE,
+                                     related_name='%(app_label)s_%(class)s_update', null=True, blank=True)
+    date_creation = models.DateTimeField(
+        auto_now=False, auto_now_add=True, null=True, blank=True)
+    date_updated = models.DateTimeField(
+        auto_now=True, auto_now_add=False, null=True, blank=True)
 
     class Meta:
         abstract = True
@@ -29,7 +35,6 @@ class SystemParameter(models.Model):
 
     def __str__(self):
         return self.name
-
 
 
 class PreferencialPopulation(models.Model):
@@ -45,11 +50,13 @@ class Disability(models.Model):
     def __str__(self):
         return self.name
 
+
 class AttornyType(models.Model):
     name = models.CharField(max_length=128)
 
     def __str__(self):
         return self.name
+
 
 class BooleanSelection(models.Model):
     name = models.CharField(max_length=128)
@@ -69,7 +76,8 @@ class EthnicGroup(models.Model):
 class Office(models.Model):
     name = models.CharField(max_length=256)
     abbr = models.CharField(max_length=10)
-    parent = models.ForeignKey('self', on_delete=models.CASCADE, null=True, blank=True)
+    parent = models.ForeignKey(
+        'self', on_delete=models.CASCADE, null=True, blank=True)
     date_created = models.DateField(auto_now=True)
     date_closed = models.DateTimeField(auto_now=False, null=True, blank=True)
     is_active = models.BooleanField()
@@ -87,7 +95,8 @@ class Country(models.Model):
 
 
 class State(models.Model):
-    country = models.ForeignKey('Country', on_delete=models.CASCADE, related_name='states', default=False)
+    country = models.ForeignKey(
+        'Country', on_delete=models.CASCADE, related_name='states', default=False)
     name = models.CharField(max_length=128)
 
     def __str__(self):
@@ -96,7 +105,8 @@ class State(models.Model):
 
 class City(models.Model):
     name = models.CharField(max_length=128)
-    state = models.ForeignKey('State', on_delete=models.CASCADE, related_name='cities')
+    state = models.ForeignKey(
+        'State', on_delete=models.CASCADE, related_name='cities')
     city_id = models.IntegerField(default=False)
 
     class Meta:
@@ -105,16 +115,23 @@ class City(models.Model):
     def __str__(self):
         return self.name + ' / ' + self.state.name
 
+
 class Alerts(models.Model):
-    name=models.CharField(max_length=128,blank=False,null=False)
-    response_time = models.SmallIntegerField(blank=False, null=False, default=1)
+    name = models.CharField(max_length=128, blank=False, null=False)
+    response_time = models.SmallIntegerField(
+        blank=False, null=False, default=1)
     color = ColorField(default='#FF0000')
+
     def __str__(self):
         return self.name
 # UserProfileInfo, has one user for extend the basic user info
+
+
 class UserProfileInfo(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profile_user')
-    office = models.ForeignKey(Office, on_delete=models.CASCADE, related_name='user_profiles', default=False)
+    user = models.OneToOneField(
+        User, on_delete=models.CASCADE, related_name='profile_user')
+    office = models.ForeignKey(
+        Office, on_delete=models.CASCADE, related_name='user_profiles', default=False)
 
     def __str__(self):
         return self.user.first_name + ' ' + self.user.last_name + ' (' + self.office.name + ') '
@@ -135,6 +152,7 @@ class DocumentTypes(models.Model):
     def __str__(self):
         return self.name
 
+
 class RequestResponse(models.Model):
     abbr = models.CharField(max_length=10)
     name = models.CharField(max_length=64)
@@ -144,31 +162,38 @@ class RequestResponse(models.Model):
 
 
 class PersonBase(BaseModel):
-    phone_number = models.CharField(blank=True, null=True ,max_length=12)
-    document_type = models.ForeignKey(DocumentTypes, on_delete=models.PROTECT, null=True, blank=True)
-    person_type = models.ForeignKey(PersonType, related_name='personType',on_delete=models.PROTECT, null=True, blank=True,default=1)
-    document_number = models.CharField(max_length=25, null=True, unique=True, db_index=True)
+    phone_number = models.CharField(blank=True, null=True, max_length=12)
+    document_type = models.ForeignKey(
+        DocumentTypes, on_delete=models.PROTECT, null=True, blank=True)
+    person_type = models.ForeignKey(
+        PersonType, related_name='personType', on_delete=models.PROTECT, null=True, blank=True, default=1)
+    document_number = models.CharField(
+        max_length=25, null=True, unique=True, db_index=True)
     email = models.EmailField(null=True, blank=True)
     name = models.CharField(max_length=256, null=True, blank=True)
     lasts_name = models.CharField(max_length=256,  null=True, blank=True)
-    city = models.ForeignKey(City, on_delete=models.PROTECT, related_name='persons', null=True, blank=True)
-    address = models.CharField(max_length=256, null=True, blank=True, unique=False)
-    expedition_date= models.DateField(auto_now=False, null=True, blank=True)
-
-    
+    city = models.ForeignKey(
+        City, on_delete=models.PROTECT, related_name='persons', null=True, blank=True)
+    address = models.CharField(
+        max_length=256, null=True, blank=True, unique=False)
+    expedition_date = models.DateField(auto_now=False, null=True, blank=True)
 
 
 class Attorny(PersonBase):
-    professional_card = models.CharField(max_length=25, null=True,blank=True)
+    professional_card = models.CharField(max_length=25, null=True, blank=True)
+
     def __str__(self):
         return f"{self.name} {self.lasts_name}"
 
 
 class LegalPerson(PersonBase):
-    verification_code =models.CharField(max_length=10, null=False,blank=False)
-    company_name = models.CharField(max_length=256,null=False,blank=False)
-    document_company_number = models.CharField(max_length=25, null=True, unique=True, db_index=True)
-    representative = models.CharField(max_length=256,null=True,blank=True)
+    verification_code = models.CharField(
+        max_length=10, null=False, blank=False)
+    company_name = models.CharField(max_length=256, null=False, blank=False)
+    document_company_number = models.CharField(
+        max_length=25, null=True, unique=True, db_index=True)
+    representative = models.CharField(max_length=256, null=True, blank=True)
+
     def __str__(self):
         return self.company_name
 
@@ -178,15 +203,21 @@ class LegalPerson(PersonBase):
     def get_anonymized_representative(self):
         return anonymize(self.representative)
 
+
 class Person(PersonBase):
     is_anonymous = models.BooleanField(blank=False, null=False, default=False)
-    parent = models.ForeignKey(LegalPerson, on_delete=models.PROTECT, blank=True, null=True)
-    preferencial_population = models.ManyToManyField(PreferencialPopulation, blank=True)
-    conflict_victim = models.ForeignKey(BooleanSelection, on_delete=models.PROTECT, related_name='victimPerson', null=True, blank=True)
+    parent = models.ForeignKey(
+        LegalPerson, on_delete=models.PROTECT, blank=True, null=True)
+    preferencial_population = models.ManyToManyField(
+        PreferencialPopulation, blank=True)
+    conflict_victim = models.ForeignKey(
+        BooleanSelection, on_delete=models.PROTECT, related_name='victimPerson', null=True, blank=True)
     disabilities = models.ManyToManyField(Disability, blank=True)
-    ethnic_group = models.ForeignKey(EthnicGroup, on_delete=models.PROTECT, null=True, blank=True)
-    attornyCheck = models.BooleanField(default=False,blank=True, null=True)
-    request_response = models.ForeignKey(RequestResponse, on_delete=models.PROTECT, default=1)
+    ethnic_group = models.ForeignKey(
+        EthnicGroup, on_delete=models.PROTECT, null=True, blank=True)
+    attornyCheck = models.BooleanField(default=False, blank=True, null=True)
+    request_response = models.ForeignKey(
+        RequestResponse, on_delete=models.PROTECT, default=1)
     reverse_url = 'correspondence:detail_person'
     uuid = ''
 
@@ -215,37 +246,51 @@ class Person(PersonBase):
 
 def get_first_name(self):
     return self.first_name + ' ' + self.last_name
-    
+
+
 User.add_to_class("__str__", get_first_name)
 
+
 class PersonRequest(BaseModel):
-    phone_number = models.CharField(blank=True, null=True ,max_length=12)
-    document_type = models.ForeignKey(DocumentTypes, on_delete=models.PROTECT, null=True, blank=True)
-    person_type = models.ForeignKey(PersonType, related_name='personPeititionType',on_delete=models.PROTECT, null=True, blank=True,default=1)
-    document_number = models.CharField(max_length=25, null=True, unique=True, db_index=True)
-    expedition_date= models.DateField(auto_now=False)
+    phone_number = models.CharField(blank=True, null=True, max_length=12)
+    document_type = models.ForeignKey(
+        DocumentTypes, on_delete=models.PROTECT, null=True, blank=True)
+    person_type = models.ForeignKey(PersonType, related_name='personPeititionType',
+                                    on_delete=models.PROTECT, null=True, blank=True, default=1)
+    document_number = models.CharField(
+        max_length=25, null=True, unique=True, db_index=True)
+    expedition_date = models.DateField(auto_now=False)
     email = models.EmailField(null=True, blank=True)
     name = models.CharField(max_length=256, null=False, blank=False)
     lasts_name = models.CharField(max_length=256, null=False, blank=False)
-    city = models.ForeignKey(City, on_delete=models.PROTECT, related_name='personsCityPetition', null=True, blank=True)
-    address = models.CharField(max_length=256, null=True, blank=True, unique=False)
+    city = models.ForeignKey(City, on_delete=models.PROTECT,
+                             related_name='personsCityPetition', null=True, blank=True)
+    address = models.CharField(
+        max_length=256, null=True, blank=True, unique=False)
     uuid = ''
-    
+
     def __str__(self):
         return self.name
 
+
 def get_first_name(self):
     return self.first_name + ' ' + self.last_name
-    
+
+
 User.add_to_class("__str__", get_first_name)
 
 
 class Atttorny_Person(models.Model):
-    attorny = models.ForeignKey(Attorny, related_name="attorny_extends", on_delete=models.PROTECT)
-    person =models.ForeignKey(Person, related_name="persons_extends", on_delete=models.PROTECT)
-    attorny_type=models.ForeignKey(AttornyType, related_name='attorny_type', on_delete=models.PROTECT,null=True, blank=True)
+    attorny = models.ForeignKey(
+        Attorny, related_name="attorny_extends", on_delete=models.PROTECT)
+    person = models.ForeignKey(
+        Person, related_name="persons_extends", on_delete=models.PROTECT)
+    attorny_type = models.ForeignKey(
+        AttornyType, related_name='attorny_type', on_delete=models.PROTECT, null=True, blank=True)
+
     def __str__(self):
         return f"{self.attorny.name}-{self.attorny_type.name}-{self.person.name}"
+
 
 class AppParameter(models.Model):
     name = models.CharField(unique=True, max_length=128)
@@ -257,9 +302,11 @@ class AppParameter(models.Model):
     class Meta:
         db_table = "core_app_parameter"
 
+
 class ConsecutiveFormat(models.Model):
     format = models.CharField(max_length=256, null=False, blank=False)
-    effective_date = models.DateTimeField(default=timezone.now, null=False, blank=False)
+    effective_date = models.DateTimeField(
+        default=timezone.now, null=False, blank=False)
 
     def __str__(self):
         return f"'{self.format}' {self.effective_date}"
@@ -267,57 +314,77 @@ class ConsecutiveFormat(models.Model):
     class Meta:
         db_table = "core_consecutive_format"
 
+
 class FilingType(models.Model):
-    name = models.CharField(max_length=128,blank=False, null=False,default='')
-    description = models.CharField(blank=False, null=False, max_length=256,default='')
-    asociated_icon = models.CharField(blank=False, null=False, max_length=50,default='')
-    code = models.CharField(max_length=16,blank=False, null=False,default='')
-    identifier = models.CharField(max_length=16,blank=False, null=False,default='')
-    
+    name = models.CharField(max_length=128, blank=False,
+                            null=False, default='')
+    description = models.CharField(
+        blank=False, null=False, max_length=256, default='')
+    asociated_icon = models.CharField(
+        blank=False, null=False, max_length=50, default='')
+    code = models.CharField(max_length=16, blank=False, null=False, default='')
+    identifier = models.CharField(
+        max_length=16, blank=False, null=False, default='')
+
     def __str__(self):
         return f"{self.name} {self.code}"
+
 
 class Consecutive(models.Model):
     current = models.BigIntegerField(null=False)
     date = models.DateTimeField(default=timezone.now, null=False, blank=False)
-    type = models.ForeignKey(FilingType, on_delete=models.PROTECT, null=True, blank=True)
+    type = models.ForeignKey(
+        FilingType, on_delete=models.PROTECT, null=True, blank=True)
 
     def __str__(self):
         return f"{self.current} {self.date} {self.type}"
 
+
 class CalendarDayType(models.Model):
-    name = models.CharField(max_length=128, blank=False, null=False,default='')
+    name = models.CharField(max_length=128, blank=False,
+                            null=False, default='')
 
     def __str__(self):
         return self.name
 
+
 class Calendar(models.Model):
-    name = models.CharField(max_length=128, blank=False, null=False, default='', 
+    name = models.CharField(max_length=128, blank=False, null=False, default='',
                             verbose_name='Calendar')
 
     def __str__(self):
         return self.name
 
+
 class CalendarDay(models.Model):
-    date = models.DateField(default=timezone.now, null=False, blank=False) 
-    type = models.ForeignKey(CalendarDayType, on_delete=models.PROTECT, null=True, blank=True)
-    calendar = models.ForeignKey(Calendar, on_delete=models.PROTECT, null=True, blank=True)
+    date = models.DateField(default=timezone.now, null=False, blank=False)
+    type = models.ForeignKey(
+        CalendarDayType, on_delete=models.PROTECT, null=True, blank=True)
+    calendar = models.ForeignKey(
+        Calendar, on_delete=models.PROTECT, null=True, blank=True)
 
     def __str__(self):
         return f"{self.date} {self.type}"
 
+
 class Holiday(models.Model):
-    date = models.DateField(default=timezone.now, null=False, blank=False) 
-    country = models.ForeignKey(Country, on_delete=models.PROTECT, null=True, blank=True)
+    date = models.DateField(default=timezone.now, null=False, blank=False)
+    country = models.ForeignKey(
+        Country, on_delete=models.PROTECT, null=True, blank=True)
     local_name = models.CharField(max_length=256)
 
     def __str__(self):
         return f"{self.date} {self.local_name}"
 
-class FunctionalArea(models.Model):
-    parent = models.ForeignKey('self', on_delete=models.PROTECT, blank=True, null=True)
-    name = models.CharField(max_length=128, blank=False, null=False, default='')
-    description = models.CharField(max_length=256, null=True, blank=True, default='')
+
+class FunctionalArea(AL_Node):
+    parent = models.ForeignKey("self", related_name="children_set",
+                               null=True, blank=True, db_index=True, on_delete=models.CASCADE)
+    name = models.CharField(max_length=128, blank=False,
+                            null=False, default='')
+    description = models.CharField(
+        max_length=256, null=True, blank=True, default='')
+    sib_order = models.PositiveIntegerField(default=0)
 
     def __str__(self):
         return self.name
@@ -325,12 +392,14 @@ class FunctionalArea(models.Model):
     class Meta:
         db_table = "core_functional_area"
 
+
 class FunctionalAreaUser(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     Functional_area = models.ManyToManyField(FunctionalArea)
 
     def __str__(self):
         return self.user.username
+
 
 @receiver(post_save, sender=User)
 def create_or_update_functional_area_user(sender, instance, created, **kwargs):
