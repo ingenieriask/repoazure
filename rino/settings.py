@@ -57,6 +57,7 @@ INSTALLED_APPS = [
     'djcelery_email',
     'django_celery_results',
     'colorfield',
+    'treebeard'
 ]
 
 CRISPY_TEMPLATE_PACK = 'bootstrap4'

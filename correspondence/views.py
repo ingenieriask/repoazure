@@ -1,5 +1,5 @@
 from correspondence.models import AlfrescoFile, Radicate, Record, Template
-from core.models import Person,Atttorny_Person
+from core.models import FunctionalArea, Person, Atttorny_Person
 from pqrs.models import PQRS
 from correspondence.forms import RadicateForm, SearchForm, UserForm, UserProfileInfoForm, PersonForm, RecordForm, \
     SearchContentForm, ChangeCurrentUserForm, ChangeRecordAssignedForm, LoginForm, TemplateForm
@@ -17,7 +17,7 @@ from django.views.generic.edit import UpdateView
 from django.views.generic import View
 from django.contrib.postgres.search import SearchVector, SearchQuery
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
-
+from core.utils_db import get_system_parameter
 from django.contrib import messages
 from django.core.files.storage import FileSystemStorage, default_storage
 from django.core.files.temp import NamedTemporaryFile
@@ -38,8 +38,10 @@ logger = logging.getLogger(__name__)
 
 # Index view
 
+
 def index(request):
     return render(request, 'correspondence/index.html', {})
+
 
 def register(request):
     registered = False
@@ -101,10 +103,12 @@ def search_by_content(request):
     try:
         radicate_list = ECMService.search_by_term(term)
     except (requests.exceptions.Timeout, requests.exceptions.ConnectionError) as Error:
-        messages.error(request, f"No se ha establecido la conexión con el gestor de contenido")
+        messages.error(
+            request, f"No se ha establecido la conexión con el gestor de contenido")
 
     if not radicate_list or not radicate_list.count():
-        messages.info(request, "No se ha encontrado el término en el contenido")
+        messages.info(
+            request, "No se ha encontrado el término en el contenido")
 
     paginator = Paginator(radicate_list, 10)
     page = request.GET.get('page')
@@ -141,7 +145,33 @@ def search_names(request):
     return render(request, 'correspondence/search.html', context={'form': form, 'list': qs, 'person_form': person_form})
 
 
+def search_user(request):
+    rino_search_user_param = get_system_parameter(
+        'RINO_CORRESPONDENCE_SEARCH_USER').value
+    functional_tree = []
+    for item, info in FunctionalArea.get_annotated_list():
+        temp = False
+        print(item.get_depth())
+        if info['level'] != 0 and int(item.parent.get_depth()+info['level']) > item.get_depth():
+            print(item.parent.get_depth(), info['level'])
+            temp = True
+        functional_tree.append((item, info, temp))
+    #[print(i['children']) for i in functional_area_tree]
+    #functional_area_tree = FunctionalArea.dump_bulk()
+    if request.method == 'POST':
+        form = SearchForm(request.POST)
+    else:
+        form = SearchForm()
+    return render(
+        request,
+        'correspondence/search_user.html',
+        context={
+            'form': form,
+            'rino_parameter': rino_search_user_param,
+            'functional_tree': functional_tree
+        })
 # autocomplete
+
 
 def autocomplete(request):
     if 'term' in request.GET:
@@ -194,10 +224,10 @@ def create_radicate(request, person):
             )
 
             document_file = request.FILES['document_file']
-            document_temp_file = NamedTemporaryFile() # ? delete=True)
+            document_temp_file = NamedTemporaryFile()  # ? delete=True)
 
             for chunk in document_file.chunks():
-                    document_temp_file.write(chunk)
+                document_temp_file.write(chunk)
 
             document_temp_file.seek(0)
             document_temp_file.flush()
@@ -210,11 +240,14 @@ def create_radicate(request, person):
                 radicate.set_cmis_id(node_id)
 
                 if ECMService.request_renditions(node_id):
-                    messages.success(request, "El radicado se ha creado correctamente")
-                    url = reverse('correspondence:detail_radicate', kwargs={'pk': radicate.pk})
+                    messages.success(
+                        request, "El radicado se ha creado correctamente")
+                    url = reverse('correspondence:detail_radicate',
+                                  kwargs={'pk': radicate.pk})
                     return HttpResponseRedirect(url)
-            
-            messages.error(request, "Ha ocurrido un error al guardar el archivo en el gestor de contenido")
+
+            messages.error(
+                request, "Ha ocurrido un error al guardar el archivo en el gestor de contenido")
 
         else:
             logger.error("Invalid create radicate form")
@@ -232,7 +265,8 @@ class RadicateList(ListView):
 
     def get_queryset(self):
         queryset = super(RadicateList, self).get_queryset()
-        queryset = queryset.filter(current_user=self.request.user.profile_user.pk)
+        queryset = queryset.filter(
+            current_user=self.request.user.profile_user.pk)
         return queryset
 
 
@@ -264,10 +298,12 @@ class RecordAssignedUpdate(UpdateView):
         )
 
         if ECMService.assign_record(self.object.cmis_id, self.object.record.cmis_id):
-            messages.success(self.request, "El archivo se ha guardado correctamente en el expediente")
+            messages.success(
+                self.request, "El archivo se ha guardado correctamente en el expediente")
             return response
 
-        messages.error(self.request, "Ha ocurrido un error al actualizar el archivo en el gestor de contenido")
+        messages.error(
+            self.request, "Ha ocurrido un error al actualizar el archivo en el gestor de contenido")
         self.object = None
         return self.form_invalid(form)
 
@@ -284,14 +320,17 @@ class RadicateDetailView(DetailView):
     def get_context_data(self, **kwargs):
         context = super(RadicateDetailView, self).get_context_data(**kwargs)
         context['logs'] = Log.objects.all().filter(object_id=self.kwargs['pk'])
-        context['file'] = AlfrescoFile.objects.all().filter(radicate=self.kwargs['pk'])
-        objectPqrs = PQRS.objects.filter(principal_person= context['radicate'].person.pk)[0]
-        personrequest=objectPqrs.multi_request_person.all()
+        context['file'] = AlfrescoFile.objects.all().filter(
+            radicate=self.kwargs['pk'])
+        objectPqrs = PQRS.objects.filter(
+            principal_person=context['radicate'].person.pk)[0]
+        personrequest = objectPqrs.multi_request_person.all()
         if personrequest:
             context['personRequest'] = personrequest
-        if  context['radicate'].person.attornyCheck:
-            personAttorny = Atttorny_Person.objects.filter(person=context['radicate'].person.pk)[0]
-            context['personAttorny'] =personAttorny
+        if context['radicate'].person.attornyCheck:
+            personAttorny = Atttorny_Person.objects.filter(
+                person=context['radicate'].person.pk)[0]
+            context['personAttorny'] = personAttorny
         return context
 
 
@@ -316,7 +355,8 @@ def project_answer(request, pk):
             doc = Document(os.path.join(settings.BASE_DIR, 'media/temp.docx'))
 
         else:
-            doc = Document(os.path.join(settings.BASE_DIR, 'media/template.docx'))
+            doc = Document(os.path.join(
+                settings.BASE_DIR, 'media/template.docx'))
 
         Dictionary = {
             "*RAD_N*": datetime.now().strftime("%Y%m%d%H%M%S"),
@@ -342,7 +382,8 @@ def project_answer(request, pk):
 
         doc.save(os.path.join(settings.BASE_DIR, 'media/output.docx'))
 
-        files = {'files': open(os.path.join(settings.BASE_DIR, 'media/output.docx'), 'rb')}
+        files = {'files': open(os.path.join(
+            settings.BASE_DIR, 'media/output.docx'), 'rb')}
 
         try:
             response = requests.post(
@@ -392,12 +433,15 @@ class RecordCreateView(CreateView):
 
         if id:
             self.object.set_cmis_id(id)
-            messages.success(self.request, "El expediente se ha guardado correctamente")
+            messages.success(
+                self.request, "El expediente se ha guardado correctamente")
             return response
 
-        messages.error(self.request, "Ha ocurrido un error al crear el expediente en el gestor de contenido")
+        messages.error(
+            self.request, "Ha ocurrido un error al crear el expediente en el gestor de contenido")
         self.object = None
         return self.form_invalid(form)
+
 
 class RecordDetailView(DetailView):
     model = Record
@@ -411,11 +455,13 @@ class RecordUpdateView(UpdateView):
 
         response = super(RecordUpdateView, self).form_valid(form)
 
-        if ECMService.update_record(self.object.cmis_id, self.object.name): 
-            messages.success(self.request, "El expediente se ha guardado correctamente")
+        if ECMService.update_record(self.object.cmis_id, self.object.name):
+            messages.success(
+                self.request, "El expediente se ha guardado correctamente")
             return response
 
-        messages.error(self.request, "Ha ocurrido un error al actualizar el expediente en el gestor de contenido")
+        messages.error(
+            self.request, "Ha ocurrido un error al actualizar el expediente en el gestor de contenido")
         self.object = None
         return self.form_invalid(form)
 
@@ -472,7 +518,8 @@ class ProcessExcelRadicates(View):
 
         # Write some test data.
         for row_num, columns in enumerate(data):
-            worksheet.write(row_num + 1, 0, columns.date_radicated.strftime('%Y-%m-%d'))
+            worksheet.write(
+                row_num + 1, 0, columns.date_radicated.strftime('%Y-%m-%d'))
             worksheet.write(row_num + 1, 1, columns.number)
             worksheet.write(row_num + 1, 2, columns.subject)
             worksheet.write(row_num + 1, 3, columns.person.name)

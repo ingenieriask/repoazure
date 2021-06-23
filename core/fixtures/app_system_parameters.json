@@ -70,5 +70,13 @@
       "name": "RINO_PQR_PRIVATE_APPLICANT",
       "value": "mensaje para identidad privada"
     }
+  },
+  {
+    "model": "core.systemparameter",
+    "pk": 10,
+    "fields": {
+      "name": "RINO_CORRESPONDENCE_SEARCH_USER",
+      "value": "mensaje para buscar usuario"
+    }
   }
 ]

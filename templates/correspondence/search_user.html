@@ -1,0 +1,57 @@
+{% extends 'correspondence/main_template.html' %}
+{% block content %}
+{% load crispy_forms_tags %}
+<div class="card mb-4">
+  <div class="card-header">Búsqueda de Usuario</div>
+  <div class="card-body">
+    <div class="row">
+      <div class="tree">
+        {% for item, info,last_leaf in functional_tree %}
+        {% if info.open %}
+        {% if info.level != 0 %}
+        <div id="cont{{item.parent.id}}" class="collapse">
+          {% endif %}
+          <ul>
+            <li>
+              {% else %}
+            </li>
+            <li>
+              {% endif %}
+              {% if last_leaf %}
+              <span><i class="far fa-file"></i><a href="#!"> {{ item }}</a></span>
+              {% else%}
+              <span>
+                <a style="color:#000; text-decoration:none;" data-toggle="collapse" href="#cont{{item.pk}}"
+                  aria-expanded="false" aria-controls="cont{{item.pk}}">
+                  <i class="collapsed">
+                    <i class="fas fa-folder"></i>
+                  </i>
+                  <i class="expanded">
+                    <i class="far fa-folder-open"></i>
+                  </i>
+                  {{ item }}
+                </a>
+              </span>
+              {% endif %}
+
+              {% for close in info.close %}
+            </li>
+          </ul>
+          {% if info.level != 0 and info.open%}
+        </div>
+        {% endif%}
+        {% endfor %}
+        {% endfor %}
+      </div>
+    </div>
+    <form action="" method="post">
+      {{ form | crispy }} {% csrf_token %}
+      <input type="submit" name="search" value="Buscar" class="btn btn-success lift" />
+    </form>
+    <div class="alert alert-success mt-4" role="alert">
+      <h4 class="alert-heading">Usuarios</h4>
+      <p>{{rino_parameter}}</p>
+    </div>
+  </div>
+</div>
+{% endblock %}

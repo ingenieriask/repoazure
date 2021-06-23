@@ -1,0 +1,234 @@
+[
+    {
+        "model": "core.functionalarea",
+        "pk": 1,
+        "fields": {
+            "name": "Direccion General",
+            "description": "descripcion1"
+        }
+    },
+    {
+        "model": "core.functionalarea",
+        "pk": 2,
+        "fields": {
+            "parent": 1,
+            "name": "Direccion Tecnica",
+            "description": "descripcion1"
+        }
+    },
+    {
+        "model": "core.functionalarea",
+        "pk": 3,
+        "fields": {
+            "parent": 1,
+            "name": "Direccion Financiera",
+            "description": "descripcion1"
+        }
+    },
+    {
+        "model": "core.functionalarea",
+        "pk": 4,
+        "fields": {
+            "parent": 1,
+            "name": "Direccion Promocion y Cordinacion",
+            "description": "descripcion1"
+        }
+    },
+    {
+        "model": "core.functionalarea",
+        "pk": 5,
+        "fields": {
+            "parent": 2,
+            "name": "Departamento 1",
+            "description": "descripcion1"
+        }
+    },
+    {
+        "model": "core.functionalarea",
+        "pk": 6,
+        "fields": {
+            "parent": 2,
+            "name": "Departamento 2",
+            "description": "descripcion1"
+        }
+    },
+    {
+        "model": "core.functionalarea",
+        "pk": 7,
+        "fields": {
+            "parent": 2,
+            "name": "Departamento 3",
+            "description": "descripcion1"
+        }
+    },
+    {
+        "model": "core.functionalarea",
+        "pk": 8,
+        "fields": {
+            "parent": 3,
+            "name": "Departamento 1",
+            "description": "descripcion1"
+        }
+    },
+    {
+        "model": "core.functionalarea",
+        "pk": 9,
+        "fields": {
+            "parent": 3,
+            "name": "Departamento 2",
+            "description": "descripcion1"
+        }
+    },
+    {
+        "model": "core.functionalarea",
+        "pk": 10,
+        "fields": {
+            "parent": 3,
+            "name": "Departamento 3",
+            "description": "descripcion1"
+        }
+    },
+    {
+        "model": "core.functionalarea",
+        "pk": 11,
+        "fields": {
+            "parent": 4,
+            "name": "Departamento 1",
+            "description": "descripcion1"
+        }
+    },
+    {
+        "model": "core.functionalarea",
+        "pk": 12,
+        "fields": {
+            "parent": 4,
+            "name": "Departamento 2",
+            "description": "descripcion1"
+        }
+    },
+    {
+        "model": "core.functionalarea",
+        "pk": 13,
+        "fields": {
+            "parent": 4,
+            "name": "Departamento 3",
+            "description": "descripcion1"
+        }
+    },
+    {
+        "model": "core.functionalarea",
+        "pk": 14,
+        "fields": {
+            "name": "Direccion Judical",
+            "description": "descripcion1"
+        }
+    },
+    {
+        "model": "core.functionalarea",
+        "pk": 15,
+        "fields": {
+            "parent": 14,
+            "name": "Direccion Tecnica",
+            "description": "descripcion1"
+        }
+    },
+    {
+        "model": "core.functionalarea",
+        "pk": 16,
+        "fields": {
+            "parent": 14,
+            "name": "Direccion Financiera",
+            "description": "descripcion1"
+        }
+    },
+    {
+        "model": "core.functionalarea",
+        "pk": 17,
+        "fields": {
+            "parent": 14,
+            "name": "Direccion Promocion y Cordinacion",
+            "description": "descripcion1"
+        }
+    },
+    {
+        "model": "core.functionalarea",
+        "pk": 18,
+        "fields": {
+            "parent": 15,
+            "name": "Departamento 1",
+            "description": "descripcion1"
+        }
+    },
+    {
+        "model": "core.functionalarea",
+        "pk": 19,
+        "fields": {
+            "parent": 15,
+            "name": "Departamento 2",
+            "description": "descripcion1"
+        }
+    },
+    {
+        "model": "core.functionalarea",
+        "pk": 20,
+        "fields": {
+            "parent": 15,
+            "name": "Departamento 3",
+            "description": "descripcion1"
+        }
+    },
+    {
+        "model": "core.functionalarea",
+        "pk": 21,
+        "fields": {
+            "parent": 16,
+            "name": "Departamento 1",
+            "description": "descripcion1"
+        }
+    },
+    {
+        "model": "core.functionalarea",
+        "pk": 22,
+        "fields": {
+            "parent": 16,
+            "name": "Departamento 2",
+            "description": "descripcion1"
+        }
+    },
+    {
+        "model": "core.functionalarea",
+        "pk": 23,
+        "fields": {
+            "parent": 16,
+            "name": "Departamento 3",
+            "description": "descripcion1"
+        }
+    },
+    {
+        "model": "core.functionalarea",
+        "pk": 24,
+        "fields": {
+            "parent": 17,
+            "name": "Departamento 1",
+            "description": "descripcion1"
+        }
+    },
+    {
+        "model": "core.functionalarea",
+        "pk": 25,
+        "fields": {
+            "parent": 17,
+            "name": "Departamento 2",
+            "description": "descripcion1"
+        }
+    },
+    {
+        "model": "core.functionalarea",
+        "pk": 26,
+        "fields": {
+            "parent": 17,
+            "name": "Departamento 3",
+            "description": "descripcion1"
+        }
+    }
+]
