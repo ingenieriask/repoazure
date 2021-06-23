@@ -21,3 +21,9 @@ def format_percent(value: float, args: str = ""):
     symbol = "%" if include_symbol else ""
     # builds and returns the formatted value
     return f"{value * 100.0:.{precision}f}{symbol}"
+
+@register.inclusion_tag('correspondence/menu.html')
+def menu():
+    """"""
+    links = [1, 2]
+    return {'links': links}
