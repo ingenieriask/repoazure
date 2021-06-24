@@ -5,7 +5,7 @@ from django.urls import reverse
 from core.utils import anonymize
 from django.utils import timezone
 from colorfield.fields import ColorField
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User, Permission
 from django.contrib.postgres.fields import ArrayField
 from django.db.models.signals import post_save
 from django.dispatch import receiver
@@ -343,5 +343,6 @@ class Menu(AL_Node):
     url_name = models.CharField(max_length=256, null=True, blank=True, default='')
     sib_order = models.PositiveIntegerField()
     icon = models.CharField(max_length=128, null=True, blank=True, default='')
+    required_permissions = models.ManyToManyField(Permission)
     def __str__(self):
         return self.name

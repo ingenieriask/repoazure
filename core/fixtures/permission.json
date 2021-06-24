@@ -106,5 +106,14 @@
       "content_type_id": 4,
       "codename": "modify_classification"
     }
+  },
+  {
+    "model": "auth.permission",
+    "pk": 10013,
+    "fields": {
+      "name": "receive_external",
+      "content_type_id": 4,
+      "codename": "receive_external"
+    }
   }
 ]

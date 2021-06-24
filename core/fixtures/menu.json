@@ -56,7 +56,13 @@
       "description": "Entrada",
       "url_name": null,
       "sib_order": 0,
-      "icon": "file-plus" 
+      "icon": "file-plus", 
+      "required_permissions": [
+        10005,
+        10007,
+        10009,
+        10013
+      ]
     }
   },
   {
@@ -93,6 +99,21 @@
       "url_name": null,
       "sib_order": 0,
       "icon": null
+    }
+  },
+  {
+    "model": "core.menu",
+    "pk": 9,
+    "fields": {
+      "parent": 5,
+      "name": "Bandeja de Usuario",
+      "description": "Bandeja de Usuario",
+      "url_name": null,
+      "sib_order": 0,
+      "icon": "file-plus", 
+      "required_permissions": [
+        10013
+      ]
     }
   }
 ]
