@@ -144,19 +144,18 @@ class CalendarService(object):
 
     @classmethod
     def get_remaining_business_days(cls, request_day, max_response_days):
-        days = CalendarDay.objects.filter(date__range=[request_day, date.today()])
-        workingdays = 0
-        for day in days:
-            workingdays += 1 if day.type.name == "workingday" else 0
-        return max_response_days - workingdays
+        return max_response_days - cls.get_business_days_since(cls, request_day) 
     
     @classmethod
     def get_business_days_since(cls, request_day):
         days = CalendarDay.objects.filter(date__range=[request_day, date.today()])
         workingdays = 0
-        for day in days:
-            workingdays += 1 if day.type.name == "workingday" else 0
-        return workingdays
+        if days:
+            for day in days:
+                workingdays += 1 if day.type.name == "workingday" else 0
+            return workingdays
+        
+        return (date.today() - request_day.date()).days
 
     @classmethod
     def get_calendar_days(cls, year):

@@ -1,0 +1,59 @@
+{% load custom_tags %}
+
+<div class="nav accordion" id="accordionSidenav">
+
+    {% for link1 in links %}
+    {% if link1|has_permission %}
+    
+    <div class="sidenav-menu-heading"> 
+        {{ link1|get_item:'data'|get_item:'name' }} 
+    </div>
+
+        {% for link2 in link1|get_item:'children' %}
+
+        {% if link2|has_permission %}
+        {% if link2|has_children %}
+
+        <a class="nav-link collapsed" 
+            href="javascript:void(0);" 
+            data-toggle="collapse" 
+            data-target="#collapse{{ link2|get_item:'data'|get_item:'name' }}" 
+            aria-expanded="false"
+            aria-controls="collapse{{ link2|get_item:'data'|get_item:'name' }}">
+            <div class="nav-link-icon">
+                <i data-feather="{{ link2|get_item:'data'|get_item:'icon' }}"></i>
+            </div>
+                {{ link2|get_item:'data'|get_item:'name'}}
+            <div class="sidenav-collapse-arrow">
+                <i class="fas fa-angle-down"></i>
+            </div>
+        </a>
+        <div class="collapse" 
+            id="collapse{{ link2|get_item:'data'|get_item:'name' }}" 
+            data-parent="#accordionSidenav">
+            <nav class="sidenav-menu-nested nav">
+
+                {% for link3 in link2|get_item:'children' %}
+                {% if link3|has_permission %}
+                    <a class="nav-link" href="{{ link3|get_link }}">
+                        {{ link3|get_item:'data'|get_item:'name'}} 
+                    </a>
+                {% endif %}
+                {% endfor %}
+            </nav>
+        </div>
+
+        {% else %}
+
+        <a class="nav-link" href="{{ link2|get_link }}">
+            <div class="nav-link-icon"><i data-feather="{{ link2|get_item:'data'|get_item:'icon' }}"></i></div>
+            {{ link2|get_item:'data'|get_item:'name'}} 
+        </a>
+
+        {% endif %}
+        {% endif %}
+        {% endfor %}
+
+    {% endif %}
+    {% endfor %}
+</div>
