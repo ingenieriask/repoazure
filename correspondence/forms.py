@@ -1,9 +1,9 @@
 from django import forms
 from crispy_forms.helper import FormHelper
-from crispy_forms.layout import Layout, Submit, Row, Column, Field, ButtonHolder, Button, Div, HTML
+from crispy_forms.layout import Layout, Submit, Row, Column, ButtonHolder, Button, Div, HTML
 from django.contrib.auth.models import User
 from correspondence.models import Radicate, Record, Template
-from core.models import City, PreferencialPopulation, Person, UserProfileInfo
+from core.models import FunctionalAreaUser, Person, UserProfileInfo
 from core.forms import CustomFileInput
 from pinax.eventlog.models import log, Log
 from django.urls import reverse
@@ -82,17 +82,39 @@ class SearchForm(forms.Form):
     item = forms.CharField(label='Palabra clave', help_text='Datos a buscar')
 
 
+class SearchFormUser(forms.Form):
+    def __init__(self, *args, **kwargs):
+
+        filter_pk = kwargs.pop('filter_pk')
+        super(SearchFormUser, self).__init__(*args, **kwargs)
+        if filter_pk:
+            self.fields['item'].queryset = FunctionalAreaUser.objects.filter(
+                functional_area=filter_pk)
+        else:
+            self.fields['item'].queryset = FunctionalAreaUser.objects.none()
+
+    item = forms.ModelChoiceField(
+        queryset=None,
+        label='Buscar persona',
+        widget=forms.Select(attrs={'class': 'selectpicker'}),
+        required=False
+    )
+
+
 class SearchContentForm(forms.Form):
-    term = forms.CharField(label='Búsqueda por términos clave', help_text='Introduzca el termino a buscar')
+    term = forms.CharField(label='Búsqueda por términos clave',
+                           help_text='Introduzca el termino a buscar')
 
 
 class PersonForm(forms.ModelForm):
-    email_confirmation = forms.CharField(label='Confirmación del correo electrónico', required=True)
+    email_confirmation = forms.CharField(
+        label='Confirmación del correo electrónico', required=True)
 
     def clean_email_confirmation(self):
         cd = self.cleaned_data
         if get_field_value(cd, 'email_confirmation') != get_field_value(cd, 'email'):
-            raise forms.ValidationError('El correo de validación no coincide con el correo')
+            raise forms.ValidationError(
+                'El correo de validación no coincide con el correo')
         return get_field_value(cd, 'email_confirmation')
 
     def clean(self):
@@ -100,13 +122,15 @@ class PersonForm(forms.ModelForm):
         cleaned_address = cleaned_data.get('address')
         cleaned_email = cleaned_data.get('email')
         if cleaned_address is None and cleaned_email is None:
-            raise forms.ValidationError('Por favor ingrese la dirección de contacto o el correo electrónico')
+            raise forms.ValidationError(
+                'Por favor ingrese la dirección de contacto o el correo electrónico')
         return cleaned_data
 
     class Meta:
         model = Person
 
-        fields = ['document_type', 'document_number', 'name', 'email', 'city', 'address', 'parent', 'preferencial_population', 'conflict_victim', 'disabilities', 'ethnic_group']
+        fields = ['document_type', 'document_number', 'name', 'email', 'city', 'address',
+                  'parent', 'preferencial_population', 'conflict_victim', 'disabilities', 'ethnic_group']
         labels = {'document_type': 'Tipo de documento',
                   'document_number': 'Número de documento',
                   'name': 'Nombres', 'email': 'Correo electrónico',
@@ -136,8 +160,10 @@ class PersonForm(forms.ModelForm):
                     css_class='card-header'),
                 Div(
                     Row(
-                        Column('document_type', css_class='form-group col-md-6 mb-0'),
-                        Column('document_number', css_class='form-group col-md-6 mb-0'),
+                        Column('document_type',
+                               css_class='form-group col-md-6 mb-0'),
+                        Column('document_number',
+                               css_class='form-group col-md-6 mb-0'),
                         css_class='form-row'
                     ),
                     Row(
@@ -152,7 +178,8 @@ class PersonForm(forms.ModelForm):
                 Div(
                     Row(
                         Column('email', css_class='form-group col-md-6 mb-0'),
-                        Column('email_confirmation', css_class='form-group col-md-6 mb-0'),
+                        Column('email_confirmation',
+                               css_class='form-group col-md-6 mb-0'),
                         css_class='form-row'
                     ),
                     Row(
@@ -166,25 +193,29 @@ class PersonForm(forms.ModelForm):
                     css_class='card-header'),
                 Div(
                     Row(
-                        Column('preferencial_population', css_class='form-group col-md-12 mb-0'),
+                        Column('preferencial_population',
+                               css_class='form-group col-md-12 mb-0'),
                         css_class='form-row'
                     ),
                     Row(
-                        Column('conflict_victim', css_class='form-group col-md-12 mb-0'),
+                        Column('conflict_victim',
+                               css_class='form-group col-md-12 mb-0'),
                         css_class='form-row'
                     ),
                     Row(
-                        Column('disabilities', css_class='form-group col-md-12 mb-0'),
+                        Column('disabilities',
+                               css_class='form-group col-md-12 mb-0'),
                         css_class='form-row'
                     ),
                     Row(
-                        Column('ethnic_group', css_class='form-group col-md-12 mb-0'),
+                        Column('ethnic_group',
+                               css_class='form-group col-md-12 mb-0'),
                         css_class='form-row'
                     ),
                     css_class='card-body'
-                ),
+            ),
                 css_class="card mb-3",
-                ),
+            ),
             Submit('submit', 'Guardar')
         )
 
@@ -204,7 +235,8 @@ class ChangeCurrentUserForm(forms.ModelForm):
             user=radicate.current_user.user,
             action="RADICATE_CHANGE_USER",
             obj=radicate,
-            extra=dict(number=radicate.number, message="Se ha re-asignado el usuario actual")
+            extra=dict(number=radicate.number,
+                       message="Se ha re-asignado el usuario actual")
         )
 
         if commit:
@@ -303,20 +335,23 @@ class RecordForm(forms.ModelForm):
                 css_class='form-row'
             ),
             Row(
-                Column('init_process_date', css_class='form-group col-md-4 mb-0'),
+                Column('init_process_date',
+                       css_class='form-group col-md-4 mb-0'),
                 Column('init_date', css_class='form-group col-md-4 mb-0'),
                 Column('final_date', css_class='form-group col-md-4 mb-0'),
                 css_class='form-row'
             ),
             Row(
                 Column('phase', css_class='form-group col-md-4 mb-0'),
-                Column('final_disposition', css_class='form-group col-md-4 mb-0'),
+                Column('final_disposition',
+                       css_class='form-group col-md-4 mb-0'),
                 Column('security_level', css_class='form-group col-md-4 mb-0'),
                 css_class='form-row'
             ),
             ButtonHolder(
                 Submit('submit', 'Guardar', css_class='btn btn-success'),
-                Button('cancel', 'Volver', onclick='window.location.href="{}"'.format(cancel_url), css_class='btn btn-primary')
+                Button('cancel', 'Volver', onclick='window.location.href="{}"'.format(
+                    cancel_url), css_class='btn btn-primary')
             )
         )
 
@@ -325,7 +360,8 @@ class TemplateForm(forms.ModelForm):
     class Meta:
         model = Template
         fields = ('name', 'office', 'description', 'file')
-        labels = {'name': 'Nombre', 'office': 'Dependencia', 'description': 'Descripción', 'file': 'Plantilla'}
+        labels = {'name': 'Nombre', 'office': 'Dependencia',
+                  'description': 'Descripción', 'file': 'Plantilla'}
         widgets = {
             'name': forms.TextInput(),
             'office': forms.Select(attrs={'class': 'selectpicker', 'data-live-search': 'true'}),
