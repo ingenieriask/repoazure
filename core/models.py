@@ -395,7 +395,7 @@ class FunctionalArea(AL_Node):
 
 class FunctionalAreaUser(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
-    Functional_area = models.ManyToManyField(FunctionalArea)
+    functional_area = models.ManyToManyField(FunctionalArea)
 
     def __str__(self):
         return self.user.username
