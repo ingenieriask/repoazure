@@ -40,8 +40,8 @@
     "pk": 4,
     "fields": {
       "parent": 1,
-      "name": "Radicación",
-      "description": "Radicación",
+      "name": "Carpetas",
+      "description": "Carpetas",
       "url_name": null,
       "sib_order": 0,
       "icon": null 
@@ -67,7 +67,19 @@
   },
   {
     "model": "core.menu",
-    "pk": 6,
+    "pk": 7,
+    "fields": {
+      "parent": 4,
+      "name": "Memorandos",
+      "description": "Memorandos",
+      "url_name": null,
+      "sib_order": 0,
+      "icon": "file-plus"
+    }
+  },
+  {
+    "model": "core.menu",
+    "pk": 8,
     "fields": {
       "parent": 4,
       "name": "Salida",
@@ -79,36 +91,12 @@
   },
   {
     "model": "core.menu",
-    "pk": 7,
-    "fields": {
-      "parent": 6,
-      "name": "Memorandos",
-      "description": "Memorandos",
-      "url_name": null,
-      "sib_order": 0,
-      "icon": null
-    }
-  },
-  {
-    "model": "core.menu",
-    "pk": 8,
-    "fields": {
-      "parent": 6,
-      "name": "Salida",
-      "description": "Salida",
-      "url_name": null,
-      "sib_order": 0,
-      "icon": null
-    }
-  },
-  {
-    "model": "core.menu",
     "pk": 9,
     "fields": {
       "parent": 5,
       "name": "Bandeja de Usuario",
       "description": "Bandeja de Usuario",
-      "url_name": null,
+      "url_name": "pqrs:radicate_inbox",
       "sib_order": 0,
       "icon": "file-plus", 
       "required_permissions": [
