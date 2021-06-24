@@ -36,9 +36,9 @@
                 <td style="text-align: center;">{{ pqrs.type }} - {{ pqrs.subtype.name }}</td>
                 <td style="text-align: center;">
                     <svg height="8mm" width="8mm">
-                      <circle cx="4mm" cy="4mm" r="3mm" style="fill: {{ pqrs.subtype.alerts.all|getColorTrafficLight:pqrs.date_radicated }};" />
+                      <circle cx="4mm" cy="4mm" r="3mm" style="fill: {{ pqrs.subtype.alerts.all|get_color_traffic_light:pqrs.date_radicated }};" />
                     </svg>
-                    {{ pqrs.date_radicated|getMissingDays:pqrs.subtype.max_response_days }}    
+                    {{ pqrs.date_radicated|get_missing_days:pqrs.subtype.max_response_days }}    
                 </td>
                 <td style="text-align: center;">RADICADO</td>
                 <td style="text-align: center;">
