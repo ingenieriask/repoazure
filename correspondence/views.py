@@ -2,7 +2,7 @@ from correspondence.models import AlfrescoFile, Radicate, Record, Template
 from core.models import FunctionalArea, Person, Atttorny_Person
 from pqrs.models import PQRS
 from correspondence.forms import RadicateForm, SearchForm, UserForm, UserProfileInfoForm, PersonForm, RecordForm, \
-    SearchContentForm, ChangeCurrentUserForm, ChangeRecordAssignedForm, LoginForm, TemplateForm
+    SearchContentForm, ChangeCurrentUserForm, ChangeRecordAssignedForm, LoginForm, TemplateForm, SearchFormUser
 from datetime import datetime
 from django.conf import settings
 from django.shortcuts import get_list_or_404, get_object_or_404, render
@@ -149,26 +149,32 @@ def search_user(request):
     rino_search_user_param = get_system_parameter(
         'RINO_CORRESPONDENCE_SEARCH_USER').value
     functional_tree = []
+    form = SearchFormUser(None, filter_pk=False)
+    interest_area = ''
     for item, info in FunctionalArea.get_annotated_list():
         temp = False
-        print(item.get_depth())
         if info['level'] != 0 and int(item.parent.get_depth()+info['level']) > item.get_depth():
-            print(item.parent.get_depth(), info['level'])
             temp = True
         functional_tree.append((item, info, temp))
-    #[print(i['children']) for i in functional_area_tree]
-    #functional_area_tree = FunctionalArea.dump_bulk()
+
     if request.method == 'POST':
-        form = SearchForm(request.POST)
-    else:
-        form = SearchForm()
+        if len(request.POST['searchpk']):
+            pkhidden = request.POST['searchpk']
+            form = SearchFormUser(request.POST, filter_pk=pkhidden)
+            fn_area = FunctionalArea.objects.filter(pk=int(pkhidden))
+            interest_area = f'{fn_area[0].parent.name}/{fn_area[0].name}'
+            if form.is_valid():
+                itemsearch = form.cleaned_data['item']
+        else:
+            messages.warning(request, "Seleccione un area")
     return render(
         request,
         'correspondence/search_user.html',
         context={
             'form': form,
             'rino_parameter': rino_search_user_param,
-            'functional_tree': functional_tree
+            'functional_tree': functional_tree,
+            'interest_area': interest_area
         })
 # autocomplete
 
@@ -324,6 +330,7 @@ class RadicateDetailView(DetailView):
             radicate=self.kwargs['pk'])
         objectPqrs = PQRS.objects.filter(
             principal_person=context['radicate'].person.pk)[0]
+        context['pqr_type'] = objectPqrs.pqr_type.name
         personrequest = objectPqrs.multi_request_person.all()
         if personrequest:
             context['personRequest'] = personrequest
