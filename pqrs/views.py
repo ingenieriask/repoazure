@@ -433,7 +433,3 @@ class RadicateInbox(ListView):
     model = PqrsContent
     context_object_name = 'pqrs'
     template_name = 'pqrs/radicate_inbox.html'
-<<<<<<< HEAD
-    
-=======
->>>>>>> develop
