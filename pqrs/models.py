@@ -9,20 +9,6 @@ from crum import get_current_user
 import uuid
 
 
-class Topic(BaseModel):
-    name = models.CharField(max_length=64)
-    description = models.TextField(max_length=128, null=False)
-    def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
-        user = get_current_user()
-        if user is not None:
-            if not self.pk:
-                self.user_creation = user
-            else:
-                self.user_updated = user
-        super(Topic, self).save()
-    def __str__(self):
-        return self.name
-
 class InterestGroup(BaseModel):
     name = models.CharField(max_length=64)
     description = models.TextField(max_length=128, null=False)
@@ -74,12 +60,8 @@ class PQRS(models.Model):
 
 # Create your models here.
 class PqrsContent(Radicate):
-    # person = models.ForeignKey(Person, on_delete=models.PROTECT, related_name='pqr_person')
-    # subject = models.CharField(max_length=256)
     data = models.TextField(max_length=2000)
     response_mode = models.ForeignKey(RequestResponse, on_delete=models.PROTECT, related_name='pqrs_response_mode')
-    # number = models.TextField(max_length=30, null=False, db_index=True)
-    topic = models.ForeignKey(Topic, on_delete=models.PROTECT, related_name='pqr_topic', null=False, blank= False, default=None)
     interestGroup = models.ForeignKey(InterestGroup, on_delete=models.PROTECT, related_name='pqr_interest_group', null=False, blank= False, default=None)
     subtype = models.ForeignKey(SubType, on_delete=models.PROTECT, related_name='pqr_type', null=True)
     pqrsobject = models.ForeignKey(PQRS,related_name='pqr_type_object', on_delete=models.PROTECT,blank=True, null=True)

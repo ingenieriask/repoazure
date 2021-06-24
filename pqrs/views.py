@@ -5,9 +5,8 @@ from requests.models import Request
 
 from correspondence.models import ReceptionMode, RadicateTypes, Radicate, AlfrescoFile
 from core.models import Attorny, AttornyType, Atttorny_Person, City, LegalPerson, Person, Office, DocumentTypes, PersonRequest, PersonType
-from pqrs.models import PQRS,Type, PqrsContent
+from pqrs.models import PQRS,Type, PqrsContent,Type, SubType
 from core.models import Attorny, AttornyType, Atttorny_Person, City, LegalPerson, Person, Office, DocumentTypes, PersonRequest, PersonType, RequestResponse
-from pqrs.models import PQRS,Type
 from pqrs.forms import LegalPersonForm, SearchPersonForm, PersonForm, PqrRadicateForm,PersonRequestForm,PersonFormUpdate,PersonRequestFormUpdate,PersonAttorny
 from core.utils_db import process_email,get_system_parameter
 from django.http import HttpResponseRedirect
@@ -56,29 +55,35 @@ def index(request):
             'private_applicant':private_applicant.value,
             })
 
-def send_email_person(request, pk):
+def send_email_person(request, pk, pqrs_type):
     unique_id = get_random_string(length=32)
-    add_to_redis(unique_id, pk, 'email')
+    toSave = json.dumps({
+        "personPk": pk,
+        "pqrs_type": pqrs_type
+    })
+    add_to_redis(unique_id, toSave, 'email')
     person = Person.objects.get(pk=pk)
     base_url =  "{0}://{1}/pqrs/validate-email-person/{2}".format(request.scheme, request.get_host(), unique_id)
     person.url = base_url
     process_email('EMAIL_PQR_VALIDATE_PERSON', person.email, person)
     return render(request, 'pqrs/search_person_answer_form.html', context={ 'msg': 'Se ha enviado un correo electrónico con la información para registrar el caso' })
 
-def validate_email_person(request, uuid):
-    pk = read_from_redis(uuid, 'email')
-    if pk is None:
+def validate_email_person(request, uuid_redis):
+    redis_pk = read_from_redis(uuid_redis, 'email')
+    if redis_pk is None:
         return render(request, 'pqrs/search_person_answer_form.html', context={ 'msg': 'El token ha caducado' })
-    
     else:
-        person = Person.objects.get(pk=pk)
+        pk = json.loads(redis_pk)
+        person = Person.objects.get(pk=pk["personPk"])
         if person is None:
             return render(request, 'pqrs/search_person_answer_form.html', context={ 'msg': 'El token es inválido' })
         else:
+            pqrsTy = get_object_or_404(Type, id=int(pk["pqrs_type"]))
+            pqrsObject=PQRS(pqr_type = pqrsTy,principal_person = person)
+            pqrsObject.save()
             # url = reverse('pqrs:edit_person', kwargs={'pk': person.pk})
-            url = reverse('pqrs:edit_person', kwargs={'uuid': uuid, 'pk': person.pk})
-            return HttpResponseRedirect(url)
-
+            # return HttpResponseRedirect(url)
+            return redirect('pqrs:edit_person',pqrsObject.uuid,person.pk)
 def search_person(request,pqrs_type,person_type):
     if person_type == 1:
         template_return = 'pqrs/search_person_form.html'
@@ -117,8 +122,9 @@ def create_pqr_multiple(request, pqrs):
     person = get_object_or_404(Person, id=int(pqrsoparent.principal_person.id))
 
     if request.method == 'POST':
-        form = PqrRadicateForm(request.POST)
-
+        print('ingresando')
+        form = PqrRadicateForm(pqrsoparent.pqr_type, request.POST)
+        print('form creado')
         if form.is_valid():
             instance = form.save(commit=False)
             instance.reception_mode = get_object_or_404(ReceptionMode, abbr='VIR')
@@ -129,7 +135,9 @@ def create_pqr_multiple(request, pqrs):
             # instance.creator = request.user.profile_user
             # instance.current_user = request.user.profile_user
             instance.person = person
-            radicate =  form.save()   
+            instance.pqrsobject = pqrsoparent
+            radicate =  form.save()
+            print('subtype', radicate.subtype)
             log(
                 user=request.user,
                 action="PQR_CREATED",
@@ -161,13 +169,15 @@ def create_pqr_multiple(request, pqrs):
 
             messages.success(request, "El radicado se ha creado correctamente")
             # url = reverse('correspondence:detail_radicate', kwargs={'pk': radicate.pk})
-            return redirect('pqrs:pqrs_finish_creation', radicate.pk)
+            # return redirect('pqrs:pqrs_finish_creation', radicate.pk)
+            url = reverse('pqrs:pqrs_finish_creation', kwargs={'pk': radicate.pk})
+            return HttpResponseRedirect(url)
         
         else:
-            logger.error("Invalid create radicate form")
+            logger.error("Invalid create pqr form", form.is_valid(), form.errors)
             return render(request, 'pqrs/create_pqr.html', context={'form': form, 'person': person})
     else:
-        form = PqrRadicateForm(initial={'person': person.id})
+        form = PqrRadicateForm(typePqr=pqrsoparent.pqr_type)
         form.person = person
 
     return render(request, 'pqrs/create_pqr.html', context={'form': form, 'person': person})
