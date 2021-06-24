@@ -1,22 +1,11 @@
 {% extends 'correspondence/main_template.html' %} {% load static %} {% block content %}
-<div
-  class="btn-group mb-3 position-relative"
-  role="group"
-  align="center"
-  aria-label="Button group with nested dropdown"
->
-  <a class="btn btn-dark" href="{% url 'correspondence:list_radicate' %}" role="button"
-    ><i data-feather="corner-down-left"></i>Listado</a
-  >
+<div class="btn-group mb-3 position-relative" role="group" align="center"
+  aria-label="Button group with nested dropdown">
+  <a class="btn btn-dark" href="{% url 'correspondence:list_radicate' %}" role="button"><i
+      data-feather="corner-down-left"></i>Listado</a>
   <div class="btn-group" role="group">
-    <button
-      id="btnGroupDrop1"
-      type="button"
-      class="btn btn-dark dropdown-toggle"
-      data-toggle="dropdown"
-      aria-haspopup="true"
-      aria-expanded="false"
-    >
+    <button id="btnGroupDrop1" type="button" class="btn btn-dark dropdown-toggle" data-toggle="dropdown"
+      aria-haspopup="true" aria-expanded="false">
       <i data-feather="activity"></i>
       Acciones
     </button>
@@ -94,8 +83,8 @@
                 {%for personR in personRequest%} {{personR.name }} {{personR.lasts_name}} {% endfor %}
               </p>
               {% endif %}
-                <i data-feather="list"></i>
-                <b>Tipo:</b><br />{{ radicate.type }}
+              <i data-feather="list"></i>
+              <b>Tipo:</b><br />{{ pqr_type}}
               </p>
             </div>
             <div class="col-md-4 text-sm">
@@ -120,10 +109,10 @@
 <div class="row">
   <div class="col-lg-6">
     {% for file in files %}
-        <div class="row m-3">
-        <img data-nodeid="{{ file.cmis_id | default_if_none:'' }}" class="img-fluid shadow" src="{% static
+    <div class="row m-3">
+      <img data-nodeid="{{ file.cmis_id | default_if_none:'' }}" class="img-fluid shadow" src="{% static
         'correspondence/assets/img/default.jpeg' %}">
-        </div>
+    </div>
     {% endfor %}
   </div>
   <div class="col-lg-6">
