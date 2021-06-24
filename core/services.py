@@ -9,6 +9,7 @@ import json
 import pandas as pd
 from datetime import date, timedelta
 from enum import Enum
+from fpdf import FPDF
 
 from core.models import AppParameter, ConsecutiveFormat, Consecutive, Country, FilingType, \
     Holiday, CalendarDay, CalendarDayType, Calendar
@@ -220,3 +221,26 @@ class CalendarService(object):
 
         except Exception as Err:
             logger.error(Err)
+
+
+def create_pqrs_pdf():
+    
+    params = [
+        ('NOMBRE DE LA DEPENDENCIA', ''),
+        ('No. Radicado', '20003203020301-1'),
+        ('Fecha', '2019-07-19 02:20:28 PM'),
+        ('Anexos', '1')
+    ]
+    
+    pdf = FPDF()
+    pdf.add_page()
+    pdf.set_font('Times', '', 16)
+    pdf.image('static/correspondence/assets/img/favicon.png', x=20, y=20, w=30, h=30)
+    for param in params:
+        pdf.cell(60,40, '')
+        pdf.cell(40, 10, param[0])
+        pdf.cell(40, 10, param[1])
+        pdf.ln(12)
+        
+    pdf.output('tuto1.pdf', 'F')
+    
