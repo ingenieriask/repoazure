@@ -193,6 +193,8 @@ class LegalPerson(PersonBase):
     document_company_number = models.CharField(
         max_length=25, null=True, unique=True, db_index=True)
     representative = models.CharField(max_length=256, null=True, blank=True)
+    document_type_company = models.ForeignKey(
+        DocumentTypes, on_delete=models.PROTECT, null=True, blank=True, default=3)
 
     def __str__(self):
         return self.company_name

@@ -330,6 +330,7 @@ class RadicateDetailView(DetailView):
             radicate=self.kwargs['pk'])
         objectPqrs = PQRS.objects.filter(
             principal_person=context['radicate'].person.pk)[0]
+        context['pqr_type'] = objectPqrs.pqr_type.name
         personrequest = objectPqrs.multi_request_person.all()
         if personrequest:
             context['personRequest'] = personrequest
