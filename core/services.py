@@ -12,6 +12,7 @@ from enum import Enum
 from fpdf import FPDF
 from barcode import EAN13
 from barcode.writer import ImageWriter
+import os
 
 from core.models import AppParameter, ConsecutiveFormat, Consecutive, Country, FilingType, \
     Holiday, CalendarDay, CalendarDayType, Calendar
@@ -241,7 +242,7 @@ class PdfCreationService(object):
         
         pdf = FPDF()
         pdf.add_page()
-        pdf.set_font('Courier', '', 16)
+        pdf.set_font('Courier', '', 14)
         pdf.image('static/correspondence/assets/img/favicon.png', x=20, y=20, w=30, h=30)
         for param in params:
             pdf.cell(60,40, '')
@@ -251,6 +252,7 @@ class PdfCreationService(object):
             pdf.ln(11)
             
         my_code = EAN13(pqrs.number, writer=ImageWriter())
-        pdf.image(my_code.save("new_code1"), x=10, y=80, w=200, h=40)
+        pdf.image(my_code.save("media/temp/new_code1"), x=0, y=80, w=220, h=40)
+        os.remove('media/temp/new_code1.png')
         pdf.output('tuto1.pdf', 'F')
     
