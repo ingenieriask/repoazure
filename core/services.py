@@ -10,8 +10,6 @@ import pandas as pd
 from datetime import date, timedelta
 from enum import Enum
 from fpdf import FPDF
-from barcode import EAN13
-from barcode.writer import ImageWriter
 import os
 
 from core.models import AppParameter, ConsecutiveFormat, Consecutive, Country, FilingType, \
@@ -236,7 +234,7 @@ class PdfCreationService(object):
         params = [
             ('NOMBRE DE LA DEPENDENCIA', ''),
             ('No. Radicado', pqrs.number),
-            ('Fecha', pqrs.date_radicated.strftime('%Y-%m-%d %H:%M:%S')),
+            ('Fecha', pqrs.date_radicated.strftime('%Y-%m-%d %I:%M:%S %p')),
             ('Anexos', annexes)
         ]
         
@@ -251,8 +249,8 @@ class PdfCreationService(object):
             pdf.cell(40, 10, param[1])
             pdf.ln(11)
             
-        my_code = EAN13(pqrs.number, writer=ImageWriter())
-        pdf.image(my_code.save("media/temp/new_code1"), x=0, y=80, w=220, h=40)
-        os.remove('media/temp/new_code1.png')
-        pdf.output('tuto1.pdf', 'F')
+        pdf.add_font('Barcode', '', 'static/correspondence/assets/fonts/barcode_font/BarcodeFont.ttf', uni=True)
+        pdf.set_font('Barcode', '', 120)
+        pdf.cell(200, 80, pqrs.number, align='C')
+        #pdf.output('tuto1.pdf', 'F')
     
