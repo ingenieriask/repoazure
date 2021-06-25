@@ -9,7 +9,7 @@ from core.models import Attorny, AttornyType, Atttorny_Person, City, LegalPerson
 from pqrs.models import PQRS,Type, PqrsContent,Type, SubType
 from core.models import Attorny, AttornyType, Atttorny_Person, City, LegalPerson, Person, Office, DocumentTypes, PersonRequest, PersonType, RequestResponse
 from pqrs.forms import LegalPersonForm, SearchPersonForm, PersonForm, PqrRadicateForm,PersonRequestForm,PersonFormUpdate,PersonRequestFormUpdate,PersonAttorny
-from core.utils_db import process_email,get_system_parameter
+from core.utils_db import process_email,get_system_parameter, get_json_system_parameter
 from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404, render
 from django.urls import reverse
@@ -473,3 +473,15 @@ class PqrDetailProcessView(DetailView):
                 person=context['radicate'].person.pk)[0]
             context['personAttorny'] = personAttorny
         return context
+
+
+def procedure_conclusion(request):
+    
+    procedure_conclusion_param = get_json_system_parameter('PROCEDURE_CONCLUSION')
+    template = request.GET['template']
+    view_name = request.GET['redirect']
+    context = {
+        'procedure_conclusion': procedure_conclusion_param,
+        'url' : template+':'+view_name
+    }
+    return render(request, 'pqrs/conclusion.html', context)

@@ -27,4 +27,5 @@ urlpatterns = [
     path('radicate/inbox/', views.RadicateInbox.as_view(), name='radicate_inbox'),
     path('radicate/my-inbox/', views.RadicateMyInbox.as_view(), name='radicate_my_inbox'),
     path('radicate/<int:pk>/', views.PqrDetailProcessView.as_view(), name="detail_pqr"),
+    path('conclusion/', views.procedure_conclusion, name='conclusion'),
 ]

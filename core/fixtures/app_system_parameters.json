@@ -86,5 +86,13 @@
       "name": "RINO_CORRESPONDENCE_RETURN_TO_LAST_USER",
       "value": "mensaje para devolver al anterior usuario"
     }
+  },
+  {
+    "model": "core.systemparameter",
+    "pk": 12,
+    "fields": {
+      "name": "PROCEDURE_CONCLUSION",
+      "value": "{\"title\": \"<h1>TRÁMITE FINALIZADO</h1> <br><hr>\", \"body\": \"Señor(a), Muchas gracias por realizar su trámite con nosotros\"}"
+    }
   }
 ]

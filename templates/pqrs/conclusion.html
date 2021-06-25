@@ -1,0 +1,20 @@
+{% extends 'pqrs/template.html' %}
+
+{% block content %}
+{% load pqrs_extras %}
+
+  <div class="card mb-4">
+      <div class="card-body">
+        <div class="text-center">
+            <p>{{ procedure_conclusion.title|safe }}</p>
+            <br>
+            <p>{{ procedure_conclusion.body|safe }}</p>
+        </div>
+        <div class="mt-4 text-center">
+            <a class="btn btn-primary" href={% url url %}>
+                Aceptar
+            </a>
+        <div>
+      </div>
+  </div>
+{% endblock %}
