@@ -78,5 +78,13 @@
       "name": "RINO_CORRESPONDENCE_SEARCH_USER",
       "value": "mensaje para buscar usuario"
     }
+  },
+  {
+    "model": "core.systemparameter",
+    "pk": 11,
+    "fields": {
+      "name": "RINO_CORRESPONDENCE_RETURN_TO_LAST_USER",
+      "value": "mensaje para devolver al anterior usuario"
+    }
   }
 ]

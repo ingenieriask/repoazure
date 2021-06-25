@@ -5,7 +5,7 @@ from django.urls import reverse
 from django.conf import settings
 from crum import get_current_user
 from core.models import Office, BaseModel, UserProfileInfo, Person
-
+from django.contrib.auth.models import User
 
 # Create your models here.
 
@@ -61,10 +61,11 @@ class Radicate(models.Model):
     observation = models.TextField(max_length=256, null=True)
     type = models.ForeignKey(RadicateTypes, on_delete=models.CASCADE, related_name='radicate_type', null=False, blank=False)
     date_radicated = models.DateTimeField(default=datetime.now, db_index=True)
-    creator = models.ForeignKey(UserProfileInfo, on_delete=models.CASCADE, related_name='radicates_creator', blank=True, null=True)
+    creator = models.ForeignKey(User, on_delete=models.CASCADE, related_name='radicates_creator', blank=True, null=True)
     record = models.ForeignKey('Record', on_delete=models.CASCADE, related_name='radicates', blank=True, null=True)
     person = models.ForeignKey(Person, on_delete=models.CASCADE, related_name='radicates_person', default=False)
-    current_user = models.ForeignKey(UserProfileInfo, on_delete=models.CASCADE, related_name='radicates_user', blank=True, null=True)
+    current_user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='radicates_user', blank=True, null=True)
+    last_user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='radicates_last_user', blank=True, null=True)
     reception_mode = models.ForeignKey(ReceptionMode, on_delete=models.CASCADE, null=False, blank=False)
     use_parent_address = models.BooleanField(default=False)
     office = models.ForeignKey(Office, on_delete=models.CASCADE, related_name='radicates_office', default='1')

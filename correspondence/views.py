@@ -1,8 +1,9 @@
 from correspondence.models import AlfrescoFile, Radicate, Record, Template
-from core.models import FunctionalArea, Person, Atttorny_Person
-from pqrs.models import PQRS
+from core.models import FunctionalArea, Person, Atttorny_Person, UserProfileInfo, FunctionalAreaUser
+from pqrs.models import PQRS, PqrsContent
 from correspondence.forms import RadicateForm, SearchForm, UserForm, UserProfileInfoForm, PersonForm, RecordForm, \
-    SearchContentForm, ChangeCurrentUserForm, ChangeRecordAssignedForm, LoginForm, TemplateForm, SearchFormUser
+    SearchContentForm, ChangeCurrentUserForm, ChangeRecordAssignedForm, LoginForm, TemplateForm, AssignToUserForm, ReturnToLastUserForm, ReportToUserForm
+from django.contrib.auth.models import User
 from datetime import datetime
 from django.conf import settings
 from django.shortcuts import get_list_or_404, get_object_or_404, render
@@ -144,12 +145,105 @@ def search_names(request):
 
     return render(request, 'correspondence/search.html', context={'form': form, 'list': qs, 'person_form': person_form})
 
+def return_to_last_user(request, radicate):
 
-def search_user(request):
-    rino_search_user_param = get_system_parameter(
-        'RINO_CORRESPONDENCE_SEARCH_USER').value
+    pqrs = PqrsContent.objects.get(pk=radicate)
+    if request.method == 'POST':
+        form = ReturnToLastUserForm(request.POST)
+        if form.is_valid():
+            user = pqrs.last_user
+            pqrs.last_user = pqrs.current_user
+            pqrs.current_user = user
+            pqrs.pqrsobject.status = PQRS.Status.RETURNED
+
+            if pqrs.observation == None:
+                pqrs.observation = ''
+            pqrs.observation = pqrs.observation + form.cleaned_data['observations']
+
+            log(
+                user=request.user,
+                action="PQR_RETURNED",
+                obj=pqrs,
+                extra={
+                    "number": pqrs.number,
+                    "message": "El radicado %s ha sido retornado a %s" % (pqrs.number, user.username)
+                }
+            )
+            pqrs.save()
+            pqrs.pqrsobject.save()
+        return HttpResponseRedirect(reverse('pqrs:radicate_inbox'))
+
+    if request.method == 'GET':
+        rino_search_user_param = get_system_parameter('RINO_CORRESPONDENCE_RETURN_TO_LAST_USER').value
+        form = ReturnToLastUserForm(request.GET)
+
+        return render(
+            request,
+            'correspondence/return_to_last_user.html',
+            context={
+                'form': form,
+                'rino_parameter': rino_search_user_param,
+                'last_user': pqrs.last_user.username + ' ' + pqrs.last_user.first_name + ' ' + pqrs.last_user.last_name,
+                'radicate': radicate
+            })
+
+def assign_user_area(request, radicate, area):
+
+    if request.method == 'POST':
+        form = AssignToUserForm(request.POST, filter_pk=area)
+        if form.is_valid():
+            itemsearch = form.cleaned_data['item']
+            pqrs = PqrsContent.objects.get(pk=radicate)
+            user = User.objects.get(pk = itemsearch.user.pk)
+            pqrs.last_user = pqrs.current_user
+            pqrs.current_user = user
+            pqrs.pqrsobject.status = PQRS.Status.ASSIGNED
+
+            if pqrs.observation == None:
+                pqrs.observation = ''
+            pqrs.observation = pqrs.observation + form.cleaned_data['observations']
+
+            log(
+                user=request.user,
+                action="PQR_ASSIGNED",
+                obj=pqrs,
+                extra={
+                    "number": pqrs.number,
+                    "message": "El radicado %s ha sido asignado a %s" % (pqrs.number, user.username)
+                }
+            )
+            pqrs.save()
+            pqrs.pqrsobject.save()
+        return HttpResponseRedirect(reverse('pqrs:radicate_inbox'))
+
+    if request.method == 'GET':
+        rino_search_user_param = get_system_parameter('RINO_CORRESPONDENCE_SEARCH_USER').value
+        functional_tree = []
+        interest_area = ''
+        for item, info in FunctionalArea.get_annotated_list():
+            temp = False
+            if info['level'] != 0 and int(item.parent.get_depth()+info['level']) > item.get_depth():
+                temp = True
+            functional_tree.append((item, info, temp))
+        form = AssignToUserForm(request.GET, filter_pk=area)
+        fn_area = FunctionalArea.objects.filter(pk=area)
+        interest_area = f'{fn_area[0].parent.name}/{fn_area[0].name}'
+        
+
+        return render(
+            request,
+            'correspondence/assign_user.html',
+            context={
+                'form': form,
+                'rino_parameter': rino_search_user_param,
+                'functional_tree': functional_tree,
+                'interest_area': interest_area,
+                'radicate': radicate
+            })
+
+def assign_user(request, radicate):
+    rino_search_user_param = get_system_parameter('RINO_CORRESPONDENCE_SEARCH_USER').value
     functional_tree = []
-    form = SearchFormUser(None, filter_pk=False)
     interest_area = ''
     for item, info in FunctionalArea.get_annotated_list():
         temp = False
@@ -157,25 +251,127 @@ def search_user(request):
             temp = True
         functional_tree.append((item, info, temp))
 
-    if request.method == 'POST':
-        if len(request.POST['searchpk']):
-            pkhidden = request.POST['searchpk']
-            form = SearchFormUser(request.POST, filter_pk=pkhidden)
-            fn_area = FunctionalArea.objects.filter(pk=int(pkhidden))
-            interest_area = f'{fn_area[0].parent.name}/{fn_area[0].name}'
-            if form.is_valid():
-                itemsearch = form.cleaned_data['item']
-        else:
-            messages.warning(request, "Seleccione un area")
     return render(
         request,
-        'correspondence/search_user.html',
+        'correspondence/assign_user_area.html',
         context={
-            'form': form,
             'rino_parameter': rino_search_user_param,
             'functional_tree': functional_tree,
-            'interest_area': interest_area
+            'interest_area': interest_area,
+            'radicate': radicate
         })
+
+
+def report_to_user(request, radicate):
+    rino_search_user_param = get_system_parameter('RINO_CORRESPONDENCE_SEARCH_USER').value
+    functional_tree = []
+    interest_area = ''
+    for item, info in FunctionalArea.get_annotated_list():
+        temp = False
+        if info['level'] != 0 and int(item.parent.get_depth()+info['level']) > item.get_depth():
+            temp = True
+        functional_tree.append((item, info, temp))
+
+    return render(
+        request,
+        'correspondence/report_to_user_area.html',
+        context={
+            'rino_parameter': rino_search_user_param,
+            'functional_tree': functional_tree,
+            'interest_area': interest_area,
+            'radicate': radicate
+        })
+
+def users_by_area(request):
+    filter_pk = request.GET.get('filter_pk')
+    if request.is_ajax and request.method == "GET":  
+        users = [{
+            'pk': u.pk,
+            'username': u.user.username,
+            'first_name': u.user.first_name,
+            'last_name': u.user.last_name
+            } for u in FunctionalAreaUser.objects.filter(functional_area=filter_pk)]
+        # return FunctionalAreaUser.objects.filter(functional_area=filter_pk)
+        return JsonResponse(users, safe=False, status=200)
+    return JsonResponse({}, status=400)
+
+def report_to_user_area(request, radicate, area):
+    
+    if request.method == 'POST':
+        form = ReportToUserForm(request.POST, filter_pk=area)
+
+        print('iniciando post', request.POST, 'finalizando post' )
+
+        if 'selectedUsersInput' in form.data:
+            print('selectedUsersInput', form.data['selectedUsersInput'])
+
+        print('otro intento', request.POST.get('selectedUsersInput'))
+
+        if form.is_valid():
+            itemsearch = form.cleaned_data['item']
+            pqrs = PqrsContent.objects.get(pk=radicate)
+            user = User.objects.get(pk = itemsearch.user.pk)
+            pqrs.last_user = pqrs.current_user
+            pqrs.current_user = user
+            pqrs.pqrsobject.status = PQRS.Status.ASSIGNED
+
+            if 'selectedUsersInput' in form.data:
+                print('selectedUsersInput', form.data['selectedUsersInput'])
+
+            print('otro intento', request.POST.get('selectedUsersInput'))
+
+            if pqrs.observation == None:
+                pqrs.observation = ''
+            pqrs.observation = pqrs.observation + form.cleaned_data['observations']
+
+            log(
+                user=request.user,
+                action="PQR_ASSIGNED",
+                obj=pqrs,
+                extra={
+                    "number": pqrs.number,
+                    "message": "El radicado %s ha sido asignado a %s" % (pqrs.number, user.username)
+                }
+            )
+            pqrs.save()
+            pqrs.pqrsobject.save()
+        return HttpResponseRedirect(reverse('pqrs:radicate_inbox'))
+
+    if request.method == 'GET':
+        rino_search_user_param = get_system_parameter('RINO_CORRESPONDENCE_SEARCH_USER').value
+        functional_tree = []
+        interest_area = ''
+        for item, info in FunctionalArea.get_annotated_list():
+            temp = False
+            if info['level'] != 0 and int(item.parent.get_depth()+info['level']) > item.get_depth():
+                temp = True
+            functional_tree.append((item, info, temp))
+        form = AssignToUserForm(request.GET, filter_pk=area)
+        people_added = []
+        if 'people_added' in form.data:
+            people_added = form.data['people_added']
+
+        if 'selectedUsersInput' in form.data:
+            print('selectedUsersInput', form.data['selectedUsersInput'])
+
+        print('people_added', people_added)
+        fn_area = FunctionalArea.objects.filter(pk=area)
+        selectable_users = FunctionalAreaUser.objects.filter(functional_area=area)
+        interest_area = f'{fn_area[0].parent.name}/{fn_area[0].name}'
+
+        return render(
+            request,
+            'correspondence/report_to_user.html',
+            context={
+                'form': form,
+                'rino_parameter': rino_search_user_param,
+                'functional_tree': functional_tree,
+                'interest_area': interest_area,
+                'people_added': people_added,
+                'selectable_users': selectable_users,
+                'radicate': radicate
+            })
+
 # autocomplete
 
 

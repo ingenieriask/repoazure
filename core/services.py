@@ -144,7 +144,7 @@ class CalendarService(object):
 
     @classmethod
     def get_remaining_business_days(cls, request_day, max_response_days):
-        return max_response_days - cls.get_business_days_since(cls, request_day) 
+        return max_response_days - cls.get_business_days_since(request_day) 
     
     @classmethod
     def get_business_days_since(cls, request_day):

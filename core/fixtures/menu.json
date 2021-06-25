@@ -94,7 +94,7 @@
     "pk": 9,
     "fields": {
       "parent": 5,
-      "name": "Bandeja de Usuario",
+      "name": "Recibidos",
       "description": "Bandeja de Usuario",
       "url_name": "pqrs:radicate_inbox",
       "sib_order": 0,
@@ -102,6 +102,18 @@
       "required_permissions": [
         10013
       ]
+    }
+  },
+  {
+    "model": "core.menu",
+    "pk": 10,
+    "fields": {
+      "parent": 5,
+      "name": "Mis tareas",
+      "description": "Bandeja de Usuario",
+      "url_name": "pqrs:radicate_my_inbox",
+      "sib_order": 0,
+      "icon": "file-plus" 
     }
   }
 ]

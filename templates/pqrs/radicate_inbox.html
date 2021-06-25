@@ -1,4 +1,4 @@
-{% extends 'pqrs/template.html' %}
+{% extends 'correspondence/main_template.html' %}
 
 {% block content %}
 {% load pqrs_extras %}
@@ -33,16 +33,18 @@
                 {% else %}
                     <td style="text-align: center;">{{ pqrs.person.name }}</td>
                 {% endif %}
-                <td style="text-align: center;">{{ pqrs.type }} - {{ pqrs.subtype.name }}</td>
+                <td style="text-align: center;">{{ pqrs.subtype.type.name }} - {{ pqrs.subtype.name }}</td>
                 <td style="text-align: center;">
                     <svg height="8mm" width="8mm">
                       <circle cx="4mm" cy="4mm" r="3mm" style="fill: {{ pqrs.subtype.alerts.all|get_color_traffic_light:pqrs.date_radicated }};" />
                     </svg>
                     {{ pqrs.date_radicated|get_missing_days:pqrs.subtype.max_response_days }}    
                 </td>
-                <td style="text-align: center;">RADICADO</td>
+                <td style="text-align: center;">{{ pqrs.pqrsobject.get_status_str }}</td>
                 <td style="text-align: center;">
-                    <i class="fas fa-plus-circle fa-2x" style="color: #0000ff;"></i>
+                    <a href="{% url 'pqrs:detail_pqr' pk=pqrs.pk  %}" role="button">
+                      <i class="fas fa-plus-circle fa-2x" style="color: #0000ff;"></i>
+                    </a>
                 </td>
               </tr>
               {% endfor %}

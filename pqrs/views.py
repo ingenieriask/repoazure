@@ -1,4 +1,5 @@
 import uuid
+from django.db.models import query
 from django.db.models.expressions import Value
 from django.shortcuts import redirect, render
 from requests.models import Request
@@ -140,10 +141,7 @@ def create_pqr_multiple(request, pqrs):
             instance.type = get_object_or_404(RadicateTypes, abbr='PQR')
             instance.number = RecordCodeService.get_consecutive(
                 RecordCodeService.Type.INPUT)
-            instance.office = get_object_or_404(Office, abbr='PQR')
             instance.response_mode = person.request_response
-            # instance.creator = request.user.profile_user
-            # instance.current_user = request.user.profile_user
             instance.person = person
             instance.pqrsobject = pqrsoparent
             radicate =  form.save()
@@ -440,3 +438,38 @@ class RadicateInbox(ListView):
     model = PqrsContent
     context_object_name = 'pqrs'
     template_name = 'pqrs/radicate_inbox.html'
+
+    def get_queryset(self):
+        queryset = super(RadicateInbox, self).get_queryset()
+        queryset = queryset.filter(subtype__isnull=False, pqrsobject__status=PQRS.Status.CREATED)
+        return queryset
+
+class RadicateMyInbox(ListView):
+    model = PqrsContent
+    context_object_name = 'pqrs'
+    template_name = 'pqrs/radicate_inbox.html'
+
+    def get_queryset(self):
+        queryset = super(RadicateMyInbox, self).get_queryset()
+        queryset = queryset.filter(current_user = self.request.user, subtype__isnull=False)
+        return queryset
+
+class PqrDetailProcessView(DetailView):
+    model = Radicate
+    template_name = 'pqrs/pqr_detail_process.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(PqrDetailProcessView, self).get_context_data(**kwargs)
+        context['logs'] = Log.objects.all().filter(object_id=self.kwargs['pk'])
+        # context['file'] = AlfrescoFile.objects.all().filter(
+        #     radicate=self.kwargs['pk'])
+        objectPqrs = PQRS.objects.filter(
+            principal_person=context['radicate'].person.pk)[0]
+        personrequest = objectPqrs.multi_request_person.all()
+        if personrequest:
+            context['personRequest'] = personrequest
+        if context['radicate'].person.attornyCheck:
+            personAttorny = Atttorny_Person.objects.filter(
+                person=context['radicate'].person.pk)[0]
+            context['personAttorny'] = personAttorny
+        return context

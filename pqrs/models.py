@@ -6,6 +6,7 @@ from django.contrib.postgres.fields import ArrayField
 from core.models import RequestResponse, BaseModel, Person,PersonRequest,Alerts
 from correspondence.models import Radicate
 from crum import get_current_user
+from django.utils.translation import gettext_lazy as _
 import uuid
 
 
@@ -53,10 +54,19 @@ class SubType(models.Model):
             raise Exception("max_response_days should be lower or equal to type.max_response_days")
 
 class PQRS(models.Model):
+    class Status(models.TextChoices):
+        CREATED = 'CR', _('Recibida')
+        ASSIGNED = 'AS', _('Asignada')
+        RETURNED = 'RT', _('Devuelto')
+        
     uuid = models.UUIDField(editable=False, default=uuid.uuid4, unique=True)
     pqr_type = models.ForeignKey(Type,on_delete=models.PROTECT,related_name='pqrs_object_type',null =True)
     principal_person = models.ForeignKey(Person, on_delete=models.PROTECT,related_name='pqrs_object_principal_person',null=True)
     multi_request_person = models.ManyToManyField(PersonRequest, related_name="multi_pqrs_request_person")
+    status = models.CharField(max_length=2, choices=Status.choices, default=Status.CREATED)
+
+    def get_status_str(self):
+        return self.Status(self.status).label
 
 # Create your models here.
 class PqrsContent(Radicate):
