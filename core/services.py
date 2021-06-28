@@ -1,5 +1,6 @@
 from django.core.mail.backends.smtp import EmailBackend
 from django.core.mail import EmailMessage
+from .utils_services import PDF
 import logging
 from datetime import datetime
 from django.db import transaction
@@ -9,8 +10,7 @@ import json
 import pandas as pd
 from datetime import date, timedelta
 from enum import Enum
-from fpdf import FPDF
-import os
+
 
 from core.models import AppParameter, ConsecutiveFormat, Consecutive, Country, FilingType, \
     Holiday, CalendarDay, CalendarDayType, Calendar
@@ -237,32 +237,63 @@ class CalendarService(object):
 
 class PdfCreationService(object):
 
+    
     @classmethod
-    def create_pqrs_pdf(cls, pqrs):
-
-        annexes = pqrs.annexes if pqrs.annexes != None else '0'
-
-        params = [
-            ('NOMBRE DE LA DEPENDENCIA', ''),
-            ('No. Radicado', pqrs.number),
-            ('Fecha', pqrs.date_radicated.strftime('%Y-%m-%d %I:%M:%S %p')),
-            ('Anexos', annexes)
-        ]
-
-        pdf = FPDF()
+    def create_pqrs_confirmation_label(cls, pqrs):
+        
+        # Create pdf instance        
+        pdf = PDF()
+        # Add page to pdf
         pdf.add_page()
-        pdf.set_font('Courier', '', 14)
-        pdf.image('static/correspondence/assets/img/favicon.png',
-                  x=20, y=20, w=30, h=30)
-        for param in params:
-            pdf.cell(60, 40, '')
-            pdf.cell(40, 10, param[0])
-            pdf.cell(10, 10, '')
-            pdf.cell(40, 10, param[1])
-            pdf.ln(11)
+        initial_x_pos = 30.0
+        initial_y_pos = 50.0
+        sizing_factor = 2
+        border = 0
+        # Create label base in header
+        pdf.custom_header(pqrs, initial_x_pos, initial_y_pos, sizing_factor, border)
+        # Save pdf file
+        #pdf.output('label.pdf', 'F')
 
-        pdf.add_font(
-            'Barcode', '', 'static/correspondence/assets/fonts/barcode_font/BarcodeFont.ttf', uni=True)
-        pdf.set_font('Barcode', '', 120)
-        pdf.cell(200, 80, pqrs.number, align='C')
-        #pdf.output('tuto1.pdf', 'F')
+
+    @classmethod
+    def create_pqrs_summary(cls, pqrs):       
+         
+        # Create pdf instance    
+        pdf = PDF()
+        # Add page to pdf
+        pdf.add_page()
+        # Define left margin for the document
+        pdf.set_left_margin(20.0)
+        initial_x_pos = 100.0
+        initial_y_pos = 12.0
+        # Create custom doc header
+        pdf.custom_header(pqrs, initial_x_pos, initial_y_pos, 1, 1)
+        # Insert information inside doc body
+        pdf.set_xy(20.0, initial_y_pos+60.0)
+        pdf.set_font('Arial', '', 12)
+        pdf.multi_cell(0, 5, 'CIUDAD - '+pqrs.date_radicated.strftime('%Y-%m-%d')+'\nTRATAMIENTO\n')
+        pdf.set_font('Arial', 'B', 12)
+        pdf.multi_cell(0, 5, 'NOMBRES DESTINATARIO\n')
+        pdf.set_font('Arial', '', 12)
+        pdf.multi_cell(0, 5, 'CARGO\nRAZÓN SOCIAl\nDIRECCIÓN\nEMAIL\nMUNICIPIO - DEPARTAMENTO\n\n')
+        pdf.set_font('Arial', 'B', 12)
+        pdf.cell(20, 5, 'ASUNTO: ')
+        pdf.set_font('Arial', '', 12)
+        pdf.multi_cell(0,5, pqrs.subject + '\n\n')
+        pdf.multi_cell(0,5, pqrs.data + '\n\n\n\n\n\nCordialmente,\n\n\n\nDATOS DE LA PERSONA QUE FIRMA\n')
+        if pqrs.pqrsobject.principal_person.is_anonymous:
+            pdf.multi_cell(0,5, 'ANÓNIMO\n\n')
+        else:
+            pdf.multi_cell(0,5, pqrs.pqrsobject.principal_person.name+' '+pqrs.pqrsobject.principal_person.lasts_name+
+                       '\nCARGO\n\n')
+        pdf.set_font('Arial', '', 7)
+        pdf.multi_cell(0, 5, 'Anexo (s): \n\n')
+        pdf.set_font('Arial', '', 12)
+        
+        for annex in pqrs.files.all():
+            pdf.multi_cell(0, 5, '      - ' + annex.name)
+        # Create custom doc footer
+        pdf.custom_footer()
+        # Save pdf file
+        #pdf.output('summary.pdf', 'F')
+    

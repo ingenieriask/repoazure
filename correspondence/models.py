@@ -82,6 +82,8 @@ class Radicate(models.Model):
 
 class AlfrescoFile(models.Model):
     cmis_id = models.TextField(max_length=128, null=True)
+    name = models.CharField(max_length=256, null=True)
+    extension = models.CharField(max_length=4, null=True)
     radicate = models.ForeignKey(Radicate, on_delete=models.PROTECT, related_name='files')
     
     def __str__(self):
