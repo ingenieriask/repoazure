@@ -1,5 +1,5 @@
 from correspondence.models import AlfrescoFile, Radicate, Record, Template
-from core.models import FunctionalArea, Person, Atttorny_Person, UserProfileInfo, FunctionalAreaUser
+from core.models import FunctionalArea, NotificationsService, Person, Atttorny_Person, UserProfileInfo, FunctionalAreaUser
 from pqrs.models import PQRS, PqrsContent
 from correspondence.forms import RadicateForm, SearchForm, UserForm, UserProfileInfoForm, PersonForm, RecordForm, \
     SearchContentForm, ChangeCurrentUserForm, ChangeRecordAssignedForm, LoginForm, TemplateForm, AssignToUserForm, ReturnToLastUserForm, ReportToUserForm
@@ -32,7 +32,7 @@ import xlsxwriter
 from pinax.eventlog.models import log, Log
 from django.core.files import File
 
-from core.services import MailService
+from core.services import Notifications
 from correspondence.services import ECMService
 
 logger = logging.getLogger(__name__)
@@ -145,6 +145,7 @@ def search_names(request):
 
     return render(request, 'correspondence/search.html', context={'form': form, 'list': qs, 'person_form': person_form})
 
+
 def return_to_last_user(request, radicate):
 
     pqrs = PqrsContent.objects.get(pk=radicate)
@@ -158,7 +159,8 @@ def return_to_last_user(request, radicate):
 
             if pqrs.observation == None:
                 pqrs.observation = ''
-            pqrs.observation = pqrs.observation + form.cleaned_data['observations']
+            pqrs.observation = pqrs.observation + \
+                form.cleaned_data['observations']
 
             log(
                 user=request.user,
@@ -174,7 +176,8 @@ def return_to_last_user(request, radicate):
         return HttpResponseRedirect(reverse('pqrs:radicate_inbox'))
 
     if request.method == 'GET':
-        rino_search_user_param = get_system_parameter('RINO_CORRESPONDENCE_RETURN_TO_LAST_USER').value
+        rino_search_user_param = get_system_parameter(
+            'RINO_CORRESPONDENCE_RETURN_TO_LAST_USER').value
         form = ReturnToLastUserForm(request.GET)
 
         return render(
@@ -187,6 +190,7 @@ def return_to_last_user(request, radicate):
                 'radicate': radicate
             })
 
+
 def assign_user_area(request, radicate, area):
 
     if request.method == 'POST':
@@ -194,14 +198,15 @@ def assign_user_area(request, radicate, area):
         if form.is_valid():
             itemsearch = form.cleaned_data['item']
             pqrs = PqrsContent.objects.get(pk=radicate)
-            user = User.objects.get(pk = itemsearch.user.pk)
+            user = User.objects.get(pk=itemsearch.user.pk)
             pqrs.last_user = pqrs.current_user
             pqrs.current_user = user
             pqrs.pqrsobject.status = PQRS.Status.ASSIGNED
 
             if pqrs.observation == None:
                 pqrs.observation = ''
-            pqrs.observation = pqrs.observation + form.cleaned_data['observations']
+            pqrs.observation = pqrs.observation + \
+                form.cleaned_data['observations']
 
             log(
                 user=request.user,
@@ -217,7 +222,8 @@ def assign_user_area(request, radicate, area):
         return HttpResponseRedirect(reverse('pqrs:radicate_inbox'))
 
     if request.method == 'GET':
-        rino_search_user_param = get_system_parameter('RINO_CORRESPONDENCE_SEARCH_USER').value
+        rino_search_user_param = get_system_parameter(
+            'RINO_CORRESPONDENCE_SEARCH_USER').value
         functional_tree = []
         interest_area = ''
         for item, info in FunctionalArea.get_annotated_list():
@@ -228,7 +234,6 @@ def assign_user_area(request, radicate, area):
         form = AssignToUserForm(request.GET, filter_pk=area)
         fn_area = FunctionalArea.objects.filter(pk=area)
         interest_area = f'{fn_area[0].parent.name}/{fn_area[0].name}'
-        
 
         return render(
             request,
@@ -241,8 +246,10 @@ def assign_user_area(request, radicate, area):
                 'radicate': radicate
             })
 
+
 def assign_user(request, radicate):
-    rino_search_user_param = get_system_parameter('RINO_CORRESPONDENCE_SEARCH_USER').value
+    rino_search_user_param = get_system_parameter(
+        'RINO_CORRESPONDENCE_SEARCH_USER').value
     functional_tree = []
     interest_area = ''
     for item, info in FunctionalArea.get_annotated_list():
@@ -263,7 +270,8 @@ def assign_user(request, radicate):
 
 
 def report_to_user(request, radicate):
-    rino_search_user_param = get_system_parameter('RINO_CORRESPONDENCE_SEARCH_USER').value
+    rino_search_user_param = get_system_parameter(
+        'RINO_CORRESPONDENCE_SEARCH_USER').value
     functional_tree = []
     interest_area = ''
     for item, info in FunctionalArea.get_annotated_list():
@@ -282,25 +290,27 @@ def report_to_user(request, radicate):
             'radicate': radicate
         })
 
+
 def users_by_area(request):
     filter_pk = request.GET.get('filter_pk')
-    if request.is_ajax and request.method == "GET":  
+    if request.is_ajax and request.method == "GET":
         users = [{
             'pk': u.pk,
             'username': u.user.username,
             'first_name': u.user.first_name,
             'last_name': u.user.last_name
-            } for u in FunctionalAreaUser.objects.filter(functional_area=filter_pk)]
+        } for u in FunctionalAreaUser.objects.filter(functional_area=filter_pk)]
         # return FunctionalAreaUser.objects.filter(functional_area=filter_pk)
         return JsonResponse(users, safe=False, status=200)
     return JsonResponse({}, status=400)
 
+
 def report_to_user_area(request, radicate, area):
-    
+
     if request.method == 'POST':
         form = ReportToUserForm(request.POST, filter_pk=area)
 
-        print('iniciando post', request.POST, 'finalizando post' )
+        print('iniciando post', request.POST, 'finalizando post')
 
         if 'selectedUsersInput' in form.data:
             print('selectedUsersInput', form.data['selectedUsersInput'])
@@ -310,7 +320,7 @@ def report_to_user_area(request, radicate, area):
         if form.is_valid():
             itemsearch = form.cleaned_data['item']
             pqrs = PqrsContent.objects.get(pk=radicate)
-            user = User.objects.get(pk = itemsearch.user.pk)
+            user = User.objects.get(pk=itemsearch.user.pk)
             pqrs.last_user = pqrs.current_user
             pqrs.current_user = user
             pqrs.pqrsobject.status = PQRS.Status.ASSIGNED
@@ -322,7 +332,8 @@ def report_to_user_area(request, radicate, area):
 
             if pqrs.observation == None:
                 pqrs.observation = ''
-            pqrs.observation = pqrs.observation + form.cleaned_data['observations']
+            pqrs.observation = pqrs.observation + \
+                form.cleaned_data['observations']
 
             log(
                 user=request.user,
@@ -338,7 +349,8 @@ def report_to_user_area(request, radicate, area):
         return HttpResponseRedirect(reverse('pqrs:radicate_inbox'))
 
     if request.method == 'GET':
-        rino_search_user_param = get_system_parameter('RINO_CORRESPONDENCE_SEARCH_USER').value
+        rino_search_user_param = get_system_parameter(
+            'RINO_CORRESPONDENCE_SEARCH_USER').value
         functional_tree = []
         interest_area = ''
         for item, info in FunctionalArea.get_annotated_list():
@@ -356,7 +368,8 @@ def report_to_user_area(request, radicate, area):
 
         print('people_added', people_added)
         fn_area = FunctionalArea.objects.filter(pk=area)
-        selectable_users = FunctionalAreaUser.objects.filter(functional_area=area)
+        selectable_users = FunctionalAreaUser.objects.filter(
+            functional_area=area)
         interest_area = f'{fn_area[0].parent.name}/{fn_area[0].name}'
 
         return render(
@@ -418,12 +431,18 @@ def create_radicate(request, person):
             # TODO make an utility
 
             # TODO i16n and parameterizable
-            MailService.send_mail(
-                'Notificación RINO: recepción de radicado',
-                'Buenos días señor usuario.',
-                'rino@skillnet.com.co',
-                [instance.person.email]
-            )
+            notifications_validate = NotificationsService.objects.filter(
+                name="SEND_EMAIL")
+            notifications = notifications_validate[0].notifications.all()
+            for i in notifications:
+                # Select a Notifications to send mail
+                if i.name == "EMAIL_PQR_VALIDATE_PERSON":
+                    Notifications.send_mail(
+                        'Notificación RINO: recepción de radicado',
+                        'Buenos días señor usuario.',
+                        'rino@skillnet.com.co',
+                        [instance.person.email]
+                    )
 
             document_file = request.FILES['document_file']
             document_temp_file = NamedTemporaryFile()  # ? delete=True)
