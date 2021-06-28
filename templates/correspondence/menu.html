@@ -56,4 +56,8 @@
 
     {% endif %}
     {% endfor %}
+
+    {# {% if perms.auth.receive_external or perms.auth.edition %}<strong>{{ perms.auth.receive_external }} {{ perms.auth.edition }}</strong></strong>{% endif %} #}
+
+    {# {% if user.is_authenticated %}<strong>{{ user.get_short_name }}</strong>{% endif %} #}
 </div>
