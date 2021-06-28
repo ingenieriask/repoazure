@@ -217,34 +217,6 @@ def assign_user_area(request, radicate, area):
                     "message": "El radicado %s ha sido asignado a %s" % (pqrs.number, user.username)
                 }
             )
-            pqrs.save()
-            pqrs.pqrsobject.save()
-        return HttpResponseRedirect(reverse('pqrs:radicate_inbox'))
-
-    if request.method == 'GET':
-        rino_search_user_param = get_system_parameter(
-            'RINO_CORRESPONDENCE_SEARCH_USER').value
-        functional_tree = []
-        interest_area = ''
-        for item, info in FunctionalArea.get_annotated_list():
-            temp = False
-            if info['level'] != 0 and int(item.parent.get_depth()+info['level']) > item.get_depth():
-                temp = True
-            functional_tree.append((item, info, temp))
-        form = AssignToUserForm(request.GET, filter_pk=area)
-        fn_area = FunctionalArea.objects.filter(pk=area)
-        interest_area = f'{fn_area[0].parent.name}/{fn_area[0].name}'
-
-        return render(
-            request,
-            'correspondence/assign_user.html',
-            context={
-                'form': form,
-                'rino_parameter': rino_search_user_param,
-                'functional_tree': functional_tree,
-                'interest_area': interest_area,
-                'radicate': radicate
-            })
 
 
 def assign_user(request, radicate):
@@ -295,7 +267,7 @@ def users_by_area(request):
     filter_pk = request.GET.get('filter_pk')
     if request.is_ajax and request.method == "GET":
         users = [{
-            'pk': u.pk,
+            'pk': u.user.pk,
             'username': u.user.username,
             'first_name': u.user.first_name,
             'last_name': u.user.last_name
@@ -310,42 +282,25 @@ def report_to_user_area(request, radicate, area):
     if request.method == 'POST':
         form = ReportToUserForm(request.POST, filter_pk=area)
 
-        print('iniciando post', request.POST, 'finalizando post')
+        pqrs = PqrsContent.objects.get(pk=radicate)
+        users=''
+        for userPK in request.POST.getlist('selectedUsersInput'):
+            print('userPK', userPK, 'fin userPK')
+            user = User.objects.get(pk=userPK)
 
-        if 'selectedUsersInput' in form.data:
-            print('selectedUsersInput', form.data['selectedUsersInput'])
+            pqrs.reported_people.add(user)
+            users += user.username + ', '
 
-        print('otro intento', request.POST.get('selectedUsersInput'))
-
-        if form.is_valid():
-            itemsearch = form.cleaned_data['item']
-            pqrs = PqrsContent.objects.get(pk=radicate)
-            user = User.objects.get(pk=itemsearch.user.pk)
-            pqrs.last_user = pqrs.current_user
-            pqrs.current_user = user
-            pqrs.pqrsobject.status = PQRS.Status.ASSIGNED
-
-            if 'selectedUsersInput' in form.data:
-                print('selectedUsersInput', form.data['selectedUsersInput'])
-
-            print('otro intento', request.POST.get('selectedUsersInput'))
-
-            if pqrs.observation == None:
-                pqrs.observation = ''
-            pqrs.observation = pqrs.observation + \
-                form.cleaned_data['observations']
-
-            log(
-                user=request.user,
-                action="PQR_ASSIGNED",
-                obj=pqrs,
-                extra={
-                    "number": pqrs.number,
-                    "message": "El radicado %s ha sido asignado a %s" % (pqrs.number, user.username)
-                }
-            )
-            pqrs.save()
-            pqrs.pqrsobject.save()
+        log(
+            user=request.user,
+            action="PQR_REPORTED",
+            obj=pqrs,
+            extra={
+                "number": pqrs.number,
+                "message": "El radicado %s ha sido reportado a los usuarios %s" % (pqrs.number, users)
+            }
+        )
+        pqrs.save()
         return HttpResponseRedirect(reverse('pqrs:radicate_inbox'))
 
     if request.method == 'GET':
@@ -359,14 +314,7 @@ def report_to_user_area(request, radicate, area):
                 temp = True
             functional_tree.append((item, info, temp))
         form = AssignToUserForm(request.GET, filter_pk=area)
-        people_added = []
-        if 'people_added' in form.data:
-            people_added = form.data['people_added']
 
-        if 'selectedUsersInput' in form.data:
-            print('selectedUsersInput', form.data['selectedUsersInput'])
-
-        print('people_added', people_added)
         fn_area = FunctionalArea.objects.filter(pk=area)
         selectable_users = FunctionalAreaUser.objects.filter(
             functional_area=area)
@@ -380,7 +328,6 @@ def report_to_user_area(request, radicate, area):
                 'rino_parameter': rino_search_user_param,
                 'functional_tree': functional_tree,
                 'interest_area': interest_area,
-                'people_added': people_added,
                 'selectable_users': selectable_users,
                 'radicate': radicate
             })

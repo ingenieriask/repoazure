@@ -9,17 +9,47 @@ function getSelectedOption(sel) {
   return opt;
 }
 
+function validatePersonExists(pk) {
+  var exists = false
+  $("input[name='selectedUsersInput']").each(function(idx, elem) {
+    if ($(elem).val() == pk)
+      exists = true
+  });
+  return exists
+}
+
+function deleteRow(btn, pk) {
+  var row = btn.parentNode.parentNode;
+  row.parentNode.removeChild(row);
+
+  $("input[name='selectedUsersInput']").each(function(idx, elem) {
+    if ($(elem).val() == pk)
+      $(elem).remove()
+  });
+}
+
 function addPerson(area) {
   var selectedUser = getSelectedOption(document.getElementById('user_selected'))
+  if (selectedUser === undefined || selectedUser.value == -1) {
+    window.alert('Por favor seleccione el usuario a agregar')
+    return
+  }
+  if (validatePersonExists(selectedUser.value)) {
+    window.alert('la persona ya existe')
+    return
+  }
   let item = { user: {pk: selectedUser.value, username: selectedUser.text}, area: area}
   var tableUsers = document.getElementById('people_list')
   let row = tableUsers.insertRow(1)
   let cellUser = row.insertCell(0)
   let cellArea = row.insertCell(1)
+  let cellActions = row.insertCell(2)
 
   cellUser.innerHTML = item.user.username
                 
   cellArea.innerHTML = item.area
+
+  cellActions.innerHTML = '<input class="fas fa-minus-circle fa-2x" type="button" value="Delete" onclick="deleteRow(this, ' + selectedUser.value + ')"/>'
 
   $('<input>', {
       type: 'hidden',
@@ -41,13 +71,21 @@ function setSearch(numId, url) {
             .find('option')
             .remove()
             .end();
-          response.forEach(function (value) {
-            let op = $('<option>', {
-                value: value.pk
-            })
-            op.text(value.username)
-            op.appendTo("#user_selected");
-          });
+        $("#user_selected")
+        .append('<option value=-1>Ninguno seleccionado</option>')
+        response.forEach(function (value) {
+          // let op = $('<option>', {
+          //     value: value.pk
+          // })
+          // op.text(value.username)
+          // op.appendTo("#user_selected");
+          // ("#user_selected").selectpicker('refresh');;
+          $("#user_selected")
+            .append('<option value=' + value.pk + '>'+ value.username +'</option>')
+
+          $("#user_selected")
+          .selectpicker('refresh');
+        });
       },
       error: function (response) {
           console.log(response)

@@ -65,10 +65,9 @@
       </div>
     </div>
     <h5 class="mt-2 text-primary">Área seleccionada: <span id="headerForm">{{interest_area}}</span></h5>
-    {% comment %} <input type="hidden" id="people_added" name="people_added" value="{{ people_added }}"> {% endcomment %}
     <form action="" method="post">
       {% csrf_token %}
-      <select name="user_selected" id="user_selected">
+      <select name="user_selected" data-live-search="true" data-live-search-style="startsWith" class="selectpicker" id="user_selected">
       </select>
       <div class="col text-center">
         <input type="button" value="Agregar" class="btn btn-success lift" onclick="addPerson('{{interest_area}}')"/>
@@ -83,18 +82,6 @@
               </tr>
             </thead>
             <tbody>
-              {% for person in people_added %}
-              <tr>
-                <td>
-                 {{person.user.username}} {{ person.user.first_name }} {{ person.user.last_name}}
-                </td>
-                <td>
-                {{person.area}}
-                </td>
-                <td>
-                </td>
-              </tr>
-              {% endfor %}
             </tbody>
           </table>
         </div>

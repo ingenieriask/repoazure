@@ -71,6 +71,8 @@ class Radicate(models.Model):
     office = models.ForeignKey(Office, on_delete=models.CASCADE, related_name='radicates_office', default='1')
     doctype = models.ForeignKey(Doctype, on_delete=models.CASCADE, related_name='radicates_doctype', blank=True, null=True)
 
+    reported_people = models.ManyToManyField(User, blank=True)
+
     class Meta:
         ordering = ['date_radicated']
 
@@ -134,7 +136,6 @@ class FinalDisposition(models.Model):
 class Record(BaseModel):
     retention = models.ForeignKey(DocsRetention, on_delete=models.PROTECT, related_name='records', default=False)
     responsable = models.ForeignKey(UserProfileInfo, on_delete=models.PROTECT, related_name='record_responsable', default=False)
-    # TODO manejar en tabla
     process_type = models.ForeignKey(ProcessType, on_delete=models.CASCADE, null=False, blank=False)
     phase = models.ForeignKey(FilePhases, on_delete=models.CASCADE, null=False, blank=False)
     final_disposition = models.ForeignKey(FinalDisposition, on_delete=models.CASCADE, null=False, blank=False)
