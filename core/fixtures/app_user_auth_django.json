@@ -147,7 +147,7 @@
     "model": "auth.user",
     "pk": 10,
     "fields": {
-      "password": "admin123456",
+      "password": "argon2$argon2id$v=19$m=102400,t=2,p=8$NWJ4NHBUQVB4REx5OUVqbVFyVHNnNA$OudpsbB5LkYc7Ne4ZjQUxg",
       "last_login": "2021-05-30T08:32:05.330",
       "is_superuser": false,
       "username": "joregeve",
@@ -165,7 +165,7 @@
     "model": "auth.user",
     "pk": 11,
     "fields": {
-      "password": "admin123456",
+      "password": "argon2$argon2id$v=19$m=102400,t=2,p=8$NWJ4NHBUQVB4REx5OUVqbVFyVHNnNA$OudpsbB5LkYc7Ne4ZjQUxg",
       "last_login": "2021-05-30T08:32:05.330",
       "is_superuser": false,
       "username": "jorgero",

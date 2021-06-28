@@ -161,8 +161,10 @@ class CalendarService(object):
             for day in days:
                 workingdays += 1 if day.type.name == "workingday" else 0
             return workingdays
-
-        return (date.today() - request_day.date()).days
+        
+        if isinstance(request_day, datetime):
+            return (date.today() - request_day.date()).days
+        return (date.today() - request_day).days
 
     @classmethod
     def get_calendar_days(cls, year):

@@ -25,6 +25,9 @@ from correspondence.services import ECMService
 from core.services import RecordCodeService
 from django.core.files.temp import NamedTemporaryFile
 from django.core.files import File
+from django.contrib.auth.decorators import login_required, permission_required
+from django.utils.decorators import method_decorator
+from core.decorators import has_any_permission
 
 from pinax.eventlog.models import log, Log
 
@@ -433,7 +436,8 @@ class PersonUpdateView(UpdateView):
 def select(requests):
     return render(requests, 'pqrs/select.html', {})
 
-
+#@method_decorator(login_required, name='dispatch')
+@method_decorator(has_any_permission(['auth.receive_external']), name='dispatch')
 class RadicateInbox(ListView):
     model = PqrsContent
     context_object_name = 'pqrs'
