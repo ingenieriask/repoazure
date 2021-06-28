@@ -79,4 +79,4 @@ def menu(context):
 
     check_links(link[0], permissions)
 
-    return {'links': link[0]['children']}
+    return {'links': link[0]['children'], 'user': context['user'], 'perms': context['perms']}
