@@ -10,7 +10,6 @@ import pandas as pd
 from datetime import date, timedelta
 from enum import Enum
 from fpdf import FPDF
-import os
 
 from core.models import AppParameter, ConsecutiveFormat, Consecutive, Country, FilingType, \
     Holiday, CalendarDay, CalendarDayType, Calendar
@@ -223,33 +222,84 @@ class CalendarService(object):
             logger.error(Err)
 
 
-class PdfCreationService(object):
-    
-    @classmethod
-    def create_pqrs_pdf(cls, pqrs):
-        
+
+class PDF(FPDF):
+
+    def custom_header(self, pqrs, initial_x_pos, initial_y_pos):
         annexes = pqrs.annexes if pqrs.annexes != None else '0'
         
         params = [
-            ('NOMBRE DE LA DEPENDENCIA', ''),
             ('No. Radicado', pqrs.number),
             ('Fecha', pqrs.date_radicated.strftime('%Y-%m-%d %I:%M:%S %p')),
             ('Anexos', annexes)
         ]
-        
-        pdf = FPDF()
-        pdf.add_page()
-        pdf.set_font('Courier', '', 14)
-        pdf.image('static/correspondence/assets/img/favicon.png', x=20, y=20, w=30, h=30)
+        self.set_font('Arial', '', 6)
+        self.set_xy(initial_x_pos, initial_y_pos)
+        self.cell(30, 20, '', border=1)
+        self.image('static/correspondence/assets/img/faviconcopy.png', x=initial_x_pos+5, y=initial_y_pos+2, w=20, h=15)
+        self.set_x(initial_x_pos+30.0)
+        self.cell(70, 5, 'NOMBRE DE LA DEPENDENCIA', border=1, align='C')
+        self.ln(5)
         for param in params:
-            pdf.cell(60,40, '')
-            pdf.cell(40, 10, param[0])
-            pdf.cell(10, 10, '')
-            pdf.cell(40, 10, param[1])
-            pdf.ln(11)
-            
-        pdf.add_font('Barcode', '', 'static/correspondence/assets/fonts/barcode_font/BarcodeFont.ttf', uni=True)
-        pdf.set_font('Barcode', '', 120)
-        pdf.cell(200, 80, pqrs.number, align='C')
-        #pdf.output('tuto1.pdf', 'F')
+            self.set_x(initial_x_pos+30.0)
+            self.cell(35, 5, param[0], border=1, align='C')
+            self.cell(35, 5, param[1], border=1, align='C')
+            self.ln(5)
+        
+        self.set_x(initial_x_pos)
+        self.add_font('Barcode', '', 'static/correspondence/assets/fonts/barcode_font/BarcodeFont.ttf', uni=True)
+        self.set_font('Barcode', '', 20)
+        self.cell(100, 15, pqrs.number, border=1, align='C')
+        
+
+    # Page footer
+    def custom_footer(self):
+        # Position at 1.5 cm from bottom
+        self.set_y(-51)
+        # Arial italic 8
+        self.set_font('Arial', '', 8)
+        # Page number
+        self.multi_cell(0, 5, 'NOMBRE DE LA DEPENDENCIA O GRUPO\n')
+        self.set_font('Arial', '', 6)
+        self.multi_cell(0, 5, 'DIRECCIÓN UBICACIÓN DEPENDENCIA O GRUPO\nNÚMERO DE CONTACTO')
+        self.set_font('Arial', '', 5)
+        self.multi_cell(0, 5, 'CORREO ELECTRÓNICO O DIRECCIÓN SITIO WEB')
+        self.set_font('Arial', 'I', 8)
+        self.cell(0, 10, 'Página ' + str(self.page_no()), 0, 0, 'C')
+
+class PdfCreationService(object):
+
+
+    @classmethod
+    def create_pqrs_pdf(cls, pqrs):
+        
+        
+        pdf = PDF()
+        
+        pdf.add_page()
+        pdf.set_left_margin(20.0)
+        initial_x_pos = 80.0
+        initial_y_pos = 12.0
+        pdf.custom_header(pqrs, initial_x_pos, initial_y_pos)
+        pdf.set_xy(20.0, initial_y_pos+60.0)
+        pdf.set_font('Arial', '', 12)
+        pdf.multi_cell(0, 5, 'CIUDAD - '+pqrs.date_radicated.strftime('%Y-%m-%d')+'\nTRATAMIENTO\n')
+        pdf.set_font('Arial', 'B', 12)
+        pdf.multi_cell(0, 5, 'NOMBRES DESTINATARIO\n')
+        pdf.set_font('Arial', '', 12)
+        pdf.multi_cell(0, 5, 'CARGO\nRAZÓN SOCIAl\nDIRECCIÓN\nEMAIL\nMUNICIPIO - DEPARTAMENTO\n\n')
+        pdf.set_font('Arial', 'B', 12)
+        pdf.cell(20, 5, 'ASUNTO: ')
+        pdf.set_font('Arial', '', 12)
+        pdf.multi_cell(0,5, pqrs.subject + '\n\n')
+        pdf.multi_cell(0,5, pqrs.data + '\n\n\n\nCordialmente,\n\n\nDATOS DE LA PERSONA QUE FIRMA\n'+
+                       'NOMBRE Y APELLIDOS\nCARGO\n\n')
+        pdf.set_font('Arial', '', 7)
+        pdf.multi_cell(0, 5, 'Anexo (s): ')
+        pdf.set_font('Arial', '', 12)
+        for annex in pqrs.files.all():
+            pdf.multi_cell(0, 5, '    -' + annex.name)
+        pdf.set_font('Arial', '', 12)
+        pdf.custom_footer()
+        pdf.output('tuto1.pdf', 'F')
     
