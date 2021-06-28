@@ -13,6 +13,7 @@ from treebeard.al_tree import AL_Node
 
 # Create your models here.
 
+
 class BaseModel(models.Model):
     user_creation = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE,
                                       related_name='%(app_label)s_%(class)s_creation', null=True, blank=True)
@@ -377,6 +378,7 @@ class Holiday(models.Model):
     def __str__(self):
         return f"{self.date} {self.local_name}"
 
+
 class FunctionalArea(AL_Node):
     parent = models.ForeignKey("self", related_name="children_set",
                                null=True, blank=True, db_index=True, on_delete=models.CASCADE)
@@ -392,6 +394,7 @@ class FunctionalArea(AL_Node):
     class Meta:
         db_table = "core_functional_area"
 
+
 class FunctionalAreaUser(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     functional_area = models.ManyToManyField(FunctionalArea)
@@ -399,19 +402,45 @@ class FunctionalAreaUser(models.Model):
     def __str__(self):
         return self.user.username
 
+
 @receiver(post_save, sender=User)
 def create_or_update_functional_area_user(sender, instance, created, **kwargs):
     if created:
         FunctionalAreaUser.objects.create(user=instance)
 
+
 class Menu(AL_Node):
-    parent = models.ForeignKey("self", related_name="children_set", null=True, blank=True, db_index=True, on_delete=models.CASCADE)
-    name = models.CharField(max_length=128, blank=False, null=False, default='')
-    description = models.CharField(max_length=256, null=True, blank=True, default='')
-    url_name = models.CharField(max_length=256, null=True, blank=True, default='')
+    parent = models.ForeignKey("self", related_name="children_set",
+                               null=True, blank=True, db_index=True, on_delete=models.CASCADE)
+    name = models.CharField(max_length=128, blank=False,
+                            null=False, default='')
+    description = models.CharField(
+        max_length=256, null=True, blank=True, default='')
+    url_name = models.CharField(
+        max_length=256, null=True, blank=True, default='')
     sib_order = models.PositiveIntegerField()
     icon = models.CharField(max_length=128, null=True, blank=True, default='')
     required_permissions = models.ManyToManyField(Permission)
+
     def __str__(self):
         return self.name
 
+
+class Notifications(models.Model):
+    name = models.CharField(max_length=50)
+    subject = models.CharField(max_length=256)
+    body = models.TextField(blank=True, null=True)
+    body_sms = models.TextField(blank=True, null=True)
+
+    def __str__(self):
+        return self.name
+
+
+class NotificationsService(models.Model):
+    name = models.CharField(max_length=50)
+    description = models.CharField(max_length=256)
+    notifications = models.ManyToManyField(
+        Notifications, related_name="notifications_services", blank=True)
+
+    def __str__(self):
+        return self.name

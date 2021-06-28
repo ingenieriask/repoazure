@@ -3,7 +3,7 @@ from core.models import Attorny, AttornyType, Atttorny_Person, LegalPerson, Stat
     City, Office, Country, PreferencialPopulation, Disability, BooleanSelection, \
     EthnicGroup, RequestResponse, SystemParameter, AppParameter, ConsecutiveFormat, \
     FilingType, CalendarDay, CalendarDayType, Calendar, Alerts, FunctionalArea, \
-    FunctionalAreaUser, Menu
+    FunctionalAreaUser, Menu, NotificationsService, Notifications
 from core.forms import ConsecutiveFormatForm, CalendarForm, CustomGroupAdminForm, \
     CustomUserChangeForm
 from django.contrib.auth.models import Group, User
@@ -74,6 +74,8 @@ admin.site.register(BooleanSelection)
 admin.site.register(EthnicGroup)
 admin.site.register(RequestResponse)
 admin.site.register(SystemParameter)
+admin.site.register(Notifications)
+admin.site.register(NotificationsService)
 admin.site.register(AppParameter)
 admin.site.register(ConsecutiveFormat, ConsecutiveFormatAdmin)
 admin.site.register(FilingType)
@@ -87,4 +89,3 @@ admin.site.unregister(User)
 admin.site.register(User, CustomUserAdmin)
 admin.site.register(FunctionalArea, FunctionalAreaAdmin)
 admin.site.register(Menu)
-

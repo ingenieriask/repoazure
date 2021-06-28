@@ -16,20 +16,22 @@ from core.models import AppParameter, ConsecutiveFormat, Consecutive, Country, F
 
 logger = logging.getLogger(__name__)
 
-class MailService(object):
+
+class Notifications(object):
     '''Basic email sender'''
 
     _params = {}
 
     def get_params(func):
         '''Lazy load of email database parameters'''
-    
+
         def wrapper(*args, **kwargs):
             # Lazy load
-            if not MailService._params:
+            if not Notifications._params:
                 # Get only email related parameters
                 qs = AppParameter.objects.filter(name__startswith='EMAIL_')
-                MailService._params = {entry.name : entry.value for entry in qs}
+                Notifications._params = {
+                    entry.name: entry.value for entry in qs}
             return func(*args, **kwargs)
         return wrapper
 
@@ -43,11 +45,11 @@ class MailService(object):
 
         # Configure email handler
         eb = EmailBackend(
-            host=cls._params['EMAIL_HOST'], 
-            port=int(cls._params['EMAIL_PORT']), 
-            username=cls._params['EMAIL_HOST_USER'], 
-            password=cls._params['EMAIL_HOST_PASSWORD'], 
-            use_tls=bool(cls._params['EMAIL_USE_TLS']), 
+            host=cls._params['EMAIL_HOST'],
+            port=int(cls._params['EMAIL_PORT']),
+            username=cls._params['EMAIL_HOST_USER'],
+            password=cls._params['EMAIL_HOST_PASSWORD'],
+            use_tls=bool(cls._params['EMAIL_USE_TLS']),
             fail_silently=False)
         try:
             eb.open()
@@ -59,6 +61,7 @@ class MailService(object):
             eb.close()
         except Exception as Error:
             logger.error(Error)
+
 
 class RecordCodeService(object):
 
@@ -77,7 +80,8 @@ class RecordCodeService(object):
 
         code = re.sub(r'\s*', r'', format)
         code = re.sub(r',', r'', code)
-        code = re.sub(f'{{{cls.digits_token}}}', f'{{{cls.digits_token}:0{digits}d}}', code)
+        code = re.sub(f'{{{cls.digits_token}}}',
+                      f'{{{cls.digits_token}:0{digits}d}}', code)
         return code
 
     @classmethod
@@ -88,7 +92,8 @@ class RecordCodeService(object):
             return '', 10
         digits_pattern = r'\{' + cls.digits_token + r':0(\d+)d\}'
         code = re.sub(r'\s*', r'', code)
-        format = code.replace('}', '},').replace('{', ',{').replace(',,', ',').strip(',')
+        format = code.replace('}', '},').replace('{', ',{').replace(
+            ',,', ',').strip(',')
         format = re.sub(digits_pattern, f'{{{cls.digits_token}}}', format)
         r = re.search(digits_pattern, code)
         digits = int(r.group(1)) if r else 0
@@ -119,7 +124,7 @@ class RecordCodeService(object):
 
         consecutive.date = now
         consecutive.save()
-        
+
         # Generate formatted code
         params = {
             'type': filing_type.code,
@@ -129,6 +134,7 @@ class RecordCodeService(object):
 
         return format.format(**params)
 
+
 class CalendarService(object):
     '''Service for calculate working days'''
 
@@ -136,25 +142,28 @@ class CalendarService(object):
     # API limitations:
     # 50 requests per day
     holiday_api_endpoint = 'https://date.nager.at/api/v3/publicholidays'
-    
+
     @classmethod
     def get_days_of_year():
-        return 
+        return
 
     @classmethod
     def get_remaining_business_days(cls, request_day, max_response_days):
-        return max_response_days - cls.get_business_days_since(request_day) 
-    
+        return max_response_days - cls.get_business_days_since(request_day)
+
     @classmethod
     def get_business_days_since(cls, request_day):
-        days = CalendarDay.objects.filter(date__range=[request_day, date.today()])
+        days = CalendarDay.objects.filter(
+            date__range=[request_day, date.today()])
         workingdays = 0
         if days:
             for day in days:
                 workingdays += 1 if day.type.name == "workingday" else 0
             return workingdays
         
-        return (date.today() - request_day.date()).days
+        if isinstance(request_day, datetime):
+            return (date.today() - request_day.date()).days
+        return (date.today() - request_day).days
 
     @classmethod
     def get_calendar_days(cls, year):
@@ -163,7 +172,8 @@ class CalendarService(object):
     @classmethod
     def update_calendar_days(cls, year, nonworking_days):
 
-        nonworking_days = {date(*map(int, d['id'].split('T')[0].split('-'))) for d in nonworking_days if 'id' in d}
+        nonworking_days = {date(
+            *map(int, d['id'].split('T')[0].split('-'))) for d in nonworking_days if 'id' in d}
         days = CalendarDay.objects.filter(date__year=year)
         working_day = CalendarDayType.objects.get(name='workingday')
         nonWorking_day = CalendarDayType.objects.get(name='non-workingday')
@@ -172,10 +182,11 @@ class CalendarService(object):
         new = not days.exists()
         if new:
             day_range = pd.date_range(
-                start=f'{year}-01-01', 
-                end=f'{int(year) + 1}-01-01', 
+                start=f'{year}-01-01',
+                end=f'{int(year) + 1}-01-01',
                 closed='left')
-            days = [CalendarDay(date=d, calendar=calendar) for d in day_range.date]
+            days = [CalendarDay(date=d, calendar=calendar)
+                    for d in day_range.date]
         for d in days:
             d.type = nonWorking_day if d.date in nonworking_days else working_day
         if new:
@@ -187,9 +198,9 @@ class CalendarService(object):
         '''Return the list of saturdays or sundays of an entire year'''
 
         return pd.date_range(
-            start=f'{year}-01-01', 
-            end=f'{int(year) + 1}-01-01', 
-            freq=f'W-{week_day_code}', #week_day[week_day_code],
+            start=f'{year}-01-01',
+            end=f'{int(year) + 1}-01-01',
+            freq=f'W-{week_day_code}',  # week_day[week_day_code],
             closed='left').tolist()
 
     @classmethod
@@ -206,15 +217,16 @@ class CalendarService(object):
             return holidays
         # Retrieve data from external API if not exist in local database
         try:
-            r = requests.get(f'{cls.holiday_api_endpoint}/{year}/{country_code}')
+            r = requests.get(
+                f'{cls.holiday_api_endpoint}/{year}/{country_code}')
             if r.ok:
                 json_response = json.loads(r.text)
                 country = Country.objects.get(code=country_code)
                 holidays = Holiday.objects.bulk_create([Holiday(**{
-                        'date': datetime.strptime(h['date'], r'%Y-%m-%d'),
-                        'country': country,
-                        'local_name': h['localName']
-                    }) for h in json_response]
+                    'date': datetime.strptime(h['date'], r'%Y-%m-%d'),
+                    'country': country,
+                    'local_name': h['localName']
+                }) for h in json_response]
                 )
                 return holidays
 
@@ -222,6 +234,7 @@ class CalendarService(object):
             logger.error(Err)
 
 
+<<<<<<< HEAD
 
 class PDF(FPDF):
 
@@ -229,11 +242,21 @@ class PDF(FPDF):
     def custom_header(self, pqrs, initial_x_pos, initial_y_pos, sizing_factor, border):
         
         # Basic parameters of pqrs info
+=======
+class PdfCreationService(object):
+
+    @classmethod
+    def create_pqrs_pdf(cls, pqrs):
+
+        annexes = pqrs.annexes if pqrs.annexes != None else '0'
+
+>>>>>>> develop
         params = [
             ('No. Radicado', pqrs.number),
             ('Fecha', pqrs.date_radicated.strftime('%Y-%m-%d %I:%M:%S %p')),
             ('Anexos', str(len(pqrs.files.all())))
         ]
+<<<<<<< HEAD
         self.set_font('Arial', '', 6.0*sizing_factor)
         # Starting position in canvas
         self.set_xy(initial_x_pos, initial_y_pos)
@@ -336,3 +359,23 @@ class PdfCreationService(object):
         # Save pdf file
         #pdf.output('summary.pdf', 'F')
     
+=======
+
+        pdf = FPDF()
+        pdf.add_page()
+        pdf.set_font('Courier', '', 14)
+        pdf.image('static/correspondence/assets/img/favicon.png',
+                  x=20, y=20, w=30, h=30)
+        for param in params:
+            pdf.cell(60, 40, '')
+            pdf.cell(40, 10, param[0])
+            pdf.cell(10, 10, '')
+            pdf.cell(40, 10, param[1])
+            pdf.ln(11)
+
+        pdf.add_font(
+            'Barcode', '', 'static/correspondence/assets/fonts/barcode_font/BarcodeFont.ttf', uni=True)
+        pdf.set_font('Barcode', '', 120)
+        pdf.cell(200, 80, pqrs.number, align='C')
+        #pdf.output('tuto1.pdf', 'F')
+>>>>>>> develop
