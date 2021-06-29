@@ -9,7 +9,7 @@ from core.models import Attorny, AttornyType, Atttorny_Person, City, LegalPerson
 from pqrs.models import PQRS,Type, PqrsContent,Type, SubType
 from core.models import Attorny, AttornyType, Atttorny_Person, City, LegalPerson, Person, Office, DocumentTypes, PersonRequest, PersonType, RequestResponse
 from pqrs.forms import LegalPersonForm, SearchPersonForm, PersonForm, PqrRadicateForm,PersonRequestForm,PersonFormUpdate,PersonRequestFormUpdate,PersonAttorny
-from core.utils_db import process_email,get_system_parameter, get_json_system_parameter
+from core.utils_db import get_system_parameter, get_json_system_parameter
 from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404, render
 from django.urls import reverse
@@ -22,7 +22,7 @@ from django.views.generic.edit import CreateView
 from django.views.generic.edit import UpdateView
 from core.utils_redis import add_to_redis, read_from_redis
 from correspondence.services import ECMService
-from core.services import RecordCodeService
+from core.services import NotificationsHandler, RecordCodeService
 from django.core.files.temp import NamedTemporaryFile
 from django.core.files import File
 from django.contrib.auth.decorators import login_required, permission_required
@@ -73,7 +73,8 @@ def send_email_person(request, pk, pqrs_type):
     base_url = "{0}://{1}/pqrs/validate-email-person/{2}".format(
         request.scheme, request.get_host(), unique_id)
     person.url = base_url
-    process_email('EMAIL_PQR_VALIDATE_PERSON', person.email, person)
+    NotificationsHandler.send_notification(
+        'EMAIL_PQR_VALIDATE_PERSON', person.email, person)
     return render(request, 'pqrs/search_person_answer_form.html', context={'msg': 'Se ha enviado un correo electrónico con la información para registrar el caso'})
 
 
@@ -93,6 +94,8 @@ def validate_email_person(request, uuid_redis):
             # url = reverse('pqrs:edit_person', kwargs={'pk': person.pk})
             # return HttpResponseRedirect(url)
             return redirect('pqrs:edit_person',pqrsObject.uuid,person.pk)
+
+
 def search_person(request,pqrs_type,person_type):
     if person_type == 1:
         template_return = 'pqrs/search_person_form.html'
@@ -160,7 +163,8 @@ def create_pqr_multiple(request, pqrs):
             query_url = "{0}://{1}/correspondence/radicate/{2}".format(
                 request.scheme, request.get_host(), radicate.pk)
             instance.url = query_url
-            process_email('EMAIL_PQR_CREATE', instance.person.email, instance)
+            NotificationsHandler.send_notification('EMAIL_PQR_CREATE',
+                                 instance.person.email, instance)
 
             for fileUploaded in request.FILES.getlist('uploaded_files'):
                 document_temp_file = NamedTemporaryFile()

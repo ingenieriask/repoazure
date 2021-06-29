@@ -1,3 +1,4 @@
+from os import name
 from django.core.mail.backends.smtp import EmailBackend
 from django.core.mail import EmailMessage
 from .utils_services import PDF
@@ -10,28 +11,46 @@ import json
 import pandas as pd
 from datetime import date, timedelta
 from enum import Enum
-
-
+from core.utils_db import get_system_parameter
 from core.models import AppParameter, ConsecutiveFormat, Consecutive, Country, FilingType, \
-    Holiday, CalendarDay, CalendarDayType, Calendar
+    Holiday, CalendarDay, CalendarDayType, Calendar,Notifications
+from core.utils import replace_data
+
+
 
 logger = logging.getLogger(__name__)
 
 
-class Notifications(object):
+class NotificationsHandler(object):
     '''Basic email sender'''
 
     _params = {}
+
+    def send_notification(format_name, recipient_list, data):
+        try:
+            email_format = Notifications.objects.filter(name=format_name)
+            email_format = json.loads(email_format.value)
+
+            NotificationsHandler.send_mail(
+                replace_data(email_format['subject'], data),
+                replace_data(email_format['body'], data),
+                'rino@skillnet.com.co',
+                [recipient_list]
+            )
+
+        except Exception as Error:
+            print('error de envío de correo', Error)
+            logger.error(Error)
 
     def get_params(func):
         '''Lazy load of email database parameters'''
 
         def wrapper(*args, **kwargs):
             # Lazy load
-            if not Notifications._params:
+            if not NotificationsHandler._params:
                 # Get only email related parameters
                 qs = AppParameter.objects.filter(name__startswith='EMAIL_')
-                Notifications._params = {
+                NotificationsHandler._params = {
                     entry.name: entry.value for entry in qs}
             return func(*args, **kwargs)
         return wrapper
