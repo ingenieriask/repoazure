@@ -426,21 +426,23 @@ class Menu(AL_Node):
         return self.name
 
 
-class Notifications(models.Model):
+
+class NotificationsService(models.Model):
     name = models.CharField(max_length=50)
-    subject = models.CharField(max_length=256)
-    body = models.TextField(blank=True, null=True)
-    body_sms = models.TextField(blank=True, null=True)
+    description = models.CharField(max_length=256)
+    
 
     def __str__(self):
         return self.name
 
 
-class NotificationsService(models.Model):
+class Notifications(models.Model):
     name = models.CharField(max_length=50)
-    description = models.CharField(max_length=256)
-    notifications = models.ManyToManyField(
-        Notifications, related_name="notifications_services", blank=True)
+    subject = models.CharField(max_length=256)
+    body = models.TextField(blank=True, null=True)
+    body_sms = models.TextField(blank=True, null=True)
+    notifications_services = models.ManyToManyField(
+        NotificationsService, related_name="notifications_services", blank=True)
 
     def __str__(self):
         return self.name
