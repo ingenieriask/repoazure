@@ -13,7 +13,7 @@ from django.core.mail import BadHeaderError, send_mail
 from django.conf import settings
 from django.shortcuts import render, redirect
 from django.db.models import Q
-from core.services import CalendarService, Notifications
+from core.services import CalendarService, NotificationsHandler
 
 
 def holidays(request):
@@ -91,15 +91,8 @@ def password_reset_request(request):
                     }
                     email = render_to_string(email_template_name, c)
                     try:
-                        notifications_validate = NotificationsService.objects.filter(
-                            name="SEND_EMAIL")
-                        notifications = notifications_validate[0].notifications.all(
-                        )
-                        for i in notifications:
-                            # Select a Notifications to send mail
-                            if i.name == "EMAIL_PQR_CREATE":
-                                Notifications.send_mail(
-                                    subject, email, to=[user.email])
+                        NotificationsHandler.send_mail(
+                            subject, email, to=[user.email])
                     except BadHeaderError:
                         return HttpResponse('Invalid header found.')
                     # "/core/password_reset/done/")

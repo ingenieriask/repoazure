@@ -32,7 +32,7 @@ import xlsxwriter
 from pinax.eventlog.models import log, Log
 from django.core.files import File
 
-from core.services import Notifications
+from core.services import NotificationsHandler
 from correspondence.services import ECMService
 
 logger = logging.getLogger(__name__)
@@ -347,18 +347,12 @@ def create_radicate(request, person):
             # TODO make an utility
 
             # TODO i16n and parameterizable
-            notifications_validate = NotificationsService.objects.filter(
-                name="SEND_EMAIL")
-            notifications = notifications_validate[0].notifications.all()
-            for i in notifications:
-                # Select a Notifications to send mail
-                if i.name == "EMAIL_PQR_VALIDATE_PERSON":
-                    Notifications.send_mail(
-                        'Notificación RINO: recepción de radicado',
-                        'Buenos días señor usuario.',
-                        'rino@skillnet.com.co',
-                        [instance.person.email]
-                    )
+            NotificationsHandler.send_mail(
+                'Notificación RINO: recepción de radicado',
+                'Buenos días señor usuario.',
+                'rino@skillnet.com.co',
+                [instance.person.email]
+            )
 
             document_file = request.FILES['document_file']
             document_temp_file = NamedTemporaryFile()  # ? delete=True)
