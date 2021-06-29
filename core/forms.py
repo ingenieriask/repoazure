@@ -67,7 +67,7 @@ class AbstractPersonForm(forms.ModelForm):
                   'parent': 'Entidad',
                   'conflict_victim': 'Población víctima del conflicto armado',
                   'ethnic_group': 'Grupo Étnico',
-                  'attornyCheck': "Presentará, su solicitud con el acompañamiento de un apoderado ?"}
+                  'attornyCheck': "¿Presentará su solicitud con el acompañamiento de un apoderado?"}
 
         widgets = {
             'document_type': forms.Select(attrs={'class': 'selectpicker'}),
@@ -386,17 +386,12 @@ class AbstractPersonAttorny(forms.ModelForm):
         self.helper = FormHelper(self)
         self.helper.layout = Layout(
             Div(
-                Div(HTML('Información General'),
+                Div(HTML('Información Apoderado'),
                     css_class='card-header'),
                 Div(
                     Row(
                         Column('attorny_type',
                                css_class='form-group col-md-4 mb-0'),
-                        css_class='form-row'
-                    ),
-                    Row(
-                        Column('name', css_class='form-group col-md-6 mb-0'),
-                        Column('lasts_name', css_class='form-group col-md-6 mb-0'),
                         css_class='form-row'
                     ),
                     Row(
@@ -406,20 +401,15 @@ class AbstractPersonAttorny(forms.ModelForm):
                                css_class='form-group col-md-4 mb-0'),
                         Column('expedition_date',
                                css_class='form-group col-md-4 mb-0'),
+                        Column('professional_card',
+                               css_class='form-group col-md-4 mb-0'),
                         css_class='form-row'
                     ),
                     Row(
-                        Column('professional_card',
-                               css_class='form-group col-md-4 mb-0'),
-
-                    ), css_class='card-body'
-                ), css_class="card mb-3",
-            ),
-            Div(
-                Div(HTML('Información de contacto'),
-                    css_class='card-header'),
-                Div(
-                    Row(
+                        Column('name', css_class='form-group col-md-6 mb-0'),
+                        Column('lasts_name', css_class='form-group col-md-6 mb-0'),
+                        css_class='form-row'
+                    ), Row(
                         Column('email', css_class='form-group col-md-6 mb-0'),
                         Column('email_confirmation',
                                css_class='form-group col-md-6 mb-0'),
@@ -433,7 +423,7 @@ class AbstractPersonAttorny(forms.ModelForm):
                         css_class='form-row'
                     ), css_class='card-body'
                 ), css_class="card mb-3",
-            ),
+            )
         )
 
 
