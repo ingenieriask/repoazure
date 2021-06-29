@@ -1,0 +1,51 @@
+{% extends 'pqrs/template.html' %}
+{% load pqrs_extras %}
+
+{% block content %} 
+    <div class="card mb-4">
+        <div class="card-header">
+            Resultado
+        </div>
+        <div class="card-body">
+            <div class="container">
+                <div class="row">
+                    <div class="col-12 col-md-6">
+                        <div class="row">
+                            <input id="short-input" type="text" readonly value={{ pqrs.number }}>
+                        </div>
+                        <div class="row mt-4">
+                            <div class="col-8">
+                                <b>Fecha de radicación:</b>
+                            </div>
+                            <div class="col-4">
+                                {{ pqrs.date_radicated|simple_date }}
+                            </div>
+                        </div>
+                        <div class="row mt-2">
+                            <div class="col-8">
+                                <b>Fecha Máxima de respuesta:</b>
+                            </div>
+                            <div class="col-4">
+                                {{ pqrs.date_radicated|max_response_date:pqrs.subtype.max_response_days }}
+                            </div>
+                        </div>
+                        <div class="row mt-2">
+                            <div class="col-8">
+                                <b>Estado:</b>
+                            </div>
+                            <div class="col-4">
+                               {{ pqrs.pqrsobject.status }}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-12 col-md-6">
+                        <div class="mt-4">
+                            <h1><b>Respuesta</b></h1>
+                        </div>
+                    </div>
+                </div>
+                <br><br>
+            </div>
+        </div>
+    </div>
+{% endblock %}
