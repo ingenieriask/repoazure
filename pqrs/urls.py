@@ -28,4 +28,5 @@ urlpatterns = [
     path('radicate/my-reported/', views.RadicateMyReported.as_view(), name='radicate_my_reported'),
     path('radicate/<int:pk>/', views.PqrDetailProcessView.as_view(), name="detail_pqr"),
     path('conclusion/', views.procedure_conclusion, name='conclusion'),
+    path('consultation/result/<int:pk>/', views.PqrsConsultationResult.as_view(), name="consultation_result")
 ]
