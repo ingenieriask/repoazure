@@ -460,6 +460,16 @@ class RadicateMyInbox(ListView):
         queryset = queryset.filter(current_user = self.request.user, subtype__isnull=False)
         return queryset
 
+class RadicateMyReported(ListView):
+    model = PqrsContent
+    context_object_name = 'pqrs'
+    template_name = 'pqrs/radicate_inbox.html'
+
+    def get_queryset(self):
+        queryset = super(RadicateMyReported, self).get_queryset()
+        queryset = queryset.filter(reported_people = self.request.user, subtype__isnull=False)
+        return queryset
+
 class PqrDetailProcessView(DetailView):
     model = Radicate
     template_name = 'pqrs/pqr_detail_process.html'

@@ -254,7 +254,7 @@ def users_by_area(request):
     return JsonResponse({}, status=400)
 
 
-def report_to_user_area(request, radicate):
+def report_to_user(request, radicate):
 
     if request.method == 'POST':
         form = ReportToUserForm(request.POST)

@@ -115,5 +115,17 @@
       "sib_order": 0,
       "icon": "file-plus" 
     }
+  },
+  {
+    "model": "core.menu",
+    "pk": 11,
+    "fields": {
+      "parent": 5,
+      "name": "Mis informados",
+      "description": "Bandeja de Usuario",
+      "url_name": "pqrs:radicate_my_reported",
+      "sib_order": 0,
+      "icon": "file-plus" 
+    }
   }
 ]
