@@ -1,6 +1,7 @@
 import re
 from django import template
 from core.services import CalendarService
+import datetime
 
 register = template.Library()
 
@@ -19,3 +20,14 @@ def get_color_traffic_light(alerts, request_day):
         if days_since_radicate >= alert.response_time:
             color = alert.color
     return color
+
+
+@register.filter(expects_localtime=True)
+def simple_date(date):   
+    return date.strftime('%d/%m/%Y')
+    
+
+@register.filter(expects_localtime=True)
+def max_response_date(date_radicated, max_response_days):
+    response_date = date_radicated + datetime.timedelta(days=max_response_days)
+    return response_date.strftime('%d/%m/%Y')
