@@ -70,11 +70,9 @@ def send_email_person(request, pk, pqrs_type):
     })
     add_to_redis(unique_id, toSave, 'email')
     person = Person.objects.get(pk=pk)
-    base_url = "{0}://{1}/pqrs/validate-email-person/{2}".format(
-        request.scheme, request.get_host(), unique_id)
+    base_url = "{0}://{1}/pqrs/validate-email-person/{2}".format(request.scheme, request.get_host(), unique_id)
     person.url = base_url
-    NotificationsHandler.send_notification(
-        'EMAIL_PQR_VALIDATE_PERSON', person.email, person)
+    NotificationsHandler.send_notification('EMAIL_PQR_VALIDATE_PERSON', person.email, person)
     return render(request, 'pqrs/search_person_answer_form.html', context={'msg': 'Se ha enviado un correo electrónico con la información para registrar el caso'})
 
 

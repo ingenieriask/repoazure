@@ -28,12 +28,13 @@ class NotificationsHandler(object):
 
     def send_notification(format_name, recipient_list, data):
         try:
-            email_format = Notifications.objects.filter(name=format_name)
-            email_format = json.loads(email_format.value)
+            email_format = Notifications.objects.get(name=format_name)
+
+            print(replace_data(email_format.body, data))
 
             NotificationsHandler.send_mail(
-                replace_data(email_format['subject'], data),
-                replace_data(email_format['body'], data),
+                replace_data(email_format.subject, data),
+                replace_data(email_format.body, data),
                 'rino@skillnet.com.co',
                 [recipient_list]
             )
