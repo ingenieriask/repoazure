@@ -6,7 +6,6 @@ app_name = 'pqrs'
 
 urlpatterns = [
     path('', views.index, name='index'),
-    # path('pqrs-create/<int:person>/', views.create_pqr, name='pqrs_create'),
     path('pqrs-create/<uuid:pqrs>/', views.create_pqr_multiple, name='pqrs_create_multiple_person'),
     path('pqrs-detail/<int:pk>/', views.PqrDetailView.as_view(), name="pqrs_detail"),
     path('pqrs-finish-creation/<int:pk>/', views.PqrFinishCreation.as_view(), name="pqrs_finish_creation"),

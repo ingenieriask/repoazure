@@ -37,7 +37,7 @@
               {% endif %}
               {% if last_leaf %}
               <span style="color: #000;"><i class="fas fa-warehouse mr-1"></i><label
-                  onclick="setSearch('{{item.pk}}', '{% url 'correspondence:users_by_area' %}')">
+                  onclick="searchPeople('{{item.pk}}', '{% url 'correspondence:users_by_area' %}', '{{item.parent.name}}/{{item.name}}')">
                   {{ item }}</label></span>
               {% else%}
               <span>
@@ -64,13 +64,13 @@
         {% endfor %}
       </div>
     </div>
-    <h5 class="mt-2 text-primary">Área seleccionada: <span id="headerForm">{{interest_area}}</span></h5>
+    <h5 class="mt-2 text-primary">Área seleccionada: <span id="headerForm"></span></h5>
     <form action="" method="post">
       {% csrf_token %}
       <select name="user_selected" data-live-search="true" data-live-search-style="startsWith" class="selectpicker" id="user_selected">
       </select>
       <div class="col text-center">
-        <input type="button" value="Agregar" class="btn btn-success lift" onclick="addPerson('{{interest_area}}')"/>
+        <input type="button" value="Agregar" class="btn btn-success lift" onclick="addPerson()"/>
       </div>
       <div class="datatable">
           <table class="table table-bordered table-hover" id="people_list" width="100%" cellspacing='0'>
@@ -85,7 +85,7 @@
             </tbody>
           </table>
         </div>
-      <input type="hidden" name="searchpk" id="searchpk" />
+      <input type="hidden" name="interest_area" id="interest_area" />
       <div class="col text-center">
         <input type="submit" name="search" value="Asignar" class="btn btn-success lift" />
         <a class="btn btn-primary" href="{% url 'pqrs:radicate_inbox' %}">Cancelar</a>

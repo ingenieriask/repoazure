@@ -83,42 +83,9 @@ class SearchForm(forms.Form):
 
 
 class AssignToUserForm(forms.Form):
-    def __init__(self, *args, **kwargs):
-
-        filter_pk = kwargs.pop('filter_pk')
-        super(AssignToUserForm, self).__init__(*args, **kwargs)
-        if filter_pk:
-            self.fields['item'].queryset = FunctionalAreaUser.objects.filter(
-                functional_area=filter_pk)
-        else:
-            self.fields['item'].queryset = FunctionalAreaUser.objects.none()
-
-    item = forms.ModelChoiceField(
-        queryset=None,
-        label='Buscar persona',
-        widget=forms.Select(attrs={'class': 'selectpicker'}),
-        required=True
-    )
-
     observations = forms.CharField(label='Observaciones:', widget=forms.Textarea())
 
 class ReportToUserForm(forms.Form):
-    def __init__(self, *args, **kwargs):
-
-        filter_pk = kwargs.pop('filter_pk')
-        super(ReportToUserForm, self).__init__(*args, **kwargs)
-        if filter_pk:
-            self.fields['item'].queryset = FunctionalAreaUser.objects.filter(
-                functional_area=filter_pk)
-        else:
-            self.fields['item'].queryset = FunctionalAreaUser.objects.none()
-
-    item = forms.ModelChoiceField(
-        queryset=None,
-        label='Buscar persona',
-        widget=forms.Select(attrs={'class': 'selectpicker'}),
-        required=True
-    )
 
     observations = forms.CharField(label='Observaciones:', widget=forms.Textarea())
 

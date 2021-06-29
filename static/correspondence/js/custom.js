@@ -28,7 +28,7 @@ function deleteRow(btn, pk) {
   });
 }
 
-function addPerson(area) {
+function addPerson() {
   var selectedUser = getSelectedOption(document.getElementById('user_selected'))
   if (selectedUser === undefined || selectedUser.value == -1) {
     window.alert('Por favor seleccione el usuario a agregar')
@@ -38,18 +38,20 @@ function addPerson(area) {
     window.alert('la persona ya existe')
     return
   }
-  let item = { user: {pk: selectedUser.value, username: selectedUser.text}, area: area}
+  let item = { user: {pk: selectedUser.value, username: selectedUser.text}, area: $("#interest_area").val()}
   var tableUsers = document.getElementById('people_list')
-  let row = tableUsers.insertRow(1)
-  let cellUser = row.insertCell(0)
-  let cellArea = row.insertCell(1)
-  let cellActions = row.insertCell(2)
-
-  cellUser.innerHTML = item.user.username
-                
-  cellArea.innerHTML = item.area
-
-  cellActions.innerHTML = '<input class="fas fa-minus-circle fa-2x" type="button" value="Delete" onclick="deleteRow(this, ' + selectedUser.value + ')"/>'
+  if (tableUsers) {
+    let row = tableUsers.insertRow(1)
+    let cellUser = row.insertCell(0)
+    let cellArea = row.insertCell(1)
+    let cellActions = row.insertCell(2)
+  
+    cellUser.innerHTML = item.user.username
+                  
+    cellArea.innerHTML = item.area
+  
+    cellActions.innerHTML = '<input class="fas fa-minus-circle fa-2x" type="button" value="Delete" onclick="deleteRow(this, ' + selectedUser.value + ')"/>'
+  }
 
   $('<input>', {
       type: 'hidden',
@@ -60,55 +62,35 @@ function addPerson(area) {
 
 }
 
-function setSearch(numId, url) {
+function searchPeople(areaId, url, areaName) {
   
   $.ajax({
       type: 'GET',
       url: url,
-      data: {"filter_pk": numId},
+      data: {"filter_pk": areaId},
       success: function (response) {
         $('#user_selected')
             .find('option')
             .remove()
             .end();
-        $("#user_selected")
-        .append('<option value=-1>Ninguno seleccionado</option>')
+        $("#user_selected").append('<option value=-1>Ninguno seleccionado</option>')
         response.forEach(function (value) {
-          // let op = $('<option>', {
-          //     value: value.pk
-          // })
-          // op.text(value.username)
-          // op.appendTo("#user_selected");
-          // ("#user_selected").selectpicker('refresh');;
           $("#user_selected")
-            .append('<option value=' + value.pk + '>'+ value.username +'</option>')
-
-          $("#user_selected")
-          .selectpicker('refresh');
+            .append('<option value=' + value.pk + '>'+ value.username + ' ' + value.first_name + ' ' + value.last_name + '</option>')
         });
+        $("#user_selected").selectpicker('refresh');
+        $("#headerForm").text(areaName)
+        $("#interest_area").val(areaId)
       },
       error: function (response) {
           console.log(response)
       }
   })
 }
-//   function setSearch(numId, name, parent_name, radicate, destination) {
-//   console.log(numId, name, parent_name)
-//   $('#headerForm').html(parent_name + '/' + name)
-//   $('#searchpk').val(numId)
-//   location.href = "/correspondence/" + destination + "/" + radicate + "/" + numId 
-// }
 function cleanSearch() {
   $('#headerForm').html('')
 }
 $(document).ready(function () {
-
-  // $("#id_item" ).autocomplete({
-  //   source: "/correspondence/autocomplete",
-  // });
-
-  //$('#id_current_user').selectpicker();
-  //$('#id_person').selectpicker();
 
   $("#id_document_file").fileinput({
     theme: 'fas',
