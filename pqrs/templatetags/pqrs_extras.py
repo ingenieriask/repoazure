@@ -24,10 +24,10 @@ def get_color_traffic_light(alerts, request_day):
 
 @register.filter(expects_localtime=True)
 def simple_date(date):   
-    return date.strftime('%Y-%m-%d')
+    return date.strftime('%d/%m/%Y')
     
 
 @register.filter(expects_localtime=True)
 def max_response_date(date_radicated, max_response_days):
     response_date = date_radicated + datetime.timedelta(days=max_response_days)
-    return response_date.strftime('%Y-%m-%d')
+    return response_date.strftime('%d/%m/%Y')
