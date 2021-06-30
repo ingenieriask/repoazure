@@ -446,22 +446,16 @@ def edit_radicate(request, id):
 
 
 class RadicateDetailView(DetailView):
-    model = Radicate
-
+    model = PqrsContent
+    template_name="correspondence/radicate_detail.html"
     def get_context_data(self, **kwargs):
         context = super(RadicateDetailView, self).get_context_data(**kwargs)
         context['logs'] = Log.objects.all().filter(object_id=self.kwargs['pk'])
         context['file'] = AlfrescoFile.objects.all().filter(
             radicate=self.kwargs['pk'])
-        objectPqrs = PQRS.objects.filter(
-            principal_person=context['radicate'].person.pk)[0]
-        context['pqr_type'] = objectPqrs.pqr_type.name
-        personrequest = objectPqrs.multi_request_person.all()
-        if personrequest:
-            context['personRequest'] = personrequest
-        if context['radicate'].person.attornyCheck:
+        if context['pqrscontent'].person.attornyCheck:
             personAttorny = Atttorny_Person.objects.filter(
-                person=context['radicate'].person.pk)[0]
+                person=context['pqrscontent'].person.pk)[0]
             context['personAttorny'] = personAttorny
         return context
 
