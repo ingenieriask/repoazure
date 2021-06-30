@@ -72,7 +72,7 @@ def send_email_person(request, pk, pqrs_type):
     person = Person.objects.get(pk=pk)
     base_url = "{0}://{1}/pqrs/validate-email-person/{2}".format(request.scheme, request.get_host(), unique_id)
     person.url = base_url
-    NotificationsHandler.send_notification('EMAIL_PQR_VALIDATE_PERSON', person.email, person)
+    NotificationsHandler.send_notification('EMAIL_PQR_VALIDATE_PERSON', person)
     return render(request, 'pqrs/search_person_answer_form.html', context={'msg': 'Se ha enviado un correo electrónico con la información para registrar el caso'})
 
 
@@ -161,8 +161,7 @@ def create_pqr_multiple(request, pqrs):
             query_url = "{0}://{1}/correspondence/radicate/{2}".format(
                 request.scheme, request.get_host(), radicate.pk)
             instance.url = query_url
-            NotificationsHandler.send_notification('EMAIL_PQR_CREATE',
-                                 instance.person.email, instance)
+            NotificationsHandler.send_notification('EMAIL_PQR_CREATE', instance)
 
             for fileUploaded in request.FILES.getlist('uploaded_files'):
                 document_temp_file = NamedTemporaryFile()
