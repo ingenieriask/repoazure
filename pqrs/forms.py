@@ -193,3 +193,52 @@ class PqrRadicateForm(forms.ModelForm):
         )
 
         
+class PqrsExtendRequestForm(forms.ModelForm):
+    '''captcha = CaptchaField()
+    uploaded_files = forms.FileField(widget=forms.ClearableFileInput(attrs={'multiple': True}), required=False,
+                                    label="Anexos, Documentos (Múltiples archivos - Tamaño máximo = 10 MB)")
+    agreement_personal_data = forms.BooleanField(widget=forms.CheckboxInput, required=True, 
+        label="Acepto el tratamiento de datos personales"
+        )
+    subtype_field = forms.ModelChoiceField(
+                        queryset=SubType.objects.none(),
+                        label='Tema'
+                    )
+    def clean(self):
+        cleaned_data = super(PqrRadicateForm, self).clean()
+        cleaned_data['subtype'] = SubType.objects.get(pk = self.data['subtype_field'])
+
+        if 'subtype' in self.errors:
+            del self._errors['subtype']
+
+        cleaned_data = super(PqrRadicateForm, self).clean()
+        if (cleaned_data.get('captcha') is None):
+            raise forms.ValidationError('Por favor valide el captcha')
+        
+        return cleaned_data'''
+
+    class Meta:
+        model = PqrsContent
+        fields = ('person_type', 'document_type' 'document_number', 'expedition_date')
+        labels = {'person_type': 'Tipo persona*',
+                  'document_type': 'Tipo documento',
+                  'document_number' : 'Número de documento*',
+                  'expedition_date': 'Fecha de expedición*'}
+
+    def __init__(self, *args, **kwargs):
+        super(PqrsExtendRequestForm, self).__init__(*args, **kwargs)
+        agreement_data = get_json_system_parameter('AGREEMENT_DATA')
+        
+        self.helper = FormHelper(self)
+        self.helper.layout = Layout(
+            Row(
+                Column('subject', css_class='form-group col-md-12 mb-0'),
+                css_class='form-row'
+            ),
+            Row(
+                Column('data', css_class='form-group col-md-12 mb-0'),
+                css_class='form-row'
+            ),
+            
+            Submit('submit', 'Radicar')
+        )

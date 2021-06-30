@@ -9,7 +9,7 @@ from correspondence.models import ReceptionMode, RadicateTypes, Radicate, Alfres
 from core.models import Attorny, AttornyType, Atttorny_Person, City, LegalPerson, Person, Office, DocumentTypes, PersonRequest, PersonType
 from pqrs.models import PQRS,Type, PqrsContent,Type, SubType
 from core.models import Attorny, AttornyType, Atttorny_Person, City, LegalPerson, Person, Office, DocumentTypes, PersonRequest, PersonType
-from pqrs.forms import LegalPersonForm, PqrsConsultantForm, SearchPersonForm, PersonForm, PqrRadicateForm,PersonRequestForm,PersonFormUpdate,PersonRequestFormUpdate,PersonAttorny,PqrsConsultantForm
+from pqrs.forms import LegalPersonForm, PqrsConsultantForm, SearchPersonForm, PersonForm, PqrRadicateForm,PersonRequestForm,PersonFormUpdate,PersonRequestFormUpdate,PersonAttorny,PqrsConsultantForm, PqrsExtendRequestForm
 from core.utils_db import get_system_parameter, get_json_system_parameter
 from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404, render
@@ -541,11 +541,15 @@ class PqrsConsultationResult(DetailView):
         return context
 
 
-class PqrsExtendRequest(DetailView):
-    model = PqrsContent
-    context_object_name = 'pqrs'
-    template_name = 'pqrs/extend_request.html'
+def pqrs_extend_request(request, pk):
     
-    def get_context_data(self, **kwargs):
-        context = super(PqrsExtendRequest, self).get_context_data(**kwargs)
-        return context
+    pqrs = get_object_or_404(PqrsContent, id=pk)
+    
+    if request.method == 'POST':
+        pass
+    else:
+        form = PqrsExtendRequestForm(pqrs = pqrs)
+        
+        return render(request, 'pqrs/extend_request.html', context={'form': form})
+    
+    
