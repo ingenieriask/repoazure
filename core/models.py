@@ -2,7 +2,6 @@ from django.db import models
 from django.conf import settings
 from django.http import response
 from django.urls import reverse
-from core.utils import anonymize
 from django.utils import timezone
 from colorfield.fields import ColorField
 from django.contrib.auth.models import User, Permission
@@ -10,6 +9,7 @@ from django.contrib.postgres.fields import ArrayField
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from treebeard.al_tree import AL_Node
+from core.utils_services import FormatHelper
 
 # Create your models here.
 
@@ -200,10 +200,10 @@ class LegalPerson(PersonBase):
         return self.company_name
 
     def get_anonymized_email(self):
-        return anonymize(self.email)
+        return FormatHelper.anonymize(self.email)
 
     def get_anonymized_representative(self):
-        return anonymize(self.representative)
+        return FormatHelper.anonymize(self.representative)
 
 
 class Person(PersonBase):
@@ -230,13 +230,13 @@ class Person(PersonBase):
         return reverse(self.reverse_url, args=[str(self.id)])
 
     def get_anonymized_name(self):
-        return anonymize(self.name)
+        return FormatHelper.anonymize(self.name)
 
     def get_anonymized_email(self):
-        return anonymize(self.email)
+        return FormatHelper.anonymize(self.email)
 
     def get_anonymized_address(self):
-        return anonymize(self.address)
+        return FormatHelper.anonymize(self.address)
 
     def get_addresses(self):
         address_list = [(1, self.address)]
@@ -442,7 +442,7 @@ class Notifications(models.Model):
     body = models.TextField(blank=True, null=True)
     body_sms = models.TextField(blank=True, null=True)
     notifications_services = models.ManyToManyField(
-        NotificationsService, related_name="notifications_services", blank=True)
+        NotificationsService, blank=True)
 
     def __str__(self):
         return self.name

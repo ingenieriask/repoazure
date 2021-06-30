@@ -1,6 +1,7 @@
 from os import closerange
 from re import sub
 from django.forms import widgets
+from core.models import DocumentTypes
 from pqrs.models import PqrsContent, SubType
 from django import forms
 from crispy_forms.helper import FormHelper
@@ -9,10 +10,9 @@ from crispy_forms.utils import TEMPLATE_PACK
 from core.forms import AbstractPersonForm,AbstractPersonRequestForm,AbstractPersonAttorny,AbstractLegalPersonForm
 from django.utils.translation import gettext_lazy as _
 from core.forms import CustomFileInput
-from core.utils_db import get_json_system_parameter
+from core.services import SystemParameterHelper
 from captcha.fields import CaptchaField
 from django.db.models import Q
-from core.utils import get_field_value
 
 class AgreementModal(Field):
     template='pqrs/agreement_modal.html'
@@ -94,6 +94,35 @@ class PersonRequestFormUpdate(AbstractPersonRequestForm):
 class SearchPersonForm(forms.Form):
     item = forms.CharField(label='Palabra clave', help_text='Datos a buscar')
 
+
+class PqrsConsultantForm(forms.Form):
+    num_rad = forms.CharField(label='Numero Radicado' )
+    document_type_company = forms.ModelChoiceField(
+        queryset=DocumentTypes.objects.all(),
+        label='Tipo de documento'
+    )
+    doc_num = forms.CharField(label='Numero de Documento ')
+    captcha = CaptchaField()
+
+    def __init__(self, *args, **kwargs):
+        super(PqrsConsultantForm, self).__init__(*args, **kwargs)
+        self.helper = FormHelper(self)
+        self.helper.layout = Layout(
+            Row(
+                Column('num_rad', css_class='form-group col-md-4 mb-0'),
+                Column('document_type_company',
+                       css_class='form-group col-md-4 mb-0'),
+                Column('doc_num', css_class='form-group col-md-4 mb-0'),
+                css_class='form-row'
+            ),
+            Row(
+                Column('captcha', css_class='form-group col-md-6 mb-0'),
+                css_class='form-row'
+            ),
+            Submit('submit', 'Consultar PQRDS')
+        )
+
+
 class PqrRadicateForm(forms.ModelForm):
     captcha = CaptchaField()
     uploaded_files = forms.FileField(widget=forms.ClearableFileInput(attrs={'multiple': True}), required=False,
@@ -127,7 +156,7 @@ class PqrRadicateForm(forms.ModelForm):
 
     def __init__(self, typePqr, *args, **kwargs):
         super(PqrRadicateForm, self).__init__(*args, **kwargs)
-        agreement_data = get_json_system_parameter('AGREEMENT_DATA')
+        agreement_data = SystemParameterHelper.get_json('AGREEMENT_DATA')
         
         self.fields['subtype_field'].queryset = SubType.objects.filter(Q(type=typePqr))
         

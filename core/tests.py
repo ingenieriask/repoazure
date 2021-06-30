@@ -5,19 +5,27 @@ from django.contrib.auth.models import User
 from rolepermissions.checkers import has_permission
 from django.contrib.auth.models import Permission
 from django.contrib.auth.models import Group
-
+from core.models import Person
+from core.services import NotificationsHandler
 
 class MailServiceTestCase(TestCase):
 
-    fixtures = ['app_parameter.json', ]
+    fixtures = ['app_parameter.json', 'app_notifications.json']
+
+    def test_send_notification(self):
+
+        person = Person()
+        person.url = "http://todo/pqrs/validate-email-person/1"
+        person.email = 'jorge.vanegas@skillnet.com.co'
+        
+        NotificationsHandler.send_notification('EMAIL_PQR_VALIDATE_PERSON', person)
 
     def test_send_mail(self):
-        Notifications.send_mail(
+        NotificationsHandler.send_mail(
             subject='Email subject',
             body='Email body',
             from_email=None,
             to=['jorge.vanegas@skillnet.com.co'])
-
 
 class ECMServiceTestCase(TestCase):
 
@@ -26,6 +34,11 @@ class ECMServiceTestCase(TestCase):
     def test_create_record(self):
         ECMService.create_record('test')
 
+    def test_download(self):
+        cmis_id = 'f1e917cc-1025-4477-bb0e-51ba0324b6e9'
+        file_content, file_name = ECMService.download(cmis_id)
+        if file_content:
+            open(r'D:\file_name.pdf', 'wb').write(file_content)
 
 class RecordCodeServiceTestCase(TestCase):
 

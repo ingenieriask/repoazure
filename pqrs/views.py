@@ -2,14 +2,16 @@ import uuid
 from django.db.models import query
 from django.db.models.expressions import Value
 from django.shortcuts import redirect, render
+from numpy import number
 from requests.models import Request
-
 from correspondence.models import ReceptionMode, RadicateTypes, Radicate, AlfrescoFile
-from core.models import Attorny, AttornyType, Atttorny_Person, City, LegalPerson, Person, Office, DocumentTypes, PersonRequest, PersonType
 from pqrs.models import PQRS,Type, PqrsContent,Type, SubType
-from core.models import Attorny, AttornyType, Atttorny_Person, City, LegalPerson, Person, Office, DocumentTypes, PersonRequest, PersonType, RequestResponse
-from pqrs.forms import LegalPersonForm, SearchPersonForm, PersonForm, PqrRadicateForm,PersonRequestForm,PersonFormUpdate,PersonRequestFormUpdate,PersonAttorny
-from core.utils_db import get_system_parameter, get_json_system_parameter
+from core.models import Attorny, AttornyType, Atttorny_Person, City, LegalPerson, \
+    Person, Office, DocumentTypes, PersonRequest, PersonType 
+from pqrs.forms import LegalPersonForm, PqrsConsultantForm, SearchPersonForm, PersonForm, \
+    PqrRadicateForm, PersonRequestForm, PersonFormUpdate, PersonRequestFormUpdate, \
+    PersonAttorny, PqrsConsultantForm
+
 from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404, render
 from django.urls import reverse
@@ -22,13 +24,13 @@ from django.views.generic.edit import CreateView
 from django.views.generic.edit import UpdateView
 from core.utils_redis import add_to_redis, read_from_redis
 from correspondence.services import ECMService
-from core.services import NotificationsHandler, RecordCodeService
+from core.services import NotificationsHandler, RecordCodeService, Recipients
 from django.core.files.temp import NamedTemporaryFile
 from django.core.files import File
 from django.contrib.auth.decorators import login_required, permission_required
 from django.utils.decorators import method_decorator
 from core.decorators import has_any_permission
-
+from django.db.models import Q
 from pinax.eventlog.models import log, Log
 
 import requests
@@ -41,6 +43,7 @@ import xlsxwriter
 import re
 import redis
 from requests.auth import HTTPBasicAuth
+from core.services import SystemParameterHelper
 
 logger = logging.getLogger(__name__)
 
@@ -48,10 +51,10 @@ logger = logging.getLogger(__name__)
 
 
 def index(request):
-    rino_parameter = get_system_parameter('RINO_PQR_INFO')
-    anonymous_applicant = get_system_parameter('RINO_PQR_ANONYMOUS_APPLICANT')
-    normal_applicant = get_system_parameter('RINO_PQR_NORMAL_APPLICANT')
-    private_applicant = get_system_parameter('RINO_PQR_PRIVATE_APPLICANT')
+    rino_parameter = SystemParameterHelper.get('RINO_PQR_INFO')
+    anonymous_applicant = SystemParameterHelper.get('RINO_PQR_ANONYMOUS_APPLICANT')
+    normal_applicant = SystemParameterHelper.get('RINO_PQR_NORMAL_APPLICANT')
+    private_applicant = SystemParameterHelper.get('RINO_PQR_PRIVATE_APPLICANT')
     return render(
         request,
         'pqrs/index.html', {
@@ -72,7 +75,8 @@ def send_email_person(request, pk, pqrs_type):
     person = Person.objects.get(pk=pk)
     base_url = "{0}://{1}/pqrs/validate-email-person/{2}".format(request.scheme, request.get_host(), unique_id)
     person.url = base_url
-    NotificationsHandler.send_notification('EMAIL_PQR_VALIDATE_PERSON', person.email, person)
+    NotificationsHandler.send_notification('EMAIL_PQR_VALIDATE_PERSON', person,
+                                            Recipients(person.email))
     return render(request, 'pqrs/search_person_answer_form.html', context={'msg': 'Se ha enviado un correo electrónico con la información para registrar el caso'})
 
 
@@ -161,8 +165,8 @@ def create_pqr_multiple(request, pqrs):
             query_url = "{0}://{1}/correspondence/radicate/{2}".format(
                 request.scheme, request.get_host(), radicate.pk)
             instance.url = query_url
-            NotificationsHandler.send_notification('EMAIL_PQR_CREATE',
-                                 instance.person.email, instance)
+            NotificationsHandler.send_notification('EMAIL_PQR_CREATE', instance, 
+                                                    Recipients(instance.person.email))
 
             for fileUploaded in request.FILES.getlist('uploaded_files'):
                 document_temp_file = NamedTemporaryFile()
@@ -213,7 +217,7 @@ def PQRSType(request, applicanType):
 
 def person_type(request, pqrs_type, applicanType):
     if applicanType == 1:
-        rino_parameter = get_system_parameter('RINO_PQR_MESSAGE_DOCUMENT')
+        rino_parameter = SystemParameterHelper.get('RINO_PQR_MESSAGE_DOCUMENT')
         person_type = PersonType.objects.all()
         return render(
             request, 'pqrs/person_type.html',
@@ -255,6 +259,45 @@ def dete_person_request(request, pqrs_type, id):
     personsDelte.delete()
     return redirect('pqrs:multi_request', pqrs_type)
 
+
+def procedure_conclusion(request):
+    procedure_conclusion_param = get_json_system_parameter(
+        'PROCEDURE_CONCLUSION')
+    template = request.GET['template']
+    view_name = request.GET['redirect']
+    context = {
+        'procedure_conclusion': procedure_conclusion_param,
+        'url': template+':'+view_name
+    }
+    return render(request, 'pqrs/conclusion.html', context)
+
+
+def select(requests):
+    return render(requests, 'pqrs/select.html', {})
+
+
+def pqrsConsultan(request):
+    message_pqrs_consultant = get_system_parameter(
+        'RINO_PQRSD_CONSULTANT_MESSAGE')
+    if request.method == 'POST':
+        form = PqrsConsultantForm(request.POST)
+        if form.is_valid():
+            num_rad = form['num_rad'].value()
+            doc_num = form['doc_num'].value()
+            pqrsContent = PqrsContent.objects.filter(
+                Q(number=num_rad) | Q(person__document_number=doc_num))
+            if pqrsContent:
+                return redirect('pqrs:consultation_result', pqrsContent[0].id)
+                #render to send token and show resutl
+            else:
+                messages.error( request, "La PQRDS no existe")
+    else:
+        form = PqrsConsultantForm()
+    return render(
+        request, 'pqrs/consultant_form.html', 
+        context={
+            'form': form,
+            "messageHead": message_pqrs_consultant.value})
 
 class PqrDetailView(DetailView):
     model = Radicate
@@ -438,9 +481,6 @@ class PersonUpdateView(UpdateView):
             return render(request, 'pqrs/search_person_answer_form.html', context={'msg': 'El token es inválido'})
 
 
-def select(requests):
-    return render(requests, 'pqrs/select.html', {})
-
 #@method_decorator(login_required, name='dispatch')
 @method_decorator(has_any_permission(['auth.receive_external']), name='dispatch')
 class RadicateInbox(ListView):
@@ -493,10 +533,9 @@ class PqrDetailProcessView(DetailView):
             context['personAttorny'] = personAttorny
         return context
 
-
 def procedure_conclusion(request):
     
-    procedure_conclusion_param = get_json_system_parameter('PROCEDURE_CONCLUSION')
+    procedure_conclusion_param = SystemParameterHelper.get_json('PROCEDURE_CONCLUSION')
     template = request.GET['template']
     view_name = request.GET['redirect']
     context = {

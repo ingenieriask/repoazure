@@ -11,37 +11,42 @@ import json
 import pandas as pd
 from datetime import date, timedelta
 from enum import Enum
-from core.utils_db import get_system_parameter
 from core.models import AppParameter, ConsecutiveFormat, Consecutive, Country, FilingType, \
-    Holiday, CalendarDay, CalendarDayType, Calendar,Notifications
-from core.utils import replace_data
-
-
+    Holiday, CalendarDay, CalendarDayType, Calendar, Notifications, SystemParameter
+from core.utils_services import FormatHelper
 
 logger = logging.getLogger(__name__)
 
+class SystemParameterHelper():
+    ''' '''
+    
+    @classmethod
+    def get(cls, format_name):
+        print('format_name:', format_name)
+        return SystemParameter.objects.get(name=format_name)
+
+    @classmethod
+    def get_json(cls, format_name):
+        return json.loads(cls.get(format_name).value)
+
+class Recipients():
+
+    def __init__(self, email_to, email_cc=None, phone_to=None):
+
+        self.email_to = [email_to] if isinstance(email_to, str) else email_to
+        if email_cc:
+            self.email_cc = [email_cc] if isinstance(email_cc, str) else email_cc
+        else:
+            self.email_cc = None
+        if phone_to:
+            self.phone_to = [phone_to] if isinstance(phone_to, str) else phone_to
+        else:
+            self.phone_to = None
 
 class NotificationsHandler(object):
-    '''Basic email sender'''
+    '''Notification sender'''
 
     _params = {}
-
-    def send_notification(format_name, recipient_list, data):
-        try:
-            email_format = Notifications.objects.get(name=format_name)
-
-            print(replace_data(email_format.body, data))
-
-            NotificationsHandler.send_mail(
-                replace_data(email_format.subject, data),
-                replace_data(email_format.body, data),
-                'rino@skillnet.com.co',
-                [recipient_list]
-            )
-
-        except Exception as Error:
-            print('error de envío de correo', Error)
-            logger.error(Error)
 
     def get_params(func):
         '''Lazy load of email database parameters'''
@@ -56,9 +61,39 @@ class NotificationsHandler(object):
             return func(*args, **kwargs)
         return wrapper
 
+    _services = {
+        'SEND_EMAIL': lambda data, email_format, recipients: NotificationsHandler.send_mail(
+                    FormatHelper.replace_data(email_format.subject, data),
+                    FormatHelper.replace_data(email_format.body, data),
+                    NotificationsHandler._params['EMAIL_HOST_USER'],
+                    recipients.email_to,
+                    recipients.email_cc if recipients.email_cc else None
+                ),
+        'SEND_SMS': None
+    }
+
     @classmethod
     @get_params
-    def send_mail(cls, subject='', body='', from_email=None, to=None):
+    def send_notification(cls, format_name, data, recipients):
+        try:
+            email_format = Notifications.objects.get(name=format_name)
+
+            for service in email_format.notifications_services.all():
+                if service.name in cls._services:
+                    if cls._services[service.name]:
+                        cls._services[service.name](data, email_format, recipients)
+                    else:
+                        logger.error(f"service '{service}' unimplemented")
+                else:
+                    logger.error(f"service '{service}' undefined")
+
+        except Exception as Error:
+            print(f'Notification sending error: {Error}')
+            logger.error(f'Notification sending error: {Error}')
+
+    @classmethod
+    @get_params
+    def send_mail(cls, subject='', body='', from_email=None, to=None, cc=None):
         '''Send emails to several addresses using database parameters'''
 
         if not from_email:
@@ -74,7 +109,7 @@ class NotificationsHandler(object):
             fail_silently=False)
         try:
             eb.open()
-            email = EmailMessage(subject, body, from_email, to)
+            email = EmailMessage(subject, body, from_email, to, cc)
             email.content_subtype = "html"
 
             # Send email

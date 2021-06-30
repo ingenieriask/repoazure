@@ -18,7 +18,6 @@ from django.views.generic.edit import UpdateView
 from django.views.generic import View
 from django.contrib.postgres.search import SearchVector, SearchQuery
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
-from core.utils_db import get_system_parameter
 from django.db.models import Q
 from django.contrib import messages
 from django.core.files.storage import FileSystemStorage, default_storage
@@ -35,7 +34,7 @@ from pinax.eventlog.models import log, Log
 from crum import get_current_user
 from django.core.files import File
 
-from core.services import NotificationsHandler
+from core.services import NotificationsHandler, SystemParameterHelper
 from correspondence.services import ECMService
 
 logger = logging.getLogger(__name__)
@@ -179,7 +178,7 @@ def return_to_last_user(request, radicate):
         return HttpResponseRedirect(reverse('pqrs:radicate_inbox'))
 
     if request.method == 'GET':
-        rino_search_user_param = get_system_parameter(
+        rino_search_user_param = SystemParameterHelper.get(
             'RINO_CORRESPONDENCE_RETURN_TO_LAST_USER').value
         form = ReturnToLastUserForm(request.GET)
 
@@ -223,7 +222,7 @@ def assign_user(request, radicate):
             )
             return HttpResponseRedirect(reverse('pqrs:radicate_inbox'))
     if request.method == 'GET':
-        rino_search_user_param = get_system_parameter('RINO_CORRESPONDENCE_SEARCH_USER').value
+        rino_search_user_param = SystemParameterHelper.get('RINO_CORRESPONDENCE_SEARCH_USER').value
         functional_tree = []
         for item, info in FunctionalArea.get_annotated_list():
             temp = False
@@ -300,8 +299,8 @@ def report_to_user(request, radicate):
         return HttpResponseRedirect(reverse('pqrs:radicate_inbox'))
 
     if request.method == 'GET':
-        rino_search_user_param = get_system_parameter(
-            'RINO_CORRESPONDENCE_SEARCH_USER').value
+        rino_search_user_param = SystemParameterHelper.get(
+            '').value
         functional_tree = []
         for item, info in FunctionalArea.get_annotated_list():
             temp = False
