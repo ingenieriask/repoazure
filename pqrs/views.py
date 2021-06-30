@@ -539,3 +539,13 @@ class PqrsConsultationResult(DetailView):
     def get_context_data(self, **kwargs):
         context = super(PqrsConsultationResult, self).get_context_data(**kwargs)
         return context
+
+
+class PqrsExtendRequest(DetailView):
+    model = PqrsContent
+    context_object_name = 'pqrs'
+    template_name = 'pqrs/extend_request.html'
+    
+    def get_context_data(self, **kwargs):
+        context = super(PqrsExtendRequest, self).get_context_data(**kwargs)
+        return context
