@@ -5,7 +5,7 @@ from django.urls import reverse
 from django.conf import settings
 from crum import get_current_user
 from core.models import Office, BaseModel, UserProfileInfo, Person
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User, Permission
 
 # Create your models here.
 
@@ -81,6 +81,34 @@ class Radicate(models.Model):
 
     def get_absolute_url(self):
         return reverse('correspondence:detail_radicate', args=[str(self.id)])
+
+class PermissionRelationAssignation(BaseModel):
+    current_permission = models.ForeignKey(Permission, on_delete=models.PROTECT)
+    destination_permission = models.ManyToManyField(Permission, blank=True, related_name="assination_relation_permission")
+    is_current_area = models.BooleanField()
+    
+    def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
+        user = get_current_user()
+        if user is not None:
+            if not self.pk:
+                self.user_creation = user
+            else:
+                self.user_updated = user
+        super(PermissionRelationAssignation, self).save()
+
+class PermissionRelationReport(BaseModel):
+    current_permission = models.ForeignKey(Permission, on_delete=models.PROTECT)
+    destination_permission = models.ManyToManyField(Permission, blank=True, related_name="report_relation_permission")
+    is_current_area = models.BooleanField()
+    
+    def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
+        user = get_current_user()
+        if user is not None:
+            if not self.pk:
+                self.user_creation = user
+            else:
+                self.user_updated = user
+        super(PermissionRelationAssignation, self).save()
 
 class AlfrescoFile(models.Model):
     cmis_id = models.TextField(max_length=128, null=True)
