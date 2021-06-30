@@ -62,12 +62,12 @@ function addPerson() {
 
 }
 
-function searchPeople(areaId, url, areaName) {
+function searchPeople(areaId, url, areaName, kindTask) {
   
   $.ajax({
       type: 'GET',
       url: url,
-      data: {"filter_pk": areaId},
+      data: {"filter_pk": areaId, "kind_task": kindTask},
       success: function (response) {
         $('#user_selected')
             .find('option')

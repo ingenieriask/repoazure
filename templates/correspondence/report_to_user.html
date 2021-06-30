@@ -37,7 +37,7 @@
               {% endif %}
               {% if last_leaf %}
               <span style="color: #000;"><i class="fas fa-warehouse mr-1"></i><label
-                  onclick="searchPeople('{{item.pk}}', '{% url 'correspondence:users_by_area' %}', '{{item.parent.name}}/{{item.name}}')">
+                  onclick="searchPeople('{{item.pk}}', '{% url 'correspondence:users_by_area' %}', '{{item.parent.name}}/{{item.name}}', '2')">
                   {{ item }}</label></span>
               {% else%}
               <span>

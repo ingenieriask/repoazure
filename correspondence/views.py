@@ -1,4 +1,4 @@
-from correspondence.models import AlfrescoFile, Radicate, Record, Template
+from correspondence.models import AlfrescoFile, Radicate, Record, Template, PermissionRelationAssignation, PermissionRelationReport
 from core.models import FunctionalArea, NotificationsService, Person, Atttorny_Person, UserProfileInfo, FunctionalAreaUser
 from pqrs.models import PQRS, PqrsContent
 from correspondence.forms import RadicateForm, SearchForm, UserForm, UserProfileInfoForm, PersonForm, RecordForm, \
@@ -19,9 +19,11 @@ from django.views.generic import View
 from django.contrib.postgres.search import SearchVector, SearchQuery
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from core.utils_db import get_system_parameter
+from django.db.models import Q
 from django.contrib import messages
 from django.core.files.storage import FileSystemStorage, default_storage
 from django.core.files.temp import NamedTemporaryFile
+from django.contrib.auth.models import Permission
 import requests
 import json
 import os
@@ -30,6 +32,7 @@ from docx import Document
 import logging
 import xlsxwriter
 from pinax.eventlog.models import log, Log
+from crum import get_current_user
 from django.core.files import File
 
 from core.services import NotificationsHandler
@@ -242,14 +245,30 @@ def assign_user(request, radicate):
 
 def users_by_area(request):
     filter_pk = request.GET.get('filter_pk')
+    kind_task = request.GET.get('kind_task')
+    ###get area from current user and verify if is the same from parameter
+    user=get_current_user()
+    area = FunctionalAreaUser.objects.filter(Q(user=user) & Q(functional_area=filter_pk)).first() != None
+    print('area', area, 'area')
+    ###get destination permissions
+    ###kind_task 1 is for assination, else is gonna be report
+    if kind_task and int(kind_task)==1:
+        permission = PermissionRelationAssignation.objects. \
+            filter(is_current_area=area, current_permission__in=(user.user_permissions.all() | Permission.objects.filter(group__user=user))). \
+            values_list('destination_permission').distinct()
+    else:
+        permission = PermissionRelationReport.objects. \
+            filter(is_current_area=area, current_permission__in=(user.user_permissions.all() | Permission.objects.filter(group__user=user))). \
+            values_list('destination_permission').distinct()
+    ###get destination users
+    users = User.objects.filter(Q(groups__permissions__in=permission) | Q(user_permissions__in=permission)).distinct()
     if request.is_ajax and request.method == "GET":
         users = [{
             'pk': u.user.pk,
             'username': u.user.username,
             'first_name': u.user.first_name,
             'last_name': u.user.last_name
-        } for u in FunctionalAreaUser.objects.filter(functional_area=filter_pk)]
-        # return FunctionalAreaUser.objects.filter(functional_area=filter_pk)
+        } for u in FunctionalAreaUser.objects.filter(Q(functional_area=filter_pk) & Q(user__in=users))]
         return JsonResponse(users, safe=False, status=200)
     return JsonResponse({}, status=400)
 

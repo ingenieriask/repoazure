@@ -1,8 +1,36 @@
 from django.contrib import admin
 from correspondence.models import Radicate, Raft, Subraft, Doctype, DocsRetention, Record, \
     RadicateTypes, ReceptionMode, ProcessType, SecurityLevel, FilePhases, FinalDisposition, Template, \
-    AlfrescoFile
+    AlfrescoFile, PermissionRelationReport, PermissionRelationAssignation
 from core.models import Person, PersonRequest, UserProfileInfo, DocumentTypes, PersonType
+from django.contrib.auth.models import Permission
+
+
+class PermissionRelationReportAdmin(admin.ModelAdmin):
+    fieldsets = [
+        ('Fieldset', {'fields': ['current_permission', 'destination_permission', 'is_current_area']}),
+    ]
+    def formfield_for_foreignkey(self, db_field, request, **kwargs):
+        if db_field.name == "current_permission":
+            kwargs["queryset"] = Permission.objects.filter(codename__startswith='assign_')
+        return super().formfield_for_foreignkey(db_field, request, **kwargs)
+    def formfield_for_manytomany(self, db_field, request, **kwargs):
+        if db_field.name == "destination_permission":
+            kwargs["queryset"] = Permission.objects.filter(codename__startswith='receive_')
+        return super().formfield_for_manytomany(db_field, request, **kwargs)
+
+class PermissionRelationAssignationAdmin(admin.ModelAdmin):
+    fieldsets = [
+        ('Fieldset', {'fields': ['current_permission', 'destination_permission', 'is_current_area']}),
+    ]
+    def formfield_for_foreignkey(self, db_field, request, **kwargs):
+        if db_field.name == "current_permission":
+            kwargs["queryset"] = Permission.objects.filter(codename__startswith='assign_')
+        return super().formfield_for_foreignkey(db_field, request, **kwargs)
+    def formfield_for_manytomany(self, db_field, request, **kwargs):
+        if db_field.name == "destination_permission":
+            kwargs["queryset"] = Permission.objects.filter(codename__startswith='receive_')
+        return super().formfield_for_manytomany(db_field, request, **kwargs)
 
 # Register your models here.
 admin.site.register(Raft)
@@ -23,6 +51,8 @@ admin.site.register(FinalDisposition)
 admin.site.register(PersonType)
 admin.site.register(Template)
 admin.site.register(AlfrescoFile)
+admin.site.register(PermissionRelationReport, PermissionRelationReportAdmin)
+admin.site.register(PermissionRelationAssignation, PermissionRelationAssignationAdmin)
 
 @admin.register(Radicate)
 class RadicateAdmin(admin.ModelAdmin):
