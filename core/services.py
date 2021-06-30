@@ -65,7 +65,7 @@ class NotificationsHandler(object):
                     NotificationsHandler._replace_data(email_format.subject, data),
                     NotificationsHandler._replace_data(email_format.body, data),
                     'rino@skillnet.com.co',
-                    [data.email]
+                    [data.email if hasattr(data, 'email') else data.person.email]
                 ),
         'SEND_SMS': None
     }
