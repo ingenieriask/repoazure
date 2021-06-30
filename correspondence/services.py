@@ -174,3 +174,19 @@ class ECMService(object):
 
         except Exception as Error:
             logger.error(Error)
+
+    @classmethod
+    @get_params
+    def download(cls, node_id):
+        ''' Download file from ECM'''
+
+        try:
+            res = requests.get(
+                cls._params['ECM_DOWNLOAD_URL'].replace('{nodeId}', node_id),
+                auth=cls.get_basic_authentication())
+ 
+            if res.ok: 
+                return res.content, res.headers['content-disposition']
+
+        except Exception as Error:
+            logger.error(Error)
