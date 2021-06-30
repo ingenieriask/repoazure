@@ -1,6 +1,7 @@
 from os import closerange
 from re import sub
 from django.forms import widgets
+from core.models import DocumentTypes
 from pqrs.models import PqrsContent, SubType
 from django import forms
 from crispy_forms.helper import FormHelper
@@ -93,6 +94,35 @@ class PersonRequestFormUpdate(AbstractPersonRequestForm):
                 ])
 class SearchPersonForm(forms.Form):
     item = forms.CharField(label='Palabra clave', help_text='Datos a buscar')
+
+
+class PqrsConsultantForm(forms.Form):
+    num_rad = forms.CharField(label='Numero Radicado' )
+    document_type_company = forms.ModelChoiceField(
+        queryset=DocumentTypes.objects.all(),
+        label='Tipo de documento'
+    )
+    doc_num = forms.CharField(label='Numero de Documento ')
+    captcha = CaptchaField()
+
+    def __init__(self, *args, **kwargs):
+        super(PqrsConsultantForm, self).__init__(*args, **kwargs)
+        self.helper = FormHelper(self)
+        self.helper.layout = Layout(
+            Row(
+                Column('num_rad', css_class='form-group col-md-4 mb-0'),
+                Column('document_type_company',
+                       css_class='form-group col-md-4 mb-0'),
+                Column('doc_num', css_class='form-group col-md-4 mb-0'),
+                css_class='form-row'
+            ),
+            Row(
+                Column('captcha', css_class='form-group col-md-6 mb-0'),
+                css_class='form-row'
+            ),
+            Submit('submit', 'Consultar PQRDS')
+        )
+
 
 class PqrRadicateForm(forms.ModelForm):
     captcha = CaptchaField()

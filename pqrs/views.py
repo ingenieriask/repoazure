@@ -2,13 +2,14 @@ import uuid
 from django.db.models import query
 from django.db.models.expressions import Value
 from django.shortcuts import redirect, render
+from numpy import number
 from requests.models import Request
 
 from correspondence.models import ReceptionMode, RadicateTypes, Radicate, AlfrescoFile
 from core.models import Attorny, AttornyType, Atttorny_Person, City, LegalPerson, Person, Office, DocumentTypes, PersonRequest, PersonType
 from pqrs.models import PQRS,Type, PqrsContent,Type, SubType
-from core.models import Attorny, AttornyType, Atttorny_Person, City, LegalPerson, Person, Office, DocumentTypes, PersonRequest, PersonType, RequestResponse
-from pqrs.forms import LegalPersonForm, SearchPersonForm, PersonForm, PqrRadicateForm,PersonRequestForm,PersonFormUpdate,PersonRequestFormUpdate,PersonAttorny
+from core.models import Attorny, AttornyType, Atttorny_Person, City, LegalPerson, Person, Office, DocumentTypes, PersonRequest, PersonType
+from pqrs.forms import LegalPersonForm, PqrsConsultantForm, SearchPersonForm, PersonForm, PqrRadicateForm,PersonRequestForm,PersonFormUpdate,PersonRequestFormUpdate,PersonAttorny,PqrsConsultantForm
 from core.utils_db import get_system_parameter, get_json_system_parameter
 from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404, render
@@ -28,7 +29,7 @@ from django.core.files import File
 from django.contrib.auth.decorators import login_required, permission_required
 from django.utils.decorators import method_decorator
 from core.decorators import has_any_permission
-
+from django.db.models import Q
 from pinax.eventlog.models import log, Log
 
 import requests
@@ -254,6 +255,45 @@ def dete_person_request(request, pqrs_type, id):
     return redirect('pqrs:multi_request', pqrs_type)
 
 
+def procedure_conclusion(request):
+    procedure_conclusion_param = get_json_system_parameter(
+        'PROCEDURE_CONCLUSION')
+    template = request.GET['template']
+    view_name = request.GET['redirect']
+    context = {
+        'procedure_conclusion': procedure_conclusion_param,
+        'url': template+':'+view_name
+    }
+    return render(request, 'pqrs/conclusion.html', context)
+
+
+def select(requests):
+    return render(requests, 'pqrs/select.html', {})
+
+
+def pqrsConsultan(request):
+    message_pqrs_consultant = get_system_parameter(
+        'RINO_PQRSD_CONSULTANT_MESSAGE')
+    if request.method == 'POST':
+        form = PqrsConsultantForm(request.POST)
+        if form.is_valid():
+            num_rad = form['num_rad'].value()
+            doc_num = form['doc_num'].value()
+            pqrsContent = PqrsContent.objects.filter(
+                Q(number=num_rad) | Q(person__document_number=doc_num))
+            if pqrsContent:
+                return redirect('pqrs:consultation_result', pqrsContent[0].id)
+                #render to send token and show resutl
+            else:
+                messages.error( request, "La PQRDS no existe")
+    else:
+        form = PqrsConsultantForm()
+    return render(
+        request, 'pqrs/consultant_form.html', 
+        context={
+            'form': form,
+            "messageHead": message_pqrs_consultant.value})
+
 class PqrDetailView(DetailView):
     model = Radicate
     template_name = 'pqrs/pqr_detail.html'
@@ -436,9 +476,6 @@ class PersonUpdateView(UpdateView):
             return render(request, 'pqrs/search_person_answer_form.html', context={'msg': 'El token es inválido'})
 
 
-def select(requests):
-    return render(requests, 'pqrs/select.html', {})
-
 #@method_decorator(login_required, name='dispatch')
 @method_decorator(has_any_permission(['auth.receive_external']), name='dispatch')
 class RadicateInbox(ListView):
@@ -492,16 +529,6 @@ class PqrDetailProcessView(DetailView):
         return context
 
 
-def procedure_conclusion(request):
-    
-    procedure_conclusion_param = get_json_system_parameter('PROCEDURE_CONCLUSION')
-    template = request.GET['template']
-    view_name = request.GET['redirect']
-    context = {
-        'procedure_conclusion': procedure_conclusion_param,
-        'url' : template+':'+view_name
-    }
-    return render(request, 'pqrs/conclusion.html', context)
 
 
 class PqrsConsultationResult(DetailView):

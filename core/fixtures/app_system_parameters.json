@@ -78,5 +78,13 @@
       "name": "PROCEDURE_CONCLUSION",
       "value": "{\"title\": \"<h1>TRÁMITE FINALIZADO</h1> <br><hr>\", \"body\": \"Señor(a), Muchas gracias por realizar su trámite con nosotros\"}"
     }
+  },
+  {
+    "model": "core.systemparameter",
+    "pk": 13,
+    "fields": {
+      "name": "RINO_PQRSD_CONSULTANT_MESSAGE",
+      "value": "mensaje para consulta de pqrds"
+    }
   }
 ]
