@@ -1,4 +1,4 @@
-{% extends 'correspondence/main_template.html' %} {% load static %} {% block content %}
+{% extends 'correspondence/main_template.html' %} {% load static %}  {% load pqrs_extras %}{% block content %}
 <div class="btn-group mb-3 position-relative" role="group" align="center"
   aria-label="Button group with nested dropdown">
   <a class="btn btn-dark" href="{% url 'correspondence:list_radicate' %}" role="button"><i
@@ -310,6 +310,21 @@
                   <i data-feather="align-justify"></i>
                   <b>Asunto: </b><br />{{ pqrscontent.subject }}
                 </p>
+                <div class="row">
+                  <div class="col-1">
+                    <svg height="8mm" width="8mm">
+                      <circle cx="4mm" cy="4mm" r="3mm" style="fill: {{ pqrscontent.subtype.alerts.all|get_color_traffic_light:pqrscontent.date_radicated }};" />
+                    </svg>
+                  </div>
+                  <div class="col-10">
+                    <div class="col-12">
+                      Días completitud
+                    </div>
+                    <div class="col-12">
+                      <b>{{ pqrscontent.date_radicated|get_missing_days:pqrscontent.subtype.max_response_days }}</b>   
+                    </div>
+                  </div>
+                </div>
               </div>
               <div class="col-md-6 text-sm">
                 <p>
@@ -320,6 +335,59 @@
                   <i data-feather="align-justify"></i>
                   <b>Grupo de interes: </b><br />{{ pqrscontent.interestGroup.name }}
                 </p>
+                <button class="btn btn-primary">
+                  Modificar Clasificación PQRSD
+                </button>
+              </div>
+            </div>
+            <div class="row mt-4"> 
+              <div class="col-12">
+                <i class="far fa-file fa-lg" style="color: blue;"></i> Detalle de la solicitud   
+              </div>        
+              <div class="col-12 mt-2">
+                <textarea class="form-control" rows="15" cols="50" readonly>{{ pqrscontent.data }}</textarea>
+              </div>
+            </div>
+          </div>  
+          </div>
+        </div>
+      </div>
+        <div class="col-xxl-12 col-xl-12 mb-12">
+        <div class="card  mb-3">
+          <div class="card-header">Anexos</div>
+          <div class="card-body">
+            <div class="row">
+              <div class="datatable">
+              <table class="table table-bordered table-hover" id="filesList" width="100%" cellspacing='0'>
+                <thead>
+                  <tr>
+                    <th style="text-align: center;">Nombre del archivo</th>
+                    <th style="text-align: center;">Tamaño (MB)</th>
+                  </tr>
+                </thead>
+        
+                <tbody>
+                {% for file in files %}
+                  <tr>
+                    <td>
+                    <div class="row text-center">
+                      <div class="col-2">
+                        <img data-nodeid="{{ file.cmis_id | default_if_none:'' }}" class="img-fluid shadow" width="40"
+                          height="45" src="{% static 'correspondence/assets/img/default.jpeg' %}" 
+                          data-toggle="modal" data-target="#fileModal">
+                      </div>
+                      <div class=" offset-1 col-6 align-self-center">
+                        <a data-toggle="modal" data-target="#fileModal">{{ file.name }}{{file.extension}}</a>
+                      </div>
+                    </div>
+                    </td> 
+                    <td class="text-center">
+                      {{ file.size|size_metric:'MB' }} MB
+                    </td>
+                  </tr>
+                {% endfor %}
+                </tbody>
+              </table>
               </div>
             </div>
           </div>
@@ -330,14 +398,6 @@
 </div>
 
 <div class="row">
-  <div class="col-lg-6">
-    {% for file in files %}
-    <div class="row m-3">
-      <img data-nodeid="{{ file.cmis_id | default_if_none:'' }}" class="img-fluid shadow" src="{% static
-        'correspondence/assets/img/default.jpeg' %}">
-    </div>
-    {% endfor %}
-  </div>
   <div class="col-lg-6">
     <div class="card bg-light mb-3">
       <div class="card-header">Histórico</div>
@@ -361,6 +421,44 @@
     </div>
   </div>
 </div>
-{% endblock %} {% block script %} $('.img-fluid').each(function(index,element){ if($(element).data('nodeid')){ cmis =
-$(element).data('nodeid'); $(element).attr("src", '{% url "correspondence:get_thumbnail" %}?cmis_id='+cmis);
-console.log('entrando!!') }}); {% endblock %}
+<div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">Modal title</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        ...
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-primary">Save changes</button>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %} 
+
+{% block script %} 
+
+  $('.img-fluid').each(function(index,element){ if($(element).data('nodeid')){ cmis =
+  $(element).data('nodeid'); $(element).attr("src", '{% url "correspondence:get_thumbnail" %}?cmis_id='+cmis);
+  console.log('entrando!!') }}); 
+
+  $(document).ready(function() {
+        
+        $('#filesList').DataTable( {
+            "language": {
+                "url": "{% static 'pqrs/js/dataTableSpanish.json' %}",
+            },
+            "lengthMenu": [ 3, 6, 9, 12],
+            "dom": "b<'row'<'#keyword.mr-auto'f><'col-4'l>>" +
+                    "<'row'<'col-sm-12'tr>>" +
+                    "<'row'<'col-sm-12 col-md-7'i><'col-sm-12 col-md-5'p>>",
+        });
+    } );
+
+{% endblock %}
