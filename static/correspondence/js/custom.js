@@ -90,6 +90,20 @@ function searchPeople(areaId, url, areaName) {
 function cleanSearch() {
   $('#headerForm').html('')
 }
+function descriptionPersonRequest(
+  name,personType,dateDoc,docType,docNumber,
+  address,email,city,phoneNumber){
+  $('#containerpersonRequest').removeClass('d-none')
+  $('#contTypePerson').html(personType)
+  $('#contNameLastName').html(name)
+  $('#contDocNum').html(docNumber)
+  $('#contDocType').html(docType)
+  $('#contAddress').html(address)
+  $('#contDate').html(dateDoc)
+  $('#contPhoneNumber').html(phoneNumber)
+  $('#contDepMuni').html(city)
+  $('#contMail').html(email)
+}
 $(document).ready(function () {
 
   $("#id_document_file").fileinput({
