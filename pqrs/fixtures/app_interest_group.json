@@ -14,5 +14,33 @@
       "name": "Grupo de interes 2",
       "description": "Este es el grupo de interes dos"
     }
+  },
+  {
+    "model": "pqrs.subtype",
+    "pk": 1,
+    "fields": {
+      "name": "tema 1",
+      "description": "Este es el tema de interes uno",
+      "type":1,
+      "max_response_days":15,
+      "min_response_days": 15,
+      "first_alert": 1,
+      "second_alert": 1,
+      "third_alert": 1
+    }
+  },
+  {
+    "model": "pqrs.subtype",
+    "pk": 2,
+    "fields": {
+      "name": "tema 2",
+      "description": "Este es el tema de interes dos",
+      "type": 1,
+      "max_response_days": 15,
+      "min_response_days": 15,
+      "first_alert":1,
+      "second_alert": 1,
+      "third_alert": 1
+    }
   }
 ]
