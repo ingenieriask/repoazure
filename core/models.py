@@ -442,7 +442,7 @@ class Notifications(models.Model):
     body = models.TextField(blank=True, null=True)
     body_sms = models.TextField(blank=True, null=True)
     notifications_services = models.ManyToManyField(
-        NotificationsService, related_name="notifications_services", blank=True)
+        NotificationsService, blank=True)
 
     def __str__(self):
         return self.name

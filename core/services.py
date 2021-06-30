@@ -14,34 +14,13 @@ from enum import Enum
 from core.utils_db import get_system_parameter
 from core.models import AppParameter, ConsecutiveFormat, Consecutive, Country, FilingType, \
     Holiday, CalendarDay, CalendarDayType, Calendar,Notifications
-from core.utils import replace_data
-
-
 
 logger = logging.getLogger(__name__)
 
-
 class NotificationsHandler(object):
-    '''Basic email sender'''
+    '''Notification sender'''
 
     _params = {}
-
-    def send_notification(format_name, recipient_list, data):
-        try:
-            email_format = Notifications.objects.get(name=format_name)
-
-            print(replace_data(email_format.body, data))
-
-            NotificationsHandler.send_mail(
-                replace_data(email_format.subject, data),
-                replace_data(email_format.body, data),
-                'rino@skillnet.com.co',
-                [recipient_list]
-            )
-
-        except Exception as Error:
-            print('error de envío de correo', Error)
-            logger.error(Error)
 
     def get_params(func):
         '''Lazy load of email database parameters'''
@@ -55,6 +34,60 @@ class NotificationsHandler(object):
                     entry.name: entry.value for entry in qs}
             return func(*args, **kwargs)
         return wrapper
+
+    @classmethod
+    def _get_data_from_obj(cls, param, obj):
+        arr = param.split(".", 1)
+        if len(arr) == 1:
+            try:
+                return obj.__dict__[arr[0]]
+            except Exception as Error:
+                try:
+                    return obj[arr[0]]
+                except Exception as Error:
+                    try:
+                        return eval('obj.' + arr[0])
+                    except Exception as Error:
+                        return ''
+        try:
+            return cls._get_data_from_obj(arr[1], eval('obj.' + arr[0]))
+        except Exception as Error:
+            return ''
+
+    @classmethod
+    def _replace_data(cls, text, obj):
+        for par in re.compile('<param>(.*?)</param>', re.IGNORECASE).findall(text):
+            text = text.replace('<param>' + par + '</param>', cls._get_data_from_obj(par, obj))
+        return text
+
+    _services = {
+        'SEND_EMAIL': lambda data, email_format: NotificationsHandler.send_mail(
+                    NotificationsHandler._replace_data(email_format.subject, data),
+                    NotificationsHandler._replace_data(email_format.body, data),
+                    'rino@skillnet.com.co',
+                    [data.email]
+                ),
+        'SEND_SMS': None
+    }
+
+    @classmethod
+    @get_params
+    def send_notification(cls, format_name, data):
+        try:
+            email_format = Notifications.objects.get(name=format_name)
+
+            for service in email_format.notifications_services.all():
+                if service.name in cls._services:
+                    if cls._services[service.name]:
+                        cls._services[service.name](data, email_format)
+                    else:
+                        logger.error(f"service '{service}' unimplemented")
+                else:
+                    logger.error(f"service '{service}' undefined")
+
+        except Exception as Error:
+            print(f'Notification sending error: {Error}')
+            logger.error(f'Notification sending error: {Error}')
 
     @classmethod
     @get_params

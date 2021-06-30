@@ -1,7 +1,6 @@
 
 from core.models import SystemParameter
 from django.core.mail import EmailMultiAlternatives
-from core.utils import replace_data
 import logging
 import re
 import json

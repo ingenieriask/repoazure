@@ -5,19 +5,28 @@ from django.contrib.auth.models import User
 from rolepermissions.checkers import has_permission
 from django.contrib.auth.models import Permission
 from django.contrib.auth.models import Group
+from core.models import Person
+from core.services import NotificationsHandler
 
 
 class MailServiceTestCase(TestCase):
 
-    fixtures = ['app_parameter.json', ]
+    fixtures = ['app_parameter.json', 'app_notifications.json']
+
+    def test_send_notification(self):
+
+        person = Person()
+        person.url = "http://todo/pqrs/validate-email-person/1"
+        person.email = 'jorge.vanegas@skillnet.com.co'
+        
+        NotificationsHandler.send_notification('EMAIL_PQR_VALIDATE_PERSON', person)
 
     def test_send_mail(self):
-        Notifications.send_mail(
+        NotificationsHandler.send_mail(
             subject='Email subject',
             body='Email body',
             from_email=None,
             to=['jorge.vanegas@skillnet.com.co'])
-
 
 class ECMServiceTestCase(TestCase):
 
