@@ -5,11 +5,11 @@ from django.contrib.auth.models import User
 from correspondence.models import Radicate, Record, Template
 from core.models import FunctionalAreaUser, Person, UserProfileInfo
 from core.forms import CustomFileInput
+from core.utils_services import FormatHelper
 from pinax.eventlog.models import log, Log
 from django.urls import reverse
 from django.core.exceptions import ValidationError
 from django.utils.translation import gettext_lazy as _
-from core.utils import get_field_value
 
 from crispy_forms.bootstrap import (
     Accordion,
@@ -104,10 +104,10 @@ class PersonForm(forms.ModelForm):
 
     def clean_email_confirmation(self):
         cd = self.cleaned_data
-        if get_field_value(cd, 'email_confirmation') != get_field_value(cd, 'email'):
+        if FormatHelper.get_field_value(cd, 'email_confirmation') != FormatHelper.get_field_value(cd, 'email'):
             raise forms.ValidationError(
                 'El correo de validación no coincide con el correo')
-        return get_field_value(cd, 'email_confirmation')
+        return FormatHelper.get_field_value(cd, 'email_confirmation')
 
     def clean(self):
         cleaned_data = super().clean()

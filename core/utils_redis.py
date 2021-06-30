@@ -1,9 +1,9 @@
-from core.utils_db import get_json_system_parameter
+from core.services import SystemParameterHelper
 
 import redis
 
 def add_to_redis(id, data, type):
-    redis_conf = get_json_system_parameter('REDIS_CONF')
+    redis_conf = SystemParameterHelper.get_json('REDIS_CONF')
     type_conf = list(filter(lambda x: x['type'] == type, redis_conf['types_conf']))[0]['data']
 
     r = None
@@ -14,7 +14,7 @@ def add_to_redis(id, data, type):
     return r.set(id, data, type_conf['expiration_seconds'])
 
 def read_from_redis(id, type):
-    redis_conf = get_json_system_parameter('REDIS_CONF')
+    redis_conf = SystemParameterHelper.get_json('REDIS_CONF')
     type_conf = list(filter(lambda x: x['type'] == type, redis_conf['types_conf']))[0]['data']
 
     r = None

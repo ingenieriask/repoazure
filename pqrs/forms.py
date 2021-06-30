@@ -9,10 +9,9 @@ from crispy_forms.utils import TEMPLATE_PACK
 from core.forms import AbstractPersonForm,AbstractPersonRequestForm,AbstractPersonAttorny,AbstractLegalPersonForm
 from django.utils.translation import gettext_lazy as _
 from core.forms import CustomFileInput
-from core.utils_db import get_json_system_parameter
+from core.services import SystemParameterHelper
 from captcha.fields import CaptchaField
 from django.db.models import Q
-from core.utils import get_field_value
 
 class AgreementModal(Field):
     template='pqrs/agreement_modal.html'
@@ -127,7 +126,7 @@ class PqrRadicateForm(forms.ModelForm):
 
     def __init__(self, typePqr, *args, **kwargs):
         super(PqrRadicateForm, self).__init__(*args, **kwargs)
-        agreement_data = get_json_system_parameter('AGREEMENT_DATA')
+        agreement_data = SystemParameterHelper.get_json('AGREEMENT_DATA')
         
         self.fields['subtype_field'].queryset = SubType.objects.filter(Q(type=typePqr))
         

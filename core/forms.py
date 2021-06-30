@@ -6,9 +6,9 @@ from django.db.models import query
 from core.models import Attorny, AttornyType, DocumentTypes, LegalPerson, Person, Disability, PreferencialPopulation, Disability, PersonRequest, PreferencialPopulation
 from crispy_forms.layout import Field
 import json
-from core.utils import get_field_value
 from core.widgets import ConsecutiveFormatWidget, NonWorkingCalendarWidget
 from core.services import RecordCodeService, CalendarService
+from core.utils_services import FormatHelper
 from django.db.models import Q
 from django.contrib.auth.models import Permission, Group
 from django.contrib.admin.widgets import FilteredSelectMultiple
@@ -34,10 +34,10 @@ class AbstractPersonForm(forms.ModelForm):
 
     def clean_email_confirmation(self):
         cd = self.cleaned_data
-        if (get_field_value(cd, 'email_confirmation') != get_field_value(cd, 'email')):
+        if (FormatHelper.get_field_value(cd, 'email_confirmation') != FormatHelper.get_field_value(cd, 'email')):
             raise forms.ValidationError(
                 'El correo de validación no coincide con el correo')
-        return get_field_value(cd, 'email_confirmation')
+        return FormatHelper.get_field_value(cd, 'email_confirmation')
 
     def clean(self):
         cleaned_data = super().clean()
@@ -241,10 +241,10 @@ class AbstractLegalPersonForm(forms.ModelForm):
 
     def clean_email_confirmation(self):
         cd = self.cleaned_data
-        if (get_field_value(cd, 'email_confirmation') != get_field_value(cd, 'email')):
+        if (FormatHelper.get_field_value(cd, 'email_confirmation') != FormatHelper.get_field_value(cd, 'email')):
             raise forms.ValidationError(
                 'El correo de validación no coincide con el correo')
-        return get_field_value(cd, 'email_confirmation')
+        return FormatHelper.get_field_value(cd, 'email_confirmation')
 
     class Meta:
         model = LegalPerson
@@ -344,10 +344,10 @@ class AbstractPersonAttorny(forms.ModelForm):
 
     def clean_email_confirmation(self):
         cd = self.cleaned_data
-        if (get_field_value(cd, 'email_confirmation') != get_field_value(cd, 'email')):
+        if (FormatHelper.get_field_value(cd, 'email_confirmation') != FormatHelper.get_field_value(cd, 'email')):
             raise forms.ValidationError(
                 'El correo de validación no coincide con el correo')
-        return get_field_value(cd, 'email_confirmation')
+        return FormatHelper.get_field_value(cd, 'email_confirmation')
 
     def clean(self):
         cleaned_data = super().clean()
