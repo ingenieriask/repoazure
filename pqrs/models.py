@@ -40,9 +40,6 @@ class SubType(models.Model):
     name = models.CharField(max_length=128)
     max_response_days = models.SmallIntegerField(blank=False, null=False, default=15)
     min_response_days = models.SmallIntegerField(blank=False, null=False, default=1)
-    first_alert = models.SmallIntegerField(blank=False, null=False, default=4)
-    second_alert = models.SmallIntegerField(blank=False, null=False, default=9)
-    third_alert = models.SmallIntegerField(blank=False, null=False, default=14)
     alerts = models.ManyToManyField(Alerts, related_name="alerts_subtype",blank=True)
     def __str__(self):
         return self.type.name + ' / ' + self.name

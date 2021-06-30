@@ -502,3 +502,13 @@ def procedure_conclusion(request):
         'url' : template+':'+view_name
     }
     return render(request, 'pqrs/conclusion.html', context)
+
+
+class PqrsConsultationResult(DetailView):
+    model = PqrsContent
+    context_object_name = 'pqrs'
+    template_name = 'pqrs/consultation_result.html'
+    
+    def get_context_data(self, **kwargs):
+        context = super(PqrsConsultationResult, self).get_context_data(**kwargs)
+        return context
