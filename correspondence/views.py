@@ -23,6 +23,7 @@ from django.contrib import messages
 from django.core.files.storage import FileSystemStorage, default_storage
 from django.core.files.temp import NamedTemporaryFile
 from django.contrib.auth.models import Permission
+from django.views.decorators.clickjacking import xframe_options_exempt
 import requests
 import json
 import os
@@ -693,6 +694,18 @@ def get_thumbnail(request):
     prev_response = ECMService.get_thumbnail(cmis_id)
     if prev_response:
         return HttpResponse(prev_response, content_type="image/jpeg")
+
+    return HttpResponse(default_storage.open('tmp/default.jpeg').read(), content_type="image/jpeg")
+
+
+@xframe_options_exempt
+@login_required
+def get_file(request):
+
+    cmis_id = request.GET.get('cmis_id')
+    prev_response = ECMService.download(cmis_id)
+    if prev_response:
+        return HttpResponse(prev_response, content_type="application/pdf")
 
     return HttpResponse(default_storage.open('tmp/default.jpeg').read(), content_type="image/jpeg")
 

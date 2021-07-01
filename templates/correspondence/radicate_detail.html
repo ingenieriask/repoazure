@@ -356,6 +356,9 @@
         <div class="card  mb-3">
           <div class="card-header">Anexos</div>
           <div class="card-body">
+          <div class="row">
+
+          </div> 
             <div class="row">
               <div class="datatable">
               <table class="table table-bordered table-hover" id="filesList" width="100%" cellspacing='0'>
@@ -372,12 +375,16 @@
                     <td>
                     <div class="row text-center">
                       <div class="col-2">
-                        <img data-nodeid="{{ file.cmis_id | default_if_none:'' }}" class="img-fluid shadow" width="40"
-                          height="45" src="{% static 'correspondence/assets/img/default.jpeg' %}" 
-                          data-toggle="modal" data-target="#fileModal">
+                        <img data-nodeid="{{ file.cmis_id | default_if_none:'' }}" class="img-fluid shadow display-modal" 
+                              width="40" height="45" src="{% static 'correspondence/assets/img/default.jpeg' %}" 
+                              data-extension={{ file.extension }} data-toggle="modal" data-target="#fileModal"
+                          >
                       </div>
                       <div class=" offset-1 col-6 align-self-center">
-                        <a data-toggle="modal" data-target="#fileModal">{{ file.name }}{{file.extension}}</a>
+                        <a class="display-modal"
+                           data-nodeid="{{ file.cmis_id | default_if_none:'' }}"
+                           data-extension={{ file.extension }} data-toggle="modal" data-target="#fileModal"
+                        >{{ file.name }}{{file.extension}}</a>
                       </div>
                     </div>
                     </td> 
@@ -421,21 +428,19 @@
     </div>
   </div>
 </div>
-<div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-  <div class="modal-dialog" role="document">
+<div class="modal fade" id="fileModal" tabindex="-1" role="dialog">
+  <div class="modal-dialog modal-xl" role="document">
     <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="exampleModalLabel">Modal title</h5>
+    <div class="modal-header">
         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
           <span aria-hidden="true">&times;</span>
         </button>
       </div>
       <div class="modal-body">
-        ...
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-        <button type="button" class="btn btn-primary">Save changes</button>
+        <div class="row justify-content-center">
+          <div class="col-12" id="file-display-field">
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -446,7 +451,7 @@
 
   $('.img-fluid').each(function(index,element){ if($(element).data('nodeid')){ cmis =
   $(element).data('nodeid'); $(element).attr("src", '{% url "correspondence:get_thumbnail" %}?cmis_id='+cmis);
-  console.log('entrando!!') }}); 
+  }}); 
 
   $(document).ready(function() {
         
@@ -459,6 +464,23 @@
                     "<'row'<'col-sm-12'tr>>" +
                     "<'row'<'col-sm-12 col-md-7'i><'col-sm-12 col-md-5'p>>",
         });
-    } );
+    });     
+
+   $('.display-modal').click(function(event){
+     element = event.target;
+     if ($(element).data('extension')){
+      extension = $(element).data('extension');
+      $('#file-display-field').empty()
+      if (extension == '.pdf' || extension == '.doc'){
+        embeded_file = $('<embed class="w-100"/>'); 
+      }
+      else {
+        embeded_file = $('<img class="w-100"/>'); 
+      }
+      embeded_file.attr("height", "900");
+      embeded_file.attr("src", '{% url "correspondence:get_file" %}?cmis_id='+cmis);
+      $('#file-display-field').append(embeded_file);
+     }
+   })
 
 {% endblock %}
