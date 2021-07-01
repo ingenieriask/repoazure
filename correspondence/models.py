@@ -58,7 +58,7 @@ class Radicate(models.Model):
     number = models.TextField(max_length=30, null=False, db_index=True)
     subject = models.TextField(max_length=256, null=True)
     annexes = models.TextField(max_length=256, null=True)
-    observation = models.TextField(max_length=256, null=True)
+    observation = models.TextField(max_length=400, null=True)
     type = models.ForeignKey(RadicateTypes, on_delete=models.CASCADE, related_name='radicate_type', null=False, blank=False)
     date_radicated = models.DateTimeField(default=datetime.now, db_index=True)
     creator = models.ForeignKey(User, on_delete=models.CASCADE, related_name='radicates_creator', blank=True, null=True)
@@ -70,6 +70,7 @@ class Radicate(models.Model):
     use_parent_address = models.BooleanField(default=False)
     office = models.ForeignKey(Office, on_delete=models.CASCADE, related_name='radicates_office', default='1')
     doctype = models.ForeignKey(Doctype, on_delete=models.CASCADE, related_name='radicates_doctype', blank=True, null=True)
+
 
     reported_people = models.ManyToManyField(User, blank=True)
 

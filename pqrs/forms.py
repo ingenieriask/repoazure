@@ -3,6 +3,7 @@ from re import sub
 from django.forms import widgets
 from core.models import DocumentTypes
 from pqrs.models import PqrsContent, SubType
+from correspondence.models import Radicate
 from django import forms
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Submit, Row, Column, Div, Field
@@ -217,26 +218,80 @@ class PqrsExtendRequestForm(forms.ModelForm):
         
         return cleaned_data'''
 
+    person_type = forms.CharField(max_length=32, disabled=True, label="Tipo de persona")
+    document_type = forms.CharField(disabled=True, label="Tipo de documento")
+    document_number = forms.CharField(max_length=25, disabled=True, label="Número de documento")
+    expedition_date = forms.DateField(disabled=True, required=False, label="Fecha de expedición")
+    name = forms.CharField(max_length=256, disabled=True, label="Nombes")
+    lasts_name = forms.CharField(max_length=256, disabled=True, label="Apellidos")
+    email = forms.CharField(disabled=True, label="Correo Electrónico")
+    address = forms.CharField(disabled=True, label="Dirección de correspondencia")
+    phone_number = forms.CharField(disabled=True, required=False, label="Teléfono / Celular")
+    city = forms.ChoiceField(disabled=True, required=False, label="Departamento / Municipio")
+    subject = forms.ChoiceField(disabled=True, required=False, label="Departamento / Municipio")
+    uploaded_files = forms.FileField(widget=forms.ClearableFileInput(attrs={'multiple': True}), required=False,
+                                    label="Anexos, Documentos (Múltiples archivos - Tamaño máximo = 10 MB)")
+    
+    
     class Meta:
-        model = PqrsContent
-        fields = ('person_type', 'document_type' 'document_number', 'expedition_date')
-        labels = {'person_type': 'Tipo persona*',
-                  'document_type': 'Tipo documento',
-                  'document_number' : 'Número de documento*',
-                  'expedition_date': 'Fecha de expedición*'}
+        model = Radicate
+        fields = ('observation',)
+        labels = {
+            'observation' : 'Descripción de la solicitud de ampliación'
+        }
+        widgets = {
+            'observation' : forms.Textarea()
+        }
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, radicate, *args, **kwargs):
         super(PqrsExtendRequestForm, self).__init__(*args, **kwargs)
-        agreement_data = get_json_system_parameter('AGREEMENT_DATA')
+        
+        self.fields['person_type'].widget = forms.TextInput(attrs={'value': radicate.person.person_type, 'class': 'w-75'})
+        self.fields['document_type'].widget = forms.TextInput(attrs={'value': radicate.person.document_type, 'class': 'w-75'})
+        self.fields['document_number'].widget = forms.TextInput(attrs={'value': radicate.person.document_number, 'class': 'w-75'})
+        self.fields['expedition_date'].widget = forms.TextInput(attrs={'value': radicate.person.expedition_date, 'class': 'w-75'})
+        self.fields['name'].widget = forms.TextInput(attrs={'value': radicate.person.name})
+        self.fields['lasts_name'].widget = forms.TextInput(attrs={'value': radicate.person.lasts_name})
+        self.fields['email'].widget = forms.TextInput(attrs={'value': radicate.person.email})
+        self.fields['address'].widget = forms.TextInput(attrs={'value': radicate.person.address})
+        self.fields['phone_number'].widget = forms.TextInput(attrs={'value': radicate.person.phone_number})
+        self.fields['city'].widget = forms.Select(attrs={'value': 'city'})
+        self.fields['subject'].widget = forms.TextInput(attrs={'required': False, 'value': 'Ampliación de solicitud - '+radicate.subject})
         
         self.helper = FormHelper(self)
         self.helper.layout = Layout(
+            Row(
+                Column('person_type', css_class='form-group col-md-2 mb-0'),
+                Column('document_type', css_class='form-group col-md-3 mb-0'),
+                Column('document_number', css_class='form-group col-md-3 mb-0'),
+                Column('expedition_date', css_class='form-group col-md-3 mb-0'),
+                css_class='form-row'
+            ),
+            Row(
+                Column('name', css_class='form-group col-md-6 mb-0'),
+                Column('lasts_name', css_class='form-group col-md-6 mb-0'),
+                css_class='form-row'
+            ),
+            Row(
+                Column('email', css_class='form-group col-md-6 mb-0'),
+                css_class='form-row'
+            ),
+            Row(
+                Column('address', css_class='form-group col-md-4 mb-0'),
+                Column('phone_number', css_class='form-group col-md-4 mb-0'),
+                Column('city', css_class='form-group col-md-4 mb-0'),
+                css_class='form-row'
+            ),
             Row(
                 Column('subject', css_class='form-group col-md-12 mb-0'),
                 css_class='form-row'
             ),
             Row(
-                Column('data', css_class='form-group col-md-12 mb-0'),
+                Column('observation', css_class='form-group col-md-12 mb-0'),
+                css_class='form-row'
+            ),
+            Row(
+                Column('uploaded_files', css_class='form-group col-md-12 mb-0'),
                 css_class='form-row'
             ),
             

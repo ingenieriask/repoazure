@@ -543,13 +543,11 @@ class PqrsConsultationResult(DetailView):
 
 def pqrs_extend_request(request, pk):
     
-    pqrs = get_object_or_404(PqrsContent, id=pk)
-    
+    radicate = get_object_or_404(Radicate, id=pk)
     if request.method == 'POST':
         pass
     else:
-        form = PqrsExtendRequestForm(pqrs = pqrs)
-        
+        form = PqrsExtendRequestForm(radicate=radicate)
         return render(request, 'pqrs/extend_request.html', context={'form': form})
     
     
