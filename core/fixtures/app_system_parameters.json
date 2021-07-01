@@ -83,8 +83,33 @@
     "model": "core.systemparameter",
     "pk": 13,
     "fields": {
+      "name": "FINISH_ASSIGNATION",
+      "value": "{\"title\": \"<h1>ASIGNACIÓN DE LA PQRSD <param>number</param> EXITOSA</h1> <br><hr>\", \"body\": \"<body> <div style=\\\"margin: auto; width: 500px;\\\"><table> <tr>  <td style=\\\"text-align: left; padding: 5px 20px\\\"><strong>Fecha de radicación:</strong></td>  <td style=\\\"text-align: left; padding: 5px 20px\\\"><param>date_radicated</param></td> </tr> <tr>  <td style=\\\"text-align: left; padding: 5px 20px\\\"><strong>Fecha de asignación:</strong></td>  <td style=\\\"text-align: left; padding: 5px 20px\\\"><param>date_assignation</param></td> </tr> <tr>  <td style=\\\"text-align: left; padding: 5px 20px\\\"><strong>Remitente:</strong></td>  <td style=\\\"text-align: left; padding: 5px 20px\\\"><param>last_user.first_name</param> <param>last_user.last_name</param></td> </tr> <tr>  <td style=\\\"text-align: left; padding: 5px 20px\\\"><strong>Destinatario:</strong></td>  <td style=\\\"text-align: left; padding: 5px 20px\\\"><param>current_user.first_name</param> <param>current_user.last_name</param></td> </tr> <tr>  <td style=\\\"text-align: left; padding: 5px 20px\\\"><strong>Estado de la solicitud:</strong></td>  <td style=\\\"text-align: left; padding: 5px 20px\\\"><param>pqrsobject.status_str</param></td> </tr> </table> </div></body>\"}"
+    }
+  },
+  {
+    "model": "core.systemparameter",
+    "pk": 14,
+    "fields": {
+      "name": "FINISH_RETURN_TO_LAST_USER",
+      "value": "{\"title\": \"<h1>DEVOLUCIÓN DE LA PQRSD <param>number</param> EXITOSA</h1> <br><hr>\", \"body\": \"<body> <div style=\\\"margin: auto; width: 500px;\\\"><table> <tr>  <td style=\\\"text-align: left; padding: 5px 20px\\\"><strong>Fecha de radicación:</strong></td>  <td style=\\\"text-align: left; padding: 5px 20px\\\"><param>date_radicated</param></td> </tr> <tr>  <td style=\\\"text-align: left; padding: 5px 20px\\\"><strong>Fecha de devolución:</strong></td>  <td style=\\\"text-align: left; padding: 5px 20px\\\"><param>date_assignation</param></td> </tr> <tr>  <td style=\\\"text-align: left; padding: 5px 20px\\\"><strong>Remitente:</strong></td>  <td style=\\\"text-align: left; padding: 5px 20px\\\"><param>last_user.first_name</param> <param>last_user.last_name</param></td> </tr> <tr>  <td style=\\\"text-align: left; padding: 5px 20px\\\"><strong>Destinatario:</strong></td>  <td style=\\\"text-align: left; padding: 5px 20px\\\"><param>current_user.first_name</param> <param>current_user.last_name</param></td> </tr> <tr>  <td style=\\\"text-align: left; padding: 5px 20px\\\"><strong>Estado de la solicitud:</strong></td>  <td style=\\\"text-align: left; padding: 5px 20px\\\"><param>pqrsobject.status_str</param></td> </tr> </table> </div></body>\"}"
+    }
+  },
+  {
+    "model": "core.systemparameter",
+    "pk": 15,
+    "fields": {
       "name": "RINO_PQRSD_CONSULTANT_MESSAGE",
       "value": "mensaje para consulta de pqrds"
     }
+  },
+  {
+    "model": "core.systemparameter",
+    "pk": 16,
+    "fields": {
+      "name": "FINISH_REPORT",
+      "value": "{\"title\": \"<h1>INFORME DE LA PQRSD <param>number</param> EXITOSO</h1> <br><hr>\", \"body\": \"<body> <div style=\\\"margin: auto; width: 650px;\\\"><table> <tr>  <td style=\\\"text-align: left; padding: 5px 20px\\\"><strong>Fecha de radicación:</strong></td>  <td style=\\\"text-align: left; padding: 5px 20px\\\"><param>date_radicated</param></td> </tr> <tr>  <td style=\\\"text-align: left; padding: 5px 20px\\\"><strong>Fecha de Informado:</strong></td>  <td style=\\\"text-align: left; padding: 5px 20px\\\"><param>date_assignation</param></td> </tr> <tr>  <td style=\\\"text-align: left; padding: 5px 20px\\\"><strong>Remitente:</strong></td>  <td style=\\\"text-align: left; padding: 5px 20px\\\"><param>last_user.first_name</param> <param>last_user.last_name</param></td> </tr> <tr>  <td style=\\\"text-align: left; padding: 5px 20px\\\"><strong>Destinatarios:</strong></td>  <td style=\\\"text-align: left; padding: 5px 20px\\\"><param>reported_people_str</param> <param>current_user.last_name</param></td> </tr> <tr>  <td style=\\\"text-align: left; padding: 5px 20px\\\"><strong>Estado de la solicitud:</strong></td>  <td style=\\\"text-align: left; padding: 5px 20px\\\"><param>Informado</param></td> </tr> </table> </div></body>\"}"
+    }
   }
+
 ]

@@ -250,8 +250,7 @@
                         <img class="dropdown-user-img"
                             src="{% static 'correspondence/assets/img/illustrations/profiles/Profile-Male-PNG.png' %}" />
                         <div class="dropdown-user-details">
-                            <div class="dropdown-user-details-name">{{ request.user.first_name }} {{
-                                request.user.last_name }}</div>
+                            <div class="dropdown-user-details-name">{{ request.user.first_name }} {{request.user.last_name }}</div>
                             <div class="dropdown-user-details-email">{{ request.user.email }}</div>
                         </div>
                     </h6>

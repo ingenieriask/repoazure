@@ -116,7 +116,7 @@ class NotificationsHandler(object):
             eb.send_messages([email])
             eb.close()
         except Exception as Error:
-            logger.error(Error)
+            logger.error('Error enviando el correo', Error)
 
 
 class RecordCodeService(object):

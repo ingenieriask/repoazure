@@ -1,92 +1,402 @@
 {% extends 'correspondence/main_template.html' %} {% load static %} {% block content %}
-<div class="row mb-3">
-  <div class="col-xxl-12 col-xl-12 mb-12">
-    <div class="card mb-4 h-100 mb-3">
-      <div class="card-header">Detalle</div>
-      <div id="detail">
-        <div class="card-body">
-          <div class="row">
-            <div class="col-md-4 text-sm">
-              <p>
-                <i data-feather="key"></i>
-                <b>Número:</b><br />{{ radicate.number }}
-              </p>
-              <p>
-                <i data-feather="calendar"></i>
-                <b>Fecha:</b><br />{{ radicate.date_radicated }}
-              </p>
-              <p>
-                <i data-feather="hash"></i>
-                <b>Consecutivo:</b><br />{{ radicate.pk }}
-              </p>
-              <p>
-                <i data-feather="message-square"></i>
-                <b>Asunto:</b><br />{{ radicate.subject }}
-              </p>
-              <p>
-                <i data-feather="home"></i>
-                {% if radicate.person.pk != 1 %}
-                <b>Dirección:</b><br />{{ radicate.person.address }} - {{ radicate.person.city }} {% else %}
-                <b>Dirección:</b><br />Persona anonima {% endif %}
-              </p>
-            </div>
-            <div class="col-md-4 text-sm">
-              <p>
-                <i data-feather="list"></i>
-                <b>Recepción:</b><br />{{ radicate.reception_mode }}
-              </p>
-              {% if radicate.person.parent%}
-              <p>
-                <i data-feather="user"></i>
-                <b>Razon Social:</b><br />{{radicate.person.parent.company_name }}
-              </p>
-              <p>
-                <i data-feather="user"></i>
-                <b>Representante legal:</b><br />{{radicate.person.parent.representative }}
-              </p>
-              {%endif%} {% if radicate.person.attornyCheck%}
-              <p>
-                <i data-feather="user"></i>
-                <b>Tutor Legal:</b><br />{{personAttorny.attorny.name}} {{personAttorny.attorny.lasts_name}}
-              </p>
-              <p>
-                <i data-feather="user"></i>
-                <b>Relacion:</b><br />{{personAttorny.attorny_type.name}}
-              </p>
-              {%endif%}
-              <p>
-                <i data-feather="user"></i>
-                <b>Remitente:</b><br />{{ radicate.person }}
-              </p>
-              <p>
-                {% if personRequest%}
-              <p>
-                <i data-feather="user"></i>
-                <b>Remitentes Agregados:</b><br />
-                {%for personR in personRequest%} {{personR.name }} {{personR.lasts_name}} {% endfor %}
-              </p>
-              {% endif %}
-                <i data-feather="list"></i>
-                <b>Tipo:</b><br />{{ radicate.type }}
-              </p>
-            </div>
-            <div class="col-md-4 text-sm">
-              <p>
-                <i data-feather="user"></i>
-                <b>Usuario actual:</b><br />{{ radicate.current_user.username }} {{ radicate.current_user.first_name }} {{ radicate.current_user.last_name }}
-              </p>
-              <p>
-                <i data-feather="user"></i>
-                <b>Último usuario:</b><br />{{ radicate.last_user.username }} {{ radicate.last_user.first_name }} {{ radicate.last_user.last_name }}
-              </p>
+
+<div class="card mb-12 h-100">
+  <div class="card-header text-secundary">Radicado No. {{pqrscontent.number}}
+    <ul class="nav nav-tabs card-header-tabs">
+      <li class="nav-item active">
+        <a class="nav-link active" data-toggle="tab" href="#detail">Detalle</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" data-toggle="tab" href="#history">Histórico</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" data-toggle="tab" href="#reported">Informados</a>
+      </li>
+    </ul>
+  </div>
+
+  <div class="tab-content">
+    <div id="detail" class="tab-pane fade in active show">
+      <div class="col-xxl-12 col-xl-12 mb-12">
+        <div class="card  mb-4 h-100 mb-3">
+          <div class="card-header">Informacion General</div>
+          <div class="card-body">
+            <div class="row">
+              <div class="col-md-4 text-sm">
+                <p>
+                  <i data-feather="user"></i>
+                  <b>Tipo Persona:</b><br />{{pqrscontent.person.person_type.name}}
+                </p>
+                <p>
+                  <i data-feather="credit-card"></i>
+                  <b>Tipo Documento:</b><br />{{pqrscontent.person.document_type.name}}
+                </p>
+              </div>
+              <div class="col-md-4 text-sm">
+                <p>
+                  <i data-feather="user"></i>
+                  <b>Remitente:</b><br />{{ pqrscontent.person.name }} {{ pqrscontent.person.lasts_name }}
+                </p>
+                
+                <p>
+                  <i data-feather="credit-card"></i>
+                  <b>Numero Documento:</b><br />{{pqrscontent.person.document_number}}
+                </p>
+              </div>
+              <div class="col-md-4 text-sm">
+                <p>
+                  <i data-feather="calendar"></i>
+                  <b>Fecha:</b><br />{{ pqrscontent.date_radicated }}
+                </p>
+                <!--<p>
+                  <i data-feather="user"></i>
+                  <b>Usuario creador:</b><br />{{ pqrscontent.creator.user.first_name }} {{ pqrscontent.creator.user.last_name
+                  }}
+                </p>
+                <p>
+                  <i data-feather="user"></i>
+                  <b>Usuario actual:</b><br />{{ pqrscontent.current_user.user.first_name }} {{
+                  pqrscontent.current_user.user.last_name }}
+                </p>-->
+              </div>
             </div>
           </div>
-          <div class="row">
-            <div class="col-md-12 text-sm">
-              <p>
-                <i data-feather="list"></i>
-                <b>Observaciones:</b><br />{{ radicate.observation }}
-              </p>
+        </div>
+      </div>
+      <div class="col-xxl-12 col-xl-12 mb-12">
+        <div class="card  mb-3">
+          <div class="card-header">Informacion de Contacto</div>
+          <div class="card-body">
+            <div class="row">
+              <div class="col-md-6 text-sm">
+                <p>
+                  <i data-feather="home"></i>
+                  <b>Medio deseado para recibir respuesta: </b><br />{{ pqrscontent.person.request_response.name }}
+                </p>
+                <p>
+                  <i data-feather="map-pin"></i>
+                  <b>Dirección:</b><br />
+                  {% if pqrscontent.person.pk != 1 %}
+                  {{ pqrscontent.person.address }} {% else %}
+                  Persona anonima {% endif %}
+                </p>
+                <p>
+                  <i data-feather="smartphone"></i>
+                  <b>Telefono: </b><br />{{ pqrscontent.person.phone_number }}
+                </p>
+              </div>
+              <div class="col-md-6 text-sm">
+                <p>
+                  <i data-feather="mail"></i>
+                  <b>Corre electronico: </b><br />{{ pqrscontent.person.email }}
+                </p>
+                <p>
+                  <i data-feather="compass"></i>
+                  <b>Deparatamento y Municipio:</b><br />
+                  {% if pqrscontent.person.pk != 1 %}
+                  {{ pqrscontent.person.city }} {% else %}Persona anonima {% endif %}
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-xxl-12 col-xl-12 mb-12">
+        <div class="card  mb-3">
+          <div class="card-header">Condiciones especiales</div>
+          <div class="card-body">
+            <div class="row">
+              <div class="col-md-6 text-sm">
+                <p>
+                  <i data-feather="user"></i>
+                  <b>Poblaci&oacute;n: </b><br />{{ pqrscontent.person.conflict_victim.name }}
+                </p>
+                <p>
+                  <i data-feather="align-justify"></i>
+                  <b>Poblaci&oacute;n preferencial: </b><br />
+                  {% for population in pqrscontent.person.preferencial_population.all%}
+                    {{ population.name }} <br />
+                  {% endfor%}
+                </p>
+              </div>
+              <div class="col-md-6 text-sm">
+                <p>
+                  <i data-feather="user"></i>
+                  <b>Poblaci&oacute;n: </b><br />{{ pqrscontent.person.ethnic_group.name }}
+                </p>
+                <p>
+                  <i data-feather="align-justify"></i>
+                  <b>Situaci&oacute;n de discapacidad: </b><br />
+                  {% for population in pqrscontent.person.disabilities.all%}
+                  {{ population.name }} <br />
+                  {% endfor%}
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      {% if pqrscontent.pqrsobject.multi_request_person.all %}
+      <div class="col-xxl-12 col-xl-12 mb-12">
+        <div class="card  mb-3">
+          <div class="card-header">Listado Solicitantes</div>
+          <div class="card-body">
+            <div class="overflow-auto">
+              <table class="table table-hover" id="tb_request_sender">
+                <thead>
+                  <tr>
+                    <th scope="col">Orden</th>
+                    <th scope="col">Nombre y apellido</th>
+                    <th scope="col">Tipo y Numero de Documento</th>
+                    <th scope="col">Detalles</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for people in  pqrscontent.pqrsobject.multi_request_person.all %}
+                  <tr>
+                    <td>{{forloop.counter}}</td>
+                    <td>{{people.name}} {{people.lasts_name}}</td>
+                    <td>{{people.document_type.abbr}} {{people.document_number}}</td>
+                    <td class="d-flex">
+                      <button class="btn btn-link mx-auto" 
+                      onclick="descriptionPersonRequest(
+                        '{{people.name}} {{people.lasts_name}}',
+                        '{{people.person_type.name}}',
+                        '{{people.expedition_date}}','{{people.document_type.name}}',
+                        '{{people.document_number}}','{{people.address}}',
+                        '{{people.email}}','{{people.city}}','{{people.phone_number}}'
+                      )">
+                        <i data-feather="plus-circle"></i>
+                      </button>
+                      
+                    </td>
+                  </tr>
+                  {% endfor %} 
+                </tbody>
+              </table>
+            </div>
+            <div id="containerpersonRequest" class="card mb-3 d-none">
+              <div id="namerequest" class="card-header"></div>
+            <div class="card-body">
+              <div class="row">
+                <div class="col-md-4 text-sm">
+                  <p >
+                    <i data-feather="users"></i>
+                    <b>Tipo Persona:</b><br />
+                    <span id="contTypePerson"></span>
+                  </p>
+                  <p>
+                    <i data-feather="credit-card"></i>
+                    <b>Tipo Documento:</b><br />
+                    <span id="contDocType"></span>
+                  </p>
+                  <p id="contMail">
+                    <i data-feather="credit-card"></i>
+                    <b>Correo electronico:</b><br />
+                    <span id="contMail"></span>
+                  </p>
+                </div>
+                <div class="col-md-4 text-sm">
+                  <p>
+                    <i data-feather="user"></i>
+                    <b>Nombre y Apellidos:</b><br />
+                    <span  id="contNameLastName"></span>
+                  </p>
+                  <p>
+                    <i data-feather="credit-card"></i>
+                    <b>Numero de documento:</b><br />
+                    <span id="contDocNum"></span>
+                  </p>
+                  <p >
+                    <i data-feather="map-pin"></i>
+                    <b>Direcci&oacute;n:</b><br />
+                    <span id="contAddress"></span>
+                  </p>
+                </div>
+                <div class="col-md-4 text-sm">
+                  <p >
+                    <i data-feather="calendar"></i>
+                    <b>Fecha:</b><br />
+                    <span id="contDate"></span>
+                  </p>
+                  <p >
+                    <i data-feather="smartphone"></i>
+                    <b>Telef&oacute;no/C&eacute;lular:</b><br />
+                    <span id="contPhoneNumber"></span>
+                  </p>
+                  <p >
+                    <i data-feather="compass"></i>
+                    <b>Departamento / Municipio: </b><br />
+                    <span id="contDepMuni"></span>
+                  </p>
+                </div>
+              </div>
+            </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      {% endif %}
+      {% if pqrscontent.person.attornyCheck %}
+      <div class="col-xxl-12 col-xl-12 mb-12">
+        <div class="card  mb-3">
+          <div class="card-header">Datos Apoderado</div>
+          <div class="card-body">
+            <div class="row">
+              <div class="col-md-4 text-sm">
+                <p>
+                  <i data-feather="users"></i>
+                  <b>Tipo Apoderado:</b><br />{{personAttorny.attorny_type.name}}
+                </p>
+                <p>
+                  <i data-feather="user"></i>
+                  <b>Nombre y Apellidos:</b><br />{{ personAttorny.attorny.name }} {{ personAttorny.attorny.lasts_name }}
+                </p>
+                <p>
+                  <i data-feather="map-pin"></i>
+                  <b>Direcci&oacute;n:</b><br />{{personAttorny.attorny.address}}
+                </p>
+              </div>
+              <div class="col-md-4 text-sm">
+                {% if personAttorny.attorny.professional_card %}
+                <p>
+                  <i data-feather="credit-card"></i>
+                  <b>No. Tarjeta profecional(Abogado):</b><br />{{ personAttorny.attorny.professional_card }}
+                </p>
+                {% endif%}
+                <p>
+                  <i data-feather="credit-card"></i>
+                  <b>Tipo Documento:</b><br />{{personAttorny.attorny.document_type.name}}
+                </p>
+                <p>
+                  <i data-feather="compass"></i>
+                  <b>Departamento / Municipio: </b><br />{{personAttorny.attorny.city}}
+                </p>
+                
+              </div>
+              <div class="col-md-4 text-sm">
+                <p>
+                  <i data-feather="smartphone"></i>
+                  <b>Telef&oacute;no/C&eacute;lular:</b><br />{{personAttorny.attorny.city}}
+                </p>
+                <p>
+                  <i data-feather="credit-card"></i>
+                  <b>N&uacute;mero de Documento</b><br />{{personAttorny.attorny.document_number}}
+                </p>
+                <p>
+                  <i data-feather="mail"></i>
+                  <b>Correo electronico</b><br />{{personAttorny.attorny.email}}
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      {% endif %}
+      <div class="col-xxl-12 col-xl-12 mb-12">
+        <div class="card  mb-3">
+          <div class="card-header">Datos PQRSD</div>
+          <div class="card-body">
+            <div class="row">
+              <div class="col-md-6 text-sm">
+                <p>
+                  <i data-feather="archive"></i>
+                  <b>Tipo de PQRSD: </b><br />{{ pqrscontent.pqrsobject.pqr_type.name }}
+                </p>
+                <p>
+                  <i data-feather="align-justify"></i>
+                  <b>Asunto: </b><br />{{ pqrscontent.subject }}
+                </p>
+              </div>
+              <div class="col-md-6 text-sm">
+                <p>
+                  <i data-feather="align-justify"></i>
+                  <b>Tema: </b><br />{{ pqrscontent.subtype.name }}
+                </p>
+                <p>
+                  <i data-feather="align-justify"></i>
+                  <b>Grupo de interes: </b><br />{{ pqrscontent.interestGroup.name }}
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div id="reported" class="tab-pane fade">
+      <div class="col-xxl-12 col-xl-12 mb-12">
+        <div class="card bg-light mb-3">
+          <div class="card-header">Personas informadas</div>
+          <div id="reported_people">
+            <div class="card-body">
+              <table class="table table-hover" id="tb_request_reported_people">
+                <thead>
+                  <tr>
+                    <th scope="col">Orden</th>
+                    <th scope="col">Nombre de usuario</th>
+                    <th scope="col">Nombre y apellido</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for person in  pqrscontent.reported_people.all %}
+                  <tr>
+                    <td>{{forloop.counter}}</td>
+                    <td>{{person.username}}</td>
+                    <td>{{person.first_name}} {{person.last_name}}</td>
+                  </tr>
+                  {% endfor %} 
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div id="history" class="tab-pane fade">
+      <div class="col-xxl-12 col-xl-12 mb-12">
+        <div class="card bg-light mb-3">
+          <div class="card-header">Histórico</div>
+          <div id="history">
+            <div class="card-body">
+              <table class="table table-hover" id="tb_request_history">
+                <thead>
+                  <tr>
+                    <th scope="col">Fecha</th>
+                    <th scope="col">Detalle</th>
+                    <th scope="col">Ver más</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for log in logs %}
+                  <tr>
+                    <td>{{ log.date_execution | date:"d M" }}</td>
+                    <td>{{ log.detail }} el {{ log.date_execution | date:"D d M Y P " }}</td>
+                    <td class="d-flex">
+                      <button class="btn btn-link mx-auto" 
+                      onclick="historyObservation(
+                        '{{log.observation}}'
+                      )">
+                        <i data-feather="plus-circle"></i>
+                      </button>
+                      
+                    </td>
+                  </tr>
+                  {% endfor %} 
+                </tbody>
+              </table>
+              <div id="containerObservation" class="card mb-3 d-none">
+              <div id="historyRequest" class="card-header"></div>
+              <div class="card-body">
+                <div class="row">
+                  <div class="col-md-12 text-sm">
+                    <p >
+                      <i data-feather="align-justify"></i>
+                      <b>Observaciones:</b><br />
+                      <span id="contObservation"></span>
+                    </p>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -96,9 +406,9 @@
 </div>
 <div class="row mb-12">
   <div class="col text-center">
-    <a class="btn btn-primary" href="{% url 'correspondence:assign_user' radicate=radicate.pk  %}">Asignar</a>
-    <a class="btn btn-secondary" href="{% url 'correspondence:return_to_last_user' radicate=radicate.pk  %}">Devolver</a>
-    <a class="btn btn-light" href="{% url 'correspondence:report_to_user' radicate=radicate.pk  %}">Informar</a>
+    <a class="btn btn-primary" href="{% url 'correspondence:assign_user' radicate=pqrscontent.pk  %}">Asignar</a>
+    <a class="btn btn-secondary" href="{% url 'correspondence:return_to_last_user' radicate=pqrscontent.pk  %}">Devolver</a>
+    <a class="btn btn-light" href="{% url 'correspondence:report_to_user' radicate=pqrscontent.pk  %}">Informar</a>
   </div>
 </div>
 
@@ -110,28 +420,6 @@
         'correspondence/assets/img/default.jpeg' %}">
         </div>
     {% endfor %}
-  </div>
-  <div class="col-lg-6">
-    <div class="card bg-light mb-3">
-      <div class="card-header">Histórico</div>
-      <div id="history">
-        <div class="card-body">
-          <div class="timeline timeline-xs">
-            {% for log in logs %}
-            <div class="timeline-item">
-              <div class="timeline-item-marker">
-                <div class="timeline-item-marker-text">{{ log.timestamp | date:"d M" }}</div>
-                <div class="timeline-item-marker-indicator bg-green"></div>
-              </div>
-              <div class="timeline-item-content">
-                {{ log.extra.message }} el {{ log.timestamp | date:"D d M Y P " }}
-              </div>
-            </div>
-            {% endfor %}
-          </div>
-        </div>
-      </div>
-    </div>
   </div>
 </div>
 {% endblock %} {% block script %} $('.img-fluid').each(function(index,element){ if($(element).data('nodeid')){ cmis =
