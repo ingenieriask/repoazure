@@ -31,3 +31,10 @@ def simple_date(date):
 def max_response_date(date_radicated, max_response_days):
     response_date = date_radicated + datetime.timedelta(days=max_response_days)
     return response_date.strftime('%d/%m/%Y')
+
+@register.filter()
+def size_metric(size, metric):
+    if metric == "MB":
+        size /= 1000
+        
+    return "{:.1f}".format(size)

@@ -190,7 +190,8 @@ def create_pqr_multiple(request, pqrs):
                     File(document_temp_file, name=fileUploaded.name))
                 alfrescoFile = AlfrescoFile(cmis_id=node_id, radicate=radicate,
                                             name=os.path.splitext(fileUploaded.name)[0],
-                                            extension=os.path.splitext(fileUploaded.name)[1])
+                                            extension=os.path.splitext(fileUploaded.name)[1],
+                                            size=int(fileUploaded.size/1000))
                 alfrescoFile.save()
 
                 if not node_id or not ECMService.request_renditions(node_id):

@@ -23,6 +23,7 @@ from django.contrib import messages
 from django.core.files.storage import FileSystemStorage, default_storage
 from django.core.files.temp import NamedTemporaryFile
 from django.contrib.auth.models import Permission
+from django.views.decorators.clickjacking import xframe_options_exempt
 from django.utils.http import urlencode
 import requests
 import json
@@ -507,7 +508,7 @@ class RadicateDetailView(DetailView):
     def get_context_data(self, **kwargs):
         context = super(RadicateDetailView, self).get_context_data(**kwargs)
         context['logs'] = Log.objects.all().filter(object_id=self.kwargs['pk'])
-        context['file'] = AlfrescoFile.objects.all().filter(
+        context['files'] = AlfrescoFile.objects.all().filter(
             radicate=self.kwargs['pk'])
         if context['pqrscontent'].person.attornyCheck:
             personAttorny = Atttorny_Person.objects.filter(
@@ -731,6 +732,25 @@ def get_thumbnail(request):
     prev_response = ECMService.get_thumbnail(cmis_id)
     if prev_response:
         return HttpResponse(prev_response, content_type="image/jpeg")
+
+    return HttpResponse(default_storage.open('tmp/default.jpeg').read(), content_type="image/jpeg")
+
+
+@xframe_options_exempt
+@login_required
+def get_file(request):
+
+    cmis_id = request.GET.get('cmis_id')
+    prev_response = ECMService.download(cmis_id)
+    if prev_response:
+        extension = AlfrescoFile.objects.get(cmis_id=cmis_id).extension
+        if extension == '.pdf':
+            content_type = "application/pdf"
+        elif extension == ".doc":
+            content_type = "application/msword"
+        elif extension == '.jpg':
+            content_type = "image/jpeg"
+        return HttpResponse(prev_response, content_type=content_type)
 
     return HttpResponse(default_storage.open('tmp/default.jpeg').read(), content_type="image/jpeg")
 
