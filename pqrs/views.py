@@ -4,7 +4,7 @@ from django.db.models.expressions import Value
 from django.shortcuts import redirect, render
 from numpy import number
 from requests.models import Request
-from correspondence.models import ReceptionMode, RadicateTypes, Radicate, AlfrescoFile
+from correspondence.models import ReceptionMode, RadicateTypes, Radicate, AlfrescoFile, ProcessActionStep
 from pqrs.models import PQRS,Type, PqrsContent,Type, SubType
 from core.models import Attorny, AttornyType, Atttorny_Person, City, LegalPerson, \
     Person, Office, DocumentTypes, PersonRequest, PersonType 
@@ -31,7 +31,11 @@ from django.contrib.auth.decorators import login_required, permission_required
 from django.utils.decorators import method_decorator
 from core.decorators import has_any_permission
 from django.db.models import Q
+from datetime import date
+from core.utils_services import FormatHelper
+
 from pinax.eventlog.models import log, Log
+from crum import get_current_user
 
 import requests
 import json
@@ -139,9 +143,7 @@ def create_pqr_multiple(request, pqrs):
     person = get_object_or_404(Person, id=int(pqrsoparent.principal_person.id))
 
     if request.method == 'POST':
-        print('ingresando')
         form = PqrRadicateForm(pqrsoparent.pqr_type, request.POST)
-        print('form creado')
         if form.is_valid():
             instance = form.save(commit=False)
             instance.reception_mode = get_object_or_404(
@@ -153,10 +155,18 @@ def create_pqr_multiple(request, pqrs):
             instance.person = person
             instance.pqrsobject = pqrsoparent
             radicate =  form.save()
+
+            action = ProcessActionStep()
+            action.user = get_current_user()
+            action.action = 'Creación'
+            action.detail = 'El radicado %s ha sido creado' % (radicate.number) 
+            action.radicate = radicate
+            action.save()
+
             log(
                 user=request.user,
                 action="PQR_CREATED",
-                obj=radicate,
+                obj=action,
                 extra={
                     "number": radicate.number,
                     "message": "El radicado %s ha sido creado" % (radicate.number)
@@ -259,26 +269,11 @@ def dete_person_request(request, pqrs_type, id):
     personsDelte.delete()
     return redirect('pqrs:multi_request', pqrs_type)
 
-
-def procedure_conclusion(request):
-    procedure_conclusion_param = get_json_system_parameter(
-        'PROCEDURE_CONCLUSION')
-    template = request.GET['template']
-    view_name = request.GET['redirect']
-    context = {
-        'procedure_conclusion': procedure_conclusion_param,
-        'url': template+':'+view_name
-    }
-    return render(request, 'pqrs/conclusion.html', context)
-
-
 def select(requests):
     return render(requests, 'pqrs/select.html', {})
 
-
 def pqrsConsultan(request):
-    message_pqrs_consultant = get_system_parameter(
-        'RINO_PQRSD_CONSULTANT_MESSAGE')
+    message_pqrs_consultant = SystemParameterHelper.get('RINO_PQRSD_CONSULTANT_MESSAGE')
     if request.method == 'POST':
         form = PqrsConsultantForm(request.POST)
         if form.is_valid():
@@ -514,33 +509,39 @@ class RadicateMyReported(ListView):
         return queryset
 
 class PqrDetailProcessView(DetailView):
-    model = Radicate
+    model = PqrsContent
     template_name = 'pqrs/pqr_detail_process.html'
 
     def get_context_data(self, **kwargs):
         context = super(PqrDetailProcessView, self).get_context_data(**kwargs)
-        context['logs'] = Log.objects.all().filter(object_id=self.kwargs['pk'])
-        # context['file'] = AlfrescoFile.objects.all().filter(
-        #     radicate=self.kwargs['pk'])
-        objectPqrs = PQRS.objects.filter(
-            principal_person=context['radicate'].person.pk)[0]
-        personrequest = objectPqrs.multi_request_person.all()
-        if personrequest:
-            context['personRequest'] = personrequest
-        if context['radicate'].person.attornyCheck:
-            personAttorny = Atttorny_Person.objects.filter(
-                person=context['radicate'].person.pk)[0]
+        context['logs'] = ProcessActionStep.objects.all().filter(radicate=self.kwargs['pk'])
+        context['file'] = AlfrescoFile.objects.all().filter(radicate=self.kwargs['pk'])
+        if context['pqrscontent'].person.attornyCheck:
+            personAttorny = Atttorny_Person.objects.filter(person=context['pqrscontent'].person.pk)[0]
             context['personAttorny'] = personAttorny
         return context
 
 def procedure_conclusion(request):
+    obj = {}
+    if 'pk' in request.GET:
+        obj = PqrsContent.objects.get(pk=request.GET['pk'])
+        obj.date_radicated = obj.date_radicated.strftime("%d/%m/%y")
+        obj.date_assignation = date.today().strftime("%d/%m/%y")
+        obj.pqrsobject.status_str = str(obj.pqrsobject.get_status_str())
+
+        reported_people_str = ''
+        for person in obj.reported_people.all():
+            reported_people_str += person.username + ' - ' + person.first_name + ' ' + person.last_name + '<br/>'
+
+        obj.reported_people_str = reported_people_str
+    template = SystemParameterHelper.get_json(request.GET['template'])
     
-    procedure_conclusion_param = SystemParameterHelper.get_json('PROCEDURE_CONCLUSION')
-    template = request.GET['template']
-    view_name = request.GET['redirect']
+    template['title'] = FormatHelper.replace_data(template['title'], obj)
+    template['body'] = FormatHelper.replace_data(template['body'], obj)
+    destination = request.GET['destination']
     context = {
-        'procedure_conclusion': procedure_conclusion_param,
-        'url' : template+':'+view_name
+        'procedure_conclusion': template,
+        'url' : destination
     }
     return render(request, 'pqrs/conclusion.html', context)
 

@@ -1,6 +1,7 @@
 from django.shortcuts import render, reverse
 from django.contrib import messages
 from django.http import HttpResponseRedirect
+from django.utils.http import urlencode
 
 from .models import Poll, PollInstance
 
@@ -23,8 +24,8 @@ def show_poll(request, pk):
             answers_list.append(answer[1])
             
         PollInstance(poll = poll, answers = answers_list).save()
-        
-        return HttpResponseRedirect(reverse('polls:show_poll', args=(pk,)))
+        get_args_str = urlencode({'template': 'PROCEDURE_CONCLUSION', 'destination': 'index'})
+        return HttpResponseRedirect(reverse('pqrs:conclusion')+'?'+get_args_str)
         
     poll_questions = poll.questions.order_by('number')
     

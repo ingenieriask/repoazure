@@ -12,11 +12,11 @@ class PermissionRelationReportAdmin(admin.ModelAdmin):
     ]
     def formfield_for_foreignkey(self, db_field, request, **kwargs):
         if db_field.name == "current_permission":
-            kwargs["queryset"] = Permission.objects.filter(codename__startswith='assign_')
+            kwargs["queryset"] = Permission.objects.filter(codename__startswith='report')
         return super().formfield_for_foreignkey(db_field, request, **kwargs)
     def formfield_for_manytomany(self, db_field, request, **kwargs):
         if db_field.name == "destination_permission":
-            kwargs["queryset"] = Permission.objects.filter(codename__startswith='receive_')
+            kwargs["queryset"] = Permission.objects.filter(content_type_id=4)
         return super().formfield_for_manytomany(db_field, request, **kwargs)
 
 class PermissionRelationAssignationAdmin(admin.ModelAdmin):
