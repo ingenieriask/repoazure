@@ -8,9 +8,9 @@ from correspondence.models import ReceptionMode, RadicateTypes, Radicate, Alfres
 from pqrs.models import PQRS,Type, PqrsContent,Type, SubType
 from core.models import Attorny, AttornyType, Atttorny_Person, City, LegalPerson, \
     Person, Office, DocumentTypes, PersonRequest, PersonType 
-from pqrs.forms import LegalPersonForm, PqrsConsultantForm, SearchPersonForm, PersonForm, \
+from pqrs.forms import LegalPersonForm, PqrsConsultantForm, SearchUniquePersonForm, PersonForm, \
     PqrRadicateForm, PersonRequestForm, PersonFormUpdate, PersonRequestFormUpdate, \
-    PersonAttorny, PqrsConsultantForm
+    PersonAttorny, PqrsConsultantForm, SearchLegalersonForm
 
 from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404, render
@@ -103,33 +103,41 @@ def validate_email_person(request, uuid_redis):
 
 
 def search_person(request,pqrs_type,person_type):
-    if person_type == 1:
-        template_return = 'pqrs/search_person_form.html'
-    elif person_type == 2:
-        template_return = 'pqrs/search_legal_person_form.html'
     if request.method == 'POST':
-        form = SearchPersonForm(request.POST)
+        if person_type == 1:
+            form = SearchUniquePersonForm(request.POST)
+        elif person_type == 2:
+            form = SearchLegalersonForm(request.POST)
         if form.is_valid():
-            item = form.cleaned_data['item']
             if person_type == 1:
-                qs = Person.objects.annotate(search=SearchVector(
-                    'document_number', 'email', 'name'), ).filter(search=item)
+                doc_num = form['doc_num'].value()
+                document_type = form['document_type'].value()
+                date_expe = form['date_expe'].value()
+                qs = Person.objects.all().filter(
+                    Q(document_number=doc_num) & 
+                    Q(document_type=document_type)&
+                    Q(expedition_date=date_expe))
                 person_form = PersonForm()
             elif person_type == 2:
-                qs = LegalPerson.objects.annotate(search=SearchVector(
-                    'document_company_number', 'company_name'), ).filter(search=item)
+                doc_num = form['doc_num'].value()
+                document_type_company = form['document_type_company'].value()
+                verification_digit = form['verification_digit'].value()
+                qs = LegalPerson.objects.all().filter(
+                    Q(document_number=doc_num) &
+                    Q(document_type_company=document_type_company) &
+                    Q(verification_code=verification_digit))
                 person_form = LegalPersonForm()
             if not qs.count():
                 messages.warning(
                     request, "La búsqueda no obtuvo resultados. Registre la siguiente informacion para continuar con el proceso")
     else:
-        form = SearchPersonForm()
         qs = None
         person_form = None
-
+        formeny = {'1': SearchUniquePersonForm(), '2': SearchLegalersonForm()}
+        form = formeny[str(person_type)]
     return render(
         request,
-        template_return,
+        'pqrs/search_person_form.html',
         context={
             'form': form,
             'list': qs,
@@ -257,7 +265,7 @@ def multi_create_request(request, person):
         return render(request, 'pqrs/multi_request_table.html', {'context': context})
 
     else:
-        form = SearchPersonForm()
+        form = SearchUniquePersonForm()
         qs = None
         person_form = None
 
