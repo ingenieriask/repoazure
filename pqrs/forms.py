@@ -256,7 +256,9 @@ class PqrsExtendRequestForm(forms.ModelForm):
         self.fields['address'].widget = forms.TextInput(attrs={'value': radicate.person.address})
         self.fields['phone_number'].widget = forms.TextInput(attrs={'value': radicate.person.phone_number})
         self.fields['city'].widget = forms.Select(attrs={'value': 'city'})
-        self.fields['subject'].widget = forms.TextInput(attrs={'required': False, 'value': 'Ampliación de solicitud - '+radicate.subject})
+        self.fields['city'].choices =((radicate.person.city, radicate.person.city.state.name+' / '+radicate.person.city.name))
+        self.fields['city'].default = radicate.person.city
+        self.fields['subject'].widget = forms.TextInput(attrs={'required': False})
         
         self.helper = FormHelper(self)
         self.helper.layout = Layout(
