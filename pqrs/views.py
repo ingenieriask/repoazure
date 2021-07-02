@@ -36,6 +36,8 @@ from core.utils_services import FormatHelper
 
 from pinax.eventlog.models import log, Log
 from crum import get_current_user
+from django.utils.decorators import method_decorator
+from core.decorators import has_radicate_permission
 
 import requests
 import json
@@ -508,6 +510,7 @@ class RadicateMyReported(ListView):
         queryset = queryset.filter(reported_people = self.request.user, subtype__isnull=False)
         return queryset
 
+@method_decorator(has_radicate_permission([]), name='dispatch')
 class PqrDetailProcessView(DetailView):
     model = PqrsContent
     template_name = 'pqrs/pqr_detail_process.html'
