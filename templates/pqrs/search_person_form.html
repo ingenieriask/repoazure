@@ -1,7 +1,7 @@
 {% extends 'pqrs/template.html' %} {% block content %} 
 
 <div class="card mb-4">
-  <div class="card-header">Búsqueda de remitentes</div>
+  <div class="card-header">Búsqueda de Solicitante</div>
   <div class="card-body">
     <form action="{% url 'pqrs:search_person' pqrs_type=pqrs_type person_type=person_type%}" method="post">
       {% csrf_token %}
@@ -40,12 +40,12 @@
           </h5>
           <div class="card-body border-primary">
             {% if person_type == 1 %}
-            <p class="card-text">Nombre: {{ person.get_anonymized_name }}</p>
+            <p class="card-text">Nombre: {{ person.get_full_name }}</p>
             <p class="card-text">Correo: {{ person.get_anonymized_email }}</p>
-            <p class="card-text">Dirrecion: {{person.get_anonymized_address }}</p>
+            <p class="card-text">Dirreci&oacute;n: {{person.get_anonymized_address }}</p>
             {% else %}
             <p class="card-text">Razon social: {{ person.company_name }}</p>
-            <p class="card-text">Email: {{ person.get_anonymized_email }}</p>
+            <p class="card-text">Correo: {{ person.get_anonymized_email }}</p>
             <p class="card-text">Representante: {{person.get_anonymized_representative }}</p>
             {% endif %}
             

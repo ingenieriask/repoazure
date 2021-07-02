@@ -81,7 +81,7 @@ def send_email_person(request, pk, pqrs_type):
     person.url = base_url
     NotificationsHandler.send_notification('EMAIL_PQR_VALIDATE_PERSON', person,
                                             Recipients(person.email))
-    return render(request, 'pqrs/search_person_answer_form.html', context={'msg': 'Se ha enviado un correo electrónico con la información para registrar el caso'})
+    return render(request, 'pqrs/search_person_answer_form.html', context={'msg': 'Se ha enviado un correo electrónico con la información para registrar el requerimiento'})
 
 
 def validate_email_person(request, uuid_redis):
