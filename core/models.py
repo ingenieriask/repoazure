@@ -229,6 +229,9 @@ class Person(PersonBase):
     def get_absolute_url(self):
         return reverse(self.reverse_url, args=[str(self.id)])
 
+    def get_full_name(self):
+        return f'{self.name} {self.lasts_name}'
+
     def get_anonymized_name(self):
         return FormatHelper.anonymize(self.name)
 
