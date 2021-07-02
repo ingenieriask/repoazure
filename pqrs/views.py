@@ -112,11 +112,9 @@ def search_person(request,pqrs_type,person_type):
             if person_type == 1:
                 doc_num = form['doc_num'].value()
                 document_type = form['document_type'].value()
-                date_expe = form['date_expe'].value()
-                qs = Person.objects.all().filter(
+                qs = Person.objects.filter(
                     Q(document_number=doc_num) & 
-                    Q(document_type=document_type)&
-                    Q(expedition_date=date_expe))
+                    Q(document_type=document_type))
                 person_form = PersonForm()
             elif person_type == 2:
                 doc_num = form['doc_num'].value()
