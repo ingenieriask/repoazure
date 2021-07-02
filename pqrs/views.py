@@ -545,9 +545,37 @@ def pqrs_extend_request(request, pk):
     
     radicate = get_object_or_404(Radicate, id=pk)
     if request.method == 'POST':
-        pass
+        form = PqrsExtendRequestForm(request.POST)
+        if form.is_valid():
+            instance = form.save(commit=False)
+            instance.number = RecordCodeService.get_consecutive(
+                RecordCodeService.Type.INPUT)
+            instance.type = radicate.type
+            instance.record = radicate.record
+            instance.person = radicate.person
+            instance.reception_mode = radicate.reception_mode
+            instance.office = radicate.office
+            instance.doctype = radicate.doctype
+            new_radicate = instance.save()
+        
+        return redirect('pqrs:index')
+        
     else:
-        form = PqrsExtendRequestForm(radicate=radicate)
-        return render(request, 'pqrs/extend_request.html', context={'form': form})
+        initial_values = {
+            'number': radicate.number,
+            'person_type' : radicate.person.person_type,
+            'document_type' : radicate.person.document_type,
+            'document_number' : radicate.person.document_number,
+            'expedition_date' : radicate.person.expedition_date,
+            'name' : radicate.person.name,
+            'lasts_name' : radicate.person.lasts_name,
+            'email' : radicate.person.email,
+            'address' : radicate.person.address,
+            'phone_number' : radicate.person.phone_number,
+            'city' : radicate.person.city,
+            'subject' : 'Ampliación de solicitud - ' + radicate.subject,
+        }
+        form = PqrsExtendRequestForm(initial=initial_values)
+        return render(request, 'pqrs/extend_request.html', context={'form': form, 'radicate': radicate})
     
     
