@@ -6,7 +6,7 @@ class TypeAdmin(admin.ModelAdmin):
     ]
     readonly_fields = ('name',)
 
-class PQRSAadmin(admin.ModelAdmin):
+class GeneralNullAdmin(admin.ModelAdmin):
     
     def has_add_permission(self, request):
         return False
@@ -14,9 +14,10 @@ class PQRSAadmin(admin.ModelAdmin):
     def has_delete_permission(self, request, obj=None):
         return False
 
-admin.site.register(Type, TypeAdmin)
+
+admin.site.register(Type, GeneralNullAdmin)
 admin.site.register(SubType)
-admin.site.register(PQRS, PQRSAadmin)
+admin.site.register(PQRS, GeneralNullAdmin)
 admin.site.register(PqrsContent)
 admin.site.register(InterestGroup)
 
