@@ -3,12 +3,12 @@ from django.core.exceptions import ValidationError
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Submit, Row, Column, Field, ButtonHolder, Button, Div, HTML
 from django.db.models import query
-from core.models import Attorny, AttornyType, DocumentTypes, LegalPerson, Person, Disability, PreferencialPopulation, Disability, PersonRequest, PreferencialPopulation
+from core.models import Attorny, AttornyType, DocumentTypes, LegalPerson, Person, Disability, PersonRequest, PreferencialPopulation
 from crispy_forms.layout import Field
 import json
-from core.utils import get_field_value
 from core.widgets import ConsecutiveFormatWidget, NonWorkingCalendarWidget
 from core.services import RecordCodeService, CalendarService
+from core.utils_services import FormatHelper
 from django.db.models import Q
 from django.contrib.auth.models import Permission, Group
 from django.contrib.admin.widgets import FilteredSelectMultiple
@@ -34,10 +34,10 @@ class AbstractPersonForm(forms.ModelForm):
 
     def clean_email_confirmation(self):
         cd = self.cleaned_data
-        if (get_field_value(cd, 'email_confirmation') != get_field_value(cd, 'email')):
+        if (FormatHelper.get_field_value(cd, 'email_confirmation') != FormatHelper.get_field_value(cd, 'email')):
             raise forms.ValidationError(
                 'El correo de validación no coincide con el correo')
-        return get_field_value(cd, 'email_confirmation')
+        return FormatHelper.get_field_value(cd, 'email_confirmation')
 
     def clean(self):
         cleaned_data = super().clean()
@@ -100,17 +100,17 @@ class AbstractPersonForm(forms.ModelForm):
                 Div(
 
                     Row(
-                        Column('name', css_class='form-group col-md-6 mb-0'),
-                        Column('lasts_name', css_class='form-group col-md-6 mb-0'),
-                        css_class='form-row'
-                    ),
-                    Row(
                         Column('document_type',
                                css_class='form-group col-md-4 mb-0'),
                         Column('document_number',
                                css_class='form-group col-md-4 mb-0'),
                         Column('expedition_date',
                                css_class='form-group col-md-4 mb-0'),
+                        css_class='form-row'
+                    ),
+                    Row(
+                        Column('name', css_class='form-group col-md-6 mb-0'),
+                        Column('lasts_name', css_class='form-group col-md-6 mb-0'),
                         css_class='form-row'
                     ), css_class='card-body'
                 ), css_class="card mb-3",
@@ -149,9 +149,9 @@ class AbstractPersonForm(forms.ModelForm):
                     ),
                     Row(
                         Column('preferencial_population',
-                               css_class='form-group col-md-6 mb-0'),
+                               css_class='form-group col-md-6 mt-2'),
                         Column('disabilities',
-                               css_class='form-group col-md-6 mb-0'),
+                               css_class='form-group col-md-6 mt-2'),
                         css_class='form-row'
                     ),
                     css_class='card-body'
@@ -194,17 +194,17 @@ class AbstractPersonRequestForm(forms.ModelForm):
                 Div(
 
                     Row(
-                        Column('name', css_class='form-group col-md-6 mb-0'),
-                        Column('lasts_name', css_class='form-group col-md-6 mb-0'),
-                        css_class='form-row'
-                    ),
-                    Row(
                         Column('document_type',
                                css_class='form-group col-md-4 mb-0'),
                         Column('document_number',
                                css_class='form-group col-md-4 mb-0'),
                         Column('expedition_date',
                                css_class='form-group col-md-4 mb-0'),
+                        css_class='form-row'
+                    ),
+                    Row(
+                        Column('name', css_class='form-group col-md-6 mb-0'),
+                        Column('lasts_name', css_class='form-group col-md-6 mb-0'),
                         css_class='form-row'
                     ), css_class='card-body'
                 ), css_class="card mb-3",
@@ -241,10 +241,10 @@ class AbstractLegalPersonForm(forms.ModelForm):
 
     def clean_email_confirmation(self):
         cd = self.cleaned_data
-        if (get_field_value(cd, 'email_confirmation') != get_field_value(cd, 'email')):
+        if (FormatHelper.get_field_value(cd, 'email_confirmation') != FormatHelper.get_field_value(cd, 'email')):
             raise forms.ValidationError(
                 'El correo de validación no coincide con el correo')
-        return get_field_value(cd, 'email_confirmation')
+        return FormatHelper.get_field_value(cd, 'email_confirmation')
 
     class Meta:
         model = LegalPerson
@@ -296,11 +296,7 @@ class AbstractLegalPersonForm(forms.ModelForm):
                 Div(HTML('Información de contacto Representante legal'),
                     css_class='card-header'),
                 Div(
-                    Row(
-                        Column('name', css_class='form-group col-md-6 mb-0'),
-                        Column('lasts_name', css_class='form-group col-md-6 mb-0'),
-                        css_class='form-row'
-                    ),
+                    
                     Row(
                         Column('document_type',
                                css_class='form-group col-md-4 mb-0'),
@@ -308,6 +304,10 @@ class AbstractLegalPersonForm(forms.ModelForm):
                                css_class='form-group col-md-4 mb-0'),
                         Column('expedition_date',
                                css_class='form-group col-md-4 mb-0'),
+                        css_class='form-row'
+                    ), Row(
+                        Column('name', css_class='form-group col-md-6 mb-0'),
+                        Column('lasts_name', css_class='form-group col-md-6 mb-0'),
                         css_class='form-row'
                     ), css_class='card-body'
                 ), css_class="card mb-3",
@@ -344,10 +344,10 @@ class AbstractPersonAttorny(forms.ModelForm):
 
     def clean_email_confirmation(self):
         cd = self.cleaned_data
-        if (get_field_value(cd, 'email_confirmation') != get_field_value(cd, 'email')):
+        if (FormatHelper.get_field_value(cd, 'email_confirmation') != FormatHelper.get_field_value(cd, 'email')):
             raise forms.ValidationError(
                 'El correo de validación no coincide con el correo')
-        return get_field_value(cd, 'email_confirmation')
+        return FormatHelper.get_field_value(cd, 'email_confirmation')
 
     def clean(self):
         cleaned_data = super().clean()

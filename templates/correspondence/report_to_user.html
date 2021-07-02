@@ -85,6 +85,7 @@
             </tbody>
           </table>
         </div>
+      {{ form | crispy }} {% csrf_token %}
       <input type="hidden" name="interest_area" id="interest_area" />
       <div class="col text-center">
         <input type="submit" name="search" value="Informar" class="btn btn-success lift" />

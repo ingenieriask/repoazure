@@ -8,7 +8,6 @@ from django.contrib.auth.models import Group
 from core.models import Person
 from core.services import NotificationsHandler
 
-
 class MailServiceTestCase(TestCase):
 
     fixtures = ['app_parameter.json', 'app_notifications.json']
@@ -35,6 +34,11 @@ class ECMServiceTestCase(TestCase):
     def test_create_record(self):
         ECMService.create_record('test')
 
+    def test_download(self):
+        cmis_id = 'f1e917cc-1025-4477-bb0e-51ba0324b6e9'
+        file_content, file_name = ECMService.download(cmis_id)
+        if file_content:
+            open(r'D:\file_name.pdf', 'wb').write(file_content)
 
 class RecordCodeServiceTestCase(TestCase):
 

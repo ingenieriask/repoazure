@@ -104,6 +104,10 @@ function descriptionPersonRequest(
   $('#contDepMuni').html(city)
   $('#contMail').html(email)
 }
+function historyObservation(observation){
+  $('#containerObservation').removeClass('d-none')
+  $('#contObservation').html(observation)
+}
 $(document).ready(function () {
 
   $("#id_document_file").fileinput({

@@ -11,11 +11,37 @@ import json
 import pandas as pd
 from datetime import date, timedelta
 from enum import Enum
-from core.utils_db import get_system_parameter
 from core.models import AppParameter, ConsecutiveFormat, Consecutive, Country, FilingType, \
-    Holiday, CalendarDay, CalendarDayType, Calendar,Notifications
+    Holiday, CalendarDay, CalendarDayType, Calendar, Notifications, SystemParameter
+from core.utils_services import FormatHelper
 
 logger = logging.getLogger(__name__)
+
+class SystemParameterHelper():
+    ''' '''
+    
+    @classmethod
+    def get(cls, format_name):
+        print('format_name:', format_name)
+        return SystemParameter.objects.get(name=format_name)
+
+    @classmethod
+    def get_json(cls, format_name):
+        return json.loads(cls.get(format_name).value)
+
+class Recipients():
+
+    def __init__(self, email_to, email_cc=None, phone_to=None):
+
+        self.email_to = [email_to] if isinstance(email_to, str) else email_to
+        if email_cc:
+            self.email_cc = [email_cc] if isinstance(email_cc, str) else email_cc
+        else:
+            self.email_cc = None
+        if phone_to:
+            self.phone_to = [phone_to] if isinstance(phone_to, str) else phone_to
+        else:
+            self.phone_to = None
 
 class NotificationsHandler(object):
     '''Notification sender'''
@@ -35,51 +61,27 @@ class NotificationsHandler(object):
             return func(*args, **kwargs)
         return wrapper
 
-    @classmethod
-    def _get_data_from_obj(cls, param, obj):
-        arr = param.split(".", 1)
-        if len(arr) == 1:
-            try:
-                return obj.__dict__[arr[0]]
-            except Exception as Error:
-                try:
-                    return obj[arr[0]]
-                except Exception as Error:
-                    try:
-                        return eval('obj.' + arr[0])
-                    except Exception as Error:
-                        return ''
-        try:
-            return cls._get_data_from_obj(arr[1], eval('obj.' + arr[0]))
-        except Exception as Error:
-            return ''
-
-    @classmethod
-    def _replace_data(cls, text, obj):
-        for par in re.compile('<param>(.*?)</param>', re.IGNORECASE).findall(text):
-            text = text.replace('<param>' + par + '</param>', cls._get_data_from_obj(par, obj))
-        return text
-
     _services = {
-        'SEND_EMAIL': lambda data, email_format: NotificationsHandler.send_mail(
-                    NotificationsHandler._replace_data(email_format.subject, data),
-                    NotificationsHandler._replace_data(email_format.body, data),
-                    'rino@skillnet.com.co',
-                    [data.email if hasattr(data, 'email') else data.person.email]
+        'SEND_EMAIL': lambda data, email_format, recipients: NotificationsHandler.send_mail(
+                    FormatHelper.replace_data(email_format.subject, data),
+                    FormatHelper.replace_data(email_format.body, data),
+                    NotificationsHandler._params['EMAIL_HOST_USER'],
+                    recipients.email_to,
+                    recipients.email_cc if recipients.email_cc else None
                 ),
         'SEND_SMS': None
     }
 
     @classmethod
     @get_params
-    def send_notification(cls, format_name, data):
+    def send_notification(cls, format_name, data, recipients):
         try:
             email_format = Notifications.objects.get(name=format_name)
 
             for service in email_format.notifications_services.all():
                 if service.name in cls._services:
                     if cls._services[service.name]:
-                        cls._services[service.name](data, email_format)
+                        cls._services[service.name](data, email_format, recipients)
                     else:
                         logger.error(f"service '{service}' unimplemented")
                 else:
@@ -91,7 +93,7 @@ class NotificationsHandler(object):
 
     @classmethod
     @get_params
-    def send_mail(cls, subject='', body='', from_email=None, to=None):
+    def send_mail(cls, subject='', body='', from_email=None, to=None, cc=None):
         '''Send emails to several addresses using database parameters'''
 
         if not from_email:
@@ -107,14 +109,14 @@ class NotificationsHandler(object):
             fail_silently=False)
         try:
             eb.open()
-            email = EmailMessage(subject, body, from_email, to)
+            email = EmailMessage(subject, body, from_email, to, cc)
             email.content_subtype = "html"
 
             # Send email
             eb.send_messages([email])
             eb.close()
         except Exception as Error:
-            logger.error(Error)
+            logger.error('Error enviando el correo', Error)
 
 
 class RecordCodeService(object):

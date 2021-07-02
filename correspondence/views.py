@@ -1,4 +1,4 @@
-from correspondence.models import AlfrescoFile, Radicate, Record, Template, PermissionRelationAssignation, PermissionRelationReport
+from correspondence.models import AlfrescoFile, Radicate, Record, Template, PermissionRelationAssignation, PermissionRelationReport, ProcessActionStep
 from core.models import FunctionalArea, NotificationsService, Person, Atttorny_Person, UserProfileInfo, FunctionalAreaUser
 from pqrs.models import PQRS, PqrsContent
 from correspondence.forms import RadicateForm, SearchForm, UserForm, UserProfileInfoForm, PersonForm, RecordForm, \
@@ -18,12 +18,13 @@ from django.views.generic.edit import UpdateView
 from django.views.generic import View
 from django.contrib.postgres.search import SearchVector, SearchQuery
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
-from core.utils_db import get_system_parameter
 from django.db.models import Q
 from django.contrib import messages
 from django.core.files.storage import FileSystemStorage, default_storage
 from django.core.files.temp import NamedTemporaryFile
 from django.contrib.auth.models import Permission
+from django.views.decorators.clickjacking import xframe_options_exempt
+from django.utils.http import urlencode
 import requests
 import json
 import os
@@ -35,7 +36,7 @@ from pinax.eventlog.models import log, Log
 from crum import get_current_user
 from django.core.files import File
 
-from core.services import NotificationsHandler
+from core.services import NotificationsHandler, SystemParameterHelper
 from correspondence.services import ECMService
 
 logger = logging.getLogger(__name__)
@@ -165,10 +166,18 @@ def return_to_last_user(request, radicate):
             pqrs.observation = pqrs.observation + \
                 form.cleaned_data['observations']
 
+            action = ProcessActionStep()
+            action.user = get_current_user()
+            action.action = 'Devolución'
+            action.detail = "El radicado %s ha sido retornado a %s" % (pqrs.number, user.username)
+            action.radicate = pqrs
+            action.observation = form.cleaned_data['observations']
+            action.save()
+
             log(
                 user=request.user,
                 action="PQR_RETURNED",
-                obj=pqrs,
+                obj=action,
                 extra={
                     "number": pqrs.number,
                     "message": "El radicado %s ha sido retornado a %s" % (pqrs.number, user.username)
@@ -176,22 +185,23 @@ def return_to_last_user(request, radicate):
             )
             pqrs.save()
             pqrs.pqrsobject.save()
-        return HttpResponseRedirect(reverse('pqrs:radicate_inbox'))
+            get_args_str = urlencode({'pk': pqrs.pk, 'template': 'FINISH_RETURN_TO_LAST_USER', 'destination': 'pqrs:radicate_my_inbox'})
+            return HttpResponseRedirect(reverse('pqrs:conclusion')+'?'+get_args_str)
 
     if request.method == 'GET':
-        rino_search_user_param = get_system_parameter(
+        rino_search_user_param = SystemParameterHelper.get(
             'RINO_CORRESPONDENCE_RETURN_TO_LAST_USER').value
         form = ReturnToLastUserForm(request.GET)
 
-        return render(
-            request,
-            'correspondence/return_to_last_user.html',
-            context={
-                'form': form,
-                'rino_parameter': rino_search_user_param,
-                'last_user': pqrs.last_user.username + ' ' + pqrs.last_user.first_name + ' ' + pqrs.last_user.last_name,
-                'radicate': radicate
-            })
+    return render(
+        request,
+        'correspondence/return_to_last_user.html',
+        context={
+            'form': form,
+            'rino_parameter': rino_search_user_param,
+            'last_user': pqrs.last_user.username + ' ' + pqrs.last_user.first_name + ' ' + pqrs.last_user.last_name,
+            'radicate': radicate
+        })
 
 
 def assign_user(request, radicate):
@@ -204,7 +214,7 @@ def assign_user(request, radicate):
             print('userPk', userPk, 'userPk')
             pqrs = PqrsContent.objects.get(pk=radicate)
             user = User.objects.get(pk=userPk)
-            pqrs.last_user = pqrs.current_user
+            pqrs.last_user = get_current_user()
             pqrs.current_user = user
             pqrs.pqrsobject.status = PQRS.Status.ASSIGNED
 
@@ -212,18 +222,29 @@ def assign_user(request, radicate):
                 pqrs.observation = ''
             pqrs.observation = pqrs.observation + form.cleaned_data['observations']
 
+            action = ProcessActionStep()
+            action.user = get_current_user()
+            action.destination_user = user
+            action.action = 'Asignación'
+            action.detail = "El radicado %s ha sido asignado a %s" % (pqrs.number, user.username)
+            action.radicate = pqrs
+            action.observation = form.cleaned_data['observations']
+            action.save()
+
             log(
                 user=request.user,
                 action="PQR_ASSIGNED",
-                obj=pqrs,
+                obj=action,
                 extra={
                     "number": pqrs.number,
                     "message": "El radicado %s ha sido asignado a %s" % (pqrs.number, user.username)
                 }
             )
-            return HttpResponseRedirect(reverse('pqrs:radicate_inbox'))
+            pqrs.save()
+            get_args_str = urlencode({'pk': pqrs.pk, 'template': 'FINISH_ASSIGNATION', 'destination': 'pqrs:radicate_my_inbox'})
+            return HttpResponseRedirect(reverse('pqrs:conclusion')+'?'+get_args_str)
     if request.method == 'GET':
-        rino_search_user_param = get_system_parameter('RINO_CORRESPONDENCE_SEARCH_USER').value
+        rino_search_user_param = SystemParameterHelper.get('RINO_CORRESPONDENCE_SEARCH_USER').value
         functional_tree = []
         for item, info in FunctionalArea.get_annotated_list():
             temp = False
@@ -232,15 +253,15 @@ def assign_user(request, radicate):
             functional_tree.append((item, info, temp))
         form = AssignToUserForm(request.GET)
 
-        return render(
-            request,
-            'correspondence/assign_user.html',
-            context={
-                'form': form,
-                'rino_parameter': rino_search_user_param,
-                'functional_tree': functional_tree,
-                'radicate': radicate
-            })
+    return render(
+        request,
+        'correspondence/assign_user.html',
+        context={
+            'form': form,
+            'rino_parameter': rino_search_user_param,
+            'functional_tree': functional_tree,
+            'radicate': radicate
+        })
 
 
 def users_by_area(request):
@@ -249,7 +270,6 @@ def users_by_area(request):
     ###get area from current user and verify if is the same from parameter
     user=get_current_user()
     area = FunctionalAreaUser.objects.filter(Q(user=user) & Q(functional_area=filter_pk)).first() != None
-    print('area', area, 'area')
     ###get destination permissions
     ###kind_task 1 is for assination, else is gonna be report
     if kind_task and int(kind_task)==1:
@@ -277,31 +297,49 @@ def report_to_user(request, radicate):
 
     if request.method == 'POST':
         form = ReportToUserForm(request.POST)
+        if form.is_valid():
+            pqrs = PqrsContent.objects.get(pk=radicate)
+            users=''
+            destination_users = []
+            for userPK in request.POST.getlist('selectedUsersInput'):
+                print('userPK', userPK, 'fin userPK')
+                user = User.objects.get(pk=userPK)
 
-        pqrs = PqrsContent.objects.get(pk=radicate)
-        users=''
-        for userPK in request.POST.getlist('selectedUsersInput'):
-            print('userPK', userPK, 'fin userPK')
-            user = User.objects.get(pk=userPK)
+                pqrs.reported_people.add(user)
+                users += user.username + ', '
+                destination_users.append(user)
 
-            pqrs.reported_people.add(user)
-            users += user.username + ', '
+            
+            if pqrs.observation == None:
+                pqrs.observation = ''
+            pqrs.observation = pqrs.observation + form.cleaned_data['observations']
 
-        log(
-            user=request.user,
-            action="PQR_REPORTED",
-            obj=pqrs,
-            extra={
-                "number": pqrs.number,
-                "message": "El radicado %s ha sido reportado a los usuarios %s" % (pqrs.number, users)
-            }
-        )
-        pqrs.save()
-        return HttpResponseRedirect(reverse('pqrs:radicate_inbox'))
+            action = ProcessActionStep()
+            action.user = get_current_user()
+            action.action = 'Informe'
+            action.detail = "El radicado %s ha sido informado a los usuarios %s" % (pqrs.number, users)
+            action.radicate = pqrs
+            action.observation = form.cleaned_data['observations']
+            action.save()
+            action.destination_users.set(destination_users)
+            action.save()
+
+            log(
+                user=request.user,
+                action="PQR_REPORTED",
+                obj=action,
+                extra={
+                    "number": pqrs.number,
+                    "message": "El radicado %s ha sido informado a los usuarios %s" % (pqrs.number, users)
+                }
+            )
+            pqrs.save()
+            get_args_str = urlencode({'pk': pqrs.pk, 'template': 'FINISH_REPORT', 'destination': 'pqrs:radicate_my_inbox'})
+            return HttpResponseRedirect(reverse('pqrs:conclusion')+'?'+get_args_str)
+            # return HttpResponseRedirect(reverse('pqrs:radicate_inbox'))
 
     if request.method == 'GET':
-        rino_search_user_param = get_system_parameter(
-            'RINO_CORRESPONDENCE_SEARCH_USER').value
+        rino_search_user_param = SystemParameterHelper.get('RINO_CORRESPONDENCE_SEARCH_USER').value
         functional_tree = []
         for item, info in FunctionalArea.get_annotated_list():
             temp = False
@@ -470,7 +508,7 @@ class RadicateDetailView(DetailView):
     def get_context_data(self, **kwargs):
         context = super(RadicateDetailView, self).get_context_data(**kwargs)
         context['logs'] = Log.objects.all().filter(object_id=self.kwargs['pk'])
-        context['file'] = AlfrescoFile.objects.all().filter(
+        context['files'] = AlfrescoFile.objects.all().filter(
             radicate=self.kwargs['pk'])
         if context['pqrscontent'].person.attornyCheck:
             personAttorny = Atttorny_Person.objects.filter(
@@ -694,6 +732,25 @@ def get_thumbnail(request):
     prev_response = ECMService.get_thumbnail(cmis_id)
     if prev_response:
         return HttpResponse(prev_response, content_type="image/jpeg")
+
+    return HttpResponse(default_storage.open('tmp/default.jpeg').read(), content_type="image/jpeg")
+
+
+@xframe_options_exempt
+@login_required
+def get_file(request):
+
+    cmis_id = request.GET.get('cmis_id')
+    prev_response = ECMService.download(cmis_id)
+    if prev_response:
+        extension = AlfrescoFile.objects.get(cmis_id=cmis_id).extension
+        if extension == '.pdf':
+            content_type = "application/pdf"
+        elif extension == ".doc":
+            content_type = "application/msword"
+        elif extension == '.jpg':
+            content_type = "image/jpeg"
+        return HttpResponse(prev_response, content_type=content_type)
 
     return HttpResponse(default_storage.open('tmp/default.jpeg').read(), content_type="image/jpeg")
 

@@ -13,10 +13,9 @@ from core.forms import AbstractPersonForm,AbstractPersonRequestForm,AbstractPers
 from django.utils.translation import gettext_lazy as _
 from django.utils.safestring import mark_safe
 from core.forms import CustomFileInput
-from core.utils_db import get_json_system_parameter
+from core.services import SystemParameterHelper
 from captcha.fields import CaptchaField
 from django.db.models import Q
-from core.utils import get_field_value
 
 class AgreementModal(Field):
     template='pqrs/agreement_modal.html'
@@ -96,9 +95,55 @@ class PersonRequestFormUpdate(AbstractPersonRequestForm):
                 ),css_class="d-flex"),
                 ])
 class SearchPersonForm(forms.Form):
-    item = forms.CharField(label='Palabra clave', help_text='Datos a buscar')
+    item = forms.CharField(label='Palabra clave (Numero de Documento, Nombre, Correo electronico )', help_text='Datos a buscar')
 
 
+class SearchUniquePersonForm(forms.Form):
+    doc_num = forms.CharField(label='Numero de Documento' )
+    document_type= forms.ModelChoiceField(
+        queryset=DocumentTypes.objects.all(),
+        label='Tipo de documento'
+    )
+    def __init__(self, *args, **kwargs):
+        super(SearchUniquePersonForm, self).__init__(*args, **kwargs)
+        self.helper = FormHelper(self)
+        self.helper.layout = Layout(
+            Row(
+                Column('document_type', css_class='form-group col-md-6 mb-0'),
+            ),
+            Row(
+                Column('doc_num',
+                       css_class='form-group col-md-6 mb-0'),
+                css_class='form-row'
+            ), Submit('submit', 'Buscar')
+        )
+
+
+class SearchLegalersonForm(forms.Form):
+    doc_num = forms.CharField(label='Numero de Documento')
+    document_type_company = forms.ModelChoiceField(
+        queryset=DocumentTypes.objects.filter(
+            Q(abbr='NIT') | Q(abbr="NIT-EX")),
+        label='Tipo de documento'
+    )
+    verification_digit = forms.CharField(label='Codigo verificacion')
+
+    def __init__(self, *args, **kwargs):
+        super(SearchLegalersonForm, self).__init__(*args, **kwargs)
+        self.helper = FormHelper(self)
+        self.helper.layout = Layout(
+            Row(
+                Column('document_type_company',
+                       css_class='form-group col-md-6 mb-0'),
+            ),
+            Row(
+                Column('doc_num',
+                       css_class='form-group col-md-6 mb-0'),
+                Column('verification_digit',
+                       css_class='form-group col-md-6 mb-4'),
+                css_class='form-row'
+            ), Submit('submit', 'Buscar')
+        )
 class PqrsConsultantForm(forms.Form):
     num_rad = forms.CharField(label='Numero Radicado' )
     document_type_company = forms.ModelChoiceField(
@@ -160,7 +205,7 @@ class PqrRadicateForm(forms.ModelForm):
 
     def __init__(self, typePqr, *args, **kwargs):
         super(PqrRadicateForm, self).__init__(*args, **kwargs)
-        agreement_data = get_json_system_parameter('AGREEMENT_DATA')
+        agreement_data = SystemParameterHelper.get_json('AGREEMENT_DATA')
         
         self.fields['subtype_field'].queryset = SubType.objects.filter(Q(type=typePqr))
         

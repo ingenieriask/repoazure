@@ -1,11 +1,12 @@
-{% extends 'pqrs/template.html' %} {% block content %} {% load crispy_forms_tags %}
+{% extends 'pqrs/template.html' %} {% block content %} 
 
 <div class="card mb-4">
-  <div class="card-header">Búsqueda de remitentes</div>
+  <div class="card-header">Búsqueda de Solicitante</div>
   <div class="card-body">
     <form action="{% url 'pqrs:search_person' pqrs_type=pqrs_type person_type=person_type%}" method="post">
-      {{ form | crispy }} {% csrf_token %}
-      <input type="submit" name="search" value="Buscar" class="btn btn-success lift" />
+      {% csrf_token %}
+      {% load crispy_forms_tags %}
+      {% crispy form %}
     </form>
     <div class="alert alert-success mt-4" role="alert">
       <h4 class="alert-heading">Remitentes</h4>
@@ -38,9 +39,16 @@
             </a>
           </h5>
           <div class="card-body border-primary">
-            <p class="card-text">Nombre: {{ person.get_anonymized_name }}</p>
-            <p class="card-text">Email: {{ person.get_anonymized_email }}</p>
-            <p class="card-text">Address: {{person.get_anonymized_address }}</p>
+            {% if person_type == 1 %}
+            <p class="card-text">Nombre: {{ person.get_full_name }}</p>
+            <p class="card-text">Correo: {{ person.get_anonymized_email }}</p>
+            <p class="card-text">Dirreci&oacute;n: {{person.get_anonymized_address }}</p>
+            {% else %}
+            <p class="card-text">Razon social: {{ person.company_name }}</p>
+            <p class="card-text">Correo: {{ person.get_anonymized_email }}</p>
+            <p class="card-text">Representante: {{person.get_anonymized_representative }}</p>
+            {% endif %}
+            
           </div>
         </div>
       </div>
@@ -52,7 +60,12 @@
 <div class="card mb-4">
   <div class="card-header">Persona</div>
   <div class="card-body">
-    <form method="post" id="sender_create_form" action="{% url 'pqrs:create_person' pqrs_type=pqrs_type %}">
+    <form method="post" id="sender_create_form" 
+    {% if person_type == 1 %}
+    action="{% url 'pqrs:create_person' pqrs_type=pqrs_type %}"
+    {% else %}
+    action="{% url 'pqrs:create_legal_person' pqrs_type=pqrs_type %}"
+    {% endif %}>
       {% crispy person_form %} {% csrf_token %}
     </form>
   </div>

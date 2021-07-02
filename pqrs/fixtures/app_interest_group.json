@@ -23,10 +23,8 @@
       "description": "Este es el tema de interes uno",
       "type":1,
       "max_response_days":15,
-      "min_response_days": 15,
-      "first_alert": 1,
-      "second_alert": 1,
-      "third_alert": 1
+      "min_response_days": 15
+      
     }
   },
   {
@@ -37,10 +35,7 @@
       "description": "Este es el tema de interes dos",
       "type": 1,
       "max_response_days": 15,
-      "min_response_days": 15,
-      "first_alert":1,
-      "second_alert": 1,
-      "third_alert": 1
+      "min_response_days": 15
     }
   }
 ]

@@ -83,6 +83,25 @@ class Radicate(models.Model):
     def get_absolute_url(self):
         return reverse('correspondence:detail_radicate', args=[str(self.id)])
 
+class ProcessActionStep(BaseModel):
+    date_execution = models.DateTimeField(default=datetime.now, db_index=True)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='prac_user', blank=True, null=True)
+    destination_user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='prac_dest_user', blank=True, null=True)
+    destination_users = models.ManyToManyField(User, related_name='prac_dest_users', blank=True)
+    observation = models.TextField(max_length=512, null=True)
+    detail = models.TextField(max_length=256, null=True)
+    action = models.TextField(max_length=32, null=True)
+    radicate = models.ForeignKey(Radicate, on_delete=models.PROTECT, related_name='history')
+
+    def save(self):
+        user = get_current_user()
+        if user is not None:
+            if not self.pk:
+                self.user_creation = user
+            else:
+                self.user_updated = user
+        super(ProcessActionStep, self).save()
+
 class PermissionRelationAssignation(BaseModel):
     current_permission = models.ForeignKey(Permission, on_delete=models.PROTECT)
     destination_permission = models.ManyToManyField(Permission, blank=True, related_name="assination_relation_permission")
@@ -109,12 +128,13 @@ class PermissionRelationReport(BaseModel):
                 self.user_creation = user
             else:
                 self.user_updated = user
-        super(PermissionRelationAssignation, self).save()
+        super(PermissionRelationReport, self).save()
 
 class AlfrescoFile(models.Model):
     cmis_id = models.TextField(max_length=128, null=True)
     name = models.CharField(max_length=256, null=True)
     extension = models.CharField(max_length=4, null=True)
+    size = models.IntegerField(default=0)
     radicate = models.ForeignKey(Radicate, on_delete=models.PROTECT, related_name='files')
     
     def __str__(self):
