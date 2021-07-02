@@ -3,10 +3,12 @@ from django.core.exceptions import ValidationError
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Submit, Row, Column, Field, ButtonHolder, Button, Div, HTML
 from django.db.models import query
-from core.models import Attorny, AttornyType, DocumentTypes, LegalPerson, Person, Disability, PreferencialPopulation, Disability, PersonRequest, PreferencialPopulation
+from core.models import Attorny, AttornyType, DocumentTypes, LegalPerson, Person, \
+    Disability, PreferencialPopulation, Disability, PersonRequest, PreferencialPopulation, \
+    SignatureFlow
 from crispy_forms.layout import Field
 import json
-from core.widgets import ConsecutiveFormatWidget, NonWorkingCalendarWidget
+from core.widgets import ConsecutiveFormatWidget, NonWorkingCalendarWidget, SignatureFlowWidget
 from core.services import RecordCodeService, CalendarService
 from core.utils_services import FormatHelper
 from django.db.models import Q
@@ -507,3 +509,17 @@ class CustomUserChangeForm(UserChangeForm):
         help_text='Hold down "Control", or "Command" on a Mac, to select more than one.',
         required=False
     )
+
+class SignatureFlowForm(forms.ModelForm):
+
+    def clean(self, *args, **kwargs):
+        cleaned_data = super(CalendarForm, self).clean()
+        return cleaned_data
+
+    class Meta:
+        model = SignatureFlow
+        fields = '__all__'
+
+        widgets = {
+            'graph': SignatureFlowWidget()
+        }

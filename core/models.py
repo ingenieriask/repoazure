@@ -446,3 +446,11 @@ class Notifications(models.Model):
 
     def __str__(self):
         return self.name
+
+class SignatureFlow(models.Model):
+    name = models.CharField(max_length=50)
+    graph  = models.TextField()
+
+    def __str__(self):
+        return self.name
+

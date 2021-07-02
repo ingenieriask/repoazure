@@ -22,7 +22,6 @@ class SystemParameterHelper():
     
     @classmethod
     def get(cls, format_name):
-        print('format_name:', format_name)
         return SystemParameter.objects.get(name=format_name)
 
     @classmethod

@@ -46,6 +46,20 @@ class NonWorkingCalendarWidget(forms.Widget):
         template = loader.get_template(self.template_name).render(context)
         return mark_safe(template)
 
+class SignatureFlowWidget(forms.Widget):
+    ''' '''
+
+    template_name = 'core/signature_flow.html'
+
+    def get_context(self, name, value, attrs=None):
+
+        return {}
+
+    def render(self, name, value, attrs=None, renderer=None):
+        context = self.get_context(name, value, attrs)
+        template = loader.get_template(self.template_name).render(context)
+        return mark_safe(template)
+
 
 
 
