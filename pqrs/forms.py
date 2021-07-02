@@ -101,12 +101,6 @@ class SearchUniquePersonForm(forms.Form):
         queryset=DocumentTypes.objects.all(),
         label='Tipo de documento'
     )
-    date_expe = forms.DateField(
-        label="Fecha de expedicion",
-        widget=forms.DateInput(
-            format='%Y-%m-%d', attrs={ 'type': 'date'}),
-    )
-
     def __init__(self, *args, **kwargs):
         super(SearchUniquePersonForm, self).__init__(*args, **kwargs)
         self.helper = FormHelper(self)
@@ -116,8 +110,7 @@ class SearchUniquePersonForm(forms.Form):
             ),
             Row(
                 Column('doc_num',
-                       css_class='form-group col-md-4 mb-0'),
-                Column('date_expe', css_class='form-group col-md-6 mb-4'),
+                       css_class='form-group col-md-6 mb-0'),
                 css_class='form-row'
             ), Submit('submit', 'Buscar')
         )
