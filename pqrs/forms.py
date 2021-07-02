@@ -6,10 +6,12 @@ from pqrs.models import PqrsContent, SubType
 from correspondence.models import Radicate
 from django import forms
 from crispy_forms.helper import FormHelper
-from crispy_forms.layout import Layout, Submit, Row, Column, Div, Field
+from crispy_forms.layout import Layout, Submit, Row, Column, Div, Field, Button, HTML
+from crispy_forms.bootstrap import StrictButton
 from crispy_forms.utils import TEMPLATE_PACK
 from core.forms import AbstractPersonForm,AbstractPersonRequestForm,AbstractPersonAttorny,AbstractLegalPersonForm
 from django.utils.translation import gettext_lazy as _
+from django.utils.safestring import mark_safe
 from core.forms import CustomFileInput
 from core.utils_db import get_json_system_parameter
 from captcha.fields import CaptchaField
@@ -195,16 +197,7 @@ class PqrRadicateForm(forms.ModelForm):
 
         
 class PqrsExtendRequestForm(forms.ModelForm):
-    '''captcha = CaptchaField()
-    uploaded_files = forms.FileField(widget=forms.ClearableFileInput(attrs={'multiple': True}), required=False,
-                                    label="Anexos, Documentos (Múltiples archivos - Tamaño máximo = 10 MB)")
-    agreement_personal_data = forms.BooleanField(widget=forms.CheckboxInput, required=True, 
-        label="Acepto el tratamiento de datos personales"
-        )
-    subtype_field = forms.ModelChoiceField(
-                        queryset=SubType.objects.none(),
-                        label='Tema'
-                    )
+    '''
     def clean(self):
         cleaned_data = super(PqrRadicateForm, self).clean()
         cleaned_data['subtype'] = SubType.objects.get(pk = self.data['subtype_field'])
@@ -218,26 +211,28 @@ class PqrsExtendRequestForm(forms.ModelForm):
         
         return cleaned_data'''
 
-    person_type = forms.CharField(max_length=32, disabled=True, label="Tipo de persona")
-    document_type = forms.CharField(disabled=True, label="Tipo de documento")
-    document_number = forms.CharField(max_length=25, disabled=True, label="Número de documento")
-    expedition_date = forms.DateField(disabled=True, required=False, label="Fecha de expedición")
-    name = forms.CharField(max_length=256, disabled=True, label="Nombes")
-    lasts_name = forms.CharField(max_length=256, disabled=True, label="Apellidos")
-    email = forms.CharField(disabled=True, label="Correo Electrónico")
-    address = forms.CharField(disabled=True, label="Dirección de correspondencia")
-    phone_number = forms.CharField(disabled=True, required=False, label="Teléfono / Celular")
-    city = forms.ChoiceField(disabled=True, required=False, label="Departamento / Municipio")
-    subject = forms.ChoiceField(disabled=True, required=False, label="Departamento / Municipio")
+
+    person_type = forms.CharField(max_length=32, disabled=True, label=mark_safe("<strong>Tipo de persona</strong>"))
+    document_type = forms.CharField(disabled=True, label=mark_safe("<strong>Tipo de documento</strong>"))
+    document_number = forms.CharField(max_length=25, disabled=True, label=mark_safe("<strong>Número de documento</strong>"))
+    expedition_date = forms.DateField(disabled=True, required=False, label=mark_safe("<strong>Fecha de expedición</strong>"))
+    name = forms.CharField(max_length=256, disabled=True, label=mark_safe("<strong>Nombes</strong>"))
+    lasts_name = forms.CharField(max_length=256, disabled=True, label=mark_safe("<strong>Apellidos</strong>"))
+    email = forms.CharField(disabled=True, label=mark_safe("<strong>Correo Electrónico<strong>"))
+    address = forms.CharField(disabled=True, label=mark_safe("<strong>Dirección de correspondencia</strong>"))
+    phone_number = forms.CharField(disabled=True, required=False, label=mark_safe("<strong>Teléfono / Celular</strong>"))
+    city = forms.CharField(disabled=True, required=False, label=mark_safe("<strong>Municipio / Departamento<strong>"))
+    subject = forms.CharField(disabled=True, required=False, label=mark_safe("<strong>Asunto<strong>"))
     uploaded_files = forms.FileField(widget=forms.ClearableFileInput(attrs={'multiple': True}), required=False,
-                                    label="Anexos, Documentos (Múltiples archivos - Tamaño máximo = 10 MB)")
-    
+                                    label=mark_safe("<span class='far fa-file-alt fa-3x' style='color: blue;'></span><strong>  Anexos, Documentos<strong>"))
+    sign_type = forms.ChoiceField()
     
     class Meta:
         model = Radicate
-        fields = ('observation',)
+        fields = ('observation', 'number')
         labels = {
-            'observation' : 'Descripción de la solicitud de ampliación'
+            'observation' : 'Descripción de la solicitud de ampliación',
+            'number' : mark_safe('<strong>Número de radicación</strong>')
         }
         widgets = {
             'observation' : forms.Textarea()
@@ -246,6 +241,10 @@ class PqrsExtendRequestForm(forms.ModelForm):
     def __init__(self, radicate, *args, **kwargs):
         super(PqrsExtendRequestForm, self).__init__(*args, **kwargs)
         
+        CHOICES = [('FIRMA JURIDICA','FIRMA JURIDICA'),('F','Female')]
+        
+        self.fields['number'].disabled = True
+        self.fields['number'].widget = forms.TextInput(attrs={'value': radicate.number, 'style': 'font-size:20px; font-weight: bold;'})
         self.fields['person_type'].widget = forms.TextInput(attrs={'value': radicate.person.person_type, 'class': 'w-75'})
         self.fields['document_type'].widget = forms.TextInput(attrs={'value': radicate.person.document_type, 'class': 'w-75'})
         self.fields['document_number'].widget = forms.TextInput(attrs={'value': radicate.person.document_number, 'class': 'w-75'})
@@ -255,10 +254,9 @@ class PqrsExtendRequestForm(forms.ModelForm):
         self.fields['email'].widget = forms.TextInput(attrs={'value': radicate.person.email})
         self.fields['address'].widget = forms.TextInput(attrs={'value': radicate.person.address})
         self.fields['phone_number'].widget = forms.TextInput(attrs={'value': radicate.person.phone_number})
-        self.fields['city'].widget = forms.Select(attrs={'value': 'city'})
-        self.fields['city'].choices =((radicate.person.city, radicate.person.city.state.name+' / '+radicate.person.city.name))
-        self.fields['city'].default = radicate.person.city
-        self.fields['subject'].widget = forms.TextInput(attrs={'required': False})
+        self.fields['city'].widget = forms.TextInput(attrs={'value': radicate.person.city})
+        self.fields['subject'].widget = forms.TextInput(attrs={'required': False, 'value': 'Ampliación de solicitud - '+radicate.subject })
+        self.fields['sign_type'].widget = forms.RadioSelect(choices=CHOICES, attrs={'class': 'form-check-inline list-unstyled ml-4'})
         
         self.helper = FormHelper(self)
         self.helper.layout = Layout(
@@ -293,9 +291,16 @@ class PqrsExtendRequestForm(forms.ModelForm):
                 css_class='form-row'
             ),
             Row(
-                Column('uploaded_files', css_class='form-group col-md-12 mb-0'),
+                Column(CustomFileInput('uploaded_files'), css_class='form-group offset-2 col-md-8 mb-0'),
                 css_class='form-row'
             ),
-            
-            Submit('submit', 'Radicar')
+            Row(
+                Column(StrictButton('Solicitar firmas',
+                                    css_class="btn-primary w-100"), css_class='form-group offset-2 col-md-2 mb-0'),
+                Column(HTML('<a class="btn btn-primary w-100" href="" data-toggle="modal" data-target="#signModal">Ampliar PQRSD</a>'), 
+                            css_class='form-group offset-1 col-md-2 mb-0'),
+                Column(HTML('<a class="btn btn-primary w-100" href="{% url \"pqrs:detail_pqr\" pk='+str(radicate.id)+' %}">Cancelar</a>'), 
+                            css_class='form-group offset-1 col-md-2 mb-0'),
+                css_class='form-row'
+            )
         )
