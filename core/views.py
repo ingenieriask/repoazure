@@ -100,3 +100,18 @@ def password_reset_request(request):
     password_reset_form = PasswordResetForm()
     return render(request=request, template_name="registration/password_reset.html",
                   context={"password_reset_form": password_reset_form})
+
+def signature_flow_users(request):
+    #filter = request.GET.get('filter')
+
+    if request.is_ajax and request.method == "GET":
+        users = User.objects.all()
+        formatted_users = [{
+            'pk': u.pk,
+            'username': u.username,
+            'first_name': u.first_name,
+            'last_name': u.last_name
+        } for u in users]
+        return JsonResponse(formatted_users, safe=False, status=200)
+
+    return JsonResponse({}, status=400)
