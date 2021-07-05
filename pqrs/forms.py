@@ -6,8 +6,7 @@ from pqrs.models import PqrsContent, SubType
 from correspondence.models import Radicate
 from django import forms
 from crispy_forms.helper import FormHelper
-from crispy_forms.layout import Layout, Submit, Row, Column, Div, Field, Button, HTML
-from crispy_forms.bootstrap import StrictButton
+from crispy_forms.layout import Layout, Submit, Row, Column, Div, Field, Button
 from crispy_forms.utils import TEMPLATE_PACK
 from core.forms import AbstractPersonForm,AbstractPersonRequestForm,AbstractPersonAttorny,AbstractLegalPersonForm
 from django.utils.translation import gettext_lazy as _
@@ -241,23 +240,7 @@ class PqrRadicateForm(forms.ModelForm):
         )
 
         
-class PqrsExtendRequestForm(forms.ModelForm):
-    '''
-    def clean(self):
-        cleaned_data = super(PqrRadicateForm, self).clean()
-        cleaned_data['subtype'] = SubType.objects.get(pk = self.data['subtype_field'])
-
-        if 'subtype' in self.errors:
-            del self._errors['subtype']
-
-        cleaned_data = super(PqrRadicateForm, self).clean()
-        if (cleaned_data.get('captcha') is None):
-            raise forms.ValidationError('Por favor valide el captcha')
-        
-        return cleaned_data'''
-
-    #def save(self):
-        
+class PqrsExtendRequestForm(forms.ModelForm):    
 
     CHOICES = [('FIRMA JURIDICA','FIRMA JURIDICA'),('USUARIO','USUARIO')]
 
@@ -269,10 +252,8 @@ class PqrsExtendRequestForm(forms.ModelForm):
                                       widget = forms.TextInput(attrs={'class': 'w-75', 'readonly':True}))
     expedition_date = forms.DateField(required=False, label=mark_safe("<strong>Fecha de expedición</strong>"),
                                       widget = forms.TextInput(attrs={'class': 'w-75', 'readonly':True}))
-    name = forms.CharField(max_length=120, label=mark_safe("<strong>Nombes</strong>"), 
-                           widget = forms.TextInput(attrs={'readonly':True}))
-    lasts_name = forms.CharField(max_length=120, label=mark_safe("<strong>Apellidos</strong>"),
-                                 widget = forms.TextInput(attrs={'readonly':True}))
+    name_company_name = forms.CharField(max_length=120, widget = forms.TextInput(attrs={'readonly':True}))
+    lasts_name_representative = forms.CharField(max_length=120, widget = forms.TextInput(attrs={'readonly':True}))
     email = forms.CharField(max_length=100, label=mark_safe("<strong>Correo Electrónico<strong>"),
                             widget = forms.TextInput(attrs={'readonly':True}))
     address = forms.CharField(max_length=120, required=False, label=mark_safe("<strong>Dirección de correspondencia</strong>"),
@@ -290,7 +271,7 @@ class PqrsExtendRequestForm(forms.ModelForm):
         fields = ('observation', 'number', 'subject')
         labels = {
             'observation' : 'Descripción de la solicitud de ampliación',
-            'number' : mark_safe('<strong>Número de radicación</strong>'),
+            'number' : mark_safe('<strong>Número de radicación</strong>' ),
             'subject' : mark_safe("<strong>Asunto<strong>")
         }
         widgets = {
@@ -299,8 +280,13 @@ class PqrsExtendRequestForm(forms.ModelForm):
             'subject' : forms.TextInput(attrs={'readonly':True})
         }
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, names_labels, *args, **kwargs):
         super(PqrsExtendRequestForm, self).__init__(*args, **kwargs)
+        
+        self.fields['name_company_name'].label = mark_safe(
+            '<strong>'+names_labels['name_company_name']+'</strong>')
+        self.fields['lasts_name_representative'].label = mark_safe(
+            '<strong>'+names_labels['lasts_name_representative']+'</strong>')
         
         self.helper = FormHelper(self)
         self.helper.layout = Layout(
@@ -312,8 +298,8 @@ class PqrsExtendRequestForm(forms.ModelForm):
                 css_class='form-row'
             ),
             Row(
-                Column('name', css_class='form-group col-md-6 mb-0'),
-                Column('lasts_name', css_class='form-group col-md-6 mb-0'),
+                Column('name_company_name', css_class='form-group col-md-6 mb-0'),
+                Column('lasts_name_representative', css_class='form-group col-md-6 mb-0'),
                 css_class='form-row'
             ),
             Row(

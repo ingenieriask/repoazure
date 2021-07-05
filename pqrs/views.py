@@ -566,8 +566,21 @@ def pqrs_extend_request(request, pk):
     
     radicate = get_object_or_404(Radicate, id=pk)
     if request.method == 'POST':
+        
         form = PqrsExtendRequestForm(request.POST)
+        
+        print(form.is_valid())
+        
         if form.is_valid():
+            
+            '''instance = Radicate(radicate)
+            instance.number = RecordCodeService.get_consecutive(
+                RecordCodeService.Type.INPUT)
+            
+            print(instance)
+            
+            new_radicate = instance.save()'''
+            
             instance = form.save(commit=False)
             instance.number = RecordCodeService.get_consecutive(
                 RecordCodeService.Type.INPUT)
@@ -577,7 +590,33 @@ def pqrs_extend_request(request, pk):
             instance.reception_mode = radicate.reception_mode
             instance.office = radicate.office
             instance.doctype = radicate.doctype
+            
             new_radicate = instance.save()
+            
+            
+            
+            for fileUploaded in request.FILES.getlist('uploaded_files'):
+                document_temp_file = NamedTemporaryFile()
+                for chunk in fileUploaded.chunks():
+                    document_temp_file.write(chunk)
+
+                document_temp_file.seek(0)
+                document_temp_file.flush()
+
+                node_id = ECMService.upload(
+                    File(document_temp_file, name=fileUploaded.name))
+                alfrescoFile = AlfrescoFile(cmis_id=node_id, radicate=new_radicate,
+                                            name=os.path.splitext(fileUploaded.name)[0],
+                                            extension=os.path.splitext(fileUploaded.name)[1],
+                                            size=int(fileUploaded.size/1000))
+                alfrescoFile.save()
+
+                if not node_id or not ECMService.request_renditions(node_id):
+                    messages.error(
+                        request, "Ha ocurrido un error al guardar el archivo en el gestor de contenido")
+
+            messages.success(request, "El radicado se ha creado correctamente")
+            
         
         return redirect('pqrs:index')
         
@@ -588,15 +627,27 @@ def pqrs_extend_request(request, pk):
             'document_type' : radicate.person.document_type,
             'document_number' : radicate.person.document_number,
             'expedition_date' : radicate.person.expedition_date,
-            'name' : radicate.person.name,
-            'lasts_name' : radicate.person.lasts_name,
+            'name_company_name' : radicate.person.name,
+            'lasts_name_representative' : radicate.person.lasts_name,
             'email' : radicate.person.email,
             'address' : radicate.person.address,
             'phone_number' : radicate.person.phone_number,
             'city' : radicate.person.city,
             'subject' : 'Ampliación de solicitud - ' + radicate.subject,
         }
-        form = PqrsExtendRequestForm(initial=initial_values)
+        
+        names_labels = {
+            'name_company_name' : "Nombes",
+            'lasts_name_representative' : "Apellidos"
+        }
+        
+        if radicate.person.person_type.abbr == 'PJ':
+            initial_values['name_company_name'] = radicate.person.parent.company_name
+            initial_values['lasts_name_representative'] = radicate.person.parent.representative
+            names_labels['name_company_name'] = "Razón Social"
+            names_labels['lasts_name_representative'] = "Representante Legal"
+        
+        form = PqrsExtendRequestForm(names_labels, initial=initial_values)
         return render(request, 'pqrs/extend_request.html', context={'form': form, 'radicate': radicate})
     
     
