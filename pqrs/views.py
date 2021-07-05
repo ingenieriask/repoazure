@@ -565,21 +565,20 @@ class PqrsConsultationResult(DetailView):
 def pqrs_extend_request(request, pk):
     
     radicate = get_object_or_404(Radicate, id=pk)
+    names_labels = {
+        'name_company_name' : '<strong>Nombre</strong>',
+        'lasts_name_representative' : '<strong>Apellidos</strong>'
+    }
+    
+    if radicate.person.person_type.abbr == 'PJ':
+        names_labels['name_company_name'] = '<strong>Razón Social</strong>'
+        names_labels['lasts_name_representative'] = '<strong>Representante Legal</strong>'
+    
     if request.method == 'POST':
         
-        form = PqrsExtendRequestForm(request.POST)
-        
-        print(form.is_valid())
+        form = PqrsExtendRequestForm(names_labels, request.POST)
         
         if form.is_valid():
-            
-            '''instance = Radicate(radicate)
-            instance.number = RecordCodeService.get_consecutive(
-                RecordCodeService.Type.INPUT)
-            
-            print(instance)
-            
-            new_radicate = instance.save()'''
             
             instance = form.save(commit=False)
             instance.number = RecordCodeService.get_consecutive(
@@ -592,8 +591,6 @@ def pqrs_extend_request(request, pk):
             instance.doctype = radicate.doctype
             
             new_radicate = instance.save()
-            
-            
             
             for fileUploaded in request.FILES.getlist('uploaded_files'):
                 document_temp_file = NamedTemporaryFile()
@@ -636,17 +633,10 @@ def pqrs_extend_request(request, pk):
             'subject' : 'Ampliación de solicitud - ' + radicate.subject,
         }
         
-        names_labels = {
-            'name_company_name' : "Nombes",
-            'lasts_name_representative' : "Apellidos"
-        }
-        
         if radicate.person.person_type.abbr == 'PJ':
             initial_values['name_company_name'] = radicate.person.parent.company_name
             initial_values['lasts_name_representative'] = radicate.person.parent.representative
-            names_labels['name_company_name'] = "Razón Social"
-            names_labels['lasts_name_representative'] = "Representante Legal"
-        
+            
         form = PqrsExtendRequestForm(names_labels, initial=initial_values)
         return render(request, 'pqrs/extend_request.html', context={'form': form, 'radicate': radicate})
     

@@ -281,12 +281,12 @@ class PqrsExtendRequestForm(forms.ModelForm):
         }
 
     def __init__(self, names_labels, *args, **kwargs):
+ 
         super(PqrsExtendRequestForm, self).__init__(*args, **kwargs)
         
-        self.fields['name_company_name'].label = mark_safe(
-            '<strong>'+names_labels['name_company_name']+'</strong>')
-        self.fields['lasts_name_representative'].label = mark_safe(
-            '<strong>'+names_labels['lasts_name_representative']+'</strong>')
+        
+        self.fields['name_company_name'].label = mark_safe(names_labels['name_company_name'])
+        self.fields['lasts_name_representative'].label = mark_safe(names_labels['lasts_name_representative'])
         
         self.helper = FormHelper(self)
         self.helper.layout = Layout(
