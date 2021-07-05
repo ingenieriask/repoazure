@@ -325,3 +325,39 @@ class PqrsExtendRequestForm(forms.ModelForm):
                 css_class='form-row'
             )
         )
+        
+
+class RequestAnswerForm(forms.ModelForm):
+
+    uploaded_files = forms.FileField(widget=forms.ClearableFileInput(attrs={'multiple': True}), required=False,
+                                    label=mark_safe("<span class='far fa-file-alt fa-3x' style='color: blue;'></span><strong>  Anexos, Documentos<strong>"))
+    
+    class Meta:
+        model = Radicate
+        fields = ('observation', 'number')
+        labels = {
+            'observation' : '<strong>Descripción</strong>',
+            'number' : mark_safe('<h3><strong>Radicado</strong></h3>'),
+        }
+        widgets = {
+            'observation' : forms.Textarea(),
+            'number' : forms.TextInput(attrs={'style':'font-size:20px; font-weight: bold;', 'class': 'w-50', 'readonly':True}),
+        }
+        
+    def __init__(self, *args, **kwargs):
+
+        super(RequestAnswerForm, self).__init__(*args, **kwargs)
+        
+        self.fields['number'].required = False
+        
+        self.helper = FormHelper(self)
+        self.helper.layout = Layout(
+            Row(
+                Column('observation', css_class='form-group col-md-12 mb-0'),
+                css_class='form-row'
+            ),
+            Row(
+                Column(CustomFileInput('uploaded_files'), css_class='form-group offset-2 col-md-8 mb-0'),
+                css_class='form-row'
+            )
+        )

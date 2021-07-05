@@ -10,7 +10,7 @@ from core.models import Attorny, AttornyType, Atttorny_Person, City, LegalPerson
     Person, Office, DocumentTypes, PersonRequest, PersonType 
 from pqrs.forms import LegalPersonForm, PqrsConsultantForm, SearchUniquePersonForm, PersonForm, \
     PqrRadicateForm, PersonRequestForm, PersonFormUpdate, PersonRequestFormUpdate, \
-    PersonAttorny, PqrsConsultantForm, SearchLegalersonForm, PqrsExtendRequestForm
+    PersonAttorny, PqrsConsultantForm, SearchLegalersonForm, PqrsExtendRequestForm, RequestAnswerForm \
 
 from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404, render
@@ -640,4 +640,55 @@ def pqrs_extend_request(request, pk):
         form = PqrsExtendRequestForm(names_labels, initial=initial_values)
         return render(request, 'pqrs/extend_request.html', context={'form': form, 'radicate': radicate})
     
+def pqrs_answer_request(request, pk):
+    
+    radicate = get_object_or_404(Radicate, id=pk)
+    
+    if request.method == 'POST':
+        form = RequestAnswerForm(request.POST)
+        print(form)
+        
+        if form.is_valid():
+            
+            instance = form.save(commit=False)
+            instance.number = RecordCodeService.get_consecutive(
+                RecordCodeService.Type.INPUT)
+            instance.type = radicate.type
+            instance.record = radicate.record
+            instance.person = radicate.person
+            instance.reception_mode = radicate.reception_mode
+            instance.office = radicate.office
+            instance.doctype = radicate.doctype
+            instance.subject = radicate.subject
+            
+            new_radicate = instance.save()
+            
+            for fileUploaded in request.FILES.getlist('uploaded_files'):
+                document_temp_file = NamedTemporaryFile()
+                for chunk in fileUploaded.chunks():
+                    document_temp_file.write(chunk)
+
+                document_temp_file.seek(0)
+                document_temp_file.flush()
+
+                node_id = ECMService.upload(
+                    File(document_temp_file, name=fileUploaded.name))
+                alfrescoFile = AlfrescoFile(cmis_id=node_id, radicate=new_radicate,
+                                            name=os.path.splitext(fileUploaded.name)[0],
+                                            extension=os.path.splitext(fileUploaded.name)[1],
+                                            size=int(fileUploaded.size/1000))
+                alfrescoFile.save()
+
+                if not node_id or not ECMService.request_renditions(node_id):
+                    messages.error(
+                        request, "Ha ocurrido un error al guardar el archivo en el gestor de contenido")
+
+            messages.success(request, "El radicado se ha creado correctamente")
+            
+        return redirect('pqrs:index')
+                
+    else:
+        
+        form = RequestAnswerForm(initial={'number' : radicate.number})
+        return render(request, 'pqrs/answer_request.html', context={'form': form, 'radicate': radicate})
     

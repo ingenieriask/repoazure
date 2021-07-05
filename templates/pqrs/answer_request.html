@@ -1,0 +1,60 @@
+{% extends 'pqrs/template.html' %}
+{% load crispy_forms_tags %}
+{% load pqrs_extras %}
+<!-- BLOCK Content -->
+{% block content %}
+<div class="card mb-4">
+    <div class="card-body">
+        <form  method="post">
+        {% csrf_token %}
+            <div class="card mb-4">
+                <div class="card-header">
+                    Ampliación de solicitud
+                </div>
+                <div class="card-body">
+                    <div class="container">
+                        <div class="row form-group my-5">
+                            <div class="col-md-5 offset-1">
+                                {{ form.number|as_crispy_field }}
+                            </div>
+                            <div class="col-md-6">
+                                <div class="row">
+                                    <div class="col-6">
+                                        <h3><strong>Fecha de radicación:</strong></h3>
+                                        <h3><strong>Fecha Máxima de entrega:</strong></h3>
+                                    </div>
+                                    <div class="col-6">
+                                        <h3>{{ radicate.date_radicated|simple_date }}</h3>
+                                        <h3>{{ radicate.date_radicated|max_response_date:30 }}</h3>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% crispy form %}
+                        <div class="form-group offset-5 col-md-2 mb-0">
+                            <button class="btn btn-primary w-100" type="submit" href="" >Enviar</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block script %} 
+    $("#id_uploaded_files").fileinput({
+        theme: 'fas',
+        allowedFileExtensions: ['PDF', 'DOC', 'DOCX', 'XLS', 'XLSX', 'EXCEL', 'PPT', 'PPTX', 
+                                'JPG', 'GIF', 'PNG', 'TIFF', 'BMP', 'WAV', 'MP3', 'AVI', 'MPEG', 
+                                'MPG', 'OGG', 'M4A', 'MP4', 'WMV', 'OGV'],
+        overwriteInitial: true,
+        maxFileSize:10000,
+        language: 'es',
+        slugCallback: function (filename) {
+            return filename.replace('(', '_').replace(']', '_');
+        }
+      });
+{% endblock %}
+

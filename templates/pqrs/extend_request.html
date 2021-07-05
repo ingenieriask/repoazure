@@ -44,21 +44,21 @@
                                 </div>
                             </div>
                         </div>
-                    </form>
-                    <div class="form-row">
-                        <div class="form-group offset-2 col-md-2 mb-0">
-                            <a href="" class="btn btn-primary w-100">Solicitar firmas</a>
+                    
+                        <div class="form-row">
+                            <div class="form-group offset-2 col-md-2 mb-0">
+                                <a href="" class="btn btn-primary w-100">Solicitar firmas</a>
+                            </div>
+                            <div class="form-group offset-1 col-md-2 mb-0">
+                                <a href="" class="btn btn-primary w-100" data-toggle="modal" data-target="#signModal">Ampliar PQRSD</a>
+                            </div>
+                            <div class="form-group offset-1 col-md-2 mb-0">
+                                <a class="btn btn-primary w-100" href="{% url 'pqrs:detail_pqr' pk=radicate.id %}">Cancelar</a>
+                            </div>
                         </div>
-                        <div class="form-group offset-1 col-md-2 mb-0">
-                            <a href="" class="btn btn-primary w-100" data-toggle="modal" data-target="#signModal">Ampliar PQRSD</a>
-                        </div>
-                        <div class="form-group offset-1 col-md-2 mb-0">
-                            <a class="btn btn-primary w-100" href="{% url 'pqrs:detail_pqr' pk=radicate.id %}">Cancelar</a>
-                        </div>
-                    </div>
                 </div>
             </div>
-        </div>
+        </form>
     </div>
 </div>
 
