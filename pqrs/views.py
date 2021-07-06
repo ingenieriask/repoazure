@@ -569,7 +569,7 @@ def pqrs_extend_request(request, pk):
     if request.method == 'POST':
         
         form = PqrsExtendRequestForm(radicate, request.POST)
-        
+
         if form.is_valid():
             
             instance = form.save(commit=False)
@@ -635,14 +635,14 @@ def pqrs_extend_request(request, pk):
         form = PqrsExtendRequestForm(radicate, initial=initial_values)
         return render(request, 'pqrs/extend_request.html', context={'form': form, 'radicate': radicate})
     
+    
 def pqrs_answer_request(request, pk):
     
     radicate = get_object_or_404(Radicate, id=pk)
     
     if request.method == 'POST':
-        form = RequestAnswerForm(request.POST)
-        print(form)
         
+        form = RequestAnswerForm(request.POST)
         if form.is_valid():
             
             instance = form.save(commit=False)
