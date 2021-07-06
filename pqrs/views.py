@@ -565,18 +565,10 @@ class PqrsConsultationResult(DetailView):
 def pqrs_extend_request(request, pk):
     
     radicate = get_object_or_404(Radicate, id=pk)
-    names_labels = {
-        'name_company_name' : '<strong>Nombre</strong>',
-        'lasts_name_representative' : '<strong>Apellidos</strong>'
-    }
-    
-    if radicate.person.person_type.abbr == 'PJ':
-        names_labels['name_company_name'] = '<strong>Razón Social</strong>'
-        names_labels['lasts_name_representative'] = '<strong>Representante Legal</strong>'
-    
+
     if request.method == 'POST':
         
-        form = PqrsExtendRequestForm(names_labels, request.POST)
+        form = PqrsExtendRequestForm(radicate, request.POST)
         
         if form.is_valid():
             
@@ -615,7 +607,7 @@ def pqrs_extend_request(request, pk):
             messages.success(request, "El radicado se ha creado correctamente")
             
         
-        return redirect('pqrs:index')
+        return HttpResponseRedirect(request.path_info)
         
     else:
         initial_values = {
@@ -623,7 +615,7 @@ def pqrs_extend_request(request, pk):
             'person_type' : radicate.person.person_type,
             'document_type' : radicate.person.document_type,
             'document_number' : radicate.person.document_number,
-            'expedition_date' : radicate.person.expedition_date,
+            'expedition_date_last_digit' : radicate.person.expedition_date,
             'name_company_name' : radicate.person.name,
             'lasts_name_representative' : radicate.person.lasts_name,
             'email' : radicate.person.email,
@@ -636,8 +628,11 @@ def pqrs_extend_request(request, pk):
         if radicate.person.person_type.abbr == 'PJ':
             initial_values['name_company_name'] = radicate.person.parent.company_name
             initial_values['lasts_name_representative'] = radicate.person.parent.representative
+            initial_values['expedition_date_last_digit'] = radicate.person.parent.verification_code
+            initial_values['document_number'] = radicate.person.parent.document_company_number
+            initial_values['document_type'] = radicate.person.parent.document_type_company
             
-        form = PqrsExtendRequestForm(names_labels, initial=initial_values)
+        form = PqrsExtendRequestForm(radicate, initial=initial_values)
         return render(request, 'pqrs/extend_request.html', context={'form': form, 'radicate': radicate})
     
 def pqrs_answer_request(request, pk):
@@ -685,7 +680,7 @@ def pqrs_answer_request(request, pk):
 
             messages.success(request, "El radicado se ha creado correctamente")
             
-        return redirect('pqrs:index')
+        return HttpResponseRedirect(request.path_info)
                 
     else:
         

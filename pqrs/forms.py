@@ -250,7 +250,7 @@ class PqrsExtendRequestForm(forms.ModelForm):
                                     widget = forms.TextInput(attrs={'class': 'w-75', 'readonly':True}))
     document_number = forms.CharField(max_length=25, label=mark_safe("<strong>Número de documento</strong>"),
                                       widget = forms.TextInput(attrs={'class': 'w-75', 'readonly':True}))
-    expedition_date = forms.DateField(required=False, label=mark_safe("<strong>Fecha de expedición</strong>"),
+    expedition_date_last_digit = forms.DateField(required=False, label=mark_safe("<strong>Fecha de expedición</strong>"),
                                       widget = forms.TextInput(attrs={'class': 'w-75', 'readonly':True}))
     name_company_name = forms.CharField(max_length=120, widget = forms.TextInput(attrs={'readonly':True}))
     lasts_name_representative = forms.CharField(max_length=120, widget = forms.TextInput(attrs={'readonly':True}))
@@ -280,13 +280,21 @@ class PqrsExtendRequestForm(forms.ModelForm):
             'subject' : forms.TextInput(attrs={'readonly':True})
         }
 
-    def __init__(self, names_labels, *args, **kwargs):
+    def __init__(self, radicate, *args, **kwargs):
  
         super(PqrsExtendRequestForm, self).__init__(*args, **kwargs)
         
-        
-        self.fields['name_company_name'].label = mark_safe(names_labels['name_company_name'])
-        self.fields['lasts_name_representative'].label = mark_safe(names_labels['lasts_name_representative'])
+        if radicate.person.person_type.abbr == 'PJ':
+            self.fields['name_company_name'].label = '<strong>Razón Social</strong>'
+            
+            self.fields['lasts_name_representative'].label = '<strong>Nombres y apellidos representante legal</strong>'
+            self.fields['lasts_name_representative'].required = False
+            self.fields['expedition_date_last_digit'].label = '<strong>Dígito de verificación</strong>'        
+            
+        elif radicate.person.person_type.abbr == 'PN':
+            self.fields['name_company_name'].label = '<strong>Nombres</strong>'
+            self.fields['lasts_name_representative'].label = '<strong>Apellidos</strong>'
+            self.fields['expedition_date_last_digit'].label = '<strong>Fecha de expedición</strong>'
         
         self.helper = FormHelper(self)
         self.helper.layout = Layout(
@@ -294,7 +302,7 @@ class PqrsExtendRequestForm(forms.ModelForm):
                 Column('person_type', css_class='form-group col-md-2 mb-0'),
                 Column('document_type', css_class='form-group col-md-3 mb-0'),
                 Column('document_number', css_class='form-group col-md-3 mb-0'),
-                Column('expedition_date', css_class='form-group col-md-3 mb-0'),
+                Column('expedition_date_last_digit', css_class='form-group col-md-3 mb-0'),
                 css_class='form-row'
             ),
             Row(
