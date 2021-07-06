@@ -10,7 +10,7 @@ from core.models import Attorny, AttornyType, Atttorny_Person, City, LegalPerson
     Person, Office, DocumentTypes, PersonRequest, PersonType 
 from pqrs.forms import LegalPersonForm, PqrsConsultantForm, SearchUniquePersonForm, PersonForm, \
     PqrRadicateForm, PersonRequestForm, PersonFormUpdate, PersonRequestFormUpdate, \
-    PersonAttorny, PqrsConsultantForm, SearchLegalersonForm
+    PersonAttorny, PqrsConsultantForm, SearchLegalersonForm, PqrsExtendRequestForm, RequestAnswerForm \
 
 from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404, render
@@ -560,3 +560,130 @@ class PqrsConsultationResult(DetailView):
     def get_context_data(self, **kwargs):
         context = super(PqrsConsultationResult, self).get_context_data(**kwargs)
         return context
+
+
+def pqrs_extend_request(request, pk):
+    
+    radicate = get_object_or_404(Radicate, id=pk)
+
+    if request.method == 'POST':
+        
+        form = PqrsExtendRequestForm(radicate, request.POST)
+
+        if form.is_valid():
+            
+            instance = form.save(commit=False)
+            instance.number = RecordCodeService.get_consecutive(
+                RecordCodeService.Type.INPUT)
+            instance.type = radicate.type
+            instance.record = radicate.record
+            instance.person = radicate.person
+            instance.reception_mode = radicate.reception_mode
+            instance.office = radicate.office
+            instance.doctype = radicate.doctype
+            
+            new_radicate = instance.save()
+            
+            for fileUploaded in request.FILES.getlist('uploaded_files'):
+                document_temp_file = NamedTemporaryFile()
+                for chunk in fileUploaded.chunks():
+                    document_temp_file.write(chunk)
+
+                document_temp_file.seek(0)
+                document_temp_file.flush()
+
+                node_id = ECMService.upload(
+                    File(document_temp_file, name=fileUploaded.name))
+                alfrescoFile = AlfrescoFile(cmis_id=node_id, radicate=new_radicate,
+                                            name=os.path.splitext(fileUploaded.name)[0],
+                                            extension=os.path.splitext(fileUploaded.name)[1],
+                                            size=int(fileUploaded.size/1000))
+                alfrescoFile.save()
+
+                if not node_id or not ECMService.request_renditions(node_id):
+                    messages.error(
+                        request, "Ha ocurrido un error al guardar el archivo en el gestor de contenido")
+
+            messages.success(request, "El radicado se ha creado correctamente")
+            
+        
+        return HttpResponseRedirect(request.path_info)
+        
+    else:
+        initial_values = {
+            'number': radicate.number,
+            'person_type' : radicate.person.person_type,
+            'document_type' : radicate.person.document_type,
+            'document_number' : radicate.person.document_number,
+            'expedition_date_last_digit' : radicate.person.expedition_date,
+            'name_company_name' : radicate.person.name,
+            'lasts_name_representative' : radicate.person.lasts_name,
+            'email' : radicate.person.email,
+            'address' : radicate.person.address,
+            'phone_number' : radicate.person.phone_number,
+            'city' : radicate.person.city,
+            'subject' : 'Ampliación de solicitud - ' + radicate.subject,
+        }
+        
+        if radicate.person.person_type.abbr == 'PJ':
+            initial_values['name_company_name'] = radicate.person.parent.company_name
+            initial_values['lasts_name_representative'] = radicate.person.parent.representative
+            initial_values['expedition_date_last_digit'] = radicate.person.parent.verification_code
+            initial_values['document_number'] = radicate.person.parent.document_company_number
+            initial_values['document_type'] = radicate.person.parent.document_type_company
+            
+        form = PqrsExtendRequestForm(radicate, initial=initial_values)
+        return render(request, 'pqrs/extend_request.html', context={'form': form, 'radicate': radicate})
+    
+    
+def pqrs_answer_request(request, pk):
+    
+    radicate = get_object_or_404(Radicate, id=pk)
+    
+    if request.method == 'POST':
+        
+        form = RequestAnswerForm(request.POST)
+        if form.is_valid():
+            
+            instance = form.save(commit=False)
+            instance.number = RecordCodeService.get_consecutive(
+                RecordCodeService.Type.INPUT)
+            instance.type = radicate.type
+            instance.record = radicate.record
+            instance.person = radicate.person
+            instance.reception_mode = radicate.reception_mode
+            instance.office = radicate.office
+            instance.doctype = radicate.doctype
+            instance.subject = radicate.subject
+            
+            new_radicate = instance.save()
+            
+            for fileUploaded in request.FILES.getlist('uploaded_files'):
+                document_temp_file = NamedTemporaryFile()
+                for chunk in fileUploaded.chunks():
+                    document_temp_file.write(chunk)
+
+                document_temp_file.seek(0)
+                document_temp_file.flush()
+
+                node_id = ECMService.upload(
+                    File(document_temp_file, name=fileUploaded.name))
+                alfrescoFile = AlfrescoFile(cmis_id=node_id, radicate=new_radicate,
+                                            name=os.path.splitext(fileUploaded.name)[0],
+                                            extension=os.path.splitext(fileUploaded.name)[1],
+                                            size=int(fileUploaded.size/1000))
+                alfrescoFile.save()
+
+                if not node_id or not ECMService.request_renditions(node_id):
+                    messages.error(
+                        request, "Ha ocurrido un error al guardar el archivo en el gestor de contenido")
+
+            messages.success(request, "El radicado se ha creado correctamente")
+            
+        return HttpResponseRedirect(request.path_info)
+                
+    else:
+        
+        form = RequestAnswerForm(initial={'number' : radicate.number})
+        return render(request, 'pqrs/answer_request.html', context={'form': form, 'radicate': radicate})
+    
