@@ -1,0 +1,60 @@
+[
+  {
+    "model": "core.signatureflow",
+    "pk": 1,
+    "fields": {
+      "name": "proceso_1",
+      "description": "proceso 1"
+    }
+  },
+  {
+    "model": "core.signaturenode",
+    "pk": 1,
+    "fields": {
+      "type": "Inicio",
+      "properties": "{\"position\": [0, 100]}",
+      "signature_flow_id": 1,
+      "previous": []
+    }
+  },
+  {
+    "model": "core.signaturenode",
+    "pk": 2,
+    "fields": {
+      "type": "Avalador",
+      "properties": "{\"position\": [282, 173]}",
+      "signature_flow_id": 1,
+      "previous": [1]
+    }
+  },
+  {
+    "model": "core.signaturenode",
+    "pk": 3,
+    "fields": {
+      "type": "Firmante",
+      "properties": "{\"position\": [530, 20]}",
+      "signature_flow_id": 1,
+      "previous": [2]
+    }
+  },
+  {
+    "model": "core.signaturenode",
+    "pk": 4,
+    "fields": {
+      "type": "Firmante",
+      "properties": "{\"position\": [530, 215]}",
+      "signature_flow_id": 1,
+      "previous": [2]
+    }
+  },
+  {
+    "model": "core.signaturenode",
+    "pk": 4,
+    "fields": {
+      "type": "Fin",
+      "properties": "{\"position\": [800, 100]}",
+      "signature_flow_id": 1,
+      "previous": [3, 4]
+    }
+  }
+]

@@ -1,4 +1,5 @@
 from os import name
+from typing import Type
 from django.core.mail.backends.smtp import EmailBackend
 from django.core.mail import EmailMessage
 from .utils_services import PDF
@@ -12,7 +13,8 @@ import pandas as pd
 from datetime import date, timedelta
 from enum import Enum
 from core.models import AppParameter, ConsecutiveFormat, Consecutive, Country, FilingType, \
-    Holiday, CalendarDay, CalendarDayType, Calendar, Notifications, SystemParameter
+    Holiday, CalendarDay, CalendarDayType, Calendar, Notifications, SystemParameter, \
+    SignatureFlow, SignatureNode
 from core.utils_services import FormatHelper
 
 logger = logging.getLogger(__name__)
@@ -351,3 +353,48 @@ class PdfCreationService(object):
         # Save pdf file
         #pdf.output('summary.pdf', 'F')
     
+
+class SignatureFlowService(object):
+
+    class Type(Enum):
+        INPUT = 'Inicio'
+        OUTPUT = 'Fin'
+        GUARANTORUSER = 'Avalador'
+        SIGNINGUSER = 'Firmante'
+
+    @classmethod
+    def to_json(cls, pk):
+        end_node = SignatureNode.objects.get(signature_flow__id=pk, type=cls.Type.OUTPUT.value)
+        formated_nodes = {}
+        cls._format_node(end_node, formated_nodes)
+
+    @classmethod
+    def _format_node(cls, node, nodes, formated_nodes, next_node=None):
+        properties = json.loads(node.properties)
+        previous_nodes = node.previous.all()
+        inputs = []
+        if previous_nodes:
+            inputs = {
+                "in": {
+                    "connections": [
+                        {
+                            "node": n.id,
+                            "output": "out",
+                        }
+                        for n in previous_nodes
+                    ]
+                }
+            }
+        formated_node = {
+            'id': node.id,
+            'data': {},
+            'inputs': inputs,
+            'outputs': {
+
+            },
+            **properties,
+            'name': node.type
+        }
+        print('formated_node:', formated_node)
+        return formated_node
+

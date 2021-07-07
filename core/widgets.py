@@ -4,7 +4,7 @@ from django.utils.safestring import mark_safe
 from django.http import JsonResponse
 import json
 from datetime import date
-from core.services import RecordCodeService
+from core.services import RecordCodeService, SignatureFlowService
 from core.models import CalendarDay
 
 class ConsecutiveFormatWidget(forms.Widget):
@@ -53,6 +53,8 @@ class SignatureFlowWidget(forms.Widget):
 
     def get_context(self, name, value, attrs=None):
 
+        value = SignatureFlowService.to_json(value)
+        print('self:', self, name, value)
         value = 1 # TDOO: just for test
         if value:
             graph = self.get_json(value)
@@ -169,7 +171,6 @@ class SignatureFlowWidget(forms.Widget):
                         {
                         "node": 1,
                         "output": "out",
-                        "data": {}
                         }
                     ]
                     }
@@ -180,12 +181,10 @@ class SignatureFlowWidget(forms.Widget):
                         {
                         "node": 5,
                         "input": "in",
-                        "data": {}
                         },
                         {
                         "node": 6,
                         "input": "in",
-                        "data": {}
                         }
                     ]
                     }
@@ -207,7 +206,6 @@ class SignatureFlowWidget(forms.Widget):
                         {
                         "node": 4,
                         "output": "out",
-                        "data": {}
                         }
                     ]
                     }
@@ -218,7 +216,6 @@ class SignatureFlowWidget(forms.Widget):
                         {
                         "node": 2,
                         "input": "in",
-                        "data": {}
                         }
                     ]
                     }
@@ -240,7 +237,6 @@ class SignatureFlowWidget(forms.Widget):
                         {
                         "node": 4,
                         "output": "out",
-                        "data": {}
                         }
                     ]
                     }
@@ -251,7 +247,6 @@ class SignatureFlowWidget(forms.Widget):
                         {
                         "node": 2,
                         "input": "in",
-                        "data": {}
                         }
                     ]
                     }

@@ -512,14 +512,12 @@ class CustomUserChangeForm(UserChangeForm):
 
 class SignatureFlowForm(forms.ModelForm):
 
+    id = forms.CharField(max_length=50, required=False, widget=SignatureFlowWidget(), label='Graph')
+
     def clean(self, *args, **kwargs):
-        cleaned_data = super(CalendarForm, self).clean()
+        cleaned_data = super(SignatureFlowForm, self).clean()
         return cleaned_data
 
     class Meta:
         model = SignatureFlow
-        fields = '__all__'
-
-        widgets = {
-            'graph': SignatureFlowWidget()
-        }
+        fields = ['name', 'description', 'id']
