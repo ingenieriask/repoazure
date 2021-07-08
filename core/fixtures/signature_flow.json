@@ -9,8 +9,9 @@
   },
   {
     "model": "core.signaturenode",
-    "pk": 1,
+    "pk": 11,
     "fields": {
+      "index": 1,
       "type": "Inicio",
       "properties": "{\"position\": [0, 100]}",
       "signature_flow_id": 1,
@@ -19,42 +20,46 @@
   },
   {
     "model": "core.signaturenode",
-    "pk": 2,
+    "pk": 12,
     "fields": {
+      "index": 2,
       "type": "Avalador",
       "properties": "{\"position\": [282, 173]}",
       "signature_flow_id": 1,
-      "previous": [1]
+      "previous": [11]
     }
   },
   {
     "model": "core.signaturenode",
-    "pk": 3,
+    "pk": 13,
     "fields": {
+      "index": 3,
       "type": "Firmante",
       "properties": "{\"position\": [530, 20]}",
       "signature_flow_id": 1,
-      "previous": [2]
+      "previous": [12]
     }
   },
   {
     "model": "core.signaturenode",
-    "pk": 4,
+    "pk": 14,
     "fields": {
+      "index": 4,
       "type": "Firmante",
       "properties": "{\"position\": [530, 215]}",
       "signature_flow_id": 1,
-      "previous": [2]
+      "previous": [12]
     }
   },
   {
     "model": "core.signaturenode",
-    "pk": 4,
+    "pk": 15,
     "fields": {
+      "index": 5,
       "type": "Fin",
       "properties": "{\"position\": [800, 100]}",
       "signature_flow_id": 1,
-      "previous": [3, 4]
+      "previous": [13, 14]
     }
   }
 ]

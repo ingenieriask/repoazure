@@ -1,19 +1,38 @@
 {% load static %}
 
-<link href="{% static 'node_modules/bootstrap/dist/css/bootstrap.min.css' %}" rel="stylesheet" />
-<link href="{% static 'node_modules/jquery-ui-dist/jquery-ui.min.css' %}" rel="stylesheet" />
-<link href="{% static 'node_modules/@fortawesome/fontawesome-free/css/all.min.css' %}" rel="stylesheet" />
-
 <style type="text/css" scoped>
 
 
+.inicio {
+    background-color: #e9c46a !important;
+    border-radius: 50% !important;
+    min-width: 80px !important;
+    width: 80px !important;
+}
+
+.fin {
+    background-color: #e9c46a !important;
+    border-radius: 50% !important;
+    min-width: 80px !important;
+    width: 80px !important;
+}
+.avalador {
+    background-color: rgba(177, 191, 250, 0.8) !important;
+    min-width: 135px !important;
+    width: 135px !important;
+}
+
+.firmante {
+    background-color: #95d5b2 !important;
+    border: 2px solid #658542 !important;
+    min-width: 135px !important;
+    width: 135px !important;
+}
+
+
 .node {
-  background: #ff0000;
-  border: 2px solid #4e58bf;
   border-radius: 30%;
   cursor: pointer;
-  min-width: 130px !important;
-  width: 130px !important;
   height: auto;
   padding-bottom: 6px;
   box-sizing: content-box;
@@ -33,15 +52,23 @@
 
 </style>
 
+<input id="id-graph" name="graph" type="hidden" value="">
+<input id="id-{{ widget.name }}" name="{{ widget.name }}" type="hidden" value="{{ widget.value }}">
+
+{% if widget.value == '' %}
+    <h2>Primero defina un nombre y guarde para continuar con la edición del flujo del proceso a definir</h2>
+{% else %}
+
 <div id="rete"></div>
 
 <script src="{% static 'node_modules/jquery/dist/jquery.min.js' %}"></script>
 <script src="{% static 'node_modules/vue/dist/vue.min.js' %}"></script>
 <script src="{% static 'node_modules/rete/build/rete.min.js' %}"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.20/lodash.min.js"></script>
 <script src="{% static 'node_modules/rete-connection-plugin/build/connection-plugin.min.js' %}"></script>
+<script src="{% static 'node_modules/rete-context-menu-plugin/build/context-menu-plugin.common.js' %}"></script>
 <script src="{% static 'node_modules/rete-context-menu-plugin/build/context-menu-plugin.min.js' %}"></script>
 <script src="{% static 'node_modules/rete-vue-render-plugin/build/vue-render-plugin.min.js' %}"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.20/lodash.min.js"></script>
 <script src="{% static 'node_modules/rete-comment-plugin/build/comment-plugin.min.js' %}"></script>
 <script src="{% static 'node_modules/rete-keyboard-plugin/build/keyboard-plugin.min.js' %}"></script>
 <script src="{% static 'node_modules/rete-area-plugin/build/area-plugin.min.js' %}"></script>
@@ -92,7 +119,6 @@ function getVueUserControl(key, userType) {
             change(e){
                 this.value = e.target.value;
                 this.update();
-                //console.info(JSON.stringify(editor.toJSON()))
             },
             update() {
             if (this.ikey)
@@ -197,14 +223,14 @@ components.map(c => {
     engine.register(c);
 });
 
-editor.on('connectioncreate connectionremove nodecreate noderemove', ()=>{
-    //if(editor.silent) return;
+editor.on('connectioncreate connectionremove nodecreate noderemove process', ()=>{
     compile();
 });
 
 async function compile() {
     await engine.abort();
     await engine.process(editor.toJSON());
+    $('#id-graph').val(JSON.stringify(editor.toJSON()));
 }
 
 editor.fromJSON(graph).then(() => {
@@ -225,5 +251,6 @@ editor.on('zoom', (e) => {
 
 </script>
 
+{% endif %}
 
 

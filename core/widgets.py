@@ -2,7 +2,6 @@ from django import forms
 from django.template import loader
 from django.utils.safestring import mark_safe
 from django.http import JsonResponse
-import json
 from datetime import date
 from core.services import RecordCodeService, SignatureFlowService
 from core.models import CalendarDay
@@ -53,16 +52,11 @@ class SignatureFlowWidget(forms.Widget):
 
     def get_context(self, name, value, attrs=None):
 
-        value = SignatureFlowService.to_json(value)
-        print('self:', self, name, value)
-        value = 1 # TDOO: just for test
-        if value:
-            graph = self.get_json(value)
-        else:
-            graph = self.get_initial_json()
+        graph = SignatureFlowService.to_json(value) if value else ''
 
         return {'widget': {
             'name': name,
+            'value': value if value else '',
             'graph': graph
         }}
 
@@ -71,195 +65,6 @@ class SignatureFlowWidget(forms.Widget):
         template = loader.get_template(self.template_name).render(context)
         return mark_safe(template)
 
-    def get_initial_json(self):
-        graph = {
-            "id": "demo@0.1.0",
-            "nodes": {
-                "1": {
-                "id": 1,
-                "data": {},
-                "inputs": {},
-                "outputs": {
-                    "out": {
-                    "connections": []
-                    }
-                },
-                "position": [
-                    0,
-                    100
-                ],
-                "name": "Inicio"
-                },
-                "2": {
-                "id": 2,
-                "data": {},
-                "inputs": {
-                    "in": {
-                    "connections": []
-                    }
-                },
-                "outputs": {},
-                "position": [
-                    800,
-                    100
-                ],
-                "name": "Fin"
-                },
-            }
-        }
-        return graph
-
-    def get_json(self, value):
-        graph = {
-            "id": "demo@0.1.0",
-            "nodes": {
-                "1": {
-                "id": 1,
-                "data": {},
-                "inputs": {},
-                "outputs": {
-                    "out": {
-                    "connections": [
-                        {
-                        "node": 4,
-                        "input": "in",
-                        "data": {}
-                        }
-                    ]
-                    }
-                },
-                "position": [
-                    0,
-                    100
-                ],
-                "name": "Inicio"
-                },
-                "2": {
-                "id": 2,
-                "data": {},
-                "inputs": {
-                    "in": {
-                    "connections": [
-                        {
-                        "node": 6,
-                        "output": "out",
-                        "data": {}
-                        },
-                        {
-                        "node": 5,
-                        "output": "out",
-                        "data": {}
-                        }
-                    ]
-                    }
-                },
-                "outputs": {},
-                "position": [
-                    800,
-                    100
-                ],
-                "name": "Fin"
-                },
-                "4": {
-                "id": 4,
-                "data": {
-                    "user_id": 4
-                },
-                "inputs": {
-                    "in": {
-                    "connections": [
-                        {
-                        "node": 1,
-                        "output": "out",
-                        }
-                    ]
-                    }
-                },
-                "outputs": {
-                    "out": {
-                    "connections": [
-                        {
-                        "node": 5,
-                        "input": "in",
-                        },
-                        {
-                        "node": 6,
-                        "input": "in",
-                        }
-                    ]
-                    }
-                },
-                "position": [
-                    282,
-                    173
-                ],
-                "name": "Avalador"
-                },
-                "5": {
-                "id": 5,
-                "data": {
-                    "user_id": "8"
-                },
-                "inputs": {
-                    "in": {
-                    "connections": [
-                        {
-                        "node": 4,
-                        "output": "out",
-                        }
-                    ]
-                    }
-                },
-                "outputs": {
-                    "out": {
-                    "connections": [
-                        {
-                        "node": 2,
-                        "input": "in",
-                        }
-                    ]
-                    }
-                },
-                "position": [
-                    530,
-                    19.199996948242188
-                ],
-                "name": "Firmante"
-                },
-                "6": {
-                "id": 6,
-                "data": {
-                    "user_id": "16"
-                },
-                "inputs": {
-                    "in": {
-                    "connections": [
-                        {
-                        "node": 4,
-                        "output": "out",
-                        }
-                    ]
-                    }
-                },
-                "outputs": {
-                    "out": {
-                    "connections": [
-                        {
-                        "node": 2,
-                        "input": "in",
-                        }
-                    ]
-                    }
-                },
-                "position": [
-                    527,
-                    214.1999969482422
-                ],
-                "name": "Firmante"
-                }
-            }
-        }
-        return graph
 
 
 

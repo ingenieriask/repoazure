@@ -9,7 +9,7 @@ from core.models import Attorny, AttornyType, DocumentTypes, LegalPerson, Person
 from crispy_forms.layout import Field
 import json
 from core.widgets import ConsecutiveFormatWidget, NonWorkingCalendarWidget, SignatureFlowWidget
-from core.services import RecordCodeService, CalendarService
+from core.services import RecordCodeService, CalendarService, SignatureFlowService
 from core.utils_services import FormatHelper
 from django.db.models import Q
 from django.contrib.auth.models import Permission, Group
@@ -515,7 +515,13 @@ class SignatureFlowForm(forms.ModelForm):
     id = forms.CharField(max_length=50, required=False, widget=SignatureFlowWidget(), label='Graph')
 
     def clean(self, *args, **kwargs):
+
         cleaned_data = super(SignatureFlowForm, self).clean()
+        if self.data['id'] != -1:
+            if self.data['graph'].strip():
+                graph = json.loads(self.data['graph'])
+                sf = SignatureFlowService.from_json(graph, self.cleaned_data['id'])
+
         return cleaned_data
 
     class Meta:
