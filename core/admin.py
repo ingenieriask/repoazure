@@ -3,9 +3,9 @@ from core.models import Attorny, AttornyType, Atttorny_Person, LegalPerson, Stat
     City, Office, Country, PreferencialPopulation, Disability, BooleanSelection, \
     EthnicGroup, RequestResponse, SystemParameter, AppParameter, ConsecutiveFormat, \
     FilingType, CalendarDay, CalendarDayType, Calendar, Alerts, FunctionalArea, \
-    FunctionalAreaUser, Menu, NotificationsService, Notifications
+    FunctionalAreaUser, Menu, NotificationsService, Notifications, SignatureFlow
 from core.forms import ConsecutiveFormatForm, CalendarForm, CustomGroupAdminForm, \
-    CustomUserChangeForm
+    CustomUserChangeForm, SignatureFlowForm
 from django.contrib.auth.models import Group, User
 from django.contrib.auth.admin import UserAdmin
 from treebeard.admin import TreeAdmin
@@ -58,6 +58,9 @@ class CustomUserAdmin(UserAdmin):
 class FunctionalAreaAdmin(TreeAdmin):
     list_display = ('name', 'parent', 'description')
 
+class SignatureFlowAdmin(admin.ModelAdmin):
+    form = SignatureFlowForm
+
 
 # Register your models here.
 admin.site.register(Attorny)
@@ -89,3 +92,4 @@ admin.site.unregister(User)
 admin.site.register(User, CustomUserAdmin)
 admin.site.register(FunctionalArea, FunctionalAreaAdmin)
 admin.site.register(Menu)
+admin.site.register(SignatureFlow, SignatureFlowAdmin)
