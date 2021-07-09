@@ -3,13 +3,16 @@ from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Submit, Row, Column, ButtonHolder, Button, Div, HTML
 from django.contrib.auth.models import User
 from correspondence.models import Radicate, Record, Template
-from core.models import FunctionalAreaUser, Person, UserProfileInfo
+from core.models import FunctionalAreaUser, Person, UserProfileInfo, SignatureFlow
 from core.forms import CustomFileInput
 from core.utils_services import FormatHelper
+from core.services import SignatureFlowService
+from core.widgets import SignatureFlowWidget
 from pinax.eventlog.models import log, Log
 from django.urls import reverse
 from django.core.exceptions import ValidationError
 from django.utils.translation import gettext_lazy as _
+import json
 
 from crispy_forms.bootstrap import (
     Accordion,
@@ -358,3 +361,10 @@ class TemplateForm(forms.ModelForm):
             'name': forms.TextInput(),
             'office': forms.Select(attrs={'class': 'selectpicker', 'data-live-search': 'true'}),
         }
+
+
+class SignatureFlowForm(forms.ModelForm):
+
+    class Meta:
+        model = SignatureFlow
+        fields = ['name', 'description']

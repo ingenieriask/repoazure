@@ -115,5 +115,14 @@
       "content_type_id": 4,
       "codename": "receive_external"
     }
+  },
+  {
+    "model": "auth.permission",
+    "pk": 10014,
+    "fields": {
+      "name": "destination",
+      "content_type_id": 4,
+      "codename": "destination"
+    }
   }
 ]

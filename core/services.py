@@ -431,7 +431,7 @@ class SignatureFlowService(object):
         return 
 
     @classmethod
-    def from_json(cls, graph, signature_flow_id):
+    def from_json(cls, graph, signature_flow_id=None):
 
         nodes = {}
         node_list = []

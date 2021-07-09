@@ -69,6 +69,7 @@ function searchPeople(areaId, url, areaName, kindTask) {
       url: url,
       data: {"filter_pk": areaId, "kind_task": kindTask},
       success: function (response) {
+        console.info('response', response)
         $('#user_selected')
             .find('option')
             .remove()
