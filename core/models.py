@@ -439,12 +439,6 @@ class NotificationsService(models.Model):
         return self.name
 
 
-class Process_type_radicate(models.Model):
-    name = models.CharField(max_length=50)
-    description = models.CharField(max_length=256)
-    def __str__(self):
-        return self.name
-
 class Notifications(models.Model):
     name = models.CharField(max_length=50)
     subject = models.CharField(max_length=256)

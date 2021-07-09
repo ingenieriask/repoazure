@@ -16,7 +16,7 @@
     </div>
   </div>
 </div>
-<div class="row mb-3 d-flex justify-content-center">
+<div class="row mb-3">
   <div class="card mb-4 h-100 mb-3">
     <div class="card-header text-secundary">Radicado No. {{pqrscontent.number}}</div>
     <div class="card-body">
@@ -39,7 +39,8 @@
                 <p>
                   <i data-feather="user"></i>
                   <b>Remitente:</b><br />{{ pqrscontent.person.name }} {{ pqrscontent.person.lasts_name }}
-                </p>             
+                </p>
+                
                 <p>
                   <i data-feather="credit-card"></i>
                   <b>Numero Documento:</b><br />{{pqrscontent.person.document_number}}
@@ -399,57 +400,11 @@
           </div>
         </div>
       </div>
-      <div class="col-xxl-12 col-xl-12 mb-12">
-        <div class="card  mb-3">
-          <div class="card-header">Radicados Asociados</div>
-          <div class="card-body">
-          <div class="row">
-
-          </div> 
-            <div class="row">
-              <div class="col-md-12">
-                <a class="btn btn-primary mb-2" href="">Asociar radicado</a>
-              </div>
-              <div class="col-md-12">
-              <table class="table table-bordered table-hover" id="filesList" width="100%" cellspacing='0'>
-                <thead>
-                  <tr>
-                    <th >Numero de Radicado</th>
-                    <th >Tipo Tramite</th>
-                    <th >Fecha de Radicado</th>
-                    <th >Usuario Radicador</th>
-                    <th >Modificar</th>
-                    <th >Ver hiistorico</th>
-                  </tr>
-                </thead>
-        
-                <tbody>
-                {% if pqrscontent.many_radicate_associated %}
-                {% for associated_radicate in pqrscontent.many_radicate_associated.all %}
-                  <tr>
-                    <th >{{associated_radicate.user_radicator.radicate_num}}</th>
-                    <th >{{associated_radicate.user_radicator.process_type.name}}</th>
-                    <th >{{associated_radicate.user_radicator.radicate_date}}</th>
-                    <th >{{associated_radicate.user_radicator.user_radicator}}</th>
-                    <th ><a class="btn btn-primary" href="">Modificar</a></th>
-                    <th ><a class="btn btn-link mx-auto" href=""> <i data-feather="plus-circle"></i></a></th>
-                  </tr>
-                {% endfor %}
-                 {% endif %}
-                </tbody>
-              </table>
-              </div>
-              
-            </div>
-          </div>
-        </div>
-      </div>
-      
     </div>
   </div>
 </div>
 
-<div class="row d-flex justify-content-center">
+<div class="row">
   <div class="col-lg-6">
     <div class="card bg-light mb-3">
       <div class="card-header">Histórico</div>

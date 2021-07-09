@@ -1,13 +1,11 @@
-from django.contrib.auth.models import User
 from django.db import models
 from django.urls import reverse
 from django.db.models import CheckConstraint, Q, F
 from django.utils import tree
 from django.contrib.postgres.fields import ArrayField
-from core.models import RequestResponse, BaseModel, \
-    Person,PersonRequest,Alerts,Process_type_radicate
-from crum import get_current_user
+from core.models import RequestResponse, BaseModel, Person,PersonRequest,Alerts
 from correspondence.models import Radicate
+from crum import get_current_user
 from django.utils.translation import gettext_lazy as _
 import uuid
 
@@ -68,17 +66,6 @@ class PQRS(models.Model):
         return self.Status(self.status).label
 
 # Create your models here.
-class AssociatedRadicate(models.Model):
-    user_radicator = models.ForeignKey(
-        User,related_name='user_asociated_radicate',
-        on_delete=models.PROTECT)
-    radicate_date= models.DateField(auto_now=True)
-    radicate_num = models.CharField(max_length=255)
-    process_type =models.ForeignKey(
-        Process_type_radicate,
-        related_name="Process_type_radicate", 
-        on_delete=models.PROTECT)
-
 class PqrsContent(Radicate):
     data = models.TextField(max_length=2000)
     response_mode = models.ForeignKey(RequestResponse, on_delete=models.PROTECT, related_name='pqrs_response_mode')
@@ -86,9 +73,6 @@ class PqrsContent(Radicate):
     subtype = models.ForeignKey(SubType, on_delete=models.PROTECT, related_name='pqr_type', null=True)
     pqrsobject = models.ForeignKey(PQRS,related_name='pqr_type_object', on_delete=models.PROTECT,blank=True, null=True)
     agreement_personal_data = models.BooleanField()
-    many_radicate_associated=models.ManyToManyField(
-        AssociatedRadicate,related_name="many_radicate_field"
-        ,blank=True)
     def get_absolute_url(self):
         return reverse('pqrs_detail', args=[self.id])
 
@@ -100,5 +84,3 @@ class PqrsContent(Radicate):
         #     else:
         #         self.user_updated = user
         super(PqrsContent, self).save()
-
-
