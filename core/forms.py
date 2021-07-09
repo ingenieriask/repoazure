@@ -236,7 +236,7 @@ class AbstractLegalPersonForm(forms.ModelForm):
     document_type_company = forms.ModelChoiceField(
         queryset=DocumentTypes.objects.filter(
             Q(abbr='NIT') | Q(abbr="NIT-EX")),
-        label='Tipo de documento'
+        label='Tipo de identificación'
     )
     email_confirmation = forms.CharField(
         label='Confirmación del correo electrónico', required=True)
@@ -256,7 +256,7 @@ class AbstractLegalPersonForm(forms.ModelForm):
             'expedition_date', 'company_name', 'name', 'lasts_name',
             'email', 'city', 'address']
         labels = {
-            'verification_code': 'Codigo Verificacion',
+            'verification_code': 'Código de verificación',
             'company_name': 'Razon Social',
             'document_number': 'Numero de documento',
             'document_company_number': 'Número de documento',
@@ -265,11 +265,15 @@ class AbstractLegalPersonForm(forms.ModelForm):
             'email': 'Correo electrónico',
             'city': 'Ciudad / Municipio', 'address': 'Dirección de contacto',
             'name': 'Nombres',
-            'lasts_name': 'Apellidos', }
+            'lasts_name': 'Apellidos',
+            'document_type':'Tipo de documento' }
 
         widgets = {
             'expedition_date': forms.DateInput(format='%Y-%m-%d', attrs={'placeholder': 'digite la fecha', 'type': 'date'}),
             'city': forms.Select(attrs={'class': 'selectpicker', 'data-live-search': 'true', 'data-size': '7'}),
+            'document_number':forms.NumberInput(attrs={'size': '14'}),
+            'document_company_number':forms.NumberInput(attrs={'size': '14'}),
+            'verification_code':forms.NumberInput(attrs={'size': '1'}),
         }
 
     def __init__(self, *args, **kwargs):
@@ -277,7 +281,7 @@ class AbstractLegalPersonForm(forms.ModelForm):
         self.helper = FormHelper(self)
         self.helper.layout = Layout(
             Div(
-                Div(HTML('Información General'),
+                Div(HTML('Persona Jurídica'),
                     css_class='card-header'),
                 Div(
 
