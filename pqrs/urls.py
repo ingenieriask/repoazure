@@ -30,6 +30,7 @@ urlpatterns = [
     path('conclusion/', views.procedure_conclusion, name='conclusion'),
     path('consultant/', views.pqrsConsultan, name="pqrs_consultant"),
     path('consultation/result/<int:pk>/', views.PqrsConsultationResult.as_view(), name="consultation_result"),
-    path('extend-request/<int:pk>', views.pqrs_extend_request, name="extend_request"),
-    path('answer-request/<int:pk>', views.pqrs_answer_request, name="answer_request")
+    path('extend-request/<int:pk>', views.pqrs_extend_request, name='extend_request'),
+    path('answer-request/<int:pk>', views.pqrs_answer_request, name="answer_request"),
+    path('answer/<int:pk>', views.pqrs_answer, name='answer')
 ]
