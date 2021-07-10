@@ -56,7 +56,7 @@ class ReceptionMode(models.Model):
 
 class Radicate(models.Model):
     number = models.TextField(max_length=30, null=False, db_index=True)
-    subject = models.TextField(max_length=256, null=True)
+    subject = models.CharField(max_length=256, null=True)
     annexes = models.TextField(max_length=256, null=True)
     observation = models.TextField(max_length=400, null=True)
     type = models.ForeignKey(RadicateTypes, on_delete=models.CASCADE, related_name='radicate_type', null=False, blank=False)
