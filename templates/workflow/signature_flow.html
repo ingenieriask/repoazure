@@ -71,7 +71,7 @@
 
 <div class="card mb-4">
     <div class="card-body">
-        <form method="post" enctype="multipart/form-data" action="{% url 'correspondence:signature_workflow' radicate=radicate %}" autocomplete="off">
+        <form method="post" enctype="multipart/form-data" action="{% url 'workflow:signature' radicate=radicate %}" autocomplete="off">
 
             {% load crispy_forms_tags %}
             {{ form | crispy }}
@@ -107,15 +107,13 @@
             <div class="modal-body">
                 <div class="row justify-content-center">
                 <div class="col-12" id="file-display-field">
-                    <!--{% select_user %}-->
+                    {% select_user %}
                 </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
-
-  {% select_user %}
 
 <script src="{% static 'node_modules/jquery/dist/jquery.min.js' %}"></script>
 <script src="{% static 'node_modules/vue/dist/vue.min.js' %}"></script>
@@ -139,28 +137,6 @@ var actSocket = new Rete.Socket("Action");
 
 var mounted = false;
 
-function searchUsers(filter, id, userType, currentUser) {
-  $.ajax({
-        type: 'GET',
-        url: "{% url 'signature_flow_users' %}",
-        data: {"filter": filter, 'usertype': userType},
-        success: function (response) {
-            $(`#${id}_selected`)
-                .find('option')
-                .remove()
-                .end();
-            $(`#${id}_selected`).append('<option value=-1>Ninguno seleccionado</option>')
-            response.forEach(function (value) {
-            $(`#${id}_selected`)
-                .append(`<option value=${value.pk} ${currentUser==value.pk?'selected':''}> [ ${value.username} ] ${value.first_name} ${value.last_name} </option>`)
-            });
-        },
-        error: function (response) {
-            console.log(response)
-        }
-    })
-}
-
 function getVueUserControl(key, userType) {
     return {
         props: ['emitter', 'ikey', 'getData', 'putData'],
@@ -175,6 +151,13 @@ function getVueUserControl(key, userType) {
         methods: {
             showModal(e){
                 console.info('evet:', e)
+                $('#user_selected').find('option').remove().end();
+                $("#user_selected").append('<option value=-1>Ninguno seleccionado</option>')
+                response.forEach(function (value) {
+                    $("#user_selected").append(
+                        `<option value=${value.pk}>${value.username} ${value.first_name} ${value.last_name}'</option>`)
+                });
+                $("#user_selected").selectpicker('refresh');
                 $('#userModal').modal()
             },
             change(e){
@@ -189,7 +172,6 @@ function getVueUserControl(key, userType) {
         },
         mounted() {
             this.value = this.getData(this.ikey);
-            searchUsers(null, key, userType, this.value)
         }
     }
 }

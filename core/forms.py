@@ -4,12 +4,11 @@ from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Submit, Row, Column, Field, ButtonHolder, Button, Div, HTML
 from django.db.models import query
 from core.models import Attorny, AttornyType, DocumentTypes, LegalPerson, Person, \
-    Disability, PreferencialPopulation, Disability, PersonRequest, PreferencialPopulation, \
-    SignatureFlow
+    Disability, PreferencialPopulation, Disability, PersonRequest, PreferencialPopulation
 from crispy_forms.layout import Field
 import json
-from core.widgets import ConsecutiveFormatWidget, NonWorkingCalendarWidget, SignatureFlowWidget
-from core.services import RecordCodeService, CalendarService, SignatureFlowService
+from core.widgets import ConsecutiveFormatWidget, NonWorkingCalendarWidget
+from core.services import RecordCodeService, CalendarService
 from core.utils_services import FormatHelper
 from django.db.models import Q
 from django.contrib.auth.models import Permission, Group
@@ -510,20 +509,3 @@ class CustomUserChangeForm(UserChangeForm):
         required=False
     )
 
-class SignatureFlowForm(forms.ModelForm):
-
-    id = forms.CharField(max_length=50, required=False, widget=SignatureFlowWidget(), label='Graph')
-
-    def clean(self, *args, **kwargs):
-
-        cleaned_data = super(SignatureFlowForm, self).clean()
-        if self.data['id'] != -1:
-            if self.data['graph'].strip():
-                graph = json.loads(self.data['graph'])
-                sf = SignatureFlowService.from_json(graph, self.cleaned_data['id'])
-
-        return cleaned_data
-
-    class Meta:
-        model = SignatureFlow
-        fields = ['name', 'description', 'id']

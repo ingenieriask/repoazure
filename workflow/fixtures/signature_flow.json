@@ -1,6 +1,6 @@
 [
   {
-    "model": "core.signatureflow",
+    "model": "workflow.signatureflow",
     "pk": 1,
     "fields": {
       "name": "proceso_1",
@@ -8,7 +8,7 @@
     }
   },
   {
-    "model": "core.signaturenode",
+    "model": "workflow.signaturenode",
     "pk": 11,
     "fields": {
       "index": 1,
@@ -19,7 +19,7 @@
     }
   },
   {
-    "model": "core.signaturenode",
+    "model": "workflow.signaturenode",
     "pk": 12,
     "fields": {
       "index": 2,
@@ -30,7 +30,7 @@
     }
   },
   {
-    "model": "core.signaturenode",
+    "model": "workflow.signaturenode",
     "pk": 13,
     "fields": {
       "index": 3,
@@ -41,7 +41,7 @@
     }
   },
   {
-    "model": "core.signaturenode",
+    "model": "workflow.signaturenode",
     "pk": 14,
     "fields": {
       "index": 4,
@@ -52,7 +52,7 @@
     }
   },
   {
-    "model": "core.signaturenode",
+    "model": "workflow.signaturenode",
     "pk": 15,
     "fields": {
       "index": 5,

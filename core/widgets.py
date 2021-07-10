@@ -3,7 +3,7 @@ from django.template import loader
 from django.utils.safestring import mark_safe
 from django.http import JsonResponse
 from datetime import date
-from core.services import RecordCodeService, SignatureFlowService
+from core.services import RecordCodeService
 from core.models import CalendarDay
 
 class ConsecutiveFormatWidget(forms.Widget):
@@ -45,25 +45,6 @@ class NonWorkingCalendarWidget(forms.Widget):
         template = loader.get_template(self.template_name).render(context)
         return mark_safe(template)
 
-class SignatureFlowWidget(forms.Widget):
-    ''' '''
-
-    template_name = 'core/signature_flow.html'
-
-    def get_context(self, name, value, attrs=None):
-
-        graph = SignatureFlowService.to_json(value) if value else ''
-
-        return {'widget': {
-            'name': name,
-            'value': value if value else '',
-            'graph': graph
-        }}
-
-    def render(self, name, value, attrs=None, renderer=None):
-        context = self.get_context(name, value, attrs)
-        template = loader.get_template(self.template_name).render(context)
-        return mark_safe(template)
 
 
 

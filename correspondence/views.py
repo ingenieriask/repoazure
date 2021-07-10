@@ -3,8 +3,7 @@ from core.models import FunctionalArea, NotificationsService, Person, Atttorny_P
 from pqrs.models import PQRS, PqrsContent
 from correspondence.forms import RadicateForm, SearchForm, UserForm, UserProfileInfoForm, PersonForm, RecordForm, \
     SearchContentForm, ChangeCurrentUserForm, ChangeRecordAssignedForm, LoginForm, \
-    TemplateForm, AssignToUserForm, ReturnToLastUserForm, ReportToUserForm, \
-    SignatureFlowForm
+    TemplateForm, AssignToUserForm, ReturnToLastUserForm, ReportToUserForm
 from django.contrib.auth.models import User
 from datetime import datetime
 from django.conf import settings
@@ -39,7 +38,7 @@ from pinax.eventlog.models import log, Log
 from crum import get_current_user
 from django.core.files import File
 
-from core.services import NotificationsHandler, SystemParameterHelper, SignatureFlowService
+from core.services import NotificationsHandler, SystemParameterHelper
 from correspondence.services import ECMService
 
 logger = logging.getLogger(__name__)
@@ -266,7 +265,16 @@ def assign_user(request, radicate):
             'radicate': radicate
         })
 
-''' TODO
+filters = {
+    1: lambda area, user: PermissionRelationAssignation.objects. \
+            filter(is_current_area=area, current_permission__in=(user.user_permissions.all() | Permission.objects.filter(group__user=user))). \
+            values_list('destination_permission').distinct(),
+    2: lambda area, user: PermissionRelationReport.objects. \
+            filter(is_current_area=area, current_permission__in=(user.user_permissions.all() | Permission.objects.filter(group__user=user))). \
+            values_list('destination_permission').distinct(),
+    3: lambda area, user: []
+}
+
 def users_by_area(request):
     filter_pk = request.GET.get('filter_pk')
     kind_task = request.GET.get('kind_task')
@@ -275,14 +283,7 @@ def users_by_area(request):
     area = FunctionalAreaUser.objects.filter(Q(user=user) & Q(functional_area=filter_pk)).first() != None
     ###get destination permissions
     ###kind_task 1 is for assination, else is gonna be report
-    if kind_task and int(kind_task)==1:
-        permission = PermissionRelationAssignation.objects. \
-            filter(is_current_area=area, current_permission__in=(user.user_permissions.all() | Permission.objects.filter(group__user=user))). \
-            values_list('destination_permission').distinct()
-    else:
-        permission = PermissionRelationReport.objects. \
-            filter(is_current_area=area, current_permission__in=(user.user_permissions.all() | Permission.objects.filter(group__user=user))). \
-            values_list('destination_permission').distinct()
+    permission = filters[int(kind_task)](area, user)
     ###get destination users
     users = User.objects.filter(Q(groups__permissions__in=permission) | Q(user_permissions__in=permission)).distinct()
     if request.is_ajax and request.method == "GET":
@@ -294,7 +295,7 @@ def users_by_area(request):
         } for u in FunctionalAreaUser.objects.filter(Q(functional_area=filter_pk) & Q(user__in=users))]
         return JsonResponse(users, safe=False, status=200)
     return JsonResponse({}, status=400)
-'''
+
 def users_by_area(request):
 
     ###get destination users
@@ -787,38 +788,3 @@ class TemplateEditView(UpdateView):
     model = Template
     form_class = TemplateForm
 
-
-def signature_workflow(request, radicate):
-
-    print('request.POST', request.POST, 'request.POST')
-    graph_error = ''
-    if request.method == 'POST':
-        form = SignatureFlowForm(request.POST)
-        if form.is_valid():
-            print('valid')
-            #return HttpResponseRedirect(reverse('')
-        graph = json.loads(request.POST['graph'])
-        
-        try:
-            sf = SignatureFlowService.from_json(json.loads(request.POST['graph']))
-            print('sf:', sf)
-        except ValidationError as e:
-            messages.error(request, e.message)
-        except:
-            messages.error(request, "Something else went wrong")
-
-    if request.method == 'GET':
-        form = SignatureFlowForm(request.GET)
-        graph = SignatureFlowService.to_json(None)
-
-    return render(
-        request,
-        'correspondence/signature_flow.html',
-        context={
-            'form': form,
-            'widget': {
-                'graph': graph,
-            },
-            'radicate': radicate,
-            'grapherror' : graph_error
-        })
