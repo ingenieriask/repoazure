@@ -44,7 +44,6 @@
                                 </div>
                             </div>
                         </div>
-                    
                         <div class="form-row">
                             <div class="form-group mx-5 col-md-2 mb-0">
                                 <a href="" class="btn btn-primary w-100">Solicitar firmas</a>
@@ -59,6 +58,7 @@
                                 <a class="btn btn-primary w-100" href="{% url 'pqrs:detail_pqr' pk=radicate.id %}">Cancelar</a>
                             </div>
                         </div>
+                    </div>
                 </div>
             </div>
         </form>
@@ -80,5 +80,6 @@
             return filename.replace('(', '_').replace(']', '_');
         }
       });
+
 {% endblock %}
 

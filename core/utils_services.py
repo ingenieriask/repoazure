@@ -1,4 +1,8 @@
 from fpdf import FPDF
+from PyPDF2 import PdfFileMerger, PdfFileReader, PdfFileWriter
+from io import BytesIO
+from django.core.files import File
+from django.core.files.temp import NamedTemporaryFile
 import re
 
 class FormatHelper():
@@ -86,14 +90,17 @@ class PDF(FPDF):
     # Page footer
     def custom_footer(self):
         # Position from the bottom of the page
-        self.set_y(-51)
+        self.set_y(-45)
         self.set_font('Arial', '', 8)
         # Dependency info
         self.multi_cell(0, 5, 'NOMBRE DE LA DEPENDENCIA O GRUPO\n')
         self.set_font('Arial', '', 6)
         self.multi_cell(0, 5, 'DIRECCIÓN UBICACIÓN DEPENDENCIA O GRUPO\nNÚMERO DE CONTACTO')
         self.set_font('Arial', '', 5)
-        self.multi_cell(0, 5, 'CORREO ELECTRÓNICO O DIRECCIÓN SITIO WEB')
+        self.cell(40, 5, 'CORREO ELECTRÓNICO O DIRECCIÓN SITIO WEB')
         # Page numbering
         self.set_font('Arial', 'I', 8)
-        self.cell(0, 10, 'Página ' + str(self.page_no()), 0, 0, 'C')
+        
+        self.cell(90, 5, 'Página ' + str(self.page_no()) + ' de {nb}', 0, 0, 'C')
+
+
