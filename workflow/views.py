@@ -15,10 +15,9 @@ def signature(request, radicate):
         id = request.POST['id']
         next_view = request.POST['next']
         graph = json.loads(request.POST['graph'])
-        sf = SignatureFlowService.from_json(graph, id if id and id != 'None' else None)
-        id = sf.id
         try:
-            sf = SignatureFlowService.from_json(graph, id if id else None)
+            sf = SignatureFlowService.from_json(graph, id if id and id != 'None' else None)
+            id = sf.id
         except ValidationError as e:
             messages.error(request, e.message)
         except:
