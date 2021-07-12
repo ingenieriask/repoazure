@@ -64,10 +64,19 @@ class SignatureFlowService(object):
                         ]
                     }
                 }
+            
+
+            user = {
+                'id': node.user.id,
+                'username': node.user.username, 
+                'first_name': node.user.first_name,
+                'last_name': node.user.last_name,
+            } if node.user else {}
+
             formated_node = {
                 'id': node.index,
                 'data': {
-                    'user_id': node.user.id if node.user else None
+                    'user': user
                 },
                 'inputs': inputs,
                 'outputs': outputs,
@@ -83,6 +92,8 @@ class SignatureFlowService(object):
 
     @classmethod
     def from_json(cls, graph, signature_flow_id=None):
+
+        print('graph:', graph)
 
         nodes = {}
         node_list = []

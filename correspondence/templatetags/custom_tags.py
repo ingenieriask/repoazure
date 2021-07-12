@@ -87,7 +87,7 @@ def select_user(context):
     functional_tree = []
     for item, info in FunctionalArea.get_annotated_list():
             temp = False
-            if info['level'] != 0 and int(item.parent.get_depth()+info['level']) > item.get_depth():
+            if info['level'] != 0 and int(item.parent.get_depth() + info['level']) > item.get_depth():
                 temp = True
             functional_tree.append((item, info, temp))
 

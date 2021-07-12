@@ -77,7 +77,7 @@ function searchPeople(areaId, url, areaName, kindTask) {
         $("#user_selected").append('<option value=-1>Ninguno seleccionado</option>')
         response.forEach(function (value) {
           $("#user_selected")
-            .append('<option value=' + value.pk + '>'+ value.username + ' ' + value.first_name + ' ' + value.last_name + '</option>')
+            .append('<option value=' + value.pk + '>['+ value.username + '] ' + value.first_name + ' ' + value.last_name + '</option>')
         });
         $("#user_selected").selectpicker('refresh');
         $("#headerForm").text(areaName)

@@ -7,7 +7,6 @@ from workflow.forms import SignatureFlowForm
 
 def signature(request, radicate):
 
-    print('request.POST', request.POST, 'request.POST')
     graph_error = ''
     if request.method == 'POST':
         form = SignatureFlowForm(request.POST)
@@ -26,7 +25,8 @@ def signature(request, radicate):
 
     if request.method == 'GET':
         form = SignatureFlowForm(request.GET)
-        graph = SignatureFlowService.to_json(None)
+        graph = SignatureFlowService.to_json(1)
+        print('graph:', graph)
 
     return render(
         request,

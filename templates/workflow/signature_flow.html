@@ -95,7 +95,7 @@
     </div>
 </div>
 
-<div class="modal fade" id="userModal" tabindex="-1" role="dialog">
+<div class="modal fade" id="user_modal" tabindex="-1" role="dialog">
     <div class="modal-dialog modal-m" role="document">
         <div class="modal-content">
             <div class="modal-header">
@@ -137,49 +137,65 @@ var actSocket = new Rete.Socket("Action");
 
 var mounted = false;
 
-function getVueUserControl(key, userType) {
+function getVueUserControl(key, userType, user) {
     return {
         props: ['emitter', 'ikey', 'getData', 'putData'],
         template: `<input id="${key}_selected" class="userinput" readonly=true v-on:click="showModal($event)" \
-                value="test" data-toggle="tooltip" data-placement="top" title="Tooltip test" />`
+                :value=username data-toggle="tooltip" data-placement="top" \
+                :title=title />`
         ,
         data() {
             return {
-                value: 0
+                value: user.id,
+                username: user.username,
+                user: user,
+                title: `[${user.username}] ${user.first_name} ${user.last_name}`
             }
         },
         methods: {
             showModal(e){
-                console.info('evet:', e)
                 $('#user_selected').find('option').remove().end();
-                $("#user_selected").append('<option value=-1>Ninguno seleccionado</option>')
-                response.forEach(function (value) {
+                $("#user_selected").append('<option value=-1>[sin usurio] seleccione un usuario</option>')
+                if (this.value) {
                     $("#user_selected").append(
-                        `<option value=${value.pk}>${value.username} ${value.first_name} ${value.last_name}'</option>`)
-                });
+                        `<option selected value=${this.value}>${this.title}</option>`)
+                }
                 $("#user_selected").selectpicker('refresh');
-                $('#userModal').modal()
-            },
-            change(e){
-                this.value = e.target.value;
-                this.update();
+                $('#user_selected').selectpicker('render');
+
+                self = this;
+                $('#user_selected').change(function(){ 
+                    self.value = $(this).val();
+                    self.title = $(this).find("option:selected").text()
+                    self.username = self.title.match(/\[(.*)\]/i)[1];
+                    $('.collapse').collapse('hide')
+                    $("#headerForm").text('')
+                    $('#user_modal').modal('hide')
+                    self.update();
+                });
+                $('#user_modal').modal()
             },
             update() {
-            if (this.ikey)
-                this.putData(this.ikey, this.value)
-            this.emitter.trigger('process');
+                if (this.ikey)
+                    this.putData(this.ikey, this.value)
+                this.emitter.trigger('process');
             }
-        },
-        mounted() {
-            this.value = this.getData(this.ikey);
         }
     }
 }
 
 class UserControl extends Rete.Control {
-    constructor(emitter, key, userType, user_id) {
+    constructor(emitter, key, userType, user) {
+        if ($.isEmptyObject(user)) {
+            user = {
+                'id': null, 
+                'username': 'sin usuario', 
+                'first_name': 'seleccione un usuario', 
+                'last_name': ''
+            }
+        } 
         super(key);
-        this.component = getVueUserControl(key, userType, user_id);
+        this.component = getVueUserControl(key, userType, user);
         this.props = {emitter, ikey: 'user_id'};
     }
 }
@@ -213,7 +229,7 @@ class GuarantorUserComponent extends Rete.Component {
         super("Avalador");
     }
     builder(node) {
-        var ctrl = new UserControl(this.editor, node.id, 'guarantoruser', node.data.user_id);
+        var ctrl = new UserControl(this.editor, node.id, 'guarantoruser', node.data.user);
         var inp = new Rete.Input('in',"Inicio", actSocket, true);
         var out = new Rete.Output('out', "Fin", actSocket, true);
         return node
@@ -230,7 +246,7 @@ class SigningUserComponent extends Rete.Component {
         super("Firmante");
     }
     builder(node) {
-        var ctrl = new UserControl(this.editor, node.id, 'signinguser', node.data.user_id);
+        var ctrl = new UserControl(this.editor, node.id, 'signinguser', node.data.user);
         var inp = new Rete.Input('in',"Inicio", actSocket, true);
         var out = new Rete.Output('out', "Fin", actSocket, true);
         return node

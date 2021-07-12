@@ -26,7 +26,8 @@
       "type": "Avalador",
       "properties": "{\"position\": [282, 173]}",
       "signature_flow_id": 1,
-      "previous": [11]
+      "previous": [11],
+      "user_id": 2
     }
   },
   {
