@@ -21,3 +21,21 @@
 </div>
 {% endblock %}
 
+{% block script %} 
+    $("#id_pqrs_creation_uploaded_files").fileinput({
+        theme: 'fas',
+        allowedFileExtensions: ['PDF', 'DOC', 'DOCX', 'XLS', 'XLSX', 'EXCEL', 'PPT', 'PPTX', 
+                                'JPG', 'GIF', 'PNG', 'TIFF', 'BMP', 'WAV', 'MP3', 'AVI', 'MPEG', 
+                                'MPG', 'OGG', 'M4A', 'MP4', 'WMV', 'OGV'],
+        overwriteInitial: true,
+        maxFileSize:10000,
+        language: 'es',
+        previewFileIconSettings: {
+            'docx': '<i class="fas fa-file-word text-primary"></i>',
+        },
+        slugCallback: function (filename) {
+            return filename.replace('(', '_').replace(']', '_');
+        }
+      });
+
+{% endblock %}

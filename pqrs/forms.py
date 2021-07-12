@@ -173,7 +173,7 @@ class PqrsConsultantForm(forms.Form):
 
 class PqrRadicateForm(forms.ModelForm):
     captcha = CaptchaField()
-    uploaded_files = forms.FileField(widget=forms.ClearableFileInput(attrs={'multiple': True}), required=False,
+    pqrs_creation_uploaded_files = forms.FileField(widget=forms.ClearableFileInput(attrs={'multiple': True}), required=False,
                                     label="Anexos, Documentos (Múltiples archivos - Tamaño máximo = 10 MB)")
     agreement_personal_data = forms.BooleanField(widget=forms.CheckboxInput, required=True, 
         label="Acepto el tratamiento de datos personales"
@@ -224,7 +224,7 @@ class PqrRadicateForm(forms.ModelForm):
                 css_class='form-row'
             ),
             Row(
-                Column(CustomFileInput('uploaded_files'),css_class='form-group col-12 mb-0'),
+                Column(CustomFileInput('pqrs_creation_uploaded_files'),css_class='form-group col-12 mb-0'),
                 css_class='form-row'
             ),
             Row(
