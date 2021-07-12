@@ -9,7 +9,7 @@ from core.forms import ConsecutiveFormatForm, CalendarForm, CustomGroupAdminForm
 from django.contrib.auth.models import Group, User
 from django.contrib.auth.admin import UserAdmin
 from treebeard.admin import TreeAdmin
-
+from simple_history.admin import SimpleHistoryAdmin
 
 class ConsecutiveFormatAdmin(admin.ModelAdmin):
     form = ConsecutiveFormatForm
@@ -66,7 +66,7 @@ class SignatureFlowAdmin(admin.ModelAdmin):
 admin.site.register(Attorny)
 admin.site.register(AttornyType)
 admin.site.register(Atttorny_Person)
-admin.site.register(Alerts)
+admin.site.register(Alerts,SimpleHistoryAdmin)
 admin.site.register(State)
 admin.site.register(City)
 admin.site.register(Country)

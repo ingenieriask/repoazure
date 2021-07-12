@@ -345,16 +345,72 @@ class PdfCreationService(object):
             pdf.multi_cell(0,5, pqrs.pqrsobject.principal_person.name+' '+pqrs.pqrsobject.principal_person.lasts_name+
                        '\nCARGO\n\n')
         pdf.set_font('Arial', '', 7)
-        pdf.multi_cell(0, 5, 'Anexo (s): \n\n')
-        pdf.set_font('Arial', '', 12)
         
-        for annex in pqrs.files.all():
-            pdf.multi_cell(0, 5, '      - ' + annex.name)
+        annexes = ''
+        for index, val in enumerate(list(radicate.files.all())):
+            annexes += val.name
+            if index != len(list(radicate.files.all())) - 1:
+                annexes += ', '
+        
+        pdf.multi_cell(0, 5, 'Anexo (s): ' + annexes)
+        
         # Create custom doc footer
         pdf.custom_footer()
         # Save pdf file
         #pdf.output('summary.pdf', 'F')
     
+    @classmethod
+    def create_radicate_answer(cls, radicate, draft):
+        # Create pdf instance    
+        pdf = PDF()
+        # Add page to pdf
+        pdf.add_page()
+        #add watermark if the document is a draft
+        if draft:
+            pdf.image('static/pqrs/img/draft_watermark.png', w=200, h=260)
+        # Define left margin for the document
+        pdf.set_left_margin(20.0)
+        pdf.set_right_margin(-20.0)
+        initial_x_pos = 100.0
+        initial_y_pos = 12.0
+        # Create custom doc header
+        pdf.custom_header(radicate, initial_x_pos, initial_y_pos, 1, 1)
+        # Insert information inside doc body
+        pdf.set_xy(20.0, initial_y_pos+60.0)
+        pdf.set_font('Arial', '', 12)
+        pdf.multi_cell(0, 5, 'CIUDAD - '+ radicate.date_radicated.strftime('%Y-%m-%d')+'\n\nSeñor(a)\n')
+        pdf.set_font('Arial', 'B', 12)
+        if radicate.person.person_type.abbr == "PJ":
+            pdf.multi_cell(0, 5, radicate.person.parent.representative+'\n')
+        else:
+            pdf.multi_cell(0, 5, radicate.person.name+' '+radicate.person.lasts_name+'\n')
+        pdf.set_font('Arial', '', 12)
+        if radicate.person.address:
+            pdf.multi_cell(0, 5, radicate.person.address+'\n'+radicete.person.email+'\n'+radicate.person.city.name+' '+radicate.person.city.state.name+'\n\n')
+        else:
+            pdf.multi_cell(0, 5, '\n'+radicate.person.email+'\n'+radicate.person.city.name+' '+radicate.person.city.state.name+'\n\n')
+        pdf.set_font('Arial', 'B', 12)
+        pdf.cell(20, 5, 'ASUNTO: ')
+        pdf.set_font('Arial', '', 12)
+        pdf.multi_cell(0,5, radicate.subject + '\n\n')
+        pdf.multi_cell(0,5, radicate.observation + '\n\n\n\n\n\nCordialmente,\n\n\n\nRINO GESTIÓN DOCUMENTAL'+
+                       '\nJosé Gonzáles\nGerente\n\n')
+        pdf.set_font('Arial', '', 7)
+        
+        annexes = ''
+        for index, val in enumerate(list(radicate.files.all())):
+            annexes += val.name
+            if index != len(list(radicate.files.all())) - 1:
+                annexes += ', '
+        
+        pdf.multi_cell(0, 5, 'Anexo (s): ' + annexes)
+        
+        # Create custom doc footer
+        pdf.custom_footer()
+        # Define total number of pages
+        pdf.alias_nb_pages()
+        # Save pdf file
+        #pdf.output('answer.pdf', 'F')
 
 class SignatureFlowService(object):
 

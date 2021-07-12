@@ -10,7 +10,7 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 from treebeard.al_tree import AL_Node
 from core.utils_services import FormatHelper
-
+from simple_history.models import HistoricalRecords
 # Create your models here.
 
 
@@ -119,9 +119,9 @@ class City(models.Model):
 class Alerts(models.Model):
     name = models.CharField(max_length=128, blank=False, null=False)
     response_time = models.SmallIntegerField(
-        blank=False, null=False, default=1)
+        blank=False, null=False, default=1,verbose_name='Response Time (Days)')
     color = ColorField(default='#FF0000')
-
+    history = HistoricalRecords()
     def __str__(self):
         return self.name
 # UserProfileInfo, has one user for extend the basic user info
