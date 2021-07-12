@@ -115,5 +115,41 @@
       "content_type_id": 4,
       "codename": "receive_external"
     }
+  },
+  {
+    "model": "auth.permission",
+    "pk": 10014,
+    "fields": {
+      "name": "destination",
+      "content_type_id": 4,
+      "codename": "destination"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "pk": 10015,
+    "fields": {
+      "name": "approbation",
+      "content_type_id": 4,
+      "codename": "approbation"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "pk": 10016,
+    "fields": {
+      "name": "personal_signature",
+      "content_type_id": 4,
+      "codename": "personal_signature"
+    }
+  },
+  {
+    "model": "auth.permission",
+    "pk": 10017,
+    "fields": {
+      "name": "legal_signature",
+      "content_type_id": 4,
+      "codename": "legal_signature"
+    }
   }
 ]

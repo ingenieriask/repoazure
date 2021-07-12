@@ -58,7 +58,8 @@ INSTALLED_APPS = [
     'django_celery_results',
     'colorfield',
     'treebeard',
-    'simple_history'
+    'simple_history',
+    'workflow'
 ]
 
 CRISPY_TEMPLATE_PACK = 'bootstrap4'
