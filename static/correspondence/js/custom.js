@@ -62,12 +62,14 @@ function addPerson() {
 
 }
 
+var permissions = []
+
 function searchPeople(areaId, url, areaName, kindTask) {
   
   $.ajax({
       type: 'GET',
       url: url,
-      data: {"filter_pk": areaId, "kind_task": kindTask},
+      data: {"filter_pk": areaId, "kind_task": kindTask, "permissions": permissions},
       success: function (response) {
         console.info('response', response)
         $('#user_selected')

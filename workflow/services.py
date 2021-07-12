@@ -12,8 +12,9 @@ class SignatureFlowService(object):
     class Type(Enum):
         INPUT = 'Inicio'
         OUTPUT = 'Fin'
-        GUARANTORUSER = 'Avalador'
-        SIGNINGUSER = 'Firmante'
+        GUARANTORUSER = 'Visto Bueno'
+        SIGNINGUSER = 'Firma Personal'
+        LEGALSIGNINGUSER = 'Firma Jurídica'
 
     @classmethod
     def to_json(cls, pk):
@@ -64,7 +65,6 @@ class SignatureFlowService(object):
                         ]
                     }
                 }
-            
 
             user = {
                 'id': node.user.id,
@@ -76,7 +76,8 @@ class SignatureFlowService(object):
             formated_node = {
                 'id': node.index,
                 'data': {
-                    'user': user
+                    'user': user, 
+                    'time': node.time
                 },
                 'inputs': inputs,
                 'outputs': outputs,
@@ -93,13 +94,12 @@ class SignatureFlowService(object):
     @classmethod
     def from_json(cls, graph, signature_flow_id=None):
 
-        print('graph:', graph)
-
         nodes = {}
         node_list = []
 
         acc = {
             SignatureFlowService.Type.SIGNINGUSER.value: 0,
+            SignatureFlowService.Type.LEGALSIGNINGUSER.value: 0,
             SignatureFlowService.Type.GUARANTORUSER.value: 0,
             SignatureFlowService.Type.INPUT.value: 0,
             SignatureFlowService.Type.OUTPUT.value: 0
@@ -112,11 +112,20 @@ class SignatureFlowService(object):
 
         for key, n in graph['nodes'].items():
             properties = {'position': n['position']}
+            time = 2
             user = None
             if n['name'] in [SignatureFlowService.Type.SIGNINGUSER.value,  
-                            SignatureFlowService.Type.GUARANTORUSER.value]:
-                if n['data'] and n['data']['user_id'] and n['data']['user_id'] != '-1':
-                    user = User(int(n['data']['user_id']))
+                            SignatureFlowService.Type.GUARANTORUSER.value,
+                            SignatureFlowService.Type.LEGALSIGNINGUSER.value]:
+                if n['data'] and n['data']['user']['id'] and n['data']['user']['id'] != '-1':
+                    user = User.objects.get(pk=int(n['data']['user']['id']))
+                    n['data']['user'] = {
+                        'id': user.id,
+                        'username': user.username, 
+                        'first_name': user.first_name,
+                        'last_name': user.last_name,
+                    }
+                    time = n['data']['time']
                 else:
                     raise ValidationError("Debe seleccionar un usuario para cada estado")
 
@@ -134,7 +143,8 @@ class SignatureFlowService(object):
                 index=n['id'],
                 user=user,
                 properties=json.dumps(properties),
-                signature_flow=sf)
+                signature_flow=sf,
+                time=time)
             node_list.append(node)
 
         if acc[SignatureFlowService.Type.INPUT.value] > 1 or acc[SignatureFlowService.Type.OUTPUT.value] > 1:

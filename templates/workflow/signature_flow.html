@@ -20,17 +20,24 @@
     min-width: 80px !important;
     width: 80px !important;
 }
-.avalador {
-    background-color: rgba(177, 191, 250, 0.8) !important;
-    min-width: 135px !important;
-    width: 135px !important;
+.visto-bueno {
+    background-color: rgba(177, 191, 250, 1) !important;
+    min-width: 140px !important;
+    width: 140px !important;
 }
 
-.firmante {
+.firma-personal {
     background-color: #95d5b2 !important;
     border: 2px solid #658542 !important;
-    min-width: 135px !important;
-    width: 135px !important;
+    min-width: 140px !important;
+    width: 140px !important;
+}
+
+.firma-jurídica {
+    background-color: #ed2939 !important;
+    border: 2px solid #960018 !important;
+    min-width: 140px !important;
+    width: 140px !important;
 }
 
 .selected {
@@ -52,15 +59,14 @@
 }
 
 .rete {
-    height: 400px;
-    /*overflow-x: scroll;*/
+    height: 430px;
     padding: 10px;
     border: 1px solid #bbbbbb;
     border-radius: 5px;
 }
 
 .userinput {
-    width: 100px !important;
+    width: 105px !important;
 }
 
 #id-graph-alert {
@@ -73,11 +79,11 @@
     <div class="card-body">
         <form method="post" enctype="multipart/form-data" action="{% url 'workflow:signature' radicate=radicate %}" autocomplete="off">
 
-            {% load crispy_forms_tags %}
-            {{ form | crispy }}
             {% csrf_token %}
 
             <input id="id-graph" name="graph" type="hidden" value="">
+            <input id="id-id" name="id" type="hidden" value="{{ id }}">
+            <input id="id-next" name="next" type="hidden" value="{{ next }}">
 
             <div class="rete">
 
@@ -127,33 +133,47 @@
 <script src="{% static 'node_modules/rete-keyboard-plugin/build/keyboard-plugin.min.js' %}"></script>
 <script src="{% static 'node_modules/rete-area-plugin/build/area-plugin.min.js' %}"></script>
 
-{{ widget.graph|json_script:"graph" }}
+{{ graph|json_script:"graph" }}
 
 <script>
 
 var graph = JSON.parse(document.getElementById('graph').textContent);
-
 var actSocket = new Rete.Socket("Action");
-
 var mounted = false;
 
-function getVueUserControl(key, userType, user) {
+function validateUser() {
+    if ($.isNumeric($("#user_selected_time").val()) &&
+        $("#user_selected").val() != '-1' && 
+        $("#user_selected").val() != null) {
+        $('#user_selected_submit').prop('disabled', false);
+    } else {
+        $('#user_selected_submit').prop('disabled', true);
+    }
+}
+
+function getVueUserControl(key, userType, user, time, permission) {
     return {
-        props: ['emitter', 'ikey', 'getData', 'putData'],
+        props: ['emitter', 'ikey', 'getData', 'putData', ],
         template: `<input id="${key}_selected" class="userinput" readonly=true v-on:click="showModal($event)" \
                 :value=username data-toggle="tooltip" data-placement="top" \
                 :title=title />`
         ,
         data() {
+            if (!time){
+                time = 2;
+            }
             return {
                 value: user.id,
                 username: user.username,
                 user: user,
-                title: `[${user.username}] ${user.first_name} ${user.last_name}`
+                title: `[${user.username}] ${user.first_name} ${user.last_name}`,
+                time: time,
+                permission: permission
             }
         },
         methods: {
             showModal(e){
+                permissions = [this.permission]
                 $('#user_selected').find('option').remove().end();
                 $("#user_selected").append('<option value=-1>[sin usurio] seleccione un usuario</option>')
                 if (this.value) {
@@ -162,22 +182,31 @@ function getVueUserControl(key, userType, user) {
                 }
                 $("#user_selected").selectpicker('refresh');
                 $('#user_selected').selectpicker('render');
-
+                $('#user_selected_time').val(this.time)
+                $('#user_selected_submit').prop('disabled', true);
                 self = this;
-                $('#user_selected').change(function(){ 
-                    self.value = $(this).val();
-                    self.title = $(this).find("option:selected").text()
+                $('#user_selected_submit').click(function(){ 
+                    self.value = $('#user_selected').val();
+                    self.title = $('#user_selected').find("option:selected").text()
                     self.username = self.title.match(/\[(.*)\]/i)[1];
                     $('.collapse').collapse('hide')
                     $("#headerForm").text('')
                     $('#user_modal').modal('hide')
+                    self.time = $('#user_selected_time').val()
                     self.update();
+                });
+                $('#user_selected').change(function(){ 
+                    validateUser()
+                });
+                $('#user_selected_time').change(function(){ 
+                    validateUser()
                 });
                 $('#user_modal').modal()
             },
             update() {
                 if (this.ikey)
-                    this.putData(this.ikey, this.value)
+                    this.putData('user', {'id': this.value})
+                    this.putData('time', this.time)
                 this.emitter.trigger('process');
             }
         }
@@ -185,7 +214,7 @@ function getVueUserControl(key, userType, user) {
 }
 
 class UserControl extends Rete.Control {
-    constructor(emitter, key, userType, user) {
+    constructor(emitter, key, userType, user, time, permission) {
         if ($.isEmptyObject(user)) {
             user = {
                 'id': null, 
@@ -195,8 +224,8 @@ class UserControl extends Rete.Control {
             }
         } 
         super(key);
-        this.component = getVueUserControl(key, userType, user);
-        this.props = {emitter, ikey: 'user_id'};
+        this.component = getVueUserControl(key, userType, user, time, permission);
+        this.props = {emitter, ikey: 'data'};
     }
 }
 
@@ -226,10 +255,10 @@ class OutputComponent extends Rete.Component {
 
 class GuarantorUserComponent extends Rete.Component {
     constructor(){
-        super("Avalador");
+        super("Visto Bueno"); 
     }
     builder(node) {
-        var ctrl = new UserControl(this.editor, node.id, 'guarantoruser', node.data.user);
+        var ctrl = new UserControl(this.editor, node.id, 'guarantoruser', node.data.user, node.data.time, 'approbation');
         var inp = new Rete.Input('in',"Inicio", actSocket, true);
         var out = new Rete.Output('out', "Fin", actSocket, true);
         return node
@@ -243,10 +272,30 @@ class GuarantorUserComponent extends Rete.Component {
 
 class SigningUserComponent extends Rete.Component {
     constructor(){
-        super("Firmante");
+        super("Firma Personal"); 
     }
     builder(node) {
-        var ctrl = new UserControl(this.editor, node.id, 'signinguser', node.data.user);
+        var ctrl = new UserControl(this.editor, node.id, 'signinguser', node.data.user, node.data.time, 'personal_signature');
+        var inp = new Rete.Input('in',"Inicio", actSocket, true);
+        var out = new Rete.Output('out', "Fin", actSocket, true);
+        return node
+            .addInput(inp)
+            .addControl(ctrl)
+            .addOutput(out);
+    }
+
+    worker(node, inputs, outputs) {
+        var value = inputs['in'].length ? inputs['in'][0] : node.data.value;
+        outputs['value'] = value;
+    }
+}
+
+class LegalSigningUserComponent extends Rete.Component {
+    constructor(){
+        super("Firma Jurídica");
+    }
+    builder(node) {
+        var ctrl = new UserControl(this.editor, node.id, 'legalsigninguser', node.data.user, node.data.time, 'legal_signature');
         var inp = new Rete.Input('in',"Inicio", actSocket, true);
         var out = new Rete.Output('out', "Fin", actSocket, true);
         return node
@@ -262,7 +311,8 @@ class SigningUserComponent extends Rete.Component {
 }
 
 var container = document.querySelector('#rete');
-var components = [new InputComponent(), new OutputComponent(), new GuarantorUserComponent(), new SigningUserComponent()];
+var components = [new InputComponent(), new OutputComponent(), new GuarantorUserComponent(), 
+                new SigningUserComponent(), new LegalSigningUserComponent()];
 
 var editor = new Rete.NodeEditor('demo@0.1.0', container);
 editor.use(ConnectionPlugin.default);
