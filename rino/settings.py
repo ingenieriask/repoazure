@@ -57,7 +57,8 @@ INSTALLED_APPS = [
     'djcelery_email',
     'django_celery_results',
     'colorfield',
-    'treebeard'
+    'treebeard',
+    'simple_history'
 ]
 
 CRISPY_TEMPLATE_PACK = 'bootstrap4'
@@ -72,6 +73,7 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'crum.CurrentRequestUserMiddleware',
+    'simple_history.middleware.HistoryRequestMiddleware',
 ]
 
 ROOT_URLCONF = 'rino.urls'

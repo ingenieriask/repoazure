@@ -71,4 +71,4 @@ django-colorfield==0.4.1
 django-role-permissions==3.1.1
 django-treebeard==4.5.1
 fpdf==1.7.2
-
+django-simple-history==3.0.0
