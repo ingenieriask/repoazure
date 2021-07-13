@@ -218,12 +218,12 @@ def create_pqr_multiple(request, pqrs):
         
         else:
             logger.error("Invalid create pqr form", form.is_valid(), form.errors)
-            return render(request, 'pqrs/create_pqr.html', context={'form': form, 'person': person})
+            return render(request, 'pqrs/create_pqr.html', context={'form': form, 'person': person, 'pqrs': pqrs})
     else:
         form = PqrRadicateForm(typePqr=pqrsoparent.pqr_type)
         form.person = person
 
-    return render(request, 'pqrs/create_pqr.html', context={'form': form, 'person': person})
+    return render(request, 'pqrs/create_pqr.html', context={'form': form, 'person': person, 'pqrs': pqrs})
 
 
 def PQRSType(request, applicanType):
@@ -779,32 +779,27 @@ def pqrs_answer(request, pk):
         return render(request, 'pqrs/answer_form.html', context={'form': form, 'radicate': radicate})
     
 
-def validate_captcha(request):
+def validate_captcha(request, pqrs):
     
-    print(request.POST)
-    if request.method == 'POST':
-        form = PqrRadicateForm(None, request.POST['data'])
+    if request.is_ajax and request.method == 'POST':
+        
+        pqrsoparent = get_object_or_404(PQRS, uuid=pqrs)
+        data = {}
+        pairs = request.POST.get('data').split('&')
+        for pair in pairs:
+            data[pair.split('=')[0]] = pair.split('=')[1]
+
+        form = PqrRadicateForm(pqrsoparent.pqr_type, data)
+        
         if form.is_valid():
+            print('is valid')
             to_json_response = dict()
-            to_json_response['status'] = 0
-            to_json_response['form_errors'] = form.errors
-
-            to_json_response['new_cptch_key'] = CaptchaStore.generate_key()
-            to_json_response['new_cptch_image'] = captcha_image_url(to_json_response['new_cptch_key'])
-
+            to_json_response['status'] = 1
+            
             return HttpResponse(json.dumps(to_json_response), content_type='application/json')
 
         else:
-            to_json_response = dict()
-            to_json_response['status'] = 1
 
-            to_json_response['new_cptch_key'] = CaptchaStore.generate_key()
-            to_json_response['new_cptch_image'] = captcha_image_url(to_json_response['new_cptch_key'])
-
-            return HttpResponse(json.dumps(to_json_response), content_type='application/json')
-
-    '''def form_invalid(self, form):
-        if self.request.is_ajax():
             to_json_response = dict()
             to_json_response['status'] = 0
             to_json_response['form_errors'] = form.errors
@@ -813,14 +808,3 @@ def validate_captcha(request):
             to_json_response['new_cptch_image'] = captcha_image_url(to_json_response['new_cptch_key'])
 
             return HttpResponse(json.dumps(to_json_response), content_type='application/json')
-
-    def form_valid(self, form):
-        form.save()
-        if self.request.is_ajax():
-            to_json_response = dict()
-            to_json_response['status'] = 1
-
-            to_json_response['new_cptch_key'] = CaptchaStore.generate_key()
-            to_json_response['new_cptch_image'] = captcha_image_url(to_json_response['new_cptch_key'])
-
-            return HttpResponse(json.dumps(to_json_response), content_type='application/json')'''

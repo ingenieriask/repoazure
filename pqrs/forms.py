@@ -233,10 +233,10 @@ class PqrRadicateForm(forms.ModelForm):
             ),
             Row(
                 Column('captcha', css_class='form-group col-md-4 mb-0'),
-                Column(HTML('<span class="js-captcha-refresh"><i class="fas fa-sync fa-lg"></i></span>'), css_class='form-group col-md-4 mb-0 mt-5'),
+                Column(HTML('<span class="js-captcha-refresh"><i class="fas fa-sync fa-lg"></i></span>'), css_class='form-group col-md-1 mb-0 mt-5'),
+                Column(HTML('<h3 id="validate_captcha_error" style="color: red; display: none;">Por favor valide el captcha</h3>'), css_class='col-md-6 mb-0 mt-5'),
                 css_class='form-row'
-            ),
-            Submit('submit', 'Radicar')
+            )
         )
 
         

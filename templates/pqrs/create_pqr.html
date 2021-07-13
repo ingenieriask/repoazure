@@ -16,6 +16,7 @@
             {% load crispy_forms_tags %}
             {% crispy form %}
             {% csrf_token %}
+            <button id="submit_button" class="btn btn-primary">Radicar</button>
           </form>
     </div>
 </div>
@@ -40,20 +41,26 @@
         }
       });
 
-      $(document).on('submit', function(e){
-          e.preventDefault();
+      $('#submit_button').on('click', function(e){
           form_data = $('#id_form_create_pqr').serialize();
-          console.log(form_data);
           $.ajax({
             type: 'POST',
-            url: '{% url "pqrs:validate-captcha" %}',
+            url: '{% url "pqrs:validate-captcha" pqrs=pqrs %}',
             data: {
               data : form_data,
               csrfmiddlewaretoken:$('input[name=csrfmiddlewaretoken]').val()
             }
-
           })
-          
+          .done(function(response){
+              if (response.status == 1){
+                  $('#id_form_create_pqr').submit();
+              }
+              else {
+                  $('#validate_captcha_error').css("display", "block");
+                  $('.captcha').attr('src', response.new_cptch_image);
+                  $('#id_captcha_0').val(response.new_cptch_key);
+              }
+          })
       })
 
       $('.js-captcha-refresh').click(function(){

@@ -33,5 +33,5 @@ urlpatterns = [
     path('extend-request/<int:pk>', views.pqrs_extend_request, name='extend_request'),
     path('answer-request/<int:pk>', views.pqrs_answer_request, name="answer_request"),
     path('answer/<int:pk>', views.pqrs_answer, name='answer'),
-    path('validate-captcha/', views.validate_captcha, name='validate-captcha')
+    path('validate-captcha/<uuid:pqrs>/', views.validate_captcha, name='validate-captcha')
 ]
