@@ -492,6 +492,7 @@ class RadicateInbox(ListView):
     model = PqrsContent
     context_object_name = 'pqrs'
     template_name = 'pqrs/radicate_inbox.html'
+    paginate_by = 5
 
     def get_queryset(self):
         queryset = super(RadicateInbox, self).get_queryset()
@@ -502,6 +503,7 @@ class RadicateMyInbox(ListView):
     model = PqrsContent
     context_object_name = 'pqrs'
     template_name = 'pqrs/radicate_inbox.html'
+    paginate_by = 5
 
     def get_queryset(self):
         queryset = super(RadicateMyInbox, self).get_queryset()
@@ -512,6 +514,7 @@ class RadicateMyReported(ListView):
     model = PqrsContent
     context_object_name = 'pqrs'
     template_name = 'pqrs/radicate_inbox.html'
+    paginate_by = 5
 
     def get_queryset(self):
         queryset = super(RadicateMyReported, self).get_queryset()

@@ -1,0 +1,74 @@
+{% extends 'correspondence/main_template.html' %}
+
+{% block content %}
+{% load pqrs_extras %}
+
+  <div class="card mb-4">
+      <div class="card-body">
+        <div class="text-right m-2">
+        </div>
+        <div class="datatable">
+          <table class="table table-bordered table-hover" id="radicateList" width="100%" cellspacing='0'>
+            <thead>
+              <tr>
+                <th style="text-align: center;">Número de radicado</th>
+                <th style="text-align: center;">Fecha de radicación</th>
+                <th style="text-align: center;">Asunto</th>
+                <th style="text-align: center;">Solicitante</th>
+                <th style="text-align: center;">Tipo y Tema PQRSD</th>
+                <th style="text-align: center;">Días hábiles para dar respuesta</th>
+                <th style="text-align: center;">Estado</th>
+                <th style="text-align: center;">Detalles</th>
+              </tr>
+            </thead>
+            
+            <tbody>
+              {% for pqrs in pqrs %}
+              <tr>
+                <td style="text-align: center;">{{ pqrs.number }}</td>
+                <td style="text-align: center;">{{ pqrs.date_radicated }}</td>
+                <td style="text-align: center;">{{ pqrs.subject }}</td>
+                {% if pqrs.person.is_anonymous == True %}
+                    <td style="text-align: center;">ANÓNIMO</td>
+                {% else %}
+                    <td style="text-align: center;">{{ pqrs.person.name }}</td>
+                {% endif %}
+                <td style="text-align: center;">{{ pqrs.subtype.type.name }} - {{ pqrs.subtype.name }}</td>
+                <td style="text-align: center;">
+                    <svg height="8mm" width="8mm">
+                      <circle cx="4mm" cy="4mm" r="3mm" style="fill: {{ pqrs.subtype.alerts.all|get_color_traffic_light:pqrs.date_radicated }};" />
+                    </svg>
+                    {{ pqrs.date_radicated|get_missing_days:pqrs.subtype.max_response_days }}    
+                </td>
+                <td style="text-align: center;">{{ pqrs.pqrsobject.get_status_str }}</td>
+                <td style="text-align: center;">
+                    <a href="{% url 'pqrs:detail_pqr' pk=pqrs.pk  %}" role="button">
+                      <i class="fas fa-plus-circle fa-2x" style="color: #0000ff;"></i>
+                    </a>
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+  </div>
+{% endblock %}
+
+{% block script %}
+{% load static %}
+
+    $(document).ready(function() {
+        
+        $('#radicateList').DataTable( {
+            "language": {
+                "url": "{% static 'pqrs/js/dataTableSpanish.json' %}",
+            },
+            "lengthMenu": [ 5, 10, 15, 20 ],
+            "dom": "b<'row'<'#keyword.mr-auto'f><'col-4'l>>" +
+                    "<'row'<'col-sm-12'tr>>" +
+                    "<'row'<'col-sm-12 col-md-5'><'col-sm-12 col-md-7'p>>",
+        });
+    } );
+
+{% endblock %}
