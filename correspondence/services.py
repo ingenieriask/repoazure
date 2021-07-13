@@ -108,6 +108,24 @@ class ECMService(object):
 
     @classmethod
     @get_params
+    def create_folder(cls, name):
+        ''' '''
+
+        try:
+            r = requests.post(
+                cls._params['ECM_FOLDER_URL'], 
+                data=json.dumps({"name": name, "nodeType": "cm:folder"}), 
+                auth=cls.get_basic_authentication())
+
+            if r.ok:
+                json_response = (json.loads(r.text))
+                return json_response['entry']['id']
+
+        except Exception as Error:
+            logger.error(Error)
+
+    @classmethod
+    @get_params
     def update_record(cls, id, name):
         ''' '''
 
@@ -141,23 +159,21 @@ class ECMService(object):
 
     @classmethod
     @get_params
-    def upload(cls, file):
+    def upload(cls, file, folder_id):
         ''' Upload file to ECM'''
 
         try:
             res_upload = requests.post(
-                cls._params['ECM_UPLOAD_URL'],
+                cls._params['ECM_UPLOAD_URL'].replace('{nodeId}', folder_id),
                 files={"filedata": file},
                 data={"nodeType": "cm:content", "autoRename": "true"},
                 auth=cls.get_basic_authentication())
-
             if res_upload.ok:  
                 json_response = (json.loads(res_upload.text))
                 return json_response['entry']['id']
 
         except Exception as Error:
             logger.error(Error)
-
 
     @classmethod
     @get_params
@@ -181,6 +197,7 @@ class ECMService(object):
         ''' Download file from ECM'''
 
         try:
+            print('cls._params["ECM_DOWNLOAD_URL"]', cls._params['ECM_DOWNLOAD_URL'])
             res = requests.get(
                 cls._params['ECM_DOWNLOAD_URL'].replace('{nodeId}', node_id),
                 auth=cls.get_basic_authentication())

@@ -87,7 +87,9 @@ class AssignToUserForm(forms.Form):
     observations = forms.CharField(label='Observaciones:', widget=forms.Textarea())
 
 class ReportToUserForm(forms.Form):
+    observations = forms.CharField(label='Observaciones:', widget=forms.Textarea())
 
+class DeleteFromReportedForm(forms.Form):
     observations = forms.CharField(label='Observaciones:', widget=forms.Textarea())
 
 class ReturnToLastUserForm(forms.Form):

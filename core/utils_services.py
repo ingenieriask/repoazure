@@ -1,5 +1,4 @@
 from fpdf import FPDF
-from PyPDF2 import PdfFileMerger, PdfFileReader, PdfFileWriter
 from io import BytesIO
 from django.core.files import File
 from django.core.files.temp import NamedTemporaryFile

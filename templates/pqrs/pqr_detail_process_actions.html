@@ -1,0 +1,35 @@
+{% extends 'pqrs/pqr_detail_process.html' %} {% load static %} {% block actions %}
+
+<a class="btn btn-primary" href="{% url 'correspondence:assign_user' radicate=pqrscontent.pk  %}" 
+        data-toggle="tooltip" data-placement="top" title="Reasignar">
+        <i class="fa fa-redo" style="color: #ffffff;"></i>
+</a>
+<a class="btn btn-primary" href="{% url 'correspondence:return_to_last_user' radicate=pqrscontent.pk  %}"
+        data-toggle="tooltip" data-placement="top" title="Devolver">
+        <i class="fa fa-undo" style="color: #ffffff;"></i>
+</a>
+<a class="btn btn-primary" href="{% url 'pqrs:answer_preview' pk=pqrscontent.pk  %}"
+        data-toggle="tooltip" data-placement="top" title="Responder">
+        <i class="fa fa-comments" style="color: #ffffff;"></i>
+</a>
+<a class="btn btn-primary" href="{% url 'correspondence:report_to_user' radicate=pqrscontent.pk  %}"
+        data-toggle="tooltip" data-placement="top" title="Informar">
+        <i class="fa fa-eye" style="color: #ffffff;"></i>
+</a>
+<a class="btn btn-primary" href="{% url 'correspondence:delete_from_reported' radicate=pqrscontent.pk  %}"
+        data-toggle="tooltip" data-placement="top" title="Borrar Informado">
+        <i class="fa fa-eye-slash" style="color: #ffffff;"></i>
+</a>
+<a class="btn btn-primary" href="{% url 'pqrs:extend_request' pk=pqrscontent.pk  %}"
+        data-toggle="tooltip" data-placement="top" title="Ampliar solicitud">
+        <i class="fa fa-reply" style="color: #ffffff;"></i>
+</a>
+<a class="btn btn-primary" href="{% url 'pqrs:extend_request' pk=pqrscontent.pk  %}"
+        data-toggle="tooltip" data-placement="top" title="Modificar clasificación PQRSD">
+        <i class="fa fa-wrench" style="color: #ffffff;"></i>
+</a>
+<a class="btn btn-primary" href="{% url 'pqrs:associate_detail_pqr' pk=pqrscontent.pk  %}"
+        data-toggle="tooltip" data-placement="top" title="Asociar radicado">
+        <i class="fa fa-window-restore" style="color: #ffffff;"></i>
+</a>
+{% endblock %}

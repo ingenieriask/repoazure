@@ -41,5 +41,19 @@
                 2
             ]
         }
+    },
+    {
+        "model": "core.notifications",
+        "pk": 3,
+        "fields": {
+            "name": "EMAIL_PQR_EXTEND",
+            "subject": "Ampliación PQRSD - RINO",
+            "body": "<strong>Señor,</strong> <p><strong><param>person.name</param> <param>person.lasts_name</param></strong>, Por medio de la presente nos permitimos hacer una ampliación de información correspondiente a su soliciutd radicada en nuestro sistema el día <strong><param>date_radicated_formated</param></strong><strong><param>original_number</param></strong> y para la cual requerimos remita la siguiente información:</p><p><param>observation</param></p><p>Artículo... </p><a href=\"<param>url</param>\"><h3>Ampliar PQRSD</h3></a></p>",
+            "body_sms": "<strong>Señor,</strong> <p><strong><param>person.name</param> <param>person.lasts_name</param></strong>, Por medio de la presente nos permitimos hacer una ampliación de información correspondiente a su soliciutd radicada en nuestro sistema el día <strong><param>date_radicated_formated</param></strong><strong><param>original_number</param></strong> y para la cual requerimos remita la siguiente información:</p><p><param>observation</param></p><p>Artículo... </p><a href=\"<param>url</param>\"><h3>Ampliar PQRSD</h3></a></p>.",
+            "notifications_services": [
+                1,
+                2
+            ]
+        }
     }
 ]

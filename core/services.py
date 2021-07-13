@@ -17,6 +17,10 @@ from core.models import AppParameter, ConsecutiveFormat, Consecutive, Country, F
     Holiday, CalendarDay, CalendarDayType, Calendar, Notifications, SystemParameter
 from core.utils_services import FormatHelper
 from django.contrib.auth.models import User
+from correspondence.models import AlfrescoFile
+from django.core.files import File
+from django.core.files.temp import NamedTemporaryFile
+from correspondence.services import ECMService
 
 logger = logging.getLogger(__name__)
 
@@ -294,7 +298,27 @@ class CalendarService(object):
 
 class PdfCreationService(object):
 
-    
+    @classmethod
+    def _save_pdf_in_ecm(cls, pdf, pqrs, name, extension):
+        f = pdf.output(dest='S').encode('latin-1')
+        document_temp_file = NamedTemporaryFile()
+        document_temp_file.write(f)
+
+        size = document_temp_file.tell()
+
+        document_temp_file.seek(0)
+        document_temp_file.flush()
+
+        node_id = ECMService.upload(File(document_temp_file, name=name+extension), pqrs.folder_id)
+
+        alfrescoFile = AlfrescoFile(cmis_id=node_id, 
+                                    radicate=pqrs,
+                                    name=name,
+                                    extension=extension,
+                                    size=int(size))
+        alfrescoFile.save()
+        return node_id
+
     @classmethod
     def create_pqrs_confirmation_label(cls, pqrs):
         
@@ -310,7 +334,7 @@ class PdfCreationService(object):
         pdf.custom_header(pqrs, initial_x_pos, initial_y_pos, sizing_factor, border)
         # Save pdf file
         #pdf.output('label.pdf', 'F')
-
+        PdfCreationService._save_pdf_in_ecm(pdf, pqrs, 'label', '.pdf')
 
     @classmethod
     def create_pqrs_summary(cls, pqrs):       
@@ -346,9 +370,9 @@ class PdfCreationService(object):
         pdf.set_font('Arial', '', 7)
         
         annexes = ''
-        for index, val in enumerate(list(radicate.files.all())):
+        for index, val in enumerate(list(pqrs.files.all())):
             annexes += val.name
-            if index != len(list(radicate.files.all())) - 1:
+            if index != len(list(pqrs.files.all())) - 1:
                 annexes += ', '
         
         pdf.multi_cell(0, 5, 'Anexo (s): ' + annexes)
@@ -357,6 +381,7 @@ class PdfCreationService(object):
         pdf.custom_footer()
         # Save pdf file
         #pdf.output('summary.pdf', 'F')
+        PdfCreationService._save_pdf_in_ecm(pdf, pqrs, 'radicate', '.pdf')
     
     @classmethod
     def create_radicate_answer(cls, radicate, draft):
@@ -385,7 +410,7 @@ class PdfCreationService(object):
             pdf.multi_cell(0, 5, radicate.person.name+' '+radicate.person.lasts_name+'\n')
         pdf.set_font('Arial', '', 12)
         if radicate.person.address:
-            pdf.multi_cell(0, 5, radicate.person.address+'\n'+radicete.person.email+'\n'+radicate.person.city.name+' '+radicate.person.city.state.name+'\n\n')
+            pdf.multi_cell(0, 5, radicate.person.address+'\n'+radicate.person.email+'\n'+radicate.person.city.name+' '+radicate.person.city.state.name+'\n\n')
         else:
             pdf.multi_cell(0, 5, '\n'+radicate.person.email+'\n'+radicate.person.city.name+' '+radicate.person.city.state.name+'\n\n')
         pdf.set_font('Arial', 'B', 12)
@@ -409,184 +434,6 @@ class PdfCreationService(object):
         # Define total number of pages
         pdf.alias_nb_pages()
         # Save pdf file
+        # return pdf
         #pdf.output('answer.pdf', 'F')
-
-class SignatureFlowService(object):
-
-    class Type(Enum):
-        INPUT = 'Inicio'
-        OUTPUT = 'Fin'
-        GUARANTORUSER = 'Avalador'
-        SIGNINGUSER = 'Firmante'
-
-    @classmethod
-    def to_json(cls, pk):
-        end_node = SignatureNode.objects.filter(signature_flow__id=pk, type=cls.Type.OUTPUT.value).first()
-        if end_node:
-            formated_nodes = {}
-            cls._format_node(end_node, formated_nodes)
-            return {
-                "id": "demo@0.1.0",
-                "nodes": formated_nodes
-            }
-        return cls.get_initial_json()
-
-    @classmethod
-    def _append_output(cls, outputs, next_node):
-        if next_node:
-            outputs['out']['connections'].append(
-                {
-                    "node": next_node,
-                    "input": "in",
-                    "data": {}
-                }
-            )
-
-    @classmethod
-    def _format_node(cls, node, formated_nodes, next_node=None):
-        if node.index in formated_nodes:
-            cls._append_output(formated_nodes[node.index]['outputs'], next_node)
-        else:
-            outputs = {
-                "out": {
-                    "connections": []
-                }
-            }
-            cls._append_output(outputs, next_node)
-            properties = json.loads(node.properties)
-            previous_nodes = node.previous.all()
-            inputs = {}
-            if previous_nodes:
-                inputs = {
-                    "in": {
-                        "connections": [
-                            {
-                                "node": n.index,
-                                "output": "out",
-                            }
-                            for n in previous_nodes
-                        ]
-                    }
-                }
-            formated_node = {
-                'id': node.index,
-                'data': {
-                    'user_id': node.user.id if node.user else None
-                },
-                'inputs': inputs,
-                'outputs': outputs,
-                **properties,
-                'name': node.type
-            }
-            formated_nodes[node.index] = formated_node
-
-            for previous_node in previous_nodes:
-                cls._format_node(previous_node, formated_nodes, node.index)
-
-        return 
-
-    @classmethod
-    def from_json(cls, graph, signature_flow_id):
-
-        nodes = {}
-        node_list = []
-
-        acc = {
-            SignatureFlowService.Type.SIGNINGUSER.value: 0,
-            SignatureFlowService.Type.GUARANTORUSER.value: 0,
-            SignatureFlowService.Type.INPUT.value: 0,
-            SignatureFlowService.Type.OUTPUT.value: 0
-        }
-
-        if signature_flow_id:
-            sf = SignatureFlow(pk=int(signature_flow_id))
-        else:
-            sf = SignatureFlow(name='', description='')
-
-        for key, n in graph['nodes'].items():
-            properties = {'position': n['position']}
-            user = None
-            if n['name'] in [SignatureFlowService.Type.SIGNINGUSER.value,  
-                            SignatureFlowService.Type.GUARANTORUSER.value]:
-                if n['data'] and n['data']['user_id'] and n['data']['user_id'] != '-1':
-                    user = User(int(n['data']['user_id']))
-                else:
-                    raise ValidationError("Debe seleccionar un usuario para cada estado")
-
-            if n['name'] != SignatureFlowService.Type.INPUT.value:
-                if not n['inputs']['in']['connections']:
-                    raise ValidationError("Todas las entradas y salidas deben estar interconectadas")
-
-            if n['name'] != SignatureFlowService.Type.OUTPUT.value:  
-                if not n['outputs']['out']['connections']:
-                    raise ValidationError("Todas las entradas y salidas deben estar interconectadas")
-                
-            acc[n['name']] += 1
-            node = SignatureNode(
-                type=n['name'], 
-                index=n['id'],
-                user=user,
-                properties=json.dumps(properties),
-                signature_flow=sf)
-            node_list.append(node)
-
-        if acc[SignatureFlowService.Type.INPUT.value] > 1 or acc[SignatureFlowService.Type.OUTPUT.value] > 1:
-            raise ValidationError("Solo se permiten un nodo de entrada y un nodo de salida")
-        if acc[SignatureFlowService.Type.INPUT.value] == 0 or acc[SignatureFlowService.Type.OUTPUT.value] == 0:
-            raise ValidationError("Se requiere un nodo de entrada y un nodo de salida")
-
-        if signature_flow_id:
-            SignatureNode.objects.filter(signature_flow__id=signature_flow_id).delete()
-        else:
-            sf.save()
-        node_list = SignatureNode.objects.bulk_create(node_list)
-
-        for n in node_list:
-            nodes[n.index] = n
-        
-        for key, n in nodes.items():
-            if graph['nodes'][str(key)]['inputs']:
-                previous = [nodes[c['node']] for c in graph['nodes'][str(key)]['inputs']['in']['connections']]
-                n.previous.set(previous)
-        return sf
-
-    @classmethod
-    def get_initial_json(cls):
-        graph = {
-            "id": "demo@0.1.0",
-            "nodes": {
-                "1": {
-                "id": 1,
-                "data": {},
-                "inputs": {},
-                "outputs": {
-                    "out": {
-                    "connections": []
-                    }
-                },
-                "position": [
-                    0,
-                    100
-                ],
-                "name": "Inicio"
-                },
-                "2": {
-                "id": 2,
-                "data": {},
-                "inputs": {
-                    "in": {
-                    "connections": []
-                    }
-                },
-                "outputs": {},
-                "position": [
-                    800,
-                    100
-                ],
-                "name": "Fin"
-                },
-            }
-        }
-        return graph
-        
-
+        return PdfCreationService._save_pdf_in_ecm(pdf, radicate, 'answer', '.pdf')
