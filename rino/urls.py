@@ -28,6 +28,7 @@ urlpatterns = [
     path('correspondence/', include('correspondence.urls', namespace='correspondence')),
     path('pqrs/', include('pqrs.urls', namespace='pqrs')),
     path('polls/', include('polls.urls', namespace='polls')),
+    path('workflow/', include('workflow.urls', namespace='workflow')),
     path('logout/', auth_views.LogoutView.as_view(), name='logout'),
     path('login/', auth_views.LoginView.as_view(), name='login'),
     path('password_change/', auth_views.PasswordChangeView.as_view(), name='password_change'),

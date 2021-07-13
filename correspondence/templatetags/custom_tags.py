@@ -80,3 +80,15 @@ def menu(context):
     check_links(link[0], permissions)
 
     return {'links': link[0]['children'], 'user': context['user'], 'perms': context['perms']}
+
+@register.inclusion_tag('correspondence/select_user.html', takes_context=True)
+def select_user(context):
+
+    functional_tree = []
+    for item, info in FunctionalArea.get_annotated_list():
+            temp = False
+            if info['level'] != 0 and int(item.parent.get_depth() + info['level']) > item.get_depth():
+                temp = True
+            functional_tree.append((item, info, temp))
+
+    return {'request':context['request'], 'functional_tree': functional_tree}

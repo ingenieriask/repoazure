@@ -36,7 +36,9 @@ class Doctype(models.Model):
 
     def __str__(self):
         return self.sub_raft.raft.description + ' / ' + self.sub_raft.description + ' / ' + self.description
-
+    class Meta:
+        verbose_name= 'Tipo de Documento'
+        verbose_name_plural= 'Tipos de Documentos'
 
 class RadicateTypes(models.Model):
     abbr = models.CharField(max_length=10)
@@ -44,6 +46,9 @@ class RadicateTypes(models.Model):
 
     def __str__(self):
         return self.name
+    class Meta:
+        verbose_name= 'Tipo Radicado'
+        verbose_name_plural= 'Tipos Radicados'
 
 
 class ReceptionMode(models.Model):
@@ -52,6 +57,9 @@ class ReceptionMode(models.Model):
 
     def __str__(self):
         return self.name
+    class Meta:
+        verbose_name= 'Modo de Recepcion'
+        verbose_name_plural= 'Modos de Recepcion'
 
 
 class Radicate(models.Model):
@@ -115,6 +123,9 @@ class PermissionRelationAssignation(BaseModel):
             else:
                 self.user_updated = user
         super(PermissionRelationAssignation, self).save()
+    class Meta:
+        verbose_name= 'Asignacion de Permisos por Reporte'
+        verbose_name_plural= 'Asignaciones de Permisos por Reportes'
 
 class PermissionRelationReport(BaseModel):
     current_permission = models.ForeignKey(Permission, on_delete=models.PROTECT)
@@ -129,6 +140,9 @@ class PermissionRelationReport(BaseModel):
             else:
                 self.user_updated = user
         super(PermissionRelationReport, self).save()
+    class Meta:
+        verbose_name= 'Relacion de Permiso por Reporte'
+        verbose_name_plural= 'Relaciones de Permisos por Reportes'
 
 class AlfrescoFile(models.Model):
     cmis_id = models.TextField(max_length=128, null=True)
@@ -139,6 +153,9 @@ class AlfrescoFile(models.Model):
     
     def __str__(self):
         return self.cmis_id
+    class Meta:
+        verbose_name= 'Archivo de Alfresco'
+        verbose_name_plural= 'Archivos de Alfresco'
 
 class DocsRetention(models.Model):
     subraft = models.ForeignKey(Subraft, on_delete=models.PROTECT, related_name='retentions')
@@ -148,7 +165,9 @@ class DocsRetention(models.Model):
 
     def __str__(self):
         return self.subraft.description + ' - ' + self.office.name
-
+    class Meta:
+        verbose_name= 'Retencion de Documento'
+        verbose_name_plural= 'Retenciones de Documentos'
 
 class ProcessType(models.Model):
     abbr = models.CharField(max_length=10)
@@ -156,6 +175,9 @@ class ProcessType(models.Model):
 
     def __str__(self):
         return self.name
+    class Meta:
+        verbose_name= 'Tipo de Proceso'
+        verbose_name_plural= 'Tipos de Procesos'
 
 
 class SecurityLevel(models.Model):
@@ -165,6 +187,10 @@ class SecurityLevel(models.Model):
     def __str__(self):
         return self.name
 
+    class Meta:
+        verbose_name= 'Nivel de Seguridad'
+        verbose_name_plural= 'Niveles de Seguridad'
+
 
 class FilePhases(models.Model):
     abbr = models.CharField(max_length=10)
@@ -173,6 +199,10 @@ class FilePhases(models.Model):
     def __str__(self):
         return self.name
 
+    class Meta:
+        verbose_name= 'Fase de Archivo'
+        verbose_name_plural= 'Fases de los Archivos'
+
 
 class FinalDisposition(models.Model):
     abbr = models.CharField(max_length=10)
@@ -180,6 +210,10 @@ class FinalDisposition(models.Model):
 
     def __str__(self):
         return self.name
+
+    class Meta:
+        verbose_name= 'Disposicion Final'
+        verbose_name_plural= 'Disposiciones Finales'
 
 
 class Record(BaseModel):
@@ -219,7 +253,9 @@ class Record(BaseModel):
             else:
                 self.user_updated = user
         super(Record, self).save()
-
+    class Meta:
+        verbose_name= 'Registro'
+        verbose_name_plural= 'Registros'
 
 def template_directory_path(instance, filename):
     return 'templates/{0}/{1}'.format(instance.office.name, filename)

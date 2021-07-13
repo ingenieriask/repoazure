@@ -55,6 +55,10 @@ def has_radicate_permission(perms, login_url=None, raise_exception=False):
 
     def check_perms(user, request):
         result = re.search(r'.*/radicate/(\d+)/', request.path, re.IGNORECASE)
+
+        if user.has_perm('auth.receive_external') or user.is_superuser:
+            return True
+
         if result:
             id = Radicate.objects.filter(
                         pk=int(result.group(1)), 

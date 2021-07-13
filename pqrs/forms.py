@@ -152,6 +152,13 @@ class PqrsConsultantForm(forms.Form):
     doc_num = forms.CharField(label='Numero de Documento ')
     captcha = CaptchaField()
 
+
+    def clean(self):
+        cleaned_data = super(PqrsConsultantForm, self).clean()
+        if (cleaned_data.get('captcha') is None):
+            raise forms.ValidationError('Por favor valide el captcha')
+        return cleaned_data
+        
     def __init__(self, *args, **kwargs):
         super(PqrsConsultantForm, self).__init__(*args, **kwargs)
         self.helper = FormHelper(self)

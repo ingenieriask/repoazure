@@ -62,13 +62,16 @@ function addPerson() {
 
 }
 
+var permissions = []
+
 function searchPeople(areaId, url, areaName, kindTask) {
   
   $.ajax({
       type: 'GET',
       url: url,
-      data: {"filter_pk": areaId, "kind_task": kindTask},
+      data: {"filter_pk": areaId, "kind_task": kindTask, "permissions": permissions},
       success: function (response) {
+        console.info('response', response)
         $('#user_selected')
             .find('option')
             .remove()
@@ -76,7 +79,7 @@ function searchPeople(areaId, url, areaName, kindTask) {
         $("#user_selected").append('<option value=-1>Ninguno seleccionado</option>')
         response.forEach(function (value) {
           $("#user_selected")
-            .append('<option value=' + value.pk + '>'+ value.username + ' ' + value.first_name + ' ' + value.last_name + '</option>')
+            .append('<option value=' + value.pk + '>['+ value.username + '] ' + value.first_name + ' ' + value.last_name + '</option>')
         });
         $("#user_selected").selectpicker('refresh');
         $("#headerForm").text(areaName)

@@ -10,6 +10,7 @@ from pinax.eventlog.models import log, Log
 from django.urls import reverse
 from django.core.exceptions import ValidationError
 from django.utils.translation import gettext_lazy as _
+import json
 
 from crispy_forms.bootstrap import (
     Accordion,

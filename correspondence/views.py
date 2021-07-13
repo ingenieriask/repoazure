@@ -2,7 +2,8 @@ from correspondence.models import AlfrescoFile, Radicate, Record, Template, Perm
 from core.models import FunctionalArea, NotificationsService, Person, Atttorny_Person, UserProfileInfo, FunctionalAreaUser
 from pqrs.models import PQRS, PqrsContent
 from correspondence.forms import RadicateForm, SearchForm, UserForm, UserProfileInfoForm, PersonForm, RecordForm, \
-    SearchContentForm, ChangeCurrentUserForm, ChangeRecordAssignedForm, LoginForm, TemplateForm, AssignToUserForm, ReturnToLastUserForm, ReportToUserForm
+    SearchContentForm, ChangeCurrentUserForm, ChangeRecordAssignedForm, LoginForm, \
+    TemplateForm, AssignToUserForm, ReturnToLastUserForm, ReportToUserForm
 from django.contrib.auth.models import User
 from datetime import datetime
 from django.conf import settings
@@ -25,6 +26,7 @@ from django.core.files.temp import NamedTemporaryFile
 from django.contrib.auth.models import Permission
 from django.views.decorators.clickjacking import xframe_options_exempt
 from django.utils.http import urlencode
+from django.core.exceptions import ValidationError
 import requests
 import json
 import os
@@ -263,23 +265,26 @@ def assign_user(request, radicate):
             'radicate': radicate
         })
 
+filters = {
+    1: lambda area, user, permission_list: PermissionRelationAssignation.objects. \
+            filter(is_current_area=area, current_permission__in=(user.user_permissions.all() | Permission.objects.filter(group__user=user))). \
+            values_list('destination_permission').distinct(),
+    2: lambda area, user, permission_list: PermissionRelationReport.objects. \
+            filter(is_current_area=area, current_permission__in=(user.user_permissions.all() | Permission.objects.filter(group__user=user))). \
+            values_list('destination_permission').distinct(),
+    3: lambda area, user, permission_list: Permission.objects.filter(codename__in=set(permission_list)) #('approbation', 'personal_signature', 'legal_signature'))
+}
 
 def users_by_area(request):
     filter_pk = request.GET.get('filter_pk')
     kind_task = request.GET.get('kind_task')
+    permission_list = request.GET.getlist('permissions[]')
     ###get area from current user and verify if is the same from parameter
-    user=get_current_user()
+    user = get_current_user()
     area = FunctionalAreaUser.objects.filter(Q(user=user) & Q(functional_area=filter_pk)).first() != None
     ###get destination permissions
     ###kind_task 1 is for assination, else is gonna be report
-    if kind_task and int(kind_task)==1:
-        permission = PermissionRelationAssignation.objects. \
-            filter(is_current_area=area, current_permission__in=(user.user_permissions.all() | Permission.objects.filter(group__user=user))). \
-            values_list('destination_permission').distinct()
-    else:
-        permission = PermissionRelationReport.objects. \
-            filter(is_current_area=area, current_permission__in=(user.user_permissions.all() | Permission.objects.filter(group__user=user))). \
-            values_list('destination_permission').distinct()
+    permission = filters[int(kind_task)](area, user, permission_list)
     ###get destination users
     users = User.objects.filter(Q(groups__permissions__in=permission) | Q(user_permissions__in=permission)).distinct()
     if request.is_ajax and request.method == "GET":
@@ -769,3 +774,4 @@ class TemplateCreateView(CreateView):
 class TemplateEditView(UpdateView):
     model = Template
     form_class = TemplateForm
+
