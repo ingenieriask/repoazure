@@ -190,8 +190,8 @@ class PqrRadicateForm(forms.ModelForm):
             del self._errors['subtype']
 
         cleaned_data = super(PqrRadicateForm, self).clean()
-        if (cleaned_data.get('captcha') is None):
-            raise forms.ValidationError('Por favor valide el captcha')
+        #if (cleaned_data.get('captcha') is None):
+        #    raise forms.ValidationError('Por favor valide el captcha')
         
         return cleaned_data
 
@@ -203,6 +203,7 @@ class PqrRadicateForm(forms.ModelForm):
                   'interestGroup': 'Grupo de interés'}
 
     def __init__(self, typePqr, *args, **kwargs):
+        
         super(PqrRadicateForm, self).__init__(*args, **kwargs)
         agreement_data = SystemParameterHelper.get_json('AGREEMENT_DATA')
         

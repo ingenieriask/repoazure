@@ -42,25 +42,7 @@
       });
 
       $('#submit_button').on('click', function(e){
-          form_data = $('#id_form_create_pqr').serialize();
-          $.ajax({
-            type: 'POST',
-            url: '{% url "pqrs:validate-captcha" pqrs=pqrs %}',
-            data: {
-              data : form_data,
-              csrfmiddlewaretoken:$('input[name=csrfmiddlewaretoken]').val()
-            }
-          })
-          .done(function(response){
-              if (response.status == 1){
-                  $('#id_form_create_pqr').submit();
-              }
-              else {
-                  $('#validate_captcha_error').css("display", "block");
-                  $('.captcha').attr('src', response.new_cptch_image);
-                  $('#id_captcha_0').val(response.new_cptch_key);
-              }
-          })
+          $('#id_form_create_pqr').submit();
       })
 
       $('.js-captcha-refresh').click(function(){
