@@ -35,13 +35,17 @@ class SystemParameter(models.Model):
 
     def __str__(self):
         return self.name
-
+    class Meta:
+        verbose_name= 'Parametros del Sistema'
 
 class PreferencialPopulation(models.Model):
     name = models.CharField(max_length=128)
 
     def __str__(self):
         return self.name
+    
+    class Meta:
+        verbose_name= 'Poblacion Preferencial'
 
 
 class Disability(models.Model):
@@ -49,6 +53,9 @@ class Disability(models.Model):
 
     def __str__(self):
         return self.name
+    
+    class Meta:
+        verbose_name= 'Dicapacidades'
 
 
 class AttornyType(models.Model):
@@ -56,6 +63,9 @@ class AttornyType(models.Model):
 
     def __str__(self):
         return self.name
+    class Meta:
+        verbose_name= 'Tipo Apoderado'
+        verbose_name_plural= 'Tipos de Apoderados'
 
 
 class BooleanSelection(models.Model):
@@ -63,14 +73,19 @@ class BooleanSelection(models.Model):
 
     def __str__(self):
         return self.name
-
+    class Meta:
+        verbose_name= 'Opcione Booleana'
+        verbose_name_plural= 'Opciones Booleanas'
 
 class EthnicGroup(models.Model):
     name = models.CharField(max_length=128)
 
     def __str__(self):
         return self.name
-
+    
+    class Meta:
+        verbose_name= 'Grupo Etnico'
+        verbose_name_plural= 'Grupos Etnicos'
 
 # Office attributes related to the person working Office
 class Office(models.Model):
@@ -85,13 +100,18 @@ class Office(models.Model):
     def __str__(self):
         return str(self.name) + ' - ' + str(self.abbr)
 
-
+    class Meta:
+        verbose_name= 'Oficina'
+        verbose_name_plural= 'Oficinas'
 class Country(models.Model):
     name = models.CharField(max_length=128)
     code = models.CharField(max_length=4)
 
     def __str__(self):
         return self.name
+    class Meta:
+        verbose_name= 'Pais'
+        verbose_name_plural= 'Paises'
 
 
 class State(models.Model):
@@ -101,6 +121,10 @@ class State(models.Model):
 
     def __str__(self):
         return self.name
+    
+    class Meta:
+        verbose_name= 'Estado o Departamento'
+        verbose_name_plural= 'Estados o Departamentos'
 
 
 class City(models.Model):
@@ -111,6 +135,8 @@ class City(models.Model):
 
     class Meta:
         ordering = ['name']
+        verbose_name= 'Ciudad'
+        verbose_name_plural= 'Ciudades'
 
     def __str__(self):
         return self.name + ' / ' + self.state.name
@@ -124,6 +150,10 @@ class Alerts(models.Model):
     history = HistoricalRecords()
     def __str__(self):
         return self.name
+    
+    class Meta:
+        verbose_name= 'Alerta'
+        verbose_name_plural= 'Alertas'
 # UserProfileInfo, has one user for extend the basic user info
 
 
@@ -135,7 +165,9 @@ class UserProfileInfo(models.Model):
 
     def __str__(self):
         return self.user.first_name + ' ' + self.user.last_name + ' (' + self.office.name + ') '
-
+    class Meta:
+        verbose_name= 'Informacion Perfil de Usuario'
+        verbose_name_plural= 'Informacion Perfiles de Usuarios'
 
 class PersonType(models.Model):
     abbr = models.CharField(max_length=2)
@@ -143,6 +175,9 @@ class PersonType(models.Model):
 
     def __str__(self):
         return self.name
+    class Meta:
+        verbose_name= 'Tipo Persona'
+        verbose_name_plural= 'Tipos de Personas'
 
 
 class DocumentTypes(models.Model):
@@ -151,7 +186,9 @@ class DocumentTypes(models.Model):
 
     def __str__(self):
         return self.name
-
+    class Meta:
+        verbose_name= 'Tipo de Documento'
+        verbose_name_plural= 'Tipos de Documentos'
 
 class RequestResponse(models.Model):
     abbr = models.CharField(max_length=10)
@@ -159,6 +196,9 @@ class RequestResponse(models.Model):
 
     def __str__(self):
         return self.name
+    class Meta:
+        verbose_name= 'Tipo Respuesta Peticion'
+        verbose_name_plural= 'Tipos Respuestas Peticiones'
 
 
 class PersonBase(BaseModel):
@@ -184,7 +224,9 @@ class Attorny(PersonBase):
 
     def __str__(self):
         return f"{self.name} {self.lasts_name}"
-
+    class Meta:
+        verbose_name= 'Apoderado'
+        verbose_name_plural= 'Apoderados'
 
 class LegalPerson(PersonBase):
     verification_code = models.CharField(
@@ -204,6 +246,10 @@ class LegalPerson(PersonBase):
 
     def get_anonymized_representative(self):
         return FormatHelper.anonymize(self.representative)
+    
+    class Meta:
+        verbose_name= 'Persona Legal'
+        verbose_name_plural= 'Personas Legales'
 
 
 class Person(PersonBase):
@@ -247,7 +293,9 @@ class Person(PersonBase):
             address_list.append((2, self.parent.address))
 
         return address_list
-
+    class Meta:
+        verbose_name= 'Persona Natural'
+        verbose_name_plural= 'Personas Naturales'
 
 def get_first_name(self):
     return self.first_name + ' ' + self.last_name
@@ -277,6 +325,9 @@ class PersonRequest(BaseModel):
     def __str__(self):
         return self.name
 
+    class Meta:
+        verbose_name= 'Persona adicional en la Peticion'
+        verbose_name_plural= 'Personas adicionales en la Peticion'
 
 def get_first_name(self):
     return self.first_name + ' ' + self.last_name
@@ -295,7 +346,9 @@ class Atttorny_Person(models.Model):
 
     def __str__(self):
         return f"{self.attorny.name}-{self.attorny_type.name}-{self.person.name}"
-
+    class Meta:
+        verbose_name= 'Relacion Apoderado Persona'
+        verbose_name_plural= 'Relaciones Apoderados Personas'
 
 class AppParameter(models.Model):
     name = models.CharField(unique=True, max_length=128)
@@ -306,7 +359,8 @@ class AppParameter(models.Model):
 
     class Meta:
         db_table = "core_app_parameter"
-
+        verbose_name= 'Parametro de la Aplicacion'
+        verbose_name_plural= 'Parametros de la Aplicacion'
 
 class ConsecutiveFormat(models.Model):
     format = models.CharField(max_length=256, null=False, blank=False)
@@ -318,6 +372,8 @@ class ConsecutiveFormat(models.Model):
 
     class Meta:
         db_table = "core_consecutive_format"
+        verbose_name= 'Consecutivo del Formato'
+        verbose_name_plural= 'Consecutivos de los Formatos'
 
 
 class FilingType(models.Model):
@@ -333,6 +389,9 @@ class FilingType(models.Model):
 
     def __str__(self):
         return f"{self.name} {self.code}"
+    class Meta:
+        verbose_name= 'Tipo de Relleno'
+        verbose_name_plural= 'Tipos de Rellenos'
 
 
 class Consecutive(models.Model):
@@ -351,7 +410,9 @@ class CalendarDayType(models.Model):
 
     def __str__(self):
         return self.name
-
+    class Meta:
+        verbose_name= 'Tipo de Calendario por Dia'
+        verbose_name_plural= 'Tipos de Calendarios por Dias'
 
 class Calendar(models.Model):
     name = models.CharField(max_length=128, blank=False, null=False, default='',
@@ -359,7 +420,9 @@ class Calendar(models.Model):
 
     def __str__(self):
         return self.name
-
+    class Meta:
+        verbose_name= 'Calendario'
+        verbose_name_plural= 'Calendarios'
 
 class CalendarDay(models.Model):
     date = models.DateField(default=timezone.now, null=False, blank=False)
@@ -370,6 +433,10 @@ class CalendarDay(models.Model):
 
     def __str__(self):
         return f"{self.date} {self.type}"
+    
+    class Meta:
+        verbose_name= 'Dia por Calendario'
+        verbose_name_plural= 'Dias por Calendarios'
 
 
 class Holiday(models.Model):
@@ -396,7 +463,8 @@ class FunctionalArea(AL_Node):
 
     class Meta:
         db_table = "core_functional_area"
-
+        verbose_name= 'Area Funcional'
+        verbose_name_plural= 'Areas Funcionales'
 
 class FunctionalAreaUser(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
@@ -427,8 +495,9 @@ class Menu(AL_Node):
 
     def __str__(self):
         return self.name
-
-
+    class Meta:
+        verbose_name= 'Menu'
+        verbose_name_plural= 'Menus'
 
 class NotificationsService(models.Model):
     name = models.CharField(max_length=50)
@@ -449,4 +518,7 @@ class Notifications(models.Model):
 
     def __str__(self):
         return self.name
+    class Meta:
+        verbose_name= 'Notificacion'
+        verbose_name_plural= 'Notificaciones'
 

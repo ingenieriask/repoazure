@@ -24,6 +24,10 @@ class InterestGroup(BaseModel):
     def __str__(self):
         return self.name
 
+    class Meta:
+        verbose_name= 'Grupo de interes PQRSD'
+        verbose_name_plural= 'Grupos de interes PQRSD'
+
 class Type(models.Model):
     name = models.CharField(max_length=128,editable=False)
     description = models.CharField(blank=False, null=False, max_length=256,default='')
@@ -32,6 +36,9 @@ class Type(models.Model):
     min_response_days = models.SmallIntegerField(blank=False, null=False, default=1)
     def __str__(self):
         return self.name
+    class Meta:
+        verbose_name= 'Tipo PQRSD'
+        verbose_name_plural= 'Tipos PQRSD'
 
 
 class SubType(models.Model):
@@ -49,7 +56,9 @@ class SubType(models.Model):
             super(SubType, self).save(*args, **kwargs)
         else:
             raise Exception("max_response_days should be lower or equal to type.max_response_days")
-
+    class Meta:
+        verbose_name= 'Sub tipo PQRSD'
+        verbose_name_plural= 'Sub tipos PQRSD'
 class PQRS(models.Model):
     class Status(models.TextChoices):
         CREATED = 'CR', _('Recibida')
@@ -64,7 +73,9 @@ class PQRS(models.Model):
 
     def get_status_str(self):
         return self.Status(self.status).label
-
+    class Meta:
+        verbose_name= 'Objeto PQRSD'
+        verbose_name_plural= 'Objetos PQRSD'
 # Create your models here.
 class PqrsContent(Radicate):
     data = models.TextField(max_length=2000)
@@ -84,3 +95,6 @@ class PqrsContent(Radicate):
         #     else:
         #         self.user_updated = user
         super(PqrsContent, self).save()
+    class Meta:
+        verbose_name= 'Contenido PQRSD'
+        verbose_name_plural= 'Contenidos PQRSD'
