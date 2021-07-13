@@ -12,7 +12,7 @@
 <div class="card mb-4">
     <div class="card-header">Entrada de correspondencia</div>
     <div class="card_body p-3">
-          <form method="post" enctype="multipart/form-data">
+          <form method="post" enctype="multipart/form-data" id="id_form_create_pqr">
             {% load crispy_forms_tags %}
             {% crispy form %}
             {% csrf_token %}
@@ -27,15 +27,40 @@
         allowedFileExtensions: ['PDF', 'DOC', 'DOCX', 'XLS', 'XLSX', 'EXCEL', 'PPT', 'PPTX', 
                                 'JPG', 'GIF', 'PNG', 'TIFF', 'BMP', 'WAV', 'MP3', 'AVI', 'MPEG', 
                                 'MPG', 'OGG', 'M4A', 'MP4', 'WMV', 'OGV'],
-        overwriteInitial: true,
+        overwriteInitial: false,
         maxFileSize:10000,
         language: 'es',
+        showUpload: false,
         previewFileIconSettings: {
-            'docx': '<i class="fas fa-file-word text-primary"></i>',
+            'docx': '<i class="fas fa-file-word text-primary mt-4"></i>',
+            'xlsx': '<i class="fas fa-file-excel mt-4" style="color:green;"></i>'
         },
         slugCallback: function (filename) {
             return filename.replace('(', '_').replace(']', '_');
         }
+      });
+
+      $(document).on('submit', function(e){
+          e.preventDefault();
+          form_data = $('#id_form_create_pqr').serialize();
+          console.log(form_data);
+          $.ajax({
+            type: 'POST',
+            url: '{% url "pqrs:validate-captcha" %}',
+            data: {
+              data : form_data,
+              csrfmiddlewaretoken:$('input[name=csrfmiddlewaretoken]').val()
+            }
+
+          })
+          
+      })
+
+      $('.js-captcha-refresh').click(function(){
+        $.getJSON("/captcha/refresh/", function (result) {
+            $('.captcha').attr('src', result['image_url']);
+            $('#id_captcha_0').val(result['key'])
+        });
       });
 
 {% endblock %}

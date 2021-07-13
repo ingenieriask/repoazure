@@ -6,7 +6,7 @@ from pqrs.models import PqrsContent, SubType
 from correspondence.models import Radicate
 from django import forms
 from crispy_forms.helper import FormHelper
-from crispy_forms.layout import Layout, Submit, Row, Column, Div, Field, Button
+from crispy_forms.layout import Layout, Submit, Row, Column, Div, Field, Button, HTML
 from crispy_forms.utils import TEMPLATE_PACK
 from core.forms import AbstractPersonForm,AbstractPersonRequestForm,AbstractPersonAttorny,AbstractLegalPersonForm
 from django.utils.translation import gettext_lazy as _
@@ -232,10 +232,10 @@ class PqrRadicateForm(forms.ModelForm):
                 css_class='form-row'
             ),
             Row(
-                Column('captcha', css_class='form-group col-md-12 mb-0'),
+                Column('captcha', css_class='form-group col-md-4 mb-0'),
+                Column(HTML('<span class="js-captcha-refresh"><i class="fas fa-sync fa-lg"></i></span>'), css_class='form-group col-md-4 mb-0 mt-5'),
                 css_class='form-row'
             ),
-            
             Submit('submit', 'Radicar')
         )
 

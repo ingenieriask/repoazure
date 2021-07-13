@@ -32,5 +32,6 @@ urlpatterns = [
     path('consultation/result/<int:pk>/', views.PqrsConsultationResult.as_view(), name="consultation_result"),
     path('extend-request/<int:pk>', views.pqrs_extend_request, name='extend_request'),
     path('answer-request/<int:pk>', views.pqrs_answer_request, name="answer_request"),
-    path('answer/<int:pk>', views.pqrs_answer, name='answer')
+    path('answer/<int:pk>', views.pqrs_answer, name='answer'),
+    path('validate-captcha/', views.validate_captcha, name='validate-captcha')
 ]
