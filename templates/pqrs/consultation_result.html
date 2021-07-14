@@ -60,18 +60,15 @@
                                     </tr>
                                 </thead>
                                 <tbody>
+                                    {% for answer in answers %}
                                     <tr>
-                                        <td></td>
-                                        <td></td>
-                                        <td></td>
+                                        <td class="text-center">{{ answer.number }}</td>
+                                        <td class="text-center">{{ answer.date_radicated|simple_date }}</td>
+                                        <td class="text-center"><a href='{% url "pqrs:consultation_zip" pk=answer.id %}')>{{ answer }}.zip</a></td>
                                     </tr>
-                                    <tr>
-                                        <td></td>
-                                        <td></td>
-                                        <td></td>
-                                    </tr>
+                                    {% endfor %}
                                 </tbody>
-                                
+                                    
                             </table>
                         </div>
                     </div>

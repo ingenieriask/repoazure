@@ -56,6 +56,7 @@ import re
 import redis
 from requests.auth import HTTPBasicAuth
 from core.services import SystemParameterHelper
+import zipfile
 
 logger = logging.getLogger(__name__)
 
@@ -625,6 +626,8 @@ class PqrsConsultationResult(DetailView):
     
     def get_context_data(self, **kwargs):
         context = super(PqrsConsultationResult, self).get_context_data(**kwargs)
+        context['answers'] = Radicate.objects.filter(parent=context['pqrs'].id, 
+                                                     classification=Radicate.Classification.COMPLETE_ANSWER)
         return context
 
 
@@ -1019,3 +1022,17 @@ def validate_captcha(request, pqrs):
             to_json_response['new_cptch_image'] = captcha_image_url(to_json_response['new_cptch_key'])
 
             return HttpResponse(json.dumps(to_json_response), content_type='application/json')
+
+
+def get_consultation_zip(request, pk):
+
+    radicate = Radicate.objects.get(id=pk)
+    s = io.BytesIO()
+    zip_file = zipfile.ZipFile(s, 'w')
+    for file in list(radicate.files.all()):
+        response = ECMService.download(file.cmis_id)
+        zip_file.writestr(file.name+file.extension, response[0])
+    zip_file.close()
+    resp = HttpResponse(s.getvalue(), content_type = "application/x-zip-compressed")
+    resp['Content-Disposition'] = 'attachment; filename='+radicate.number+'.zip' 
+    return resp
