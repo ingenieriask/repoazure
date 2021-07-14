@@ -13,6 +13,7 @@ urlpatterns = [
     path('users-by-area/', views.users_by_area, name='users_by_area'),
     path('return-to-last-user/<int:radicate>', views.return_to_last_user, name='return_to_last_user'),
     path('report-to-user/<int:radicate>', views.report_to_user, name='report_to_user'),
+    path('delete-from-reported/<int:radicate>', views.delete_from_reported, name='delete_from_reported'),
     path('assign-user/<int:radicate>', views.assign_user, name='assign_user'),
     path('search-content/', views.search_by_content, name='search_by_content'),
     path('autocomplete/', views.autocomplete, name='autocomplete'),

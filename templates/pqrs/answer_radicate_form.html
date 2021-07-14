@@ -1,0 +1,39 @@
+{% extends 'correspondence/main_template.html' %}
+{% load crispy_forms_tags %}
+<!-- BLOCK Content -->
+{% block content %}
+<div class="card mb-4">
+    <div class="card-body">
+        <form  method="post">
+        {% csrf_token %}
+            <div class="form-group offset-5 col-md-4 my-5">
+                {{ radicate.parent.number }}
+            </div>
+            <div class="card mb-4">
+                <div class="card-header">
+                    Previsualización
+                </div>
+                <div class="card-body">
+                    <div class="container"> 
+                        <embed class="w-100" height="600" src="{% url 'correspondence:get_file' %}?cmis_id={{cmis}}"/>
+                        <div class="form-row">
+                            <div class="form-group col-md-4 mx-5 mb-0">
+                                <a class="btn btn-primary w-100" href="{% url 'workflow:signature' radicate=radicate.id %}">Solicitar firmas</a>
+                            </div>
+                            <div class="form-group col-md-4 mx-5 mb-0">
+                                <button type="submit" class="btn btn-primary">Responder PQRSD</button>
+                            </div>
+                            <div class="form-group col-md-4 mx-5 mb-0">
+                                <a class="btn btn-primary w-100" href="{% url 'pqrs:detail_pqr' pk=radicate.id %}">Cancelar</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+{% endblock %}
+
+

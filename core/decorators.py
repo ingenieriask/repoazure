@@ -54,6 +54,8 @@ def user_passes_test_custom(test_func, login_url=None, redirect_field_name=REDIR
 def has_radicate_permission(perms, login_url=None, raise_exception=False):
 
     def check_perms(user, request):
+        if user.has_perm('auth.receive_external') or user.is_superuser:
+            return True
         result = re.search(r'.*/radicate/(\d+)/', request.path, re.IGNORECASE)
 
         if user.has_perm('auth.receive_external') or user.is_superuser:

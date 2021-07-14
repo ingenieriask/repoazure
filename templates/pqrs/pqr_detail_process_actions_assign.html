@@ -1,0 +1,3 @@
+{% extends 'pqrs/pqr_detail_process.html' %} {% load static %} {% block actions %}
+<a class="btn btn-primary" href="{% url 'correspondence:assign_user' radicate=pqrscontent.pk  %}">Asignar</a>
+{% endblock %}

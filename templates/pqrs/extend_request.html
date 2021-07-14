@@ -1,4 +1,4 @@
-{% extends 'pqrs/template.html' %}
+{% extends 'correspondence/main_template.html' %}
 {% load crispy_forms_tags %}
 <!-- BLOCK Content -->
 {% block content %}
@@ -16,43 +16,11 @@
                 <div class="card-body">
                     <div class="container"> 
                         {% crispy form %}
-                        <div class="modal fade" id="signModal" tabindex="-1" role="dialog">
-                            <div class="modal-dialog" role="document">
-                                <div class="modal-content">
-                                    <div class="modal-header">
-                                        <h5 class="modal-title" id="exampleModalLabel"><strong>RINO - PQRSD</strong></h5>
-                                        <button type="button" class="close" data-dismiss="modal">
-                                            <span aria-hidden="true">&times;</span>
-                                        </button>
-                                    </div>
-                                    <div class="modal-body">
-                                        <div class="text-center">
-                                            <h1><strong>TIPO DE FIRMA</strong></h1>
-                                            <div class="form-check-inline justify-content-center mt-5">
-                                                
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="modal-footer justify-content-center">
-                                        <div class="col-2 mr-5">
-                                            <button type="submit" class="btn btn-primary">Continuar</button>
-                                        </div>
-                                        <div class="col-2 ml-5">
-                                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    
                         <div class="form-row">
                             <div class="form-group offset-2 col-md-2 mb-0">
-                                <a href="" class="btn btn-primary w-100">Solicitar firmas</a>
+                                <button type="submit" class="btn btn-primary">Ampliar PQRSD</button>
                             </div>
-                            <div class="form-group offset-1 col-md-2 mb-0">
-                                <a href="" class="btn btn-primary w-100" data-toggle="modal" data-target="#signModal">Ampliar PQRSD</a>
-                            </div>
-                            <div class="form-group offset-1 col-md-2 mb-0">
+                            <div class="form-group offset-2 col-md-2 mb-0">
                                 <a class="btn btn-primary w-100" href="{% url 'pqrs:detail_pqr' pk=radicate.id %}">Cancelar</a>
                             </div>
                         </div>

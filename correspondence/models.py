@@ -6,6 +6,7 @@ from django.conf import settings
 from crum import get_current_user
 from core.models import Office, BaseModel, UserProfileInfo, Person
 from django.contrib.auth.models import User, Permission
+from django.utils.translation import gettext_lazy as _
 
 # Create your models here.
 
@@ -63,6 +64,12 @@ class ReceptionMode(models.Model):
 
 
 class Radicate(models.Model):
+    class Classification(models.TextChoices):
+        PQR = 'PQR', _('PQRSD')
+        AMPLIATION_REQUEST = 'AR', _('Solicitud de ampliación')
+        AMPLIATION_ANSWER = 'AA', _('Respuesta de solicitante')
+        COMPLETE_ANSWER = 'CA', _('Respuesta final')
+
     number = models.TextField(max_length=30, null=False, db_index=True)
     subject = models.CharField(max_length=256, null=True)
     annexes = models.TextField(max_length=256, null=True)
@@ -79,6 +86,9 @@ class Radicate(models.Model):
     office = models.ForeignKey(Office, on_delete=models.CASCADE, related_name='radicates_office', default='1')
     doctype = models.ForeignKey(Doctype, on_delete=models.CASCADE, related_name='radicates_doctype', blank=True, null=True)
 
+    parent = models.ForeignKey('Radicate', on_delete=models.PROTECT, related_name='associated_radicates', null=True)
+    classification = models.CharField(max_length=3, choices=Classification.choices, default=Classification.PQR)
+    folder_id = models.TextField(max_length=100, null=False, default='')
 
     reported_people = models.ManyToManyField(User, blank=True)
 
@@ -87,6 +97,9 @@ class Radicate(models.Model):
 
     def __str__(self):
         return str(self.number)
+
+    def get_classification_str(self):
+        return self.Classification(self.classification).label
 
     def get_absolute_url(self):
         return reverse('correspondence:detail_radicate', args=[str(self.id)])

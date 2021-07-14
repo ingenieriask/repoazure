@@ -1,5 +1,5 @@
 {% extends 'pqrs/template_radicate_inbox.html' %} {% load static %} {% block actions %}
-    <a href="{% url 'pqrs:asign_detail_pqr' pk=pqrs.pk  %}" role="button">
+    <a href="{% url 'pqrs:detail_pqr' pk=pqrs.pk  %}" role="button">
         <i class="fas fa-plus-circle fa-2x" style="color: #0000ff;"></i>
     </a>
 {% endblock %}

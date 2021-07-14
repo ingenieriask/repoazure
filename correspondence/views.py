@@ -2,8 +2,8 @@ from correspondence.models import AlfrescoFile, Radicate, Record, Template, Perm
 from core.models import FunctionalArea, NotificationsService, Person, Atttorny_Person, UserProfileInfo, FunctionalAreaUser
 from pqrs.models import PQRS, PqrsContent
 from correspondence.forms import RadicateForm, SearchForm, UserForm, UserProfileInfoForm, PersonForm, RecordForm, \
-    SearchContentForm, ChangeCurrentUserForm, ChangeRecordAssignedForm, LoginForm, \
-    TemplateForm, AssignToUserForm, ReturnToLastUserForm, ReportToUserForm
+    SearchContentForm, ChangeCurrentUserForm, ChangeRecordAssignedForm, LoginForm, TemplateForm, AssignToUserForm, ReturnToLastUserForm, ReportToUserForm, \
+    DeleteFromReportedForm
 from django.contrib.auth.models import User
 from datetime import datetime
 from django.conf import settings
@@ -360,6 +360,59 @@ def report_to_user(request, radicate):
                 'form': form,
                 'rino_parameter': rino_search_user_param,
                 'functional_tree': functional_tree,
+                'radicate': radicate
+            })
+
+def delete_from_reported(request, radicate):
+
+    if request.method == 'POST':
+        form = DeleteFromReportedForm(request.POST)
+        if form.is_valid():
+            pqrs = PqrsContent.objects.get(pk=radicate)
+            current_user = get_current_user()
+            users=''
+            destination_users = []
+            for user in pqrs.reported_people.all():
+                
+                if user != current_user:
+                    destination_users.append(user)
+                    users += user.username + ', '
+                    
+            pqrs.reported_people.remove(current_user)
+
+            
+            action = ProcessActionStep()
+            action.user = get_current_user()
+            action.action = 'Eliminación de informe'
+            action.detail = "El usuario %s ha abandonado el informe del radicado %s" % (pqrs.number, current_user)
+            action.radicate = pqrs
+            action.observation = form.cleaned_data['observations']
+            action.save()
+            action.destination_users.set(destination_users)
+            action.save()
+
+            log(
+                user=request.user,
+                action="PQR_DELETE_FROM_REPORTED",
+                obj=action,
+                extra={
+                    "number": pqrs.number,
+                    "message": "El usuario %s ha abandonado el informe del radicado %s" % (pqrs.number, current_user)
+                }
+            )
+            pqrs.save()
+            get_args_str = urlencode({'pk': pqrs.pk, 'template': 'FINISH_DELETE_FROM_REPORTED', 'destination': 'pqrs:radicate_my_inbox'})
+            return HttpResponseRedirect(reverse('pqrs:conclusion')+'?'+get_args_str)
+            # return HttpResponseRedirect(reverse('pqrs:radicate_inbox'))
+
+    if request.method == 'GET':
+        form = DeleteFromReportedForm(request.POST)
+
+        return render(
+            request,
+            'correspondence/delete_from_reported.html',
+            context={
+                'form': form,
                 'radicate': radicate
             })
 

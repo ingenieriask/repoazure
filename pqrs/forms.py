@@ -98,7 +98,6 @@ class PersonRequestFormUpdate(AbstractPersonRequestForm):
 class SearchPersonForm(forms.Form):
     item = forms.CharField(label='Palabra clave (Numero de Documento, Nombre, Correo electronico )', help_text='Datos a buscar')
 
-
 class SearchUniquePersonForm(forms.Form):
     doc_num = forms.CharField(label='Numero de Documento' )
     document_type= forms.ModelChoiceField(
@@ -413,7 +412,7 @@ class PqrsAnswerForm(forms.ModelForm):
     
     city = forms.ModelChoiceField(required=False, label=mark_safe("<strong>Municipio / Departamento<strong>"),
                                   queryset=City.objects.all())
-    answer = forms.CharField(required = False, max_length=20000, label=mark_safe('<strong>Respuesta</strong>'),
+    observation = forms.CharField(required = False, max_length=20000, label=mark_safe('<strong>Respuesta</strong>'),
                              widget = forms.Textarea())
     uploaded_files = forms.FileField(widget=forms.ClearableFileInput(attrs={'multiple': True}), required=False,
                                     label=mark_safe("<span class='far fa-file-alt fa-3x' style='color: blue;'></span><strong>  Anexos, Documentos<strong>"))
@@ -480,7 +479,7 @@ class PqrsAnswerForm(forms.ModelForm):
                 css_class='form-row'
             ),
             Row(
-                Column('answer', css_class='form-group col-md-12 mb-0'),
+                Column('observation', css_class='form-group col-md-12 mb-0'),
                 css_class='form-row'
             ),
             Row(
