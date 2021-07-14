@@ -87,6 +87,9 @@ class PqrsContent(Radicate):
     def get_absolute_url(self):
         return reverse('pqrs_detail', args=[self.id])
 
+    def get_pqrs_type_subtype(self):
+        return f"{self.pqrsobject.pqr_type.name} {self.subtype.name}"
+
     def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
         # user = get_current_user()
         # if user is not None:

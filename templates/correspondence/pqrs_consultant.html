@@ -1,0 +1,59 @@
+{% extends 'correspondence/main_template.html' %}
+{% load static %}
+{% load custom_tags %}
+{% block content %}
+
+    <div class="card mb-4">
+        <div class="card-body">
+            <form id="search-form" 
+            action="{% url 'correspondence:pqrs_consultant' %}" method="POST">
+                {% csrf_token %}
+                {% load crispy_forms_tags %}
+                {{ form | crispy }}
+                <button type="submit" name="submit" class="btn btn-success">Buscar</button>
+            </form>
+        </div>
+    </div>
+    {% if table %}
+    <div class="card mb-4">
+        <div class="card-header">Informacion PQRSD</div>
+        <div class="card-body overflow-auto">
+            <table class="table table-hover nowrap" id="tb_request_sender">
+                <thead>
+                <tr>
+                    <th class="text-dark" scope="col">No. Radicado</th>
+                    <th  class="text-dark" scope="col">Fecha Radicado</th>
+                    <th  class="text-dark" scope="col">Asunto</th>
+                    <th  class="text-dark" scope="col">Solicitante</th>
+                    <th class="text-dark"  scope="col">Tipo y Tema PQRSD</th>
+                    <th class="text-dark"  scope="col">Dias habiles respuesta</th>
+                    <th class="text-dark"  scope="col">Estado</th>
+                    <th  class="text-dark" scope="col">Dependencias</th>
+                    <th class="text-dark"  scope="col">Detalle</th>
+                </tr>
+                </thead>
+                <tbody>
+                    {% for data in table%}
+                    <tr>
+                        <th>{{data.number}}</th>
+                        <th>{{data.date_radicated}}</th>
+                        <th>{{data.subject}}</th>
+                        <th>{{data.person.get_full_name}}</th>
+                        <th>{{data.get_pqrs_type_subtype}}</th>
+                        <th>{{data.subtype.max_response_days}}</th>
+                        <th>{{data.pqrsobject.get_status_display}}</th>
+                        <th>Falta definir</th>
+                        <th>Falta definir</th>
+                        <th></th>
+                    </tr>
+                    {% endfor%}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% endif %}
+{% endblock %}
+
+{% block script %}
+
+{% endblock %}

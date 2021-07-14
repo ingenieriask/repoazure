@@ -11,6 +11,7 @@ from django.urls import reverse
 from django.core.exceptions import ValidationError
 from django.utils.translation import gettext_lazy as _
 import json
+from datetime import date, timedelta
 
 from crispy_forms.bootstrap import (
     Accordion,
@@ -81,6 +82,30 @@ class RadicateForm(forms.ModelForm):
 
 class SearchForm(forms.Form):
     item = forms.CharField(label='Palabra clave', help_text='Datos a buscar')
+
+class SearchPqrsd(forms.Form):
+    current_date = date.today().isoformat()   
+    days_before = (date.today()-timedelta(days=30)).isoformat()
+    days_after = (date.today()+timedelta(days=30)).isoformat()  
+    key_word = forms.CharField(
+        label='Palabra clave', 
+        help_text='Datos a buscar',)
+    since = forms.DateField(
+        label=f"Desde (30 dias antes de hoy {current_date})",
+        widget = forms.DateInput(
+            format='%YYYY-%mm-%d', 
+            attrs={
+                'type': 'date',
+                'value':str(days_before)
+                }))
+    until = forms.DateField(
+        label=f"Hasta (30 dias despues de hoy {current_date})",
+        widget = forms.DateInput(
+            format='%YYYY-%mm-%d', 
+            attrs={
+                'type': 'date',
+                'value':str(days_after)
+                }))
 
 
 class AssignToUserForm(forms.Form):
