@@ -1,4 +1,4 @@
-from django.contrib import admin
+from django.contrib import admin,messages
 from core.models import Attorny, AttornyType, Atttorny_Person, LegalPerson, State, \
     City, Office, Country, PreferencialPopulation, Disability, BooleanSelection, \
     EthnicGroup, RequestResponse, SystemParameter, AppParameter, ConsecutiveFormat, \
@@ -9,11 +9,15 @@ from core.forms import ConsecutiveFormatForm, CalendarForm, CustomGroupAdminForm
 from django.contrib.auth.models import Group, User
 from django.contrib.auth.admin import UserAdmin
 from treebeard.admin import TreeAdmin
-from simple_history.admin import SimpleHistoryAdmin
+from simple_history.admin import SimpleHistoryAdmin    
+from admin_confirm import AdminConfirmMixin
 
-class ConsecutiveFormatAdmin(admin.ModelAdmin):
+class ConsecutiveFormatAdmin(AdminConfirmMixin,admin.ModelAdmin):
     form = ConsecutiveFormatForm
-
+    confirm_change = True
+    confirm_add = True
+    confirmation_fields = ['format', 'effective_date']
+    
     def has_add_permission(self, request):
         return False
 
