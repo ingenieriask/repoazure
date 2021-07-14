@@ -219,7 +219,7 @@ def create_pqr_multiple(request, pqrs):
             NotificationsHandler.send_notification('EMAIL_PQR_CREATE', instance, 
                                                     Recipients(instance.person.email))
 
-            for fileUploaded in request.FILES.getlist('uploaded_files'):
+            for fileUploaded in request.FILES.getlist('pqrs_creation_uploaded_files'):
                 document_temp_file = NamedTemporaryFile()
                 for chunk in fileUploaded.chunks():
                     document_temp_file.write(chunk)
@@ -990,3 +990,32 @@ def pqrs_answer_preview(request, pk):
         form = PqrsAnswerForm(radicate, initial=initial_values)
         return render(request, 'pqrs/answer_form.html', context={'form': form, 'radicate': radicate})
     
+
+def validate_captcha(request, pqrs):
+    
+    if request.is_ajax and request.method == 'POST':
+        
+        pqrsoparent = get_object_or_404(PQRS, uuid=pqrs)
+        data = {}
+        pairs = request.POST.get('data').split('&')
+        for pair in pairs:
+            data[pair.split('=')[0]] = pair.split('=')[1]
+
+        form = PqrRadicateForm(pqrsoparent.pqr_type, data)
+        
+        if form.is_valid():
+            to_json_response = dict()
+            to_json_response['status'] = 1
+            
+            return HttpResponse(json.dumps(to_json_response), content_type='application/json')
+
+        else:
+
+            to_json_response = dict()
+            to_json_response['status'] = 0
+            to_json_response['form_errors'] = form.errors
+
+            to_json_response['new_cptch_key'] = CaptchaStore.generate_key()
+            to_json_response['new_cptch_image'] = captcha_image_url(to_json_response['new_cptch_key'])
+
+            return HttpResponse(json.dumps(to_json_response), content_type='application/json')

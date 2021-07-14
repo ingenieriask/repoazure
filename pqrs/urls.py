@@ -37,5 +37,6 @@ urlpatterns = [
     path('answer-request/<int:pk>', views.pqrs_answer_request, name="answer_request"),
     path('answer-request-email/<str:uuid_redis>', views.pqrs_answer_request_email, name="answer_request_email"),
     path('answer/<int:pk>/<int:actualPk>', views.pqrs_answer, name='answer'),
-    path('answer-preview/<int:pk>', views.pqrs_answer_preview, name='answer_preview')
+    path('answer-preview/<int:pk>', views.pqrs_answer_preview, name='answer_preview'),
+    path('validate-captcha/<uuid:pqrs>/', views.validate_captcha, name='validate-captcha'),
 ]
