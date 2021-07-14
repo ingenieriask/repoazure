@@ -39,5 +39,6 @@ urlpatterns = [
     path('template/list/', views.TemplateListView.as_view(), name='template_list'),
     path('template/create', views.TemplateCreateView.as_view(), name='create_template'),
     path('template/edit/<int:pk>/', views.TemplateEditView.as_view(), name='edit_template'),
-    path('radicate/file/', views.get_file, name='get_file')
+    path('radicate/file/', views.get_file, name='get_file'),
+    path('pqrs-consultant/', views.search_pqrsd, name='pqrs_consultant')
 ]
