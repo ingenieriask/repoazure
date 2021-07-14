@@ -70,6 +70,12 @@
         showAllSuggestions: true,
         defaultLabel:'TODO'
     });
+    $("#consecutiveformat_form").submit(function(e){
+        confirmation = confirm('{{message_confirm}}');
+        if(confirmation == false){
+            e.preventDefault();
+        }
+    })
 </script>
 
 

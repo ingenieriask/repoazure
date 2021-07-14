@@ -126,6 +126,13 @@
       "name": "FINISH_DELETE_FROM_REPORTED",
       "value": "{\"title\": \"<h1>ABANDONO DEL INFORME DE LA PQRSD <param>number</param> EXITOSO</h1> <br><hr>\", \"body\": \"<body> <div style=\\\"margin: auto; width: 650px;\\\"><table> <tr>  <td style=\\\"text-align: left; padding: 5px 20px\\\"><strong>Fecha de radicación:</strong></td>  <td style=\\\"text-align: left; padding: 5px 20px\\\"><param>date_radicated</param></td> </tr> <tr>  <td style=\\\"text-align: left; padding: 5px 20px\\\"><strong>Fecha de Informado:</strong></td>  <td style=\\\"text-align: left; padding: 5px 20px\\\"><param>date_assignation</param></td> </tr> <td style=\\\"text-align: left; padding: 5px 20px\\\"><strong>Estado de la solicitud:</strong></td>  <td style=\\\"text-align: left; padding: 5px 20px\\\">Informado</td> </tr> </table> </div></body>\"}"
     }
+  },
+  {
+    "model": "core.systemparameter",
+    "pk": 18,
+    "fields": {
+      "name": "CONFIRM_CONSECUTIVE_FORMAT",
+      "value": "Mensaje de Confirmacion CONFIRM_CONSECUTIVE_FORMAT"
+    }
   }
-
 ]

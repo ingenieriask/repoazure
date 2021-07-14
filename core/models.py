@@ -366,14 +366,15 @@ class ConsecutiveFormat(models.Model):
     format = models.CharField(max_length=256, null=False, blank=False)
     effective_date = models.DateTimeField(
         default=timezone.now, null=False, blank=False)
-
+        
+    history = HistoricalRecords()
     def __str__(self):
         return f"'{self.format}' {self.effective_date}"
 
     class Meta:
         db_table = "core_consecutive_format"
-        verbose_name= 'Consecutivo del Formato'
-        verbose_name_plural= 'Consecutivos de los Formatos'
+        verbose_name= 'Formato del Consecutivo'
+        verbose_name_plural= 'Formatos de los Consecutivos'
 
 
 class FilingType(models.Model):
