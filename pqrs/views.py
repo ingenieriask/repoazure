@@ -23,6 +23,7 @@ from django.views.generic import ListView
 from django.views.generic.detail import DetailView
 from django.views.generic.edit import CreateView
 from django.views.generic.edit import UpdateView
+from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from core.utils_redis import add_to_redis, read_from_redis
 from correspondence.services import ECMService
 from core.services import NotificationsHandler, RecordCodeService, Recipients
@@ -494,16 +495,32 @@ class RadicateInbox(ListView):
     template_name = 'pqrs/radicate_inbox.html'
     paginate_by = 5
 
+    def get_paginate_by(self, queryset):
+        print('paginate_by:', self.request.GET.get("paginate_by", self.paginate_by))
+        return self.request.GET.get("paginate_by", self.paginate_by)
+
     def get_queryset(self):
         queryset = super(RadicateInbox, self).get_queryset()
         queryset = queryset.filter(subtype__isnull=False, pqrsobject__status=PQRS.Status.CREATED)
-        return queryset
+
+        self.filterset = self.PqrsContent(self.request.GET, queryset=queryset)
+        return self.filterset.qs.distinct()
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        # Pass the filterset to the template - it provides the form.
+        context['filterset'] = self.filterset
+        return context
 
 class RadicateMyInbox(ListView):
     model = PqrsContent
     context_object_name = 'pqrs'
     template_name = 'pqrs/radicate_inbox.html'
     paginate_by = 5
+
+    def get_paginate_by(self, queryset):
+        print('paginate_by:', self.request.GET.get("paginate_by", self.paginate_by))
+        return self.request.GET.get("paginate_by", self.paginate_by)
 
     def get_queryset(self):
         queryset = super(RadicateMyInbox, self).get_queryset()

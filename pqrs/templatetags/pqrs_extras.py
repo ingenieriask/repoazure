@@ -38,3 +38,14 @@ def size_metric(size, metric):
         size /= 1000
         
     return "{:.1f}".format(size)
+
+@register.filter()
+def size_metric(size, metric):
+    if metric == "MB":
+        size /= 1000
+        
+    return "{:.1f}".format(size)
+
+@register.filter()
+def page_range(max):
+    return list(range(5, max + 1, 5))
