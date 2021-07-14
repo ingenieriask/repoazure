@@ -16,6 +16,8 @@ from core.services import SystemParameterHelper
 from captcha.fields import CaptchaField
 from django.db.models import Q
 
+from captcha.models import CaptchaStore
+
 class AgreementModal(Field):
     template='pqrs/agreement_modal.html'
     extra_context = {}
@@ -189,7 +191,16 @@ class PqrRadicateForm(forms.ModelForm):
                         queryset=SubType.objects.none(),
                         label='Tema'
                     )
+    
+    def clean_captcha(self):
+        value = [self.data['captcha_0'], self.data['captcha_1']]
+        response, value[1] = (value[1] or "").strip().lower(), ""
+        new_captcha = CaptchaStore(response=response, hashkey=value[0])
+        new_captcha.save()
+        return value
+    
     def clean(self):
+        
         cleaned_data = super(PqrRadicateForm, self).clean()
         cleaned_data['subtype'] = SubType.objects.get(pk = self.data['subtype_field'])
 
