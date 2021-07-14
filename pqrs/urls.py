@@ -39,4 +39,5 @@ urlpatterns = [
     path('answer/<int:pk>/<int:actualPk>', views.pqrs_answer, name='answer'),
     path('answer-preview/<int:pk>', views.pqrs_answer_preview, name='answer_preview'),
     path('validate-captcha/<uuid:pqrs>/', views.validate_captcha, name='validate-captcha'),
+    path('consultation/zip/<int:pk>', views.get_consultation_zip, name="consultation_zip"),
 ]
