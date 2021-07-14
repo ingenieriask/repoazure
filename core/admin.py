@@ -10,13 +10,9 @@ from django.contrib.auth.models import Group, User
 from django.contrib.auth.admin import UserAdmin
 from treebeard.admin import TreeAdmin
 from simple_history.admin import SimpleHistoryAdmin    
-from admin_confirm import AdminConfirmMixin
 
-class ConsecutiveFormatAdmin(AdminConfirmMixin,admin.ModelAdmin):
+class ConsecutiveFormatAdmin(admin.ModelAdmin):
     form = ConsecutiveFormatForm
-    confirm_change = True
-    confirm_add = True
-    confirmation_fields = ['format', 'effective_date']
     
     def has_add_permission(self, request):
         return False
