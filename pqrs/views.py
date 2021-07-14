@@ -23,6 +23,7 @@ from django.views.generic import ListView
 from django.views.generic.detail import DetailView
 from django.views.generic.edit import CreateView
 from django.views.generic.edit import UpdateView
+from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from core.utils_redis import add_to_redis, read_from_redis
 from correspondence.services import ECMService
 from core.services import PdfCreationService
@@ -519,34 +520,68 @@ class PersonUpdateView(UpdateView):
             messages.error(request, "error de validacion")
             return render(request, 'pqrs/search_person_answer_form.html', context={'msg': 'El token es inválido'})
 
+class RadicateListView(ListView):
+    paginate_by = 5
+
+    def get_paginate_by(self, queryset):
+        print('paginate_by', self.request.GET.get("paginate_by", self.paginate_by))
+        return self.request.GET.get("paginate_by", self.paginate_by)
+
+    
+    def filter(func):
+
+        def wrapper(*args, **kwargs):
+            queryset = func(*args, **kwargs)
+            term = args[0].request.GET.get('filter', None)
+            if term == 'None':
+                term = None
+            if term:
+                print(term)
+                queryset = queryset.filter(Q(number__contains=term) | 
+                Q(person__name__icontains=term) | Q(subject__icontains=term) | 
+                Q(subtype__type__name__icontains=term) | Q(subtype__name__icontains=term) |
+                Q(pqrsobject__status__icontains=term))
+            return queryset
+
+        return wrapper
+
+    def get_context_data(self, **kwargs):
+        context = super(RadicateListView, self).get_context_data(**kwargs)
+        term = self.request.GET.get('filter', None)
+        if term:
+            context['filter'] = term
+        return context
 
 #@method_decorator(login_required, name='dispatch')
 @method_decorator(has_any_permission(['auth.receive_external']), name='dispatch')
-class RadicateInbox(ListView):
+class RadicateInbox(RadicateListView):
     model = PqrsContent
     context_object_name = 'pqrs'
     template_name = 'pqrs/radicate_inbox.html'
 
+    @RadicateListView.filter
     def get_queryset(self):
         queryset = super(RadicateInbox, self).get_queryset()
         queryset = queryset.filter(subtype__isnull=False, pqrsobject__status=PQRS.Status.CREATED)
         return queryset
 
-class RadicateMyInbox(ListView):
+class RadicateMyInbox(RadicateListView):
     model = PqrsContent
     context_object_name = 'pqrs'
     template_name = 'pqrs/radicate_my_inbox.html'
 
+    @RadicateListView.filter
     def get_queryset(self):
         queryset = super(RadicateMyInbox, self).get_queryset()
         queryset = queryset.filter(current_user = self.request.user, subtype__isnull=False)
         return queryset
 
-class RadicateMyReported(ListView):
+class RadicateMyReported(RadicateListView):
     model = PqrsContent
     context_object_name = 'pqrs'
     template_name = 'pqrs/radicate_reported_inbox.html'
 
+    @RadicateListView.filter
     def get_queryset(self):
         queryset = super(RadicateMyReported, self).get_queryset()
         queryset = queryset.filter(reported_people = self.request.user, subtype__isnull=False)
