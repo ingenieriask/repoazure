@@ -6,7 +6,7 @@ from django.shortcuts import redirect, render
 from numpy import number, subtract
 from requests.models import Request
 from correspondence.models import ReceptionMode, RadicateTypes, Radicate, AlfrescoFile, ProcessActionStep
-from pqrs.models import PQRS,Type, PqrsContent,Type, SubType
+from pqrs.models import PQRS,Type, PqrsContent,Type, SubType, InterestGroup
 from core.models import Attorny, AttornyType, Atttorny_Person, City, LegalPerson, \
     Person, Office, DocumentTypes, PersonRequest, PersonType 
 from pqrs.forms import ChangeClassificationForm, LegalPersonForm, PqrsConsultantForm, SearchUniquePersonForm, PersonForm, \
@@ -1085,12 +1085,15 @@ class AssociatedRadicateDetailView(DetailView):
             radicate=self.kwargs['pk'])
 
         return context
+
 def change_classification(request,pk):
     pqrs_object = PqrsContent.objects.filter(pk=pk)
+    print(pqrs_object)
     form  = ChangeClassificationForm()
     if request.method == "POST":
         form = ChangeClassificationForm(request.POST)
         if form.is_valid():
+            
             PQRS.objects.filter(
                 pk=pqrs_object[0].pqrsobject.id
                 ).update(pqr_type=form['pqrs_type'].value())
@@ -1098,14 +1101,40 @@ def change_classification(request,pk):
                 subtype = form['pqrs_subtype'].value(),
                 interestGroup=form['interest_group'].value()
             )
-    context = {
-        'form':form,
-        'pqrs_object':pqrs_object[0]
-    }
-    return render(
-        request, 
-        'pqrs/change_classification.html',
-        context)
+
+
+            type = Type.objects.get(pk=form['pqrs_type'].value())
+            subtype = SubType.objects.get(pk=form['pqrs_subtype'].value())
+            interest_group = InterestGroup.objects.get(pk=form['interest_group'].value())
+
+            action = ProcessActionStep()
+            action.user = get_current_user()
+            action.action = 'Cambio de tipo'
+            action.detail = "El radicado %s ha sido modificado al tipo %s, tema %s y grupo de interés %s" %  \
+                (pqrs_object[0].number, type, subtype, interest_group)
+            action.radicate = pqrs_object[0]
+            action.save()
+
+            log(
+                user=request.user,
+                action="PQR_CHANGED",
+                obj=action,
+                extra={
+                    "number": pqrs_object[0].number,
+                    "message": "El radicado %s ha sido modificado al tipo %s, tema %s y grupo de interés %s" %  \
+                            (pqrs_object[0].number, type, subtype, interest_group)
+                }
+            )
+        return redirect('pqrs:detail_pqr', pk)
+    else:
+        context = {
+            'form':form,
+            'pqrs_object':pqrs_object[0]
+        }
+        return render(
+            request,
+            'pqrs/change_classification.html',
+            context)
 
 def bring_subtype(request):
     if request.method == "POST":
