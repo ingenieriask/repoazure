@@ -600,6 +600,20 @@ class RadicateDetailView(DetailView):
             context['personAttorny'] = personAttorny
         return context
 
+class RadicateDetailReview(DetailView):
+    model = PqrsContent
+    template_name="correspondence/radicate_detail.html"
+    def get_context_data(self, **kwargs):
+        context = super(RadicateDetailReview, self).get_context_data(**kwargs)
+        context['logs'] = Log.objects.all().filter(object_id=self.kwargs['pk'])
+        context['editable']=True
+        context['files'] = AlfrescoFile.objects.all().filter(
+            radicate=self.kwargs['pk'])
+        if context['pqrscontent'].person.attornyCheck:
+            personAttorny = Atttorny_Person.objects.filter(
+                person=context['pqrscontent'].person.pk)[0]
+            context['personAttorny'] = personAttorny
+        return context
 
 def detail_radicate_cmis(request, cmis_id):
     radicate = get_object_or_404(Radicate, cmis_id=cmis_id)
