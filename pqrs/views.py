@@ -1080,7 +1080,6 @@ def change_classification(request,pk):
     if request.method == "POST":
         form = ChangeClassificationForm(request.POST)
         if form.is_valid():
-            print(pqrs_object[0].pqrsobject.id)
             PQRS.objects.filter(
                 pk=pqrs_object[0].pqrsobject.id
                 ).update(pqr_type=form['pqrs_type'].value())

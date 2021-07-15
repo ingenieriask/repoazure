@@ -114,7 +114,6 @@ function historyObservation(observation){
 $("#id_pqrs_type").on("change", function () {
   if (this.value) {
     token = $("input[name=csrfmiddlewaretoken]").val();
-    console.log(this.value);
     $.ajax({
       type: "POST",
       url: "../bring-subtype/",
