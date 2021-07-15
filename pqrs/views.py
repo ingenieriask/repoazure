@@ -1071,3 +1071,19 @@ def get_consultation_zip(request, pk):
     resp = HttpResponse(s.getvalue(), content_type = "application/x-zip-compressed")
     resp['Content-Disposition'] = 'attachment; filename='+radicate.number+'.zip' 
     return resp
+
+class AssociatedRadicateDetailView(DetailView):
+    model = Radicate
+    template_name="pqrs/associated_radicate_detail.html"
+    
+    def get_context_data(self, **kwargs):
+        context = super(AssociatedRadicateDetailView, self).get_context_data(**kwargs)
+        context['logs'] = Log.objects.all().filter(object_id=self.kwargs['pk'])
+        context['files'] = AlfrescoFile.objects.all().filter(
+            radicate=self.kwargs['pk'])
+        '''if context['pqrscontent'].person.attornyCheck:
+            personAttorny = Atttorny_Person.objects.filter(
+                person=context['pqrscontent'].person.pk)[0]
+            context['personAttorny'] = personAttorny'''
+        print(context)
+        return context

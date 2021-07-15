@@ -29,6 +29,7 @@ urlpatterns = [
     path('radicate/<int:pk>/', views.PqrDetailProcessView.as_view(), name="detail_pqr"),
     path('radicate-assign/<int:pk>/', views.PqrDetailAssignView.as_view(), name="asign_detail_pqr"),
     path('radicate-reported/<int:pk>/', views.PqrDetailReportedView.as_view(), name="reported_detail_pqr"),
+    path('radicate-detail/<int:pk>/', views.AssociatedRadicateDetailView.as_view(), name='associated_radicate_detail'),
     path('conclusion/', views.procedure_conclusion, name='conclusion'),
     path('consultant/', views.pqrsConsultan, name="pqrs_consultant"),
     path('consultation/result/<int:pk>/', views.PqrsConsultationResult.as_view(), name="consultation_result"),

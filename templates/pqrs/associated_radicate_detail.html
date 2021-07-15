@@ -1,0 +1,251 @@
+{% extends 'pqrs/template.html' %}
+{% load static %}  
+{% load pqrs_extras %}{% block content %}
+
+
+<div class="row mb-3 justify-content-center">
+  <div class="card mb-4 h-100 mb-3">
+    <div class="card-header text-secundary">Radicado No. {{radicate.number}}</div>
+    <div class="card-body">
+      <div class="col-xxl-12 col-xl-12 mb-12">
+        <div class="card  mb-3">
+          <div class="card-header">Informacion General</div>
+          <div class="card-body">
+            <div class="row border">
+              <div class="col-md-4 text-sm">
+                <p>
+                  <i data-feather="user"></i>
+                  <b>Tipo Persona:</b><br />{{radicate.person.person_type.name}}
+                </p>
+                <p>
+                  <i data-feather="credit-card"></i>
+                  <b>Tipo Documento:</b><br />{{radicate.person.document_type.name}}
+                </p>
+              </div>
+              <div class="col-md-4 text-sm">
+                <p>
+                  <i data-feather="user"></i>
+                  <b>Nombres y Apellidos:</b><br />{{ radicate.person.name }} {{ radicate.person.lasts_name }}
+                </p>
+                
+                <p>
+                  <i data-feather="credit-card"></i>
+                  <b>Numero Documento:</b><br />{{radicate.person.document_number}}
+                </p>
+              </div>
+              <div class="col-md-4 mt-5 text-sm">
+                <p>
+                  <i data-feather="calendar"></i>
+                  <b>Fecha de expedición:</b><br /></br />{{ radicate.date_radicated|simple_date }}
+                </p>
+                <!--<p>
+                  <i data-feather="user"></i>
+                  <b>Usuario creador:</b><br />{{ pqrscontent.creator.user.first_name }} {{ pqrscontent.creator.user.last_name
+                  }}
+                </p>
+                <p>
+                  <i data-feather="user"></i>
+                  <b>Usuario actual:</b><br />{{ pqrscontent.current_user.user.first_name }} {{
+                  pqrscontent.current_user.user.last_name }}
+                </p>-->
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-xxl-12 col-xl-12 mb-12">
+        <div class="card  mb-3">
+          <div class="card-header">Informacion de Contacto</div>
+          <div class="card-body">
+            <div class="row">
+              <div class="col-md-6 text-sm">
+                <p>
+                  <i data-feather="home"></i>
+                  <b>Medio deseado para recibir respuesta: </b><br />{{ radicate.person.request_response.name }}
+                </p>
+              </div>
+              <div class="col-md-6 text-sm">
+                <p>
+                  <i data-feather="mail"></i>
+                  <b>Corre electronico: </b><br />{{ radicate.person.email }}
+                </p>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-md-4 text-sm">
+                <p>
+                  <i data-feather="map-pin"></i>
+                  <b>Dirección:</b><br />
+                  {% if radicate.person.pk != 1 %}
+                  {{ radicate.person.address }} {% else %}
+                  Persona anonima {% endif %}
+                </p>
+              </div>
+              <div class="col-md-4 text-sm">
+                <p>
+                  <i data-feather="compass"></i>
+                  <b>Deparatamento y Municipio:</b><br />
+                  {% if radicate.person.pk != 1 %}
+                  {{ radicate.person.city }} {% else %}Persona anonima {% endif %}
+                </p>
+              </div>
+              <div class="col-md-4 text-sm">
+                <p>
+                  <i data-feather="smartphone"></i>
+                  <b>Teléfono/Celular: </b><br />{{ radicate.person.phone_number }}
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-xxl-12 col-xl-12 mb-12">
+        <div class="card  mb-3">
+          <div class="card-header">Detalle radicado</div>
+          <div class="card-body">
+            <div class="row">
+              <div class="col-md-6 text-sm">
+                
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+
+      </div>
+      {% if  not editable %}
+      <div class="col-xxl-12 col-xl-12 mb-12">
+        <div class="card  mb-3">
+          <div class="card-header">Anexos</div>
+          <div class="card-body">
+          <div class="row">
+
+          </div> 
+            <div class="row">
+              <div class="datatable">
+              <table class="table table-bordered table-hover" id="filesList" width="100%" cellspacing='0'>
+                <thead>
+                  <tr>
+                    <th style="text-align: center;">Nombre del archivo</th>
+                    <th style="text-align: center;">Tamaño (MB)</th>
+                  </tr>
+                </thead>
+        
+                <tbody>
+                {% for file in files %}
+                  <tr>
+                    <td>
+                    <div class="row text-center">
+                      <div class="col-2">
+                        <img data-nodeid="{{ file.cmis_id | default_if_none:'' }}" class="img-fluid shadow display-modal" 
+                              width="40" height="45" src="{% static 'correspondence/assets/img/default.jpeg' %}" 
+                              data-extension={{ file.extension }} data-toggle="modal" data-target="#fileModal"
+                          >
+                      </div>
+                      <div class=" offset-1 col-6 align-self-center">
+                        <a class="display-modal"
+                          data-nodeid="{{ file.cmis_id | default_if_none:'' }}"
+                          data-extension={{ file.extension }} data-toggle="modal" data-target="#fileModal"
+                        >{{ file.name }}{{file.extension}}</a>
+                      </div>
+                    </div>
+                    </td> 
+                    <td class="text-center">
+                      {{ file.size|size_metric:'MB' }} MB
+                    </td>
+                  </tr>
+                {% endfor %}
+                </tbody>
+              </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% if  not editable %}
+<div class="row justify-content-center">
+  <div class="col-lg-6">
+    <div class="card bg-light mb-3">
+      <div class="card-header">Histórico</div>
+      <div id="history">
+        <div class="card-body">
+          <div class="timeline timeline-xs">
+            {% for log in logs %}
+            <div class="timeline-item">
+              <div class="timeline-item-marker">
+                <div class="timeline-item-marker-text">{{ log.timestamp | date:"d M" }}</div>
+                <div class="timeline-item-marker-indicator bg-green"></div>
+              </div>
+              <div class="timeline-item-content">
+                {{ log.extra.message }} el {{ log.timestamp | date:"D d M Y P " }}
+              </div>
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="modal fade" id="fileModal" tabindex="-1" role="dialog">
+  <div class="modal-dialog modal-xl" role="document">
+    <div class="modal-content">
+    <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="row justify-content-center">
+          <div class="col-12" id="file-display-field">
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endif %}
+{% endblock %} 
+
+{% block script %} 
+
+  $('.img-fluid').each(function(index,element){ if($(element).data('nodeid')){ cmis =
+  $(element).data('nodeid'); $(element).attr("src", '{% url "correspondence:get_thumbnail" %}?cmis_id='+cmis);
+  }}); 
+
+  $(document).ready(function() {
+        
+        $('#filesList').DataTable( {
+            "language": {
+                "url": "{% static 'pqrs/js/dataTableSpanish.json' %}",
+            },
+            "lengthMenu": [ 3, 6, 9, 12],
+            "dom": "b<'row'<'#keyword.mr-auto'f><'col-4'l>>" +
+                    "<'row'<'col-sm-12'tr>>" +
+                    "<'row'<'col-sm-12 col-md-7'i><'col-sm-12 col-md-5'p>>",
+        });
+    });     
+
+   $('.display-modal').click(function(event){
+     element = event.target;
+     if ($(element).data('extension')){
+      extension = $(element).data('extension');
+      $('#file-display-field').empty()
+      if (extension == '.pdf' || extension == '.doc'){
+        embeded_file = $('<embed class="w-100"/>'); 
+      }
+      else {
+        embeded_file = $('<img class="w-100"/>'); 
+      }
+      embeded_file.attr("height", "900");
+      embeded_file.attr("src", '{% url "correspondence:get_file" %}?cmis_id='+cmis);
+      $('#file-display-field').append(embeded_file);
+     }
+   })
+
+{% endblock %}
