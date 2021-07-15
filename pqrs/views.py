@@ -1074,6 +1074,17 @@ def get_consultation_zip(request, pk):
     return resp
 
 
+class AssociatedRadicateDetailView(DetailView):
+    model = Radicate
+    template_name="pqrs/associated_radicate_detail.html"
+    
+    def get_context_data(self, **kwargs):
+        context = super(AssociatedRadicateDetailView, self).get_context_data(**kwargs)
+        context['logs'] = Log.objects.all().filter(object_id=self.kwargs['pk'])
+        context['files'] = AlfrescoFile.objects.all().filter(
+            radicate=self.kwargs['pk'])
+
+        return context
 def change_classification(request,pk):
     pqrs_object = PqrsContent.objects.filter(pk=pk)
     form  = ChangeClassificationForm()
