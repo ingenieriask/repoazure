@@ -5,21 +5,17 @@
 
 <div class="row mb-3 justify-content-center">
   <div class="card mb-4 h-100 mb-3">
-    <div class="card-header text-secundary">Radicado No. {{radicate.number}}</div>
+    <div class="card-header text-secundary">Información General</div>
     <div class="card-body">
       <div class="col-xxl-12 col-xl-12 mb-12">
         <div class="card  mb-3">
           <div class="card-header">Informacion General</div>
           <div class="card-body">
-            <div class="row border">
+            <div class="row">
               <div class="col-md-4 text-sm">
                 <p>
                   <i data-feather="user"></i>
                   <b>Tipo Persona:</b><br />{{radicate.person.person_type.name}}
-                </p>
-                <p>
-                  <i data-feather="credit-card"></i>
-                  <b>Tipo Documento:</b><br />{{radicate.person.document_type.name}}
                 </p>
               </div>
               <div class="col-md-4 text-sm">
@@ -27,27 +23,26 @@
                   <i data-feather="user"></i>
                   <b>Nombres y Apellidos:</b><br />{{ radicate.person.name }} {{ radicate.person.lasts_name }}
                 </p>
-                
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-md-4 text-sm">
+                <p>
+                  <i data-feather="credit-card"></i>
+                  <b>Tipo Documento:</b><br />{{radicate.person.document_type.name}}
+                </p>
+              </div>
+              <div class="col-md-4 text-sm">
                 <p>
                   <i data-feather="credit-card"></i>
                   <b>Numero Documento:</b><br />{{radicate.person.document_number}}
                 </p>
               </div>
-              <div class="col-md-4 mt-5 text-sm">
+              <div class="col-md-4 text-sm">
                 <p>
                   <i data-feather="calendar"></i>
-                  <b>Fecha de expedición:</b><br /></br />{{ radicate.date_radicated|simple_date }}
+                  <b>Fecha de expedición:</b><br />{{ radicate.date_radicated|simple_date }}
                 </p>
-                <!--<p>
-                  <i data-feather="user"></i>
-                  <b>Usuario creador:</b><br />{{ pqrscontent.creator.user.first_name }} {{ pqrscontent.creator.user.last_name
-                  }}
-                </p>
-                <p>
-                  <i data-feather="user"></i>
-                  <b>Usuario actual:</b><br />{{ pqrscontent.current_user.user.first_name }} {{
-                  pqrscontent.current_user.user.last_name }}
-                </p>-->
               </div>
             </div>
           </div>
@@ -58,13 +53,13 @@
           <div class="card-header">Informacion de Contacto</div>
           <div class="card-body">
             <div class="row">
-              <div class="col-md-6 text-sm">
+              <div class="col-md-7 text-sm">
                 <p>
                   <i data-feather="home"></i>
                   <b>Medio deseado para recibir respuesta: </b><br />{{ radicate.person.request_response.name }}
                 </p>
               </div>
-              <div class="col-md-6 text-sm">
+              <div class="col-md-5 text-sm">
                 <p>
                   <i data-feather="mail"></i>
                   <b>Corre electronico: </b><br />{{ radicate.person.email }}
@@ -72,7 +67,7 @@
               </div>
             </div>
             <div class="row">
-              <div class="col-md-4 text-sm">
+              <div class="col-md-3 text-sm">
                 <p>
                   <i data-feather="map-pin"></i>
                   <b>Dirección:</b><br />
@@ -81,7 +76,7 @@
                   Persona anonima {% endif %}
                 </p>
               </div>
-              <div class="col-md-4 text-sm">
+              <div class="col-md-5 text-sm">
                 <p>
                   <i data-feather="compass"></i>
                   <b>Deparatamento y Municipio:</b><br />
@@ -104,15 +99,29 @@
           <div class="card-header">Detalle radicado</div>
           <div class="card-body">
             <div class="row">
-              <div class="col-md-6 text-sm">
-                
+              <div class="col-12 text-sm">
+                <p>
+                  <i data-feather="align-justify"></i>
+                  <b>Fecha de radicación:</b><br />{{ radicate.date_radicated }}
+                </p>
+              </div>
+              <div class="col-12 text-sm">
+                <p>
+                  <i data-feather="file"></i>
+                  <b>Asunto de la solicitud:</b><br />{{ radicate.subject }}
+                </p>
+              </div>
+              <div class="col-12 text-sm">
+                <p>
+                  <i data-feather="file-text"></i>
+                  <b>Detalle de la solicitud:</b><br />{{ radicate.observation }}
+                </p>
               </div>
             </div>
           </div>
         </div>
       </div>
       
-
       </div>
       {% if  not editable %}
       <div class="col-xxl-12 col-xl-12 mb-12">
