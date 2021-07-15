@@ -1,0 +1,39 @@
+{% extends 'pqrs/template.html' %} {% load static %}
+<!-- BLOCK Content -->
+{% block content %}
+<div class="row">
+  <div class="col-xl-12 mb-12">
+    <div class="card">
+      <div class="card-body">
+        <div class="row no-gutters">
+          <div class="col-md-2">
+            <img class="img-fluid" src="{% static 'correspondence/assets/img/illustrations/browser-stats.svg' %}" alt="..."
+              style="width: 8rem" />
+          </div>
+          <div class="col-md-8">
+            <div class="card-body py-5">
+              <h1 class="card-title text-primary text-center">RINO PQRSD</h1>
+            </div>
+          </div>
+        </div>
+        <div class="card-header text-center"
+        style="font-size: large;">Modificar clasificación de PQRSD</div>'
+        <div class="card-body">
+            <p class="text-dark">
+                Tipo actual: <span>{{pqrs_object.pqrsobject.pqr_type.name}}</span> </p>
+            <p class="text-dark">
+                Tema actual: <span>{{pqrs_object.subtype.name}}</span></p>
+            <p class="text-dark">
+                Grupo de interes actual: <span>{{pqrs_object.interestGroup.name}}</span></p>
+            <form  action="{%url 'pqrs:change_clasification' pk=pqrs_object.pk%}" method="post" >
+              {% csrf_token %}
+              {% load crispy_forms_tags %}
+              {{ form|crispy  }}
+              <input class="btn btn-success" name="submit" type="submit" value="Modificar" />
+            </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

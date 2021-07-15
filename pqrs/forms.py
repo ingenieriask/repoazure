@@ -2,7 +2,7 @@ from os import closerange
 from re import sub
 from django.forms import widgets
 from core.models import DocumentTypes, City
-from pqrs.models import PqrsContent, SubType
+from pqrs.models import InterestGroup, PqrsContent, SubType, Type
 from correspondence.models import Radicate
 from django import forms
 from crispy_forms.helper import FormHelper
@@ -489,3 +489,17 @@ class PqrsAnswerForm(forms.ModelForm):
                 css_class='form-row'
             )
         )
+
+class ChangeClassificationForm(forms.Form):
+    pqrs_type = forms.ModelChoiceField(
+        queryset=Type.objects.all(),
+        required=True,
+        label='Tipo')
+    pqrs_subtype = forms.ModelChoiceField(
+        queryset=SubType.objects.all(),
+        required=True,
+        label='Tema')
+    interest_group = forms.ModelChoiceField(
+        queryset=InterestGroup.objects.all(),
+        required=True,
+        label='Grupo de Interes')
