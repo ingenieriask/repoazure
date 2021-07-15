@@ -1,0 +1,134 @@
+[
+  {
+    "model": "pqrs.subtype",
+    "pk": 1,
+    "fields": {
+      "name": "tema 1 peticion",
+      "description": "Este es el tema de interes uno",
+      "type": 1,
+      "max_response_days": 15,
+      "min_response_days": 15
+    }
+  },
+  {
+    "model": "pqrs.subtype",
+    "pk": 2,
+    "fields": {
+      "name": "tema 2 peticion",
+      "description": "Este es el tema de interes dos",
+      "type": 1,
+      "max_response_days": 15,
+      "min_response_days": 15
+    }
+  },
+  {
+    "model": "pqrs.subtype",
+    "pk": 3,
+    "fields": {
+      "name": "tema 1 queja",
+      "description": "Este es el tema de interes uno",
+      "type": 2,
+      "max_response_days": 15,
+      "min_response_days": 15
+    }
+  },
+  {
+    "model": "pqrs.subtype",
+    "pk": 4,
+    "fields": {
+      "name": "tema 2 queja",
+      "description": "Este es el tema de interes dos",
+      "type": 2,
+      "max_response_days": 15,
+      "min_response_days": 15
+    }
+  },
+  {
+    "model": "pqrs.subtype",
+    "pk": 5,
+    "fields": {
+      "name": "tema 1 reclamo",
+      "description": "Este es el tema de interes uno",
+      "type": 3,
+      "max_response_days": 15,
+      "min_response_days": 15
+    }
+  },
+  {
+    "model": "pqrs.subtype",
+    "pk": 6,
+    "fields": {
+      "name": "tema 2 reclamo",
+      "description": "Este es el tema de interes dos",
+      "type": 3,
+      "max_response_days": 15,
+      "min_response_days": 15
+    }
+  },
+  {
+    "model": "pqrs.subtype",
+    "pk": 7,
+    "fields": {
+      "name": "tema 1 sugerencia",
+      "description": "Este es el tema de interes uno",
+      "type": 4,
+      "max_response_days": 15,
+      "min_response_days": 15
+    }
+  },
+  {
+    "model": "pqrs.subtype",
+    "pk": 8,
+    "fields": {
+      "name": "tema 2 sugerencia",
+      "description": "Este es el tema de interes dos",
+      "type": 4,
+      "max_response_days": 15,
+      "min_response_days": 15
+    }
+  },
+  {
+    "model": "pqrs.subtype",
+    "pk": 9,
+    "fields": {
+      "name": "tema 1 denuncia",
+      "description": "Este es el tema de interes uno",
+      "type": 5,
+      "max_response_days": 15,
+      "min_response_days": 15
+    }
+  },
+  {
+    "model": "pqrs.subtype",
+    "pk": 10,
+    "fields": {
+      "name": "tema 2 denuncia",
+      "description": "Este es el tema de interes dos",
+      "type": 5,
+      "max_response_days": 15,
+      "min_response_days": 15
+    }
+  },
+  {
+    "model": "pqrs.subtype",
+    "pk": 11,
+    "fields": {
+      "name": "tema 1 felicitacion",
+      "description": "Este es el tema de interes uno",
+      "type": 6,
+      "max_response_days": 15,
+      "min_response_days": 15
+    }
+  },
+  {
+    "model": "pqrs.subtype",
+    "pk": 12,
+    "fields": {
+      "name": "tema 2 felicitacion",
+      "description": "Este es el tema de interes dos",
+      "type": 6,
+      "max_response_days": 15,
+      "min_response_days": 15
+    }
+  }
+]
