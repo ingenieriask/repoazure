@@ -1,6 +1,18 @@
-{% extends 'correspondence/main_template.html' %} {% load static %}  {% load pqrs_extras %}{% block content %}
+{% extends 'correspondence/main_template.html' %} 
+{% load static %}  
+{% load pqrs_extras %}{% block content %}
+
+
 <div class="btn-group mb-3 position-relative" role="group" align="center"
   aria-label="Button group with nested dropdown">
+  {% if  editable %}
+  <a class="btn btn-success" role="button"
+  href="{% url 'correspondence:pqrs_consultant' %}">
+    <i data-feather="corner-down-left" ></i>
+    Regresar
+  </a>
+  {% else %}
+  
   <a class="btn btn-dark" href="{% url 'correspondence:list_radicate' %}" role="button"><i
       data-feather="corner-down-left"></i>Listado</a>
   <div class="btn-group" role="group">
@@ -15,8 +27,11 @@
       <a class="dropdown-item" href="{% url 'correspondence:project_answer' pk=pqrscontent.pk %}">Proyectar respuesta</a>
     </div>
   </div>
+  {% endif %}
 </div>
-<div class="row mb-3">
+
+
+<div class="row mb-3 justify-content-center">
   <div class="card mb-4 h-100 mb-3">
     <div class="card-header text-secundary">Radicado No. {{pqrscontent.number}}</div>
     <div class="card-body">
@@ -335,9 +350,11 @@
                   <i data-feather="align-justify"></i>
                   <b>Grupo de interes: </b><br />{{ pqrscontent.interestGroup.name }}
                 </p>
+                {% if not editable %}
                 <button class="btn btn-primary">
                   Modificar Clasificación PQRSD
                 </button>
+                {% endif %}
               </div>
             </div>
             <div class="row mt-4"> 
@@ -351,8 +368,10 @@
           </div>  
           
         </div>
+        
       </div>
-        <div class="col-xxl-12 col-xl-12 mb-12">
+      {% if  not editable %}
+      <div class="col-xxl-12 col-xl-12 mb-12">
         <div class="card  mb-3">
           <div class="card-header">Anexos</div>
           <div class="card-body">
@@ -382,8 +401,8 @@
                       </div>
                       <div class=" offset-1 col-6 align-self-center">
                         <a class="display-modal"
-                           data-nodeid="{{ file.cmis_id | default_if_none:'' }}"
-                           data-extension={{ file.extension }} data-toggle="modal" data-target="#fileModal"
+                          data-nodeid="{{ file.cmis_id | default_if_none:'' }}"
+                          data-extension={{ file.extension }} data-toggle="modal" data-target="#fileModal"
                         >{{ file.name }}{{file.extension}}</a>
                       </div>
                     </div>
@@ -400,11 +419,12 @@
           </div>
         </div>
       </div>
+      {% endif %}
     </div>
   </div>
 </div>
-
-<div class="row">
+{% if  not editable %}
+<div class="row justify-content-center">
   <div class="col-lg-6">
     <div class="card bg-light mb-3">
       <div class="card-header">Histórico</div>
@@ -445,6 +465,7 @@
     </div>
   </div>
 </div>
+{% endif %}
 {% endblock %} 
 
 {% block script %} 
