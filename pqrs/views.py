@@ -1080,9 +1080,14 @@ class AssociatedRadicateDetailView(DetailView):
     
     def get_context_data(self, **kwargs):
         context = super(AssociatedRadicateDetailView, self).get_context_data(**kwargs)
+        radicate = PqrsContent.objects.get(associated_radicates=self.kwargs['pk'])
+        print(radicate.__dict__)
+        context['parent'] = radicate
         context['logs'] = Log.objects.all().filter(object_id=self.kwargs['pk'])
         context['files'] = AlfrescoFile.objects.all().filter(
             radicate=self.kwargs['pk'])
+        context['files_parent'] = AlfrescoFile.objects.all().filter(
+            radicate=radicate)
 
         return context
 

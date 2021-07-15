@@ -448,7 +448,7 @@
                     <td>{{radicate.number}}</td>
                     <td>{{radicate.person.name}} {{radicate.person.lasts_name}}</td>
                     <td>{{radicate.date_radicated }}</td>
-                    <td><a class="btn btn-link mx-auto" href="{% url 'pqrs:detail_pqr' pk=radicate.pk  %}">
+                    <td><a class="btn btn-link mx-auto" href="{% url 'pqrs:associated_radicate_detail' pk=radicate.pk  %}">
                         <i data-feather="plus-circle"></i></a></td>
                   </tr>
                   {% endfor %} 
