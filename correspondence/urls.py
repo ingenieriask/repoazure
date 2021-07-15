@@ -20,6 +20,7 @@ urlpatterns = [
     path('radicate/create/<int:person>/', views.create_radicate, name='create_radicate'),
     path('radicate/list/', views.RadicateList.as_view(), name='list_radicate'),
     path('radicate/<int:pk>/', views.RadicateDetailView.as_view(), name="detail_radicate"),
+    path('radicate_review/<int:pk>/', views.RadicateDetailReview.as_view(), name="detail_radicate_review"),
     path('radicate-detail/<str:cmis_id>/', views.detail_radicate_cmis, name="detail_radicate_cmis"),
     path('edit-radicate/<int:id>/', views.edit_radicate, name='edit_radicate'),
     path('current-user/<int:pk>/', views.CurrentUserUpdate.as_view(), name='current_user'),

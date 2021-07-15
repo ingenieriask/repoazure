@@ -42,13 +42,83 @@
                         <th>{{data.get_pqrs_type_subtype}}</th>
                         <th>{{data.subtype.max_response_days}}</th>
                         <th>{{data.pqrsobject.get_status_display}}</th>
-                        <th>Falta definir</th>
-                        <th>Falta definir</th>
-                        <th></th>
+                        <th>{{data.office.name}}</th>
+                        <th>
+                            <a class="btn btn-link mx-auto" 
+                            href="{% url 'correspondence:detail_radicate_review' pk=data.pk %}">
+                                <i data-feather="plus-circle"></i>
+                            </a>
+                        </th>
                     </tr>
                     {% endfor%}
                 </tbody>
             </table>
+        </div>
+    </div>
+    <div id="containerpersonRequest" class="d-none">
+        <div  class="card mb-3">
+            <div class="card-header">
+                Informaci&oacute;n PQRSD 
+                <button class="btn btn-link  ml-5 "
+                onclick="$('#containerpersonRequest').addClass('d-none')">
+                    <i class="text-danger" data-feather="x-circle"></i>
+                </button>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-4 text-sm">
+                    <p >
+                        <i data-feather="users"></i>
+                        <b>Tipo Persona:</b><br />
+                        <span id="contTypePerson"></span>
+                    </p>
+                    <p>
+                        <i data-feather="credit-card"></i>
+                        <b>Tipo Documento:</b><br />
+                        <span id="contDocType"></span>
+                    </p>
+                    <p id="contMail">
+                        <i data-feather="credit-card"></i>
+                        <b>Correo electronico:</b><br />
+                        <span id="contMail"></span>
+                    </p>
+                    </div>
+                    <div class="col-md-4 text-sm">
+                    <p>
+                        <i data-feather="user"></i>
+                        <b>Nombre y Apellidos:</b><br />
+                        <span  id="contNameLastName"></span>
+                    </p>
+                    <p>
+                        <i data-feather="credit-card"></i>
+                        <b>Numero de documento:</b><br />
+                        <span id="contDocNum"></span>
+                    </p>
+                    <p >
+                        <i data-feather="map-pin"></i>
+                        <b>Direcci&oacute;n:</b><br />
+                        <span id="contAddress"></span>
+                    </p>
+                    </div>
+                    <div class="col-md-4 text-sm">
+                    <p >
+                        <i data-feather="calendar"></i>
+                        <b>Fecha:</b><br />
+                        <span id="contDate"></span>
+                    </p>
+                    <p >
+                        <i data-feather="smartphone"></i>
+                        <b>Telef&oacute;no/C&eacute;lular:</b><br />
+                        <span id="contPhoneNumber"></span>
+                    </p>
+                    <p >
+                        <i data-feather="compass"></i>
+                        <b>Departamento / Municipio: </b><br />
+                        <span id="contDepMuni"></span>
+                    </p>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
     {% endif %}
