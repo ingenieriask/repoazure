@@ -414,8 +414,9 @@ class PqrsAnswerForm(forms.ModelForm):
                                   queryset=City.objects.all())
     observation = forms.CharField(required = False, max_length=20000, label=mark_safe('<strong>Respuesta</strong>'),
                              widget = forms.Textarea())
-    uploaded_files = forms.FileField(widget=forms.ClearableFileInput(attrs={'multiple': True}), required=False,
+    answer_uploaded_files = forms.FileField(widget=forms.ClearableFileInput(attrs={'multiple': True}), required=False,
                                     label=mark_safe("<span class='far fa-file-alt fa-3x' style='color: blue;'></span><strong>  Anexos, Documentos<strong>"))
+    edit_subject = forms.BooleanField(widget=forms.CheckboxInput(), label="", required=False)
     #sign_type = forms.ChoiceField(required=False, widget = forms.RadioSelect(choices=CHOICES, attrs={'class': 'form-check-inline list-unstyled mx-4'}))
     
     class Meta:
@@ -427,7 +428,7 @@ class PqrsAnswerForm(forms.ModelForm):
         }
         widgets = {
             'number' : forms.TextInput(attrs={'style':'font-size:20px; font-weight: bold;', 'class':' text-center w-50', 'readonly':True}),
-            'subject' : forms.TextInput()
+            'subject' : forms.TextInput(attrs={'readonly': True})
         }
 
     def __init__(self, radicate, *args, **kwargs):
@@ -475,7 +476,8 @@ class PqrsAnswerForm(forms.ModelForm):
                 css_class='form-row'
             ),
             Row(
-                Column('subject', css_class='form-group col-md-12 mb-0'),
+                Column('subject', css_class='form-group col-md-11 mb-0'),
+                Column('edit_subject', css_class='form-group col-md-1 mb-0 mt-4'),
                 css_class='form-row'
             ),
             Row(
@@ -483,7 +485,7 @@ class PqrsAnswerForm(forms.ModelForm):
                 css_class='form-row'
             ),
             Row(
-                Column(CustomFileInput('uploaded_files'), css_class='form-group offset-2 col-md-8 mb-0'),
+                Column(CustomFileInput('answer_uploaded_files'), css_class='form-group offset-2 col-md-8 mb-0'),
                 css_class='form-row'
             )
         )

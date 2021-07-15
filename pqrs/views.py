@@ -978,7 +978,7 @@ def pqrs_answer_preview(request, pk):
             
             new_radicate = instance.save()
             
-            for fileUploaded in request.FILES.getlist('uploaded_files'):
+            for fileUploaded in request.FILES.getlist('answer_uploaded_files'):
                 document_temp_file = NamedTemporaryFile()
                 for chunk in fileUploaded.chunks():
                     document_temp_file.write(chunk)
@@ -1014,7 +1014,7 @@ def pqrs_answer_preview(request, pk):
             'address' : radicate.person.address,
             'phone_number' : radicate.person.phone_number,
             'city' : radicate.person.city,
-            'subject' : 'Respuesta de PQRSD - ' + radicate.subject,
+            'subject' : 'Respuesta - ' + radicate.subject,
             'observation': ''
         }
         
