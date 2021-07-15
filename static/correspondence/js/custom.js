@@ -111,23 +111,48 @@ function historyObservation(observation){
   $('#containerObservation').removeClass('d-none')
   $('#contObservation').html(observation)
 }
+$("#id_pqrs_type").on("change", function () {
+  if (this.value) {
+    token = $("input[name=csrfmiddlewaretoken]").val();
+    console.log(this.value);
+    $.ajax({
+      type: "POST",
+      url: "../bring-subtype/",
+      data: {
+        csrfmiddlewaretoken: token,
+        pqrs_type: this.value,
+      },
+      success: function (response) {
+        array = response.response;
+        $("#id_pqrs_subtype").html("");
+        $("#id_pqrs_subtype").append('<option value="" selected="">---------</option>');
+        for (let index = 0; index < array.length; index++) {
+          $("#id_pqrs_subtype").append(
+            '<option value="' + array[index]["id"] + '" >' + array[index]["name"] + "</option>"
+          );
+        }
+      },
+    });
+  }
+});
 $(document).ready(function () {
-
+  if ($("#id_pqrs_subtype")) {
+    $("#id_pqrs_subtype").html("");
+  }
   $("#id_document_file").fileinput({
-    theme: 'fas',
-    allowedFileExtensions: ['pdf', 'docx', 'png', 'jpg', 'jpeg'],
+    theme: "fas",
+    allowedFileExtensions: ["pdf", "docx", "png", "jpg", "jpeg"],
     overwriteInitial: true,
     maxFileSize: 20000,
     maxFilesNum: 1,
-    language: 'es',
+    language: "es",
     slugCallback: function (filename) {
-      return filename.replace('(', '_').replace(']', '_');
-    }
+      return filename.replace("(", "_").replace("]", "_");
+    },
   });
 
-  $('#id_office').on('change', function (evt) {
-    $('#id_doctype').html('<option>Example 1</option><option>Example2</option>').selectpicker('refresh');
-
+  $("#id_office").on("change", function (evt) {
+    $("#id_doctype").html("<option>Example 1</option><option>Example2</option>").selectpicker("refresh");
   });
   if ($("#tb_request_sender")) {
     $("#tb_request_sender").DataTable({
