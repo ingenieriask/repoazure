@@ -1,14 +1,15 @@
 import uuid
 from django.db.models import query
 from django.db.models.expressions import Value
+from django.http.response import JsonResponse
 from django.shortcuts import redirect, render
-from numpy import number
+from numpy import number, subtract
 from requests.models import Request
 from correspondence.models import ReceptionMode, RadicateTypes, Radicate, AlfrescoFile, ProcessActionStep
 from pqrs.models import PQRS,Type, PqrsContent,Type, SubType
 from core.models import Attorny, AttornyType, Atttorny_Person, City, LegalPerson, \
     Person, Office, DocumentTypes, PersonRequest, PersonType 
-from pqrs.forms import LegalPersonForm, PqrsConsultantForm, SearchUniquePersonForm, PersonForm, \
+from pqrs.forms import ChangeClassificationForm, LegalPersonForm, PqrsConsultantForm, SearchUniquePersonForm, PersonForm, \
     PqrRadicateForm, PersonRequestForm, PersonFormUpdate, PersonRequestFormUpdate, \
     PersonAttorny, PqrsConsultantForm, SearchLegalersonForm, PqrsExtendRequestForm, RequestAnswerForm, \
     PqrsAnswerForm
@@ -1084,3 +1085,31 @@ class AssociatedRadicateDetailView(DetailView):
             radicate=self.kwargs['pk'])
 
         return context
+def change_classification(request,pk):
+    pqrs_object = PqrsContent.objects.filter(pk=pk)
+    form  = ChangeClassificationForm()
+    if request.method == "POST":
+        form = ChangeClassificationForm(request.POST)
+        if form.is_valid():
+            PQRS.objects.filter(
+                pk=pqrs_object[0].pqrsobject.id
+                ).update(pqr_type=form['pqrs_type'].value())
+            pqrs_object.update(
+                subtype = form['pqrs_subtype'].value(),
+                interestGroup=form['interest_group'].value()
+            )
+    context = {
+        'form':form,
+        'pqrs_object':pqrs_object[0]
+    }
+    return render(
+        request, 
+        'pqrs/change_classification.html',
+        context)
+
+def bring_subtype(request):
+    if request.method == "POST":
+        type= request.POST['pqrs_type']
+        subtype = SubType.objects.all().filter(type=type).values("name","id")
+        return JsonResponse({"response":list(subtype)},status=200)
+    return HttpResponse("error",status=404)
