@@ -57,7 +57,7 @@ import xlsxwriter
 import re
 import redis
 from requests.auth import HTTPBasicAuth
-from core.services import SystemParameterHelper
+from core.services import SystemParameterHelper, SystemHelpParameterHelper
 import zipfile
 
 logger = logging.getLogger(__name__)
@@ -70,6 +70,7 @@ def index(request):
     anonymous_applicant = SystemParameterHelper.get('RINO_PQR_ANONYMOUS_APPLICANT')
     normal_applicant = SystemParameterHelper.get('RINO_PQR_NORMAL_APPLICANT')
     private_applicant = SystemParameterHelper.get('RINO_PQR_PRIVATE_APPLICANT')
+    help_info = SystemHelpParameterHelper.get('pqrs:index')
     return render(
         request,
         'pqrs/index.html', {
@@ -77,6 +78,7 @@ def index(request):
             'anonymous_applicant': anonymous_applicant.value,
             'normal_applicant': normal_applicant.value,
             'private_applicant': private_applicant.value,
+            'help_info' : help_info.value
         })
 
 

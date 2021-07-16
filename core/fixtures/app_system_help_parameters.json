@@ -1,0 +1,10 @@
+[
+    {
+      "model": "core.systemhelpparameter",
+      "pk": 1,
+      "fields": {
+        "name": "pqrs:index",
+        "value": "Explanation about the use of the form"
+      }
+    }
+  ]

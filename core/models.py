@@ -38,6 +38,17 @@ class SystemParameter(models.Model):
         return self.name
     class Meta:
         verbose_name= 'Parametros del Sistema'
+        
+        
+class SystemHelpParameter(models.Model):
+    name = models.CharField(unique=True, max_length=128)
+    value = models.TextField()
+
+    def __str__(self):
+        return self.name
+    class Meta:
+        verbose_name= 'Parametros de Ayudas del Sistema'
+
 
 class PreferencialPopulation(models.Model):
     name = models.CharField(max_length=128)
