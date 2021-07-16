@@ -4,6 +4,7 @@ from django.http import response
 from django.urls import reverse
 from django.utils import timezone
 from colorfield.fields import ColorField
+from crum import get_current_user
 from django.contrib.auth.models import User, Permission
 from django.contrib.postgres.fields import ArrayField
 from django.db.models.signals import post_save
@@ -67,6 +68,21 @@ class AttornyType(models.Model):
         verbose_name= 'Tipo Apoderado'
         verbose_name_plural= 'Tipos de Apoderados'
 
+class Alert(BaseModel):
+    icon = models.CharField(max_length=128, default='activity')
+    info = models.CharField(max_length=128)
+    assigned_user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='assigned_user', blank=False, null=False)
+    href = models.CharField(max_length=128)
+    is_active = models.BooleanField(default=True)
+
+    def save(self):
+        user = get_current_user()
+        if user is not None:
+            if not self.pk:
+                self.user_creation = user
+            else:
+                self.user_updated = user
+        super(Alert, self).save()
 
 class BooleanSelection(models.Model):
     name = models.CharField(max_length=128)

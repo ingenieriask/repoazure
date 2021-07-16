@@ -50,7 +50,7 @@ function addPerson() {
                   
     cellArea.innerHTML = item.area
   
-    cellActions.innerHTML = '<input class="fas fa-minus-circle fa-2x" type="button" value="Delete" onclick="deleteRow(this, ' + selectedUser.value + ')"/>'
+    cellActions.innerHTML = '<div onclick="deleteRow(this, ' + selectedUser.value + ')"><i class="fas fa-minus-circle fa-2x"></i></div>'
   }
 
   $('<input>', {
@@ -186,3 +186,64 @@ $(document).ready(function () {
     });
   }
 });
+
+
+var el = document.querySelector('.notification');
+
+function addNotification(activity, disable_url){
+  var count = Number(el.getAttribute('data-count')) || 0;
+  el.setAttribute('data-count', count + 1);
+  el.classList.remove('notify');
+  el.offsetWidth = el.offsetWidth;
+  el.classList.add('notify');
+  console.log(count)
+  if(count === 0){
+      el.classList.add('show-count');
+  }
+
+  $("#notification-list").append(
+    `<a class="dropdown-item dropdown-notifications-item" href="`+ activity.href + `" onclick="disableNotification('`+ disable_url + `', ` + activity.pk + `)">
+        <div class="dropdown-notifications-item-icon bg-warning"><i data-feather="`+ activity.icon + `"></i></div>
+        <div class="dropdown-notifications-item-content">
+            <div class="dropdown-notifications-item-content-details">`+ activity.icon + `</div>
+            <div class="dropdown-notifications-item-content-text">`+ activity.info + `</div>
+        </div>
+    </a>`
+  );
+};
+
+function updateNotifications(url, disable_url) {
+  setInterval(function() {
+    $.ajax({
+      type: 'GET',
+      url: url,
+      data: {},
+      success: function (response) {
+        console.info('response', response)
+        $("#notification-list").html("")
+        el.setAttribute('data-count', 0);
+        el.classList.add('show-count');
+        for (const act of response)
+          addNotification(act, disable_url)
+      },
+      error: function (response) {
+          console.log(response)
+      }
+    })
+  }, 5000)
+}
+
+
+function disableNotification(url, pk) {
+  $.ajax({
+    type: 'POST',
+    url: url,
+    data: {pk: pk},
+    success: function (response) {
+      console.info('response', response)
+    },
+    error: function (response) {
+        console.log(response)
+    }
+  })
+}

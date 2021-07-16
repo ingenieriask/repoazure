@@ -1,5 +1,5 @@
 from correspondence.models import AlfrescoFile, Radicate, Record, Template, PermissionRelationAssignation, PermissionRelationReport, ProcessActionStep
-from core.models import FunctionalArea, NotificationsService, Person, Atttorny_Person, UserProfileInfo, FunctionalAreaUser
+from core.models import FunctionalArea, NotificationsService, Person, Atttorny_Person, UserProfileInfo, FunctionalAreaUser, Alert
 from pqrs.models import PQRS, PqrsContent
 from correspondence.forms import RadicateForm, SearchForm, SearchPqrsd, UserForm, UserProfileInfoForm, PersonForm, RecordForm, \
     SearchContentForm, ChangeCurrentUserForm, ChangeRecordAssignedForm, LoginForm, TemplateForm, AssignToUserForm, ReturnToLastUserForm, ReportToUserForm, \
@@ -259,6 +259,12 @@ def assign_user(request, radicate):
             action.observation = form.cleaned_data['observations']
             action.save()
 
+            alert = Alert()
+            alert.info = 'Te han asignado el radicado %s' % pqrs.number
+            alert.assigned_user = user
+            alert.href = reverse('pqrs:detail_pqr', kwargs={'pk': pqrs.pk})
+            alert.save()
+
             log(
                 user=request.user,
                 action="PQR_ASSIGNED",
@@ -323,6 +329,28 @@ def users_by_area(request):
         return JsonResponse(users, safe=False, status=200)
     return JsonResponse({}, status=400)
 
+def get_alerts(request):
+    user = get_current_user()
+    if request.is_ajax and request.method == "GET":
+        alerts = [{
+            'pk': a.pk,
+            'icon': a.icon,
+            'info': a.info,
+            'href': a.href,
+            'user_creation': a.user_creation.username + ' ' + a.user_creation.first_name + ' ' + a.user_creation.last_name
+        } for a in Alert.objects.filter(assigned_user=user, is_active = True)]
+        return JsonResponse(alerts, safe=False, status=200)
+    return JsonResponse({}, status=400)
+
+def disable_alert(request):
+    if request.is_ajax and request.method == "POST":
+        pk = request.POST.get('pk')
+        alert = Alert.objects.get(pk=pk)
+        alert.is_active = False
+        alert.save()
+        return JsonResponse({}, safe=False, status=200)
+    return JsonResponse({}, status=400)
+
 
 def report_to_user(request, radicate):
 
@@ -354,6 +382,13 @@ def report_to_user(request, radicate):
             action.save()
             action.destination_users.set(destination_users)
             action.save()
+
+            for us in destination_users:
+                alert = Alert()
+                alert.info = 'Te han informado del radicado %s' % pqrs.number
+                alert.assigned_user = us
+                alert.href = reverse('pqrs:reported_detail_pqr', kwargs={'pk': pqrs.pk})
+                alert.save()
 
             log(
                 user=request.user,

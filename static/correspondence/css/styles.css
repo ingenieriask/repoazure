@@ -20539,3 +20539,84 @@ pre[class*=language-] {
 [aria-expanded="true"] > .collapsed {
   display: none;
 }
+
+.notification {
+  display: inline-block;
+  position: relative;
+  padding: 0.6em;
+  border-radius: 0.2em;
+  font-size: 1.3em;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+}
+
+.notification::before, 
+.notification::after {
+  color: #000;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+.notification::before {
+  display: block;
+  font-family: "Font Awesome 5 Free";
+  content: "\f0f3";
+}
+
+.notification::after {
+  font-family: Arial;
+  font-size: 0.7em;
+  font-weight: 700;
+  position: absolute;
+  top: 0px;
+  right: -4px;
+  padding: 5px 8px;
+  line-height: 100%;
+  border-radius: 60px;
+  opacity: 0;
+  content: attr(data-count);
+  opacity: 0;
+  transform: scale(0.5);
+  transition: transform, opacity;
+  transition-duration: 0.3s;
+  transition-timing-function: ease-out;
+}
+
+.notification.notify::before {
+  animation: ring 1.5s ease, changeColor 1.5s;
+}
+
+.notification.show-count::after {
+  transform: scale(1);
+  opacity: 1;
+}
+
+@keyframes changeColor {
+  from {color: red;}
+  to {color: black;}
+}
+
+@keyframes ring {
+  0% {
+      transform: rotate(35deg);
+  }
+  12.5% {
+      transform: rotate(-30deg);
+  }
+  25% {
+      transform: rotate(25deg);
+  }
+  37.5% {
+      transform: rotate(-20deg);
+  }
+  50% {
+      transform: rotate(15deg);
+  }
+  62.5% {
+      transform: rotate(-10deg);
+  }
+  75% {
+      transform: rotate(5deg);
+  }
+  100% {
+      transform: rotate(0deg);
+  }
+}

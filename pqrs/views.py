@@ -217,7 +217,7 @@ def create_pqr_multiple(request, pqrs):
                     "message": "El radicado %s ha sido creado" % (radicate.number)
                 }
             )
-            query_url = "{0}://{1}/correspondence/radicate/{2}".format(request.scheme, request.get_host(), radicate.pk)
+            query_url = "{0}://{1}/pqrs/consultation/result/{2}".format(request.scheme, request.get_host(), radicate.pk)
             instance.url = query_url
             NotificationsHandler.send_notification('EMAIL_PQR_CREATE', instance, 
                                                     Recipients(instance.person.email))

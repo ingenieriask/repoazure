@@ -88,7 +88,7 @@ class PqrsContent(Radicate):
         return reverse('pqrs_detail', args=[self.id])
 
     def get_pqrs_type_subtype(self):
-        return f"{self.pqrsobject.pqr_type.name} {self.subtype.name}"
+        return f"{self.pqrsobject.pqr_type.name if self.pqrsobject and self.pqrsobject.pqr_type  else ''} {self.subtype.name if self.subtype else ''}"
 
     def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
         # user = get_current_user()
