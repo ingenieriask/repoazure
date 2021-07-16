@@ -525,7 +525,6 @@ class RadicateListView(ListView):
     paginate_by = 5
 
     def get_paginate_by(self, queryset):
-        print('paginate_by', self.request.GET.get("paginate_by", self.paginate_by))
         return self.request.GET.get("paginate_by", self.paginate_by)
 
     

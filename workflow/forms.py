@@ -44,4 +44,4 @@ class RadicateFlowAdminForm(forms.ModelForm):
 
     class Meta:
         model = RadicateFlow
-        fields = ['name', 'description', 'id']
+        fields = ['subtype', 'id']

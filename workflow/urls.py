@@ -5,5 +5,6 @@ from workflow import views
 app_name = 'workflow'
 
 urlpatterns = [
-    path('signature/<int:radicate>', views.signature, name='signature')
+    path('signature/<int:radicate>', views.signature, name='signature'),
+    path('radicate/<int:radicate>', views.radicate, name='radicate')
 ]

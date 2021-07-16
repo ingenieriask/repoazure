@@ -22,7 +22,7 @@ class SignatureNode(models.Model):
         return f'{self.type} {self.previous}'
 
 class RadicateFlow(models.Model):
-    subtype = models.OneToOneField(SubType, on_delete=models.PROTECT, related_name='pqr_type', null=True)
+    subtype = models.OneToOneField(SubType, on_delete=models.PROTECT, null=True)
 
     def __str__(self):
         return self.name

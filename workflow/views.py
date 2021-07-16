@@ -40,3 +40,37 @@ def signature(request, radicate):
             'grapherror' : graph_error,
             'next': next_view
         })
+
+def radicate(request, radicate):
+
+    graph_error = ''
+    if request.method == 'POST':
+        form = SignatureFlowForm(request.POST)
+        id = request.POST['id']
+        next_view = request.POST['next']
+        graph = json.loads(request.POST['graph'])
+        try:
+            sf = SignatureFlowService.from_json(graph, id if id and id != 'None' else None)
+            id = sf.id
+        except ValidationError as e:
+            messages.error(request, e.message)
+        except:
+            messages.error(request, "Something else went wrong")
+        if next_view and next_view != 'None':
+            return HttpResponseRedirect(reverse(next_view))
+
+    if request.method == 'GET':
+        next_view = request.GET.get('next')
+        id = request.GET.get('id')
+        graph = SignatureFlowService.to_json(id)
+
+    return render(
+        request,
+        'workflow/signature_flow.html',
+        context={
+            'id': id,
+            'graph': graph,
+            'radicate': radicate,
+            'grapherror' : graph_error,
+            'next': next_view
+        })
