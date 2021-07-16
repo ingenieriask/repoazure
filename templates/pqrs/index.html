@@ -98,19 +98,26 @@
         <div class="modal fade" id="helpModal" tabindex="-1" role="dialog">
           <div class="modal-dialog modal-xl" role="document">
             <div class="modal-content">
-            <div class="modal-header primary">
+            <div class="modal-header bg-primary">
+              <img
+                class="float-left"
+                src="{% static 'correspondence/assets/img/illustrations/FullColor_TransparentBg_1280x1024_72dpi_1.png' %}"
+                style="max-width: 7rem"
+              />
+              <h1 class="page-header-title my-4" style="color: white;">
                 Ayuda
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                  <span aria-hidden="true">&times;</span>
-                </button>
-              </div>
-              <div class="modal-body">
-                <div class="row justify-content-center">
-                  <div class="col-12" id="file-display-field">
-                    {{ help_info }}
-                  </div>
+              </h1>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <div class="modal-body">
+              <div class="row justify-content-center">
+                <div class="col-12" id="file-display-field">
+                  {{ help_info }}
                 </div>
               </div>
+            </div>
             </div>
           </div>
         </div>
