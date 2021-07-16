@@ -12,7 +12,7 @@ from core.models import Attorny, AttornyType, Atttorny_Person, City, LegalPerson
 from pqrs.forms import ChangeClassificationForm, LegalPersonForm, PqrsConsultantForm, SearchUniquePersonForm, PersonForm, \
     PqrRadicateForm, PersonRequestForm, PersonFormUpdate, PersonRequestFormUpdate, \
     PersonAttorny, PqrsConsultantForm, SearchLegalersonForm, PqrsExtendRequestForm, RequestAnswerForm, \
-    PqrsAnswerForm
+    PqrsAnswerForm,SearchPqrsd
 
 from django.http import HttpResponseRedirect, HttpResponse
 from django.shortcuts import get_object_or_404, render
@@ -341,6 +341,33 @@ def pqrsConsultan(request):
         context={
             'form': form,
             "messageHead": message_pqrs_consultant.value})
+
+@login_required
+def search_pqrsd(request):
+    if request.method == 'POST':
+        form = SearchPqrsd(request.POST)
+        data_table =None
+        if  form.is_valid():
+            key_word = form.cleaned_data['key_word']
+            days_before = form.cleaned_data['since']
+            days_after = form.cleaned_data['until']
+            data_table = PqrsContent.objects.all().filter(
+                date_radicated__range=[days_before, days_after]
+            ).filter(
+                Q(number=key_word) |
+                Q(person__name =key_word) |
+                Q(person__lasts_name=key_word) | 
+                Q(person__document_number=key_word) )
+            if not data_table.count():
+                messages.warning(
+                    request, "La búsqueda no obtuvo resultados.")
+    else:
+        form = SearchPqrsd()
+        data_table =None
+    return render(
+        request,
+        'pqrs/pqrs_consultant.html',
+        context={'form': form,"table":data_table})
 
 class PqrDetailView(DetailView):
     model = Radicate

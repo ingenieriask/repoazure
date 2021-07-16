@@ -5,15 +5,29 @@
 
     <div class="card mb-4">
         <div class="card-body">
-            <form id="search-form" 
-            action="{% url 'correspondence:pqrs_consultant' %}" method="POST">
+            <form id="search-form" class="row" 
+            action="{% url 'pqrs:consultant_view' %}" method="POST">
                 {% csrf_token %}
-                {% load crispy_forms_tags %}
-                {{ form | crispy }}
-                <button type="submit" name="submit" class="btn btn-success">Buscar</button>
+                <div class="col-md-12 form-group">
+                    {{form.key_word.label_tag}}
+                    {{form.key_word}}
+                </div>
+                <div class="col-md-6 form-group">
+                    {{form.since.label_tag}}
+                    {{form.since}}
+                </div>
+                <div class="col-md-6 form-group">
+                    {{form.until.label_tag}}
+                    {{form.until}}
+                </div>
+                <div class="col-md-12 d-flex">
+                    <button type="submit" name="submit" class="btn btn-success mx-auto">Buscar</button>
+                </div>
             </form>
         </div>
+        
     </div>
+    
     {% if table %}
     <div class="card mb-4">
         <div class="card-header">Informacion PQRSD</div>
@@ -125,5 +139,11 @@
 {% endblock %}
 
 {% block script %}
-
+<script>
+$(document).ready(function () {
+    $('#div_id_key_word').addClass('col-md-12')
+    $('#div_id_since').addClass('col-md-6')
+    $('#div_id_until').addClass('col-md-6')
+})
+</script>
 {% endblock %}

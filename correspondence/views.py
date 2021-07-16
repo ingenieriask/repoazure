@@ -1,7 +1,7 @@
 from correspondence.models import AlfrescoFile, Radicate, Record, Template, PermissionRelationAssignation, PermissionRelationReport, ProcessActionStep
 from core.models import FunctionalArea, NotificationsService, Person, Atttorny_Person, UserProfileInfo, FunctionalAreaUser, Alert
 from pqrs.models import PQRS, PqrsContent
-from correspondence.forms import RadicateForm, SearchForm, SearchPqrsd, UserForm, UserProfileInfoForm, PersonForm, RecordForm, \
+from correspondence.forms import RadicateForm, SearchForm, UserForm, UserProfileInfoForm, PersonForm, RecordForm, \
     SearchContentForm, ChangeCurrentUserForm, ChangeRecordAssignedForm, LoginForm, TemplateForm, AssignToUserForm, ReturnToLastUserForm, ReportToUserForm, \
     DeleteFromReportedForm
 from django.contrib.auth.models import User
@@ -151,32 +151,6 @@ def search_names(request):
 
     return render(request, 'correspondence/search.html', context={'form': form, 'list': qs, 'person_form': person_form})
 
-@login_required
-def search_pqrsd(request):
-    if request.method == 'POST':
-        form = SearchPqrsd(request.POST)
-        data_table =None
-        if  form.is_valid():
-            key_word = form.cleaned_data['key_word']
-            days_before = form.cleaned_data['since']
-            days_after = form.cleaned_data['until']
-            data_table = PqrsContent.objects.all().filter(
-                date_radicated__range=[days_before, days_after]
-            ).filter(
-                Q(number=key_word) |
-                Q(person__name =key_word) |
-                Q(person__lasts_name=key_word) | 
-                Q(person__document_number=key_word) )
-            if not data_table.count():
-                messages.warning(
-                    request, "La búsqueda no obtuvo resultados.")
-    else:
-        form = SearchPqrsd()
-        data_table =None
-    return render(
-        request,
-        'correspondence/pqrs_consultant.html',
-        context={'form': form,"table":data_table})
 
 def return_to_last_user(request, radicate):
 
