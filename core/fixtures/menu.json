@@ -30,9 +30,9 @@
       "parent": 2,
       "name": "Búsqueda",
       "description": "Búsqueda",
-      "url_name": "correspondence:search_by_content",
+      "url_name": null,
       "sib_order": 0,
-      "icon": "search" 
+      "icon": "search"
     }
   },
   {
@@ -126,6 +126,30 @@
       "url_name": "pqrs:radicate_my_reported",
       "sib_order": 0,
       "icon": "file-plus" 
+    }
+  },
+  {
+    "model": "core.menu",
+    "pk": 12,
+    "fields": {
+      "parent": 3,
+      "name": "Búsqueda",
+      "description": "Búsqueda",
+      "url_name": "correspondence:search_by_content",
+      "sib_order": 0,
+      "icon": "search" 
+    }
+  },
+  {
+    "model": "core.menu",
+    "pk": 13,
+    "fields": {
+      "parent": 3,
+      "name": "Búsqueda PQRS",
+      "description": "Búsqueda PQRS",
+      "url_name": "pqrs:consultant_view",
+      "sib_order": 0,
+      "icon": "search" 
     }
   }
 ]

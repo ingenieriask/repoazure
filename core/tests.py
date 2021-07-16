@@ -10,7 +10,7 @@ from core.services import NotificationsHandler
 
 class MailServiceTestCase(TestCase):
 
-    fixtures = ['app_parameter.json', 'app_notifications.json']
+    fixtures = ['app_parameter.json', 'app_system_parameters.json', 'app_notifications.json']
 
     def test_send_notification(self):
 
@@ -26,6 +26,13 @@ class MailServiceTestCase(TestCase):
             body='Email body',
             from_email=None,
             to=['jorge.vanegas@skillnet.com.co'])
+
+    def test_send_sms(self):
+        NotificationsHandler.send_sms(
+            body='hola mundo',
+            to=['3503414582']
+        )
+
 
 class ECMServiceTestCase(TestCase):
 

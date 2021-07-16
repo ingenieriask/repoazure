@@ -129,10 +129,18 @@
   },
   {
     "model": "core.systemparameter",
-    "pk": 18,
+    "pk": 19,
     "fields": {
       "name": "CONFIRM_CONSECUTIVE_FORMAT",
       "value": "Mensaje de Confirmacion CONFIRM_CONSECUTIVE_FORMAT"
+    }
+  },
+  {
+    "model": "core.systemparameter",
+    "pk": 20,
+    "fields": {
+      "name": "SMS_PARAMETERS",
+      "value": "{\"account\": \"10023519\", \"apiKey\": \"LzEPJKpiIHt6rLMySxMISj3pWcQE1A\", \"token\": \"422ac157a1aa59386faa051f8e9edc70\"}"
     }
   }
 ]

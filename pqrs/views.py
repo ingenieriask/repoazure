@@ -90,7 +90,7 @@ def send_email_extend_request(request, instance):
     add_to_redis(unique_id, toSave, 'radicate')
     base_url = "{0}://{1}/pqrs/answer-request-email/{2}".format(request.scheme, request.get_host(), unique_id)
     instance.url = base_url
-    NotificationsHandler.send_notification('EMAIL_PQR_EXTEND', instance, Recipients(instance.person.email))
+    NotificationsHandler.send_notification('EMAIL_PQR_EXTEND', instance, Recipients(instance.person.email, None, instance.person.phone_number))
 
 
 def send_email_person(request, pk, pqrs_type):
@@ -104,7 +104,7 @@ def send_email_person(request, pk, pqrs_type):
     base_url = "{0}://{1}/pqrs/validate-email-person/{2}".format(request.scheme, request.get_host(), unique_id)
     person.url = base_url
     NotificationsHandler.send_notification('EMAIL_PQR_VALIDATE_PERSON', person,
-                                            Recipients(person.email))
+                                            Recipients(person.email, None, person.phone_number))
     return render(request, 'pqrs/search_person_answer_form.html', context={'msg': 'Se ha enviado un correo electrónico con la información para registrar el requerimiento'})
 
 
@@ -222,7 +222,7 @@ def create_pqr_multiple(request, pqrs):
             query_url = "{0}://{1}/pqrs/consultation/result/{2}".format(request.scheme, request.get_host(), radicate.pk)
             instance.url = query_url
             NotificationsHandler.send_notification('EMAIL_PQR_CREATE', instance, 
-                                                    Recipients(instance.person.email))
+                                                    Recipients(instance.person.email, None, instance.person.phone_number))
 
             for fileUploaded in request.FILES.getlist('pqrs_creation_uploaded_files'):
                 document_temp_file = NamedTemporaryFile()

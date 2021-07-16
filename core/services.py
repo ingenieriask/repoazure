@@ -66,6 +66,7 @@ class NotificationsHandler(object):
     '''Notification sender'''
 
     _params = {}
+    sms_api_endpoint = 'https://api103.hablame.co/api/sms/v3/send/marketing'
 
     def get_params(func):
         '''Lazy load of email database parameters'''
@@ -88,7 +89,10 @@ class NotificationsHandler(object):
                     recipients.email_to,
                     recipients.email_cc if recipients.email_cc else None
                 ),
-        'SEND_SMS': None
+        'SEND_SMS': lambda data, email_format, recipients: NotificationsHandler.send_sms(
+                    FormatHelper.replace_data(email_format.body_sms, data),
+                    recipients.phone_to
+                ),
     }
 
     @classmethod
@@ -109,6 +113,25 @@ class NotificationsHandler(object):
         except Exception as Error:
             print(f'Notification sending error: {Error}')
             logger.error(f'Notification sending error: {Error}')
+
+    @classmethod
+    @get_params
+    def send_sms(cls, body='', to=None):
+        '''Send SMS to several addresses using database parameters'''
+
+        try:
+            headers = SystemParameterHelper.get_json('SMS_PARAMETERS')
+            print(headers)
+            for numb in to:
+                data = {'toNumber':numb, 'sms': body}
+                r = requests.post(cls.sms_api_endpoint, headers=headers, json=data)
+                print('r', r, 'r')
+                if r.ok:
+                    json_response = json.loads(r.text)
+                    print(json_response)
+
+        except Exception as Err:
+            logger.error(Err) 
 
     @classmethod
     @get_params

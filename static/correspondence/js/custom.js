@@ -71,7 +71,6 @@ function searchPeople(areaId, url, areaName, kindTask) {
       url: url,
       data: {"filter_pk": areaId, "kind_task": kindTask, "permissions": permissions},
       success: function (response) {
-        console.info('response', response)
         $('#user_selected')
             .find('option')
             .remove()
@@ -86,7 +85,7 @@ function searchPeople(areaId, url, areaName, kindTask) {
         $("#interest_area").val(areaId)
       },
       error: function (response) {
-          console.log(response)
+        console.log(response)
       }
   })
 }
@@ -201,7 +200,6 @@ function addNotification(activity, disable_url){
   el.classList.remove('notify');
   el.offsetWidth = el.offsetWidth;
   el.classList.add('notify');
-  console.log(count)
   if(count === 0){
       el.classList.add('show-count');
   }
@@ -224,7 +222,6 @@ function updateNotifications(url, disable_url) {
       url: url,
       data: {},
       success: function (response) {
-        console.info('response', response)
         $("#notification-list").html("")
         el.setAttribute('data-count', 0);
         el.classList.add('show-count');
@@ -232,7 +229,7 @@ function updateNotifications(url, disable_url) {
           addNotification(act, disable_url)
       },
       error: function (response) {
-          console.log(response)
+        console.log(response)
       }
     })
   }, 5000)
@@ -245,7 +242,7 @@ function disableNotification(url, pk) {
     url: url,
     data: {pk: pk},
     success: function (response) {
-      console.info('response', response)
+      //do nothing
     },
     error: function (response) {
         console.log(response)
