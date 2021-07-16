@@ -1,6 +1,7 @@
 from os import closerange
 from re import sub
 from django.forms import widgets
+from six import class_types
 from core.models import DocumentTypes, City
 from pqrs.models import InterestGroup, PqrsContent, SubType, Type
 from correspondence.models import Radicate
@@ -15,7 +16,7 @@ from core.forms import CustomFileInput
 from core.services import SystemParameterHelper
 from captcha.fields import CaptchaField
 from django.db.models import Q
-
+from datetime import date, timedelta
 from captcha.models import CaptchaStore
 
 class AgreementModal(Field):
@@ -503,3 +504,33 @@ class ChangeClassificationForm(forms.Form):
         queryset=InterestGroup.objects.all(),
         required=True,
         label='Grupo de Interes')
+    
+class SearchPqrsd(forms.Form):
+    current_date = date.today().isoformat()   
+    days_before = (date.today()-timedelta(days=30)).isoformat()
+    days_after = (date.today()+timedelta(days=30)).isoformat()  
+    key_word = forms.CharField(
+        label='Palabra clave', 
+        help_text='Datos a buscar',
+        widget=forms.TextInput(
+            attrs={'class':'textinput textInput form-control'})
+        )
+    since = forms.DateField(
+        label=f"Desde (30 dias antes de hoy {current_date})",
+        widget = forms.DateInput(
+            format='%YYYY-%mm-%d', 
+            attrs={
+                'type': 'date',
+                'value':str(days_before),
+                'class':"dateinput form-control"
+                })
+        )
+    until = forms.DateField(
+        label=f"Hasta (30 dias despues de hoy {current_date})",
+        widget = forms.DateInput(
+            format='%YYYY-%mm-%d', 
+            attrs={
+                'type': 'date',
+                'value':str(days_after),
+                'class':"dateinput form-control"
+                }))

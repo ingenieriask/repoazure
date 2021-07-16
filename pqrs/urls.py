@@ -43,4 +43,5 @@ urlpatterns = [
     path('consultation/zip/<int:pk>', views.get_consultation_zip, name="consultation_zip"),
     path('change-classification/<int:pk>', views.change_classification, name="change_clasification"),
     path('bring-subtype/', views.bring_subtype, name="bring_subtype"),
+    path('pqrs-consultant/', views.search_pqrsd, name='consultant_view'),
 ]
