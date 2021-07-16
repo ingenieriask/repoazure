@@ -14,7 +14,8 @@ from datetime import date, timedelta
 from enum import Enum
 from django.core.exceptions import ValidationError
 from core.models import AppParameter, ConsecutiveFormat, Consecutive, Country, FilingType, \
-    Holiday, CalendarDay, CalendarDayType, Calendar, Notifications, SystemParameter
+    Holiday, CalendarDay, CalendarDayType, Calendar, Notifications, SystemParameter, \
+    SystemHelpParameter
 from core.utils_services import FormatHelper
 from django.contrib.auth.models import User
 from correspondence.models import AlfrescoFile
@@ -30,6 +31,18 @@ class SystemParameterHelper():
     @classmethod
     def get(cls, format_name):
         return SystemParameter.objects.get(name=format_name)
+
+    @classmethod
+    def get_json(cls, format_name):
+        return json.loads(cls.get(format_name).value)
+
+
+class SystemHelpParameterHelper():
+    ''' '''
+    
+    @classmethod
+    def get(cls, format_name):
+        return SystemHelpParameter.objects.get(name=format_name)
 
     @classmethod
     def get_json(cls, format_name):
