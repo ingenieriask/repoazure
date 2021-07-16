@@ -111,6 +111,11 @@ function historyObservation(observation){
   $('#containerObservation').removeClass('d-none')
   $('#contObservation').html(observation)
 }
+function loaderBTN(objeto) {
+  $(objeto)
+    .html("<span class='spinner-border spinner-border-sm mr-2' role='status' aria-hidden='true'></span>Cargando...")
+    .addClass("disabled");
+}
 $("#id_pqrs_type").on("change", function () {
   if (this.value) {
     token = $("input[name=csrfmiddlewaretoken]").val();

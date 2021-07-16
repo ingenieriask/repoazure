@@ -168,6 +168,7 @@
                             <a
                             class="btn btn-success btn-lg shadow-lg mx-auto"
                             href="{% url 'pqrs:index'%}"
+                            onclick="loaderBTN(this)"
                             >Radicar PQRSD</a
                           >
                         </div>
@@ -175,6 +176,7 @@
                             <a
                             class="btn btn-success btn-lg shadow-lg  mx-auto"
                             href="{% url 'pqrs:pqrs_consultant'%}"
+                            onclick="loaderBTN(this)"
                             >Consultar PQRSD</a
                           >
                         </div>
@@ -272,6 +274,7 @@
       type="text/javascript"
     ></script>
     <script src="{% static 'correspondence/js/scripts.js' %}"></script>
+    <script src="{% static 'correspondence/js/custom.js' %}"></script>
     <script src="{% static 'correspondence/assets/demo/date-range-picker-demo.js' %}"></script>
   </body>
 </html>
