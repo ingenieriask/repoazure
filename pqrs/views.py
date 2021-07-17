@@ -351,6 +351,8 @@ def search_pqrsd(request):
             key_word = form.cleaned_data['key_word']
             days_before = form.cleaned_data['since']
             days_after = form.cleaned_data['until']
+            limit_value = form.cleaned_data['limit_finder']
+            magic_word = form.cleaned_data['search_magic_word']
             data_table = PqrsContent.objects.all().filter(
                 date_radicated__range=[days_before, days_after]
             ).filter(
@@ -358,6 +360,12 @@ def search_pqrsd(request):
                 Q(person__name =key_word) |
                 Q(person__lasts_name=key_word) | 
                 Q(person__document_number=key_word) )
+            if magic_word !="None":
+                data_table = data_table.filter(Q(number__contains=magic_word) | 
+                Q(person__name__icontains=magic_word) | Q(subject__icontains=magic_word) | 
+                Q(subtype__type__name__icontains=magic_word) | Q(subtype__name__icontains=magic_word) |
+                Q(pqrsobject__status__icontains=magic_word))
+            data_table = data_table[:int(limit_value)]
             if not data_table.count():
                 messages.warning(
                     request, "La búsqueda no obtuvo resultados.")
@@ -368,6 +376,15 @@ def search_pqrsd(request):
         request,
         'pqrs/pqrs_consultant.html',
         context={'form': form,"table":data_table})
+
+@login_required
+def bring_subtype(request):
+    if request.method == "POST":
+        type= request.POST['pqrs_type']
+        subtype = SubType.objects.all().filter(type=type).values("name","id")
+        return JsonResponse({"response":list(subtype)},status=200)
+    return HttpResponse("error",status=404)
+
 
 class PqrDetailView(DetailView):
     model = Radicate
@@ -1170,9 +1187,3 @@ def change_classification(request,pk):
             'pqrs/change_classification.html',
             context)
 
-def bring_subtype(request):
-    if request.method == "POST":
-        type= request.POST['pqrs_type']
-        subtype = SubType.objects.all().filter(type=type).values("name","id")
-        return JsonResponse({"response":list(subtype)},status=200)
-    return HttpResponse("error",status=404)

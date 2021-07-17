@@ -20,6 +20,8 @@
                     {{form.until.label_tag}}
                     {{form.until}}
                 </div>
+                    {{form.limit_finder}}
+                    {{form.search_magic_word}}
                 <div class="col-md-12 d-flex">
                     <button type="submit" name="submit" class="btn btn-success mx-auto">Buscar</button>
                 </div>
@@ -145,5 +147,6 @@ $(document).ready(function () {
     $('#div_id_since').addClass('col-md-6')
     $('#div_id_until').addClass('col-md-6')
 })
+
 </script>
 {% endblock %}
