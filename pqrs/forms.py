@@ -1,5 +1,5 @@
 from os import closerange
-from re import sub
+from re import search, sub
 from django.forms import widgets
 from six import class_types
 from core.models import DocumentTypes, City
@@ -534,3 +534,13 @@ class SearchPqrsd(forms.Form):
                 'value':str(days_after),
                 'class':"dateinput form-control"
                 }))
+    limit_finder = forms.CharField(
+        max_length=20,
+        widget = forms.HiddenInput(),
+        initial="10",
+        required=False)
+    search_magic_word = forms.CharField(
+        max_length=20,
+        widget = forms.HiddenInput(),
+        initial="None",
+        required=False)
