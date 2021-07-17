@@ -115,6 +115,60 @@ function loaderBTN(objeto) {
     .html("<span class='spinner-border spinner-border-sm mr-2' role='status' aria-hidden='true'></span>Cargando...")
     .addClass("disabled");
 }
+function defTablePaginator(tableName, formName, id_limit_form, id_magic_word) {
+  $("#" + tableName).DataTable({
+    scrollX: true,
+    language: {
+      sProcessing: "Procesando...",
+      sLengthMenu: "Mostrar _MENU_ registros",
+      sZeroRecords: "No se encontraron resultados",
+      sEmptyTable: "Ningún dato disponible en esta tabla",
+      sInfo: "Mostrando registros del _START_ al _END_ de un total de _TOTAL_ registros",
+      sInfoEmpty: "Mostrando registros del 0 al 0 de un total de 0 registros",
+      sInfoFiltered: "(filtrado de un total de _MAX_ registros)",
+      sSearch: "",
+      sSearchPlaceholder: "Escriba una palabra clave para realizar la búsqueda...",
+      sInfoThousands: ",",
+      sLoadingRecords: "Cargando...",
+      oPaginate: {
+        sFirst: "Primero",
+        sLast: "Último",
+        sNext: "Siguiente",
+        sPrevious: "Anterior",
+      },
+      oAria: {
+        sSortAscending: ": Activar para ordenar la columna de manera ascendente",
+        sSortDescending: ": Activar para ordenar la columna de manera descendente",
+      },
+      buttons: {
+        copy: "Copiar",
+        colvis: "Visibilidad",
+      },
+    },
+  });
+  $('select[name="' + tableName + '_length"] option[value="' + $("#" + id_limit_form).attr("value") + '"]').prop(
+    "selected",
+    true
+  );
+  $('select[name="' + tableName + '_length"]').on("change", function () {
+    value = this.value;
+    $("#" + id_limit_form).attr("value", value);
+    document.getElementById(formName).submit.click();
+  });
+  $("input[aria-controls='" + tableName + "']")
+    .unbind()
+    .attr("type", "text")
+    .attr("value", "");
+  let button_search = document.createElement("BUTTON");
+  button_search.innerHTML = "Buscar";
+  button_search.onclick = function () {
+    const text_value = $("input[aria-controls='" + tableName + "']").val();
+    $("#" + id_magic_word).attr("value", text_value);
+    document.getElementById(formName).submit.click();
+  };
+  button_search.setAttribute("class", "btn btn-primary mx-2");
+  document.getElementById(tableName + "_filter").appendChild(button_search);
+}
 $("#id_pqrs_type").on("change", function () {
   if (this.value) {
     token = $("input[name=csrfmiddlewaretoken]").val();
@@ -158,39 +212,10 @@ $(document).ready(function () {
     $("#id_doctype").html("<option>Example 1</option><option>Example2</option>").selectpicker("refresh");
   });
   if ($("#tb_request_sender")) {
-    $("#tb_request_sender").DataTable({
-      scrollX: true,
-      language: {
-        sProcessing: "Procesando...",
-        sLengthMenu: "Mostrar _MENU_ registros",
-        sZeroRecords: "No se encontraron resultados",
-        sEmptyTable: "Ningún dato disponible en esta tabla",
-        sInfo: "Mostrando registros del _START_ al _END_ de un total de _TOTAL_ registros",
-        sInfoEmpty: "Mostrando registros del 0 al 0 de un total de 0 registros",
-        sInfoFiltered: "(filtrado de un total de _MAX_ registros)",
-        sSearch: "",
-        sSearchPlaceholder: "Escriba una palabra clave para realizar la búsqueda...",
-        sInfoThousands: ",",
-        sLoadingRecords: "Cargando...",
-        oPaginate: {
-          sFirst: "Primero",
-          sLast: "Último",
-          sNext: "Siguiente",
-          sPrevious: "Anterior",
-        },
-        oAria: {
-          sSortAscending: ": Activar para ordenar la columna de manera ascendente",
-          sSortDescending: ": Activar para ordenar la columna de manera descendente",
-        },
-        buttons: {
-          copy: "Copiar",
-          colvis: "Visibilidad",
-        },
-      },
-    });
+    defTablePaginator("tb_request_sender", "search-form", "id_limit_finder", "id_search_magic_word");
   }
 });
-
+$;
 
 var el = document.querySelector('.notification');
 
