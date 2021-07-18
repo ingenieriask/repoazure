@@ -13,7 +13,7 @@
       "is_staff": false,
       "is_active": true,
       "date_joined": "2021-05-26T10:56:08.879",
-      "groups": [],
+      "groups": [1, 2],
       "user_permissions": []
     }
   },
@@ -31,7 +31,7 @@
       "is_staff": false,
       "is_active": true,
       "date_joined": "2021-05-26T10:56:08.879",
-      "groups": [],
+      "groups": [1, 2],
       "user_permissions": []
     }
   },
@@ -49,7 +49,7 @@
       "is_staff": false,
       "is_active": true,
       "date_joined": "2021-05-26T10:56:08.879",
-      "groups": [],
+      "groups": [1, 2],
       "user_permissions": []
     }
   },
@@ -67,7 +67,7 @@
       "is_staff": false,
       "is_active": true,
       "date_joined": "2021-05-26T10:56:08.879",
-      "groups": [],
+      "groups": [1, 2],
       "user_permissions": []
     }
   },

@@ -17,22 +17,15 @@
     min-width: 80px !important;
     width: 80px !important;
 }
-.visto-bueno {
+.asignar {
     background-color: rgba(177, 191, 250, 1) !important;
     min-width: 140px !important;
     width: 140px !important;
 }
 
-.firma-personal {
+.notificar {
     background-color: #95d5b2 !important;
     border: 2px solid #658542 !important;
-    min-width: 140px !important;
-    width: 140px !important;
-}
-
-.firma-jurídica {
-    background-color: #ed2939 !important;
-    border: 2px solid #960018 !important;
     min-width: 140px !important;
     width: 140px !important;
 }
@@ -110,7 +103,27 @@
             <div class="modal-body">
                 <div class="row justify-content-center">
                 <div class="col-12" id="file-display-field">
-                    {% include "workflow/select_user_and_time.html" %} 
+                    {% include "workflow/select_user.html" %} 
+                </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="users_modal" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-m" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                Búsqueda de Usuarios
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="row justify-content-center">
+                <div class="col-12" id="file-display-field">
+                    {% include "workflow/select_users.html" %} 
                 </div>
                 </div>
             </div>
@@ -139,8 +152,7 @@ var actSocket = new Rete.Socket("Action");
 var mounted = false;
 
 function validateUser() {
-    if ($.isNumeric($("#user_selected_time").val()) &&
-        $("#user_selected").val() != '-1' && 
+    if ($("#user_selected").val() != '-1' && 
         $("#user_selected").val() != null) {
         $('#user_selected_submit').prop('disabled', false);
     } else {
@@ -148,7 +160,7 @@ function validateUser() {
     }
 }
 
-function getVueUserControl(key, userType, user, time, permission) {
+function getVueAssignUserControl(key, userType, user, time, permission) {
     return {
         props: ['emitter', 'ikey', 'getData', 'putData', ],
         template: `<input id="${key}_selected" class="userinput" readonly=true v-on:click="showModal($event)" \
@@ -169,6 +181,9 @@ function getVueUserControl(key, userType, user, time, permission) {
             }
         },
         methods: {
+            addUser(){
+                $('#user_selected_submit').prop('disabled', false);
+            },
             showModal(e){
                 permissions = [this.permission]
                 $('#user_selected').find('option').remove().end();
@@ -179,7 +194,6 @@ function getVueUserControl(key, userType, user, time, permission) {
                 }
                 $("#user_selected").selectpicker('refresh');
                 $('#user_selected').selectpicker('render');
-                $('#user_selected_time').val(this.time)
                 $('#user_selected_submit').prop('disabled', true);
                 self = this;
                 $('#user_selected_submit').click(function(){ 
@@ -193,10 +207,7 @@ function getVueUserControl(key, userType, user, time, permission) {
                     self.update();
                 });
                 $('#user_selected').change(function(){ 
-                    validateUser()
-                });
-                $('#user_selected_time').change(function(){ 
-                    validateUser()
+                    self.addUser()
                 });
                 $('#user_modal').modal()
             },
@@ -210,7 +221,116 @@ function getVueUserControl(key, userType, user, time, permission) {
     }
 }
 
-class UserControl extends Rete.Control {
+function getVueNotifyUserControl(key, userType, user, time, permission) {
+    return {
+        props: ['emitter', 'ikey', 'getData', 'putData', ],
+        template: `<input id="${key}_selected" class="userinput" readonly=true v-on:click="showModal($event)" \
+                :value=username data-toggle="tooltip" data-placement="top" \
+                :title=title />`
+        ,
+        data() {
+            if (!time){
+                time = 2;
+            }
+            return {
+                value: user.id,
+                username: user.username,
+                user: user,
+                title: `[${user.username}] ${user.first_name} ${user.last_name}`,
+                time: time,
+                permission: permission,
+                users: {}
+            }
+        },
+        methods: {
+             addUser(value, title, initialize=false) {
+                if (!initialize) {
+                    if  (value in this.users &&  value != '-1') {
+                        return
+                    }
+                    this.users[value] = title
+                }
+                $('#tbody').append(
+                    `<tr id="${value}">
+                        <td class="row-index">
+                            <p>${title}</p>
+                        </td>
+                        <td class="text-right">
+                            <button class="btn btn-sm btn-danger remove"
+                            type="button"><i class="fas fa-minus-circle"></i></button>
+                        </td>
+                    </tr>`);
+
+                if (!jQuery.isEmptyObject(self.users)) {
+                    $('#users_selected_submit').prop('disabled', false);
+                }
+            },
+            showModal(e){
+
+                permissions = [this.permission]
+                $('#users_selected').find('option').remove().end();
+                $("#users_selected").append('<option value=-1>[sin usurio] seleccione un usuario</option>')
+                if (this.value) {
+                    $("#users_selected").append(
+                        `<option selected value=${this.value}>${this.title}</option>`)
+                }
+                $("#users_selected").selectpicker('refresh');
+                $('#users_selected').selectpicker('render');
+                $('#users_selected_time').val(this.time)
+                $('#users_selected_submit').prop('disabled', true);
+
+                self = this;
+
+                $('#tbody').find('tr').remove().end();;
+
+                $.each(this.users, function(key, value) { 
+                    console.info('addUser')
+                    self.addUser(key, value, true)
+                });
+
+                $('#tbody').on('click', '.remove', function () {
+                    delete self.users[$(this).closest('tr').attr('id')]
+                    $(this).closest('tr').remove();
+                    if (jQuery.isEmptyObject(self.users)) {
+                        $('#users_selected_submit').prop('disabled', true);
+                    }
+                });
+
+                $('#users_selected_submit').click(function(){ 
+                    self.title = ''
+                    self.username = ''
+                    self.value = []
+                    $.each(self.users, function(key, value) { 
+                        console.info(key)
+                        self.title += $('#users_selected').find("option:selected").text() + '; ';
+                        self.username += self.title.match(/\[(.*)\]/i)[1] + '; '
+                        self.value.push({'id': key})
+                    });
+                    $('.collapse').collapse('hide')
+                    $("#headerForm").text('')
+                    $('#users_modal').modal('hide')
+                    self.time = $('#user_selected_time').val()
+                    self.update();
+                });
+
+                $('#users_selected').change(function(){ 
+                    value = $('#users_selected').val();
+                    title = $('#users_selected').find("option:selected").text()
+                    self.addUser(value, title)
+                });
+                $('#users_modal').modal()
+            },
+            update() {
+                if (this.ikey)
+                    this.putData('user', {'id': this.value})
+                    this.putData('time', this.time)
+                this.emitter.trigger('process');
+            }
+        }
+    }
+}
+
+class AssignUserControl extends Rete.Control {
     constructor(emitter, key, userType, user, time, permission) {
         if ($.isEmptyObject(user)) {
             user = {
@@ -221,7 +341,23 @@ class UserControl extends Rete.Control {
             }
         } 
         super(key);
-        this.component = getVueUserControl(key, userType, user, time, permission);
+        this.component = getVueAssignUserControl(key, userType, user, time, permission);
+        this.props = {emitter, ikey: 'data'};
+    }
+}
+
+class NotifyUserControl extends Rete.Control {
+    constructor(emitter, key, userType, user, time, permission) {
+        if ($.isEmptyObject(user)) {
+            user = {
+                'id': null, 
+                'username': 'sin usuario', 
+                'first_name': 'seleccione un usuario', 
+                'last_name': ''
+            }
+        } 
+        super(key);
+        this.component = getVueNotifyUserControl(key, userType, user, time, permission);
         this.props = {emitter, ikey: 'data'};
     }
 }
@@ -250,12 +386,12 @@ class OutputComponent extends Rete.Component {
     }
 }
 
-class GuarantorUserComponent extends Rete.Component {
+class AssignUserComponent extends Rete.Component {
     constructor(){
-        super("Visto Bueno"); 
+        super("Asignar"); 
     }
     builder(node) {
-        var ctrl = new UserControl(this.editor, node.id, 'guarantoruser', node.data.user, node.data.time, 'approbation');
+        var ctrl = new AssignUserControl(this.editor, node.id, 'assignuser', node.data.user, node.data.time, 'receive_external');
         var inp = new Rete.Input('in',"Inicio", actSocket, true);
         var out = new Rete.Output('out', "Fin", actSocket, true);
         return node
@@ -267,32 +403,12 @@ class GuarantorUserComponent extends Rete.Component {
     }
 }
 
-class SigningUserComponent extends Rete.Component {
+class NotifyUserComponent extends Rete.Component {
     constructor(){
-        super("Firma Personal"); 
+        super("Notificar"); 
     }
     builder(node) {
-        var ctrl = new UserControl(this.editor, node.id, 'signinguser', node.data.user, node.data.time, 'personal_signature');
-        var inp = new Rete.Input('in',"Inicio", actSocket, true);
-        var out = new Rete.Output('out', "Fin", actSocket, true);
-        return node
-            .addInput(inp)
-            .addControl(ctrl)
-            .addOutput(out);
-    }
-
-    worker(node, inputs, outputs) {
-        var value = inputs['in'].length ? inputs['in'][0] : node.data.value;
-        outputs['value'] = value;
-    }
-}
-
-class LegalSigningUserComponent extends Rete.Component {
-    constructor(){
-        super("Firma Jurídica");
-    }
-    builder(node) {
-        var ctrl = new UserControl(this.editor, node.id, 'legalsigninguser', node.data.user, node.data.time, 'legal_signature');
+        var ctrl = new NotifyUserControl(this.editor, node.id, 'notifyuser', node.data.user, node.data.time, 'notified');
         var inp = new Rete.Input('in',"Inicio", actSocket, true);
         var out = new Rete.Output('out', "Fin", actSocket, true);
         return node
@@ -308,9 +424,8 @@ class LegalSigningUserComponent extends Rete.Component {
 }
 
 var container = document.querySelector('#rete');
-var components = [new GuarantorUserComponent(), new SigningUserComponent(), 
-                  new LegalSigningUserComponent(), new InputComponent(), 
-                  new OutputComponent()];
+var components = [new AssignUserComponent(), new NotifyUserComponent(),
+                  new InputComponent(), new OutputComponent()];
 
 var editor = new Rete.NodeEditor('demo@0.1.0', container);
 editor.use(ConnectionPlugin.default);

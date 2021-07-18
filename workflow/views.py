@@ -41,7 +41,7 @@ def signature(request, radicate):
             'next': next_view
         })
 
-def radicate(request, radicate):
+def filing(request, radicate):
 
     graph_error = ''
     if request.method == 'POST':
@@ -66,7 +66,7 @@ def radicate(request, radicate):
 
     return render(
         request,
-        'workflow/signature_flow.html',
+        'workflow/filing_flow.html',
         context={
             'id': id,
             'graph': graph,
