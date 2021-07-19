@@ -74,7 +74,7 @@
 </div>
 <div class="row mb-12">
   <div class="col text-center">
-    <a class="btn btn-primary" href="{% url 'polls:show_poll' pk=1  %}">Diligenciar Encuesta</a>
+    <a class="btn btn-primary" href="{% url 'polls:show_poll' pk=1 radicate=radicate.number  %}">Diligenciar Encuesta</a>
   </div>
 </div>
 {% if radicate.document_file %}

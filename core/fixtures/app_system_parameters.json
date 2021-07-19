@@ -142,5 +142,13 @@
       "name": "SMS_PARAMETERS",
       "value": "{\"account\": \"10023519\", \"apiKey\": \"LzEPJKpiIHt6rLMySxMISj3pWcQE1A\", \"token\": \"422ac157a1aa59386faa051f8e9edc70\"}"
     }
+  },
+  {
+    "model": "core.systemparameter",
+    "pk": 21,
+    "fields": {
+      "name": "POLL_FILLED_OUT",
+      "value": "{\"title\": \"<h1>ENCUESTA DILIGENCIADA</h1> <br><hr>\", \"body\": \"La encuesta ya ha sido diligenciada, muchas gracias por realizar su trámite con nosotros.\"}"
+    }
   }
 ]
