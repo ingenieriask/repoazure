@@ -41,6 +41,9 @@
 
     <link rel="icon" type="image/x-icon" href="{% static 'correspondence/assets/img/favicon.png'%}" />
   </head>
+  <div id="loading">
+    <img id="loading-image" src="{% static 'loader/loader.gif'%}" alt="Loading..." />
+  </div>
   <body class="nav-fixed">
     <div id="layoutnav">
       <div id="layoutSidenav_content">
@@ -76,6 +79,7 @@
           </header>
           <!-- Main page content-->
           <div class="container mt-n10">{% block content %} {% endblock %}</div>
+          
         </main>
         <footer class="footer mt-auto footer-light">
           <div class="container-fluid">

@@ -1,6 +1,8 @@
 from django.db import models
 from django.contrib.postgres.fields import ArrayField
 
+from correspondence.models import Radicate
+
 # Create your models here.
 
 # Generic answer options model    
@@ -39,6 +41,7 @@ class Poll(models.Model):
 class PollInstance(models.Model):
     poll = models.ForeignKey(Poll, on_delete=models.CASCADE)
     answers = ArrayField(models.PositiveIntegerField())
+    radicate = models.ForeignKey(Radicate, on_delete=models.PROTECT, null=True, blank=True, related_name='polls')
     
     def __str__(self):
         return f"Poll type: {self.poll.type_poll} {self.answers}"
