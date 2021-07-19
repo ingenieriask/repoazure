@@ -110,10 +110,8 @@ function historyObservation(observation){
   $('#containerObservation').removeClass('d-none')
   $('#contObservation').html(observation)
 }
-function loaderBTN(objeto) {
-  $(objeto)
-    .html("<span class='spinner-border spinner-border-sm mr-2' role='status' aria-hidden='true'></span>Cargando...")
-    .addClass("disabled");
+function loaderBTN() {
+  $("#loading").show();
 }
 function defTablePaginator(tableName, formName, id_limit_form, id_magic_word) {
   $("#" + tableName).DataTable({
@@ -211,9 +209,13 @@ $(document).ready(function () {
   $("#id_office").on("change", function (evt) {
     $("#id_doctype").html("<option>Example 1</option><option>Example2</option>").selectpicker("refresh");
   });
-  if ($("#tb_request_sender")) {
+  if (document.getElementById("tb_request_sender")) {
     defTablePaginator("tb_request_sender", "search-form", "id_limit_finder", "id_search_magic_word");
   }
+  $("form").submit(function (e) {
+    loaderBTN();
+  });
+
 });
 $;
 
@@ -263,14 +265,17 @@ function updateNotifications(url, disable_url) {
 
 function disableNotification(url, pk) {
   $.ajax({
-    type: 'POST',
+    type: "POST",
     url: url,
-    data: {pk: pk},
+    data: { pk: pk },
     success: function (response) {
       //do nothing
     },
     error: function (response) {
-        console.log(response)
-    }
-  })
+      console.log(response);
+    },
+  });
 }
+$(window).on("load", function () {
+  $("#loading").hide();
+}); 
