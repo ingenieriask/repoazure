@@ -1,44 +1,44 @@
 [
-  {
-    "model": "core.ethnicgroup",
-    "pk": 1,
-    "fields": {
-      "name": "Indigena"
-    }
-  },
-  {
-    "model": "core.ethnicgroup",
-    "pk": 2,
-    "fields": {
-      "name": "Poblacion negra / Afrocolombiano / Afrodescendiente"
-    }
-  },
-  {
-    "model": "core.ethnicgroup",
-    "pk": 3,
-    "fields": {
-      "name": "Palenquera"
-    }
-  },
-  {
-    "model": "core.ethnicgroup",
-    "pk": 4,
-    "fields": {
-      "name": "Raizal"
-    }
-  },
-  {
-    "model": "core.ethnicgroup",
-    "pk": 5,
-    "fields": {
-      "name": "Rrom(gitano)"
-    }
-  },
-  {
-    "model": "core.ethnicgroup",
-    "pk": 6,
-    "fields": {
-      "name": "Ningun grúpo etníco"
-    }
-  }
+	{
+		"model": "core.ethnicgroup",
+		"pk" : 1,
+		"fields": {
+			"name" : "Indigena"
+		}
+	},
+	{
+		"model": "core.ethnicgroup",
+		"pk" : 2,
+		"fields": {
+			"name" : "Poblacion negra / Afrocolombiano / Afrodescendiente"
+		}
+	},
+	{
+		"model": "core.ethnicgroup",
+		"pk" : 3,
+		"fields": {
+			"name" : "Palenquera"
+		}
+	},
+	{
+		"model": "core.ethnicgroup",
+		"pk" : 4,
+		"fields": {
+			"name" : "Raizal"
+		}
+	},
+	{
+		"model": "core.ethnicgroup",
+		"pk" : 5,
+		"fields": {
+			"name" : "Rrom(gitano)"
+		}
+	},
+	{
+		"model": "core.ethnicgroup",
+		"pk" : 6,
+		"fields": {
+			"name" : "Ningun grúpo etníco"
+		}
+	}
 ]

@@ -1,18 +1,98 @@
 [
-  {
-    "model": "pqrs.interestgroup",
-    "pk": 1,
-    "fields": {
-      "name": "Grupo de interes 1",
-      "description": "Este es el grupo de interes uno"
-    }
-  },
-  {
-    "model": "pqrs.interestgroup",
-    "pk": 2,
-    "fields": {
-      "name": "Grupo de interes 2",
-      "description": "Este es el grupo de interes dos"
-    }
-  }
+	{
+		"model": "pqrs.interestgroup",
+		"pk" : 2,
+		"fields": {
+			"date_creation" : null,
+			"date_updated" : "2021-07-09T00:04:35.982Z",
+			"name" : "Proveedores",
+			"description" : "Este es el grupo de interés de proveedores",
+			"user_creation_id" : null,
+			"user_updated_id" : 22
+		}
+	},
+	{
+		"model": "pqrs.interestgroup",
+		"pk" : 1,
+		"fields": {
+			"date_creation" : null,
+			"date_updated" : "2021-07-09T00:05:01.609Z",
+			"name" : "Funcionarios",
+			"description" : "Este es el grupo de interés de funcionarios",
+			"user_creation_id" : null,
+			"user_updated_id" : 22
+		}
+	},
+	{
+		"model": "pqrs.interestgroup",
+		"pk" : 3,
+		"fields": {
+			"date_creation" : "2021-07-09T00:05:28.174Z",
+			"date_updated" : "2021-07-09T00:05:28.174Z",
+			"name" : "Contratistas",
+			"description" : "Este es el grupo de interés de contratistas",
+			"user_creation_id" : 22,
+			"user_updated_id" : null
+		}
+	},
+	{
+		"model": "pqrs.interestgroup",
+		"pk" : 4,
+		"fields": {
+			"date_creation" : "2021-07-09T00:06:10.864Z",
+			"date_updated" : "2021-07-09T00:06:10.864Z",
+			"name" : "Entpkad de carácter especial",
+			"description" : "Este es el grupo de interés de entpkades de carácter especial",
+			"user_creation_id" : 22,
+			"user_updated_id" : null
+		}
+	},
+	{
+		"model": "pqrs.interestgroup",
+		"pk" : 5,
+		"fields": {
+			"date_creation" : "2021-07-09T00:06:59.528Z",
+			"date_updated" : "2021-07-09T00:06:59.528Z",
+			"name" : "Sociedad - ciudadano",
+			"description" : "Este es el grupo de valor de Sociedad y\/o ciudadano",
+			"user_creation_id" : 22,
+			"user_updated_id" : null
+		}
+	},
+	{
+		"model": "pqrs.interestgroup",
+		"pk" : 6,
+		"fields": {
+			"date_creation" : "2021-07-09T00:07:31.156Z",
+			"date_updated" : "2021-07-09T00:07:31.156Z",
+			"name" : "Academia",
+			"description" : "Este es el grupo de valor de academia",
+			"user_creation_id" : 22,
+			"user_updated_id" : null
+		}
+	},
+	{
+		"model": "pqrs.interestgroup",
+		"pk" : 7,
+		"fields": {
+			"date_creation" : "2021-07-09T00:07:52.152Z",
+			"date_updated" : "2021-07-09T00:07:52.152Z",
+			"name" : "Estado",
+			"description" : "Este es el grupo de valor de Estado",
+			"user_creation_id" : 22,
+			"user_updated_id" : null
+		}
+	},
+	{
+		"model": "pqrs.interestgroup",
+		"pk" : 8,
+		"fields": {
+			"date_creation" : "2021-07-09T00:08:14.726Z",
+			"date_updated" : "2021-07-09T00:08:14.726Z",
+			"name" : "Empresa",
+			"description" : "Este es el grupo de valor de empresa",
+			"user_creation_id" : 22,
+			"user_updated_id" : null
+		}
+	}
 ]

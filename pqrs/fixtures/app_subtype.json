@@ -1,134 +1,123 @@
 [
-  {
-    "model": "pqrs.subtype",
-    "pk": 1,
-    "fields": {
-      "name": "tema 1 peticion",
-      "description": "Este es el tema de interes uno",
-      "type": 1,
-      "max_response_days": 15,
-      "min_response_days": 15
-    }
-  },
-  {
-    "model": "pqrs.subtype",
-    "pk": 2,
-    "fields": {
-      "name": "tema 2 peticion",
-      "description": "Este es el tema de interes dos",
-      "type": 1,
-      "max_response_days": 15,
-      "min_response_days": 15
-    }
-  },
-  {
-    "model": "pqrs.subtype",
-    "pk": 3,
-    "fields": {
-      "name": "tema 1 queja",
-      "description": "Este es el tema de interes uno",
-      "type": 2,
-      "max_response_days": 15,
-      "min_response_days": 15
-    }
-  },
-  {
-    "model": "pqrs.subtype",
-    "pk": 4,
-    "fields": {
-      "name": "tema 2 queja",
-      "description": "Este es el tema de interes dos",
-      "type": 2,
-      "max_response_days": 15,
-      "min_response_days": 15
-    }
-  },
-  {
-    "model": "pqrs.subtype",
-    "pk": 5,
-    "fields": {
-      "name": "tema 1 reclamo",
-      "description": "Este es el tema de interes uno",
-      "type": 3,
-      "max_response_days": 15,
-      "min_response_days": 15
-    }
-  },
-  {
-    "model": "pqrs.subtype",
-    "pk": 6,
-    "fields": {
-      "name": "tema 2 reclamo",
-      "description": "Este es el tema de interes dos",
-      "type": 3,
-      "max_response_days": 15,
-      "min_response_days": 15
-    }
-  },
-  {
-    "model": "pqrs.subtype",
-    "pk": 7,
-    "fields": {
-      "name": "tema 1 sugerencia",
-      "description": "Este es el tema de interes uno",
-      "type": 4,
-      "max_response_days": 15,
-      "min_response_days": 15
-    }
-  },
-  {
-    "model": "pqrs.subtype",
-    "pk": 8,
-    "fields": {
-      "name": "tema 2 sugerencia",
-      "description": "Este es el tema de interes dos",
-      "type": 4,
-      "max_response_days": 15,
-      "min_response_days": 15
-    }
-  },
-  {
-    "model": "pqrs.subtype",
-    "pk": 9,
-    "fields": {
-      "name": "tema 1 denuncia",
-      "description": "Este es el tema de interes uno",
-      "type": 5,
-      "max_response_days": 15,
-      "min_response_days": 15
-    }
-  },
-  {
-    "model": "pqrs.subtype",
-    "pk": 10,
-    "fields": {
-      "name": "tema 2 denuncia",
-      "description": "Este es el tema de interes dos",
-      "type": 5,
-      "max_response_days": 15,
-      "min_response_days": 15
-    }
-  },
-  {
-    "model": "pqrs.subtype",
-    "pk": 11,
-    "fields": {
-      "name": "tema 1 felicitacion",
-      "description": "Este es el tema de interes uno",
-      "type": 6,
-      "max_response_days": 15,
-      "min_response_days": 15
-    }
-  },
-  {
-    "model": "pqrs.subtype",
-    "pk": 12,
-    "fields": {
-      "name": "tema 2 felicitacion",
-      "description": "Este es el tema de interes dos",
-      "type": 6,
-      "max_response_days": 15,
-      "min_response_days": 15
-    }
-  }
+	{
+		"model": "pqrs.subtype",
+		"pk" : 1,
+		"fields": {
+			"description" : "Peticiones generales y/o derechos de petición",
+			"name" : "Peticiones generales y/o derechos de petición",
+			"max_response_days" : 15,
+			"min_response_days" : 1,
+			"type_id" : 1
+		}
+	},
+	{
+		"model": "pqrs.subtype",
+		"pk" : 2,
+		"fields": {
+			"description" : "Tema de Interés",
+			"name" : "Tema de Interés",
+			"max_response_days" : 15,
+			"min_response_days" : 1,
+			"type_id" : 1
+		}
+	},
+	{
+		"model": "pqrs.subtype",
+		"pk" : 3,
+		"fields": {
+			"description" : "Solicitud de Documentos",
+			"name" : "Solicitud de Documentos",
+			"max_response_days" : 15,
+			"min_response_days" : 1,
+			"type_id" : 1
+		}
+	},
+	{
+		"model": "pqrs.subtype",
+		"pk" : 4,
+		"fields": {
+			"description" : "Trámites de Bienes y/o Servicios",
+			"name" : "Trámites de Bienes y/o Servicios",
+			"max_response_days" : 15,
+			"min_response_days" : 1,
+			"type_id" : 1
+		}
+	},
+	{
+		"model": "pqrs.subtype",
+		"pk" : 5,
+		"fields": {
+			"description" : "Solicitud Conceptos y/o consultas",
+			"name" : "Solicitud Conceptos y/o consultas",
+			"max_response_days" : 15,
+			"min_response_days" : 1,
+			"type_id" : 2
+		}
+	},
+	{
+		"model": "pqrs.subtype",
+		"pk" : 6,
+		"fields": {
+			"description" : "Recursos de Reposición",
+			"name" : "Recursos de Reposición",
+			"max_response_days" : 15,
+			"min_response_days" : 1,
+			"type_id" : 3
+		}
+	},
+	{
+		"model": "pqrs.subtype",
+		"pk" : 7,
+		"fields": {
+			"description" : "Publicpkad engañosa",
+			"name" : "Publicpkad engañosa",
+			"max_response_days" : 15,
+			"min_response_days" : 1,
+			"type_id" : 2
+		}
+	},
+	{
+		"model": "pqrs.subtype",
+		"pk" : 8,
+		"fields": {
+			"description" : "Mala atención",
+			"name" : "Mala atención",
+			"max_response_days" : 15,
+			"min_response_days" : 1,
+			"type_id" : 3
+		}
+	},
+	{
+		"model": "pqrs.subtype",
+		"pk" : 9,
+		"fields": {
+			"description" : "Cobros indebpkos",
+			"name" : "Cobros indebpkos",
+			"max_response_days" : 15,
+			"min_response_days" : 1,
+			"type_id" : 5
+		}
+	},
+	{
+		"model": "pqrs.subtype",
+		"pk" : 10,
+		"fields": {
+			"description" : "Mala calpkad del servicio o producto",
+			"name" : "Mala calpkad del servicio o producto",
+			"max_response_days" : 15,
+			"min_response_days" : 1,
+			"type_id" : 3
+		}
+	},
+	{
+		"model": "pqrs.subtype",
+		"pk" : 11,
+		"fields": {
+			"description" : "Mala calpkad del servicio o producto",
+			"name" : "Mala calpkad del servicio o producto",
+			"max_response_days" : 15,
+			"min_response_days" : 1,
+			"type_id" : 3
+		}
+	}
 ]

@@ -1,35 +1,35 @@
 [
-  {
-    "model": "core.filingtype",
-    "pk": 1,
-    "fields": {
-      "name": "Entrada",
-      "description": "Lorem ipsum dolor sit amet consectetur adipisicing elit. Nesciunt omnis eligendi quidem quaerat modi necessitatibus sint excepturi eveniet at laudantium est distinctio, temporibus earum assumenda aperiam. Nihil ex libero repudiandae.",
-      "asociated_icon": "activity",
-      "code": "1",
-      "identifier": "input"
-    }
-  },
-  {
-    "model": "core.filingtype",
-    "pk": 2,
-    "fields": {
-      "name": "Salida",
-      "description": "Lorem ipsum dolor sit amet consectetur adipisicing elit. Nesciunt omnis eligendi quidem quaerat modi necessitatibus sint excepturi eveniet at laudantium est distinctio, temporibus earum assumenda aperiam. Nihil ex libero repudiandae.",
-      "asociated_icon": "activity",
-      "code": "2",
-      "identifier": "output"
-    }
-  },
-  {
-    "model": "core.filingtype",
-    "pk": 3,
-    "fields": {
-      "name": "Memorando",
-      "description": "Lorem ipsum dolor sit amet consectetur adipisicing elit. Nesciunt omnis eligendi quidem quaerat modi necessitatibus sint excepturi eveniet at laudantium est distinctio, temporibus earum assumenda aperiam. Nihil ex libero repudiandae.",
-      "asociated_icon": "activity",
-      "code": "3",
-      "identifier": "memo"
-    }
-  }
+	{
+		"model": "core.filingtype",
+		"pk" : 1,
+		"fields": {
+			"name" : "Entrada",
+			"description" : "Lorem ipsum dolor sit amet consectetur adipisicing elit. Nesciunt omnis eligendi qupkem quaerat modi necessitatibus sint excepturi eveniet at laudantium est distinctio, temporibus earum assumenda aperiam. Nihil ex libero repudiandae.",
+			"asociated_icon" : "activity",
+			"code" : "1",
+			"identifier" : "input"
+		}
+	},
+	{
+		"model": "core.filingtype",
+		"pk" : 2,
+		"fields": {
+			"name" : "Salpka",
+			"description" : "Lorem ipsum dolor sit amet consectetur adipisicing elit. Nesciunt omnis eligendi qupkem quaerat modi necessitatibus sint excepturi eveniet at laudantium est distinctio, temporibus earum assumenda aperiam. Nihil ex libero repudiandae.",
+			"asociated_icon" : "activity",
+			"code" : "2",
+			"identifier" : "output"
+		}
+	},
+	{
+		"model": "core.filingtype",
+		"pk" : 3,
+		"fields": {
+			"name" : "Memorando",
+			"description" : "Lorem ipsum dolor sit amet consectetur adipisicing elit. Nesciunt omnis eligendi qupkem quaerat modi necessitatibus sint excepturi eveniet at laudantium est distinctio, temporibus earum assumenda aperiam. Nihil ex libero repudiandae.",
+			"asociated_icon" : "activity",
+			"code" : "3",
+			"identifier" : "memo"
+		}
+	}
 ]

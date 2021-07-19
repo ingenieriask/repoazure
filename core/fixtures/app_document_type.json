@@ -1,58 +1,58 @@
 [
-  {
-    "model": "core.documenttypes",
-    "pk": 1,
-    "fields": {
-      "abbr": "CC",
-      "name": "Cédula de Ciudadanía"
-    }
-  },
-  {
-    "model": "core.documenttypes",
-    "pk": 2,
-    "fields": {
-      "abbr": "CE",
-      "name": "Cédula de Extranjería"
-    }
-  },
-  {
-    "model": "core.documenttypes",
-    "pk": 3,
-    "fields": {
-      "abbr": "NIT",
-      "name": "Numéro único de identificacion Personal"
-    }
-  },
-  {
-    "model": "core.documenttypes",
-    "pk": 4,
-    "fields": {
-      "abbr": "TI",
-      "name": "Tarjeta de Identidad"
-    }
-  },
-  {
-    "model": "core.documenttypes",
-    "pk": 5,
-    "fields": {
-      "abbr": "RC",
-      "name": "Registro Civil"
-    }
-  },
-  {
-    "model": "core.documenttypes",
-    "pk": 5,
-    "fields": {
-      "abbr": "PT",
-      "name": "Pasaporte"
-    }
-  },
-  {
-    "model": "core.documenttypes",
-    "pk": 6,
-    "fields": {
-      "abbr": "NIT-EX",
-      "name": "Numéro único de identificacion Personal Extranjeria"
-    }
-  }
+	{
+		"model": "core.documenttypes",
+		"pk" : 1,
+		"fields": {
+			"abbr" : "CC",
+			"name" : "Cédula de Ciudadanía"
+		}
+	},
+	{
+		"model": "core.documenttypes",
+		"pk" : 2,
+		"fields": {
+			"abbr" : "CE",
+			"name" : "Cédula de Extranjería"
+		}
+	},
+	{
+		"model": "core.documenttypes",
+		"pk" : 4,
+		"fields": {
+			"abbr" : "TI",
+			"name" : "Tarjeta de pkentpkad"
+		}
+	},
+	{
+		"model": "core.documenttypes",
+		"pk" : 5,
+		"fields": {
+			"abbr" : "PT",
+			"name" : "Pasaporte"
+		}
+	},
+	{
+		"model": "core.documenttypes",
+		"pk" : 6,
+		"fields": {
+			"abbr" : "NIT-EX",
+			"name" : "NIT Extranjería"
+		}
+	},
+	{
+		"model": "core.documenttypes",
+		"pk" : 3,
+		"fields": {
+			"abbr" : "NIT",
+			"name" : "NIT"
+		}
+	},
+	{
+		"model": "core.documenttypes",
+		"pk" : 7,
+		"fields": {
+			"abbr" : "NUIP",
+			"name" : "Número único de pkentificación Personal"
+		}
+	}
 ]
