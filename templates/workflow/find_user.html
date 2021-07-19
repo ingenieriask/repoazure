@@ -15,9 +15,14 @@
           {% endif %}
           {% if last_leaf %}
           <span style="color: #000;"><i class="fas fa-warehouse mr-1"></i><label
-              onclick="searchPeople('{{item.pk}}', `{% url 'correspondence:users_by_area' %}`, '{{item.parent.name}}/{{item.name}}', '3')">
+              {% if target %}
+              onclick="searchPeople('{{item.pk}}', `{% url 'correspondence:users_by_area' %}`, '{{item.parent.name}}/{{item.name}}', '3', '#{{target}}')"
+              {% else%}
+              onclick="searchPeople('{{item.pk}}', `{% url 'correspondence:users_by_area' %}`, '{{item.parent.name}}/{{item.name}}', '3')"
+              {% endif %}
+              >
               {{ item }}</label></span>
-          {% else%}
+          {% else %}
           <span>
             <a style="color:#000; text-decoration:none;" data-toggle="collapse" href="#cont{{item.pk}}"
               aria-expanded="false" aria-controls="cont{{item.pk}}">
@@ -37,7 +42,7 @@
       </ul>
       {% if info.level != 0 and info.open%}
     </div>
-    {% endif%}
+    {% endif %}
     {% endfor %}
     {% endfor %}
   </div>
@@ -45,11 +50,10 @@
 
 <h5 class="mt-2 text-primary">Área seleccionada: <span id="headerForm"></span></h5>
 <div class="col text-center">
-  <select name="user_selected" class="selectpicker" id="user_selected">
-  </select>
-<div class="col text-center">
-  tiempo máximo (horas): 
-  <input id="user_selected_time" type="number" name="tuser_selected_time" min="0" max="100"> 
-<div class="col text-center">  
-  <input id="user_selected_submit" type="submit" class="btn btn-success" value="Asignar"></p>
+  {% if target %}
+  <select name="{{target}}" class="selectpicker" id="{{target}}"></select>
+  {% else %}
+  <select name="user_selected" class="selectpicker" id="user_selected"></select>
+  {% endif %}
+
 </div>

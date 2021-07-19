@@ -1,8 +1,12 @@
 from django.contrib import admin
-from workflow.forms import SignatureFlowForm
-from workflow.models import SignatureFlow
+from workflow.forms import SignatureFlowAdminForm, FilingFlowAdminForm
+from workflow.models import SignatureFlow, FilingFlow
 
-class SignatureFlowAdminForm(admin.ModelAdmin):
-    form = SignatureFlowForm
+class SignatureFlowAdmin(admin.ModelAdmin):
+    form = SignatureFlowAdminForm
 
-admin.site.register(SignatureFlow, SignatureFlowAdminForm)
+class RadicateFlowAdminForm(admin.ModelAdmin):
+    form = FilingFlowAdminForm
+
+admin.site.register(SignatureFlow, SignatureFlowAdmin)
+admin.site.register(FilingFlow, RadicateFlowAdminForm)

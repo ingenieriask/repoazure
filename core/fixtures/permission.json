@@ -151,5 +151,14 @@
       "content_type_id": 4,
       "codename": "legal_signature"
     }
+  },
+  {
+    "model": "auth.permission",
+    "pk": 10018,
+    "fields": {
+      "name": "notified",
+      "content_type_id": 4,
+      "codename": "notified"
+    }
   }
 ]
