@@ -1,0 +1,378 @@
+{% load static %}
+
+<link href="{% static 'node_modules/datatables.net-bs4/css/dataTables.bootstrap4.min.css' %}" rel="stylesheet" />
+<link href="{% static 'node_modules/daterangepicker/daterangepicker.css' %}" rel="stylesheet" />
+<link href="{% static 'node_modules/bootstrap-select/dist/css/bootstrap-select.min.css' %}" rel="stylesheet" />
+<link href="{% static 'node_modules/jquery-ui-dist/jquery-ui.min.css' %}" rel="stylesheet" />
+<link href="{% static 'node_modules/bootstrap/dist/css/bootstrap.min.css' %}" rel="stylesheet" />
+<link href="{% static 'node_modules/bootstrap-fileinput/css/fileinput.min.css' %}" rel="stylesheet" />
+<link href="{% static 'correspondence/css/styles.css' %}" rel="stylesheet" />
+<link href="{% static 'node_modules/@fortawesome/fontawesome-free/css/all.min.css' %}" rel="stylesheet" />
+
+
+<style type="text/css" scoped>
+
+form .aligned ul {
+    margin-left: 20px !important;
+    padding-left: 10px !important;
+}
+
+.inicio {
+    background-color: #e9c46a !important;
+    border-radius: 50% !important;
+    min-width: 80px !important;
+    width: 80px !important;
+}
+
+.fin {
+    background-color: #e9c46a !important;
+    border-radius: 50% !important;
+    min-width: 80px !important;
+    width: 80px !important;
+}
+.visto-bueno {
+    background-color: rgba(177, 191, 250, 0.8) !important;
+    min-width: 135px !important;
+    width: 135px !important;
+}
+
+.firma-personal {
+    background-color: #95d5b2 !important;
+    border: 2px solid #658542 !important;
+    min-width: 135px !important;
+    width: 135px !important;
+}
+
+.firma-jurídica {
+    background-color: #ed2939 !important;
+    border: 2px solid #960018 !important;
+    min-width: 140px !important;
+    width: 140px !important;
+}
+
+.selected {
+    border-color: #e3c000 !important;
+}
+
+.node {
+  border-radius: 30%;
+  cursor: pointer;
+  height: auto;
+  padding-bottom: 6px;
+  box-sizing: content-box;
+  position: relative;
+  user-select: none;
+}
+
+.selectpicker {
+    width: 100px !important;
+}
+
+#rete {
+    height: 300px;
+    width: 1000px;
+    overflow-x: scroll
+}
+
+.userinput {
+    width: 105px !important;
+}
+
+#id-graph-alert {
+    color: red;
+}
+
+.submit-row a.deletelink {
+        height: 35px;
+}
+
+</style>
+
+<input id="id-graph" name="graph" type="hidden" value="">
+<input id="id-{{ widget.name }}" name="{{ widget.name }}" type="hidden" value="{{ widget.value }}">
+
+{% if widget.value == '' %}
+    <h2>Primero defina un nombre y guarde para continuar con la edición del flujo del proceso a definir</h2>
+{% else %}
+
+<div id="rete"></div>
+
+<div class="modal fade" id="user_modal" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-m" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                Búsqueda de Usuario
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="row justify-content-center">
+                <div class="col-12" id="file-display-field">
+                    {% include "workflow/select_user_and_time.html" %} 
+                </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script src="{% static 'node_modules/jquery/dist/jquery.min.js' %}"></script>
+<script src="{% static 'node_modules/vue/dist/vue.min.js' %}"></script>
+<script src="{% static 'node_modules/rete/build/rete.min.js' %}"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.20/lodash.min.js"></script>
+<script src="{% static 'node_modules/rete-connection-plugin/build/connection-plugin.min.js' %}"></script>
+<script src="{% static 'node_modules/rete-context-menu-plugin/build/context-menu-plugin.common.js' %}"></script>
+<script src="{% static 'node_modules/rete-context-menu-plugin/build/context-menu-plugin.min.js' %}"></script>
+<script src="{% static 'node_modules/rete-vue-render-plugin/build/vue-render-plugin.min.js' %}"></script>
+<script src="{% static 'node_modules/rete-comment-plugin/build/comment-plugin.min.js' %}"></script>
+<script src="{% static 'node_modules/rete-keyboard-plugin/build/keyboard-plugin.min.js' %}"></script>
+<script src="{% static 'node_modules/rete-area-plugin/build/area-plugin.min.js' %}"></script>
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+<script src="{% static 'correspondence/js/custom.js' %}" type="text/javascript"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-fileinput/5.0.9/js/fileinput.min.js"></script>
+<script src="https://cdn.datatables.net/1.10.22/js/jquery.dataTables.min.js" crossorigin="anonymous"></script>
+<script src="https://cdn.datatables.net/1.10.22/js/dataTables.bootstrap4.min.js" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap-select@1.13.14/dist/js/bootstrap-select.min.js"></script>
+<script src="{% static 'correspondence/js/custom.js' %}" type="text/javascript"></script>
+
+
+{{ widget.graph|json_script:"graph" }}
+
+<script>
+
+var graph = JSON.parse(document.getElementById('graph').textContent);
+var actSocket = new Rete.Socket("Action");
+var mounted = false;
+
+function validateUser() {
+    if ($.isNumeric($("#user_selected_time").val()) &&
+        $("#user_selected").val() != '-1' && 
+        $("#user_selected").val() != null) {
+        $('#user_selected_submit').prop('disabled', false);
+    } else {
+        $('#user_selected_submit').prop('disabled', true);
+    }
+}
+
+function getVueUserControl(key, userType, user, time, permission) {
+    return {
+        props: ['emitter', 'ikey', 'getData', 'putData', ],
+        template: `<input id="${key}_selected" class="userinput" readonly=true v-on:click="showModal($event)" \
+                :value=username data-toggle="tooltip" data-placement="top" \
+                :title=title />`
+        ,
+        data() {
+            if (!time){
+                time = 2;
+            }
+            return {
+                value: user.id,
+                username: user.username,
+                user: user,
+                title: `[${user.username}] ${user.first_name} ${user.last_name}`,
+                time: time,
+                permission: permission
+            }
+        },
+        methods: {
+            showModal(e){
+                permissions = [this.permission]
+                $('#user_selected').find('option').remove().end();
+                $("#user_selected").append('<option value=-1>[sin usurio] seleccione un usuario</option>')
+                if (this.value) {
+                    $("#user_selected").append(
+                        `<option selected value=${this.value}>${this.title}</option>`)
+                }
+                $("#user_selected").selectpicker('refresh');
+                $('#user_selected').selectpicker('render');
+                $('#user_selected_time').val(this.time)
+                $('#user_selected_submit').prop('disabled', true);
+                self = this;
+                $('#user_selected_submit').click(function(){ 
+                    self.value = $('#user_selected').val();
+                    self.title = $('#user_selected').find("option:selected").text()
+                    self.username = self.title.match(/\[(.*)\]/i)[1];
+                    $('.collapse').collapse('hide')
+                    $("#headerForm").text('')
+                    $('#user_modal').modal('hide')
+                    self.time = $('#user_selected_time').val()
+                    self.update();
+                });
+                $('#user_selected').change(function(){ 
+                    validateUser()
+                });
+                $('#user_selected_time').change(function(){ 
+                    validateUser()
+                });
+                $('#user_modal').modal()
+            },
+            update() {
+                if (this.ikey)
+                    this.putData('user', {'id': this.value})
+                    this.putData('time', this.time)
+                this.emitter.trigger('process');
+            }
+        }
+    }
+}
+
+class UserControl extends Rete.Control {
+    constructor(emitter, key, userType, user, time, permission) {
+        if ($.isEmptyObject(user)) {
+            user = {
+                'id': null, 
+                'username': 'sin usuario', 
+                'first_name': 'seleccione un usuario', 
+                'last_name': ''
+            }
+        } 
+        super(key);
+        this.component = getVueUserControl(key, userType, user, time, permission);
+        this.props = {emitter, ikey: 'data'};
+    }
+}
+
+class InputComponent extends Rete.Component {
+    constructor(){
+        super("Inicio");
+    }
+    builder(node) {
+        var out = new Rete.Output('out', "Inicio", actSocket, true);
+        return node.addOutput(out);
+    }
+    worker(node, inputs, outputs) {
+    }
+}
+
+class OutputComponent extends Rete.Component {
+    constructor(){
+        super("Fin");
+    }
+    builder(node) {
+        var inp = new Rete.Input('in', "Fin", actSocket, true);
+        return node.addInput(inp);
+    }
+    worker(node, inputs, outputs) {
+    }
+}
+
+class GuarantorUserComponent extends Rete.Component {
+    constructor(){
+        super("Visto Bueno"); 
+    }
+    builder(node) {
+        var ctrl = new UserControl(this.editor, node.id, 'guarantoruser', node.data.user, node.data.time, 'approbation');
+        var inp = new Rete.Input('in',"Inicio", actSocket, true);
+        var out = new Rete.Output('out', "Fin", actSocket, true);
+        return node
+            .addInput(inp)
+            .addControl(ctrl)
+            .addOutput(out);
+    }
+    worker(node, inputs, outputs) {
+    }
+}
+
+class SigningUserComponent extends Rete.Component {
+    constructor(){
+        super("Firma Personal"); 
+    }
+    builder(node) {
+        var ctrl = new UserControl(this.editor, node.id, 'signinguser', node.data.user, node.data.time, 'personal_signature');
+        var inp = new Rete.Input('in',"Inicio", actSocket, true);
+        var out = new Rete.Output('out', "Fin", actSocket, true);
+        return node
+            .addInput(inp)
+            .addControl(ctrl)
+            .addOutput(out);
+    }
+
+    worker(node, inputs, outputs) {
+        var value = inputs['in'].length ? inputs['in'][0] : node.data.value;
+        outputs['value'] = value;
+    }
+}
+
+class LegalSigningUserComponent extends Rete.Component {
+    constructor(){
+        super("Firma Jurídica");
+    }
+    builder(node) {
+        var ctrl = new UserControl(this.editor, node.id, 'legalsigninguser', node.data.user, node.data.time, 'legal_signature');
+        var inp = new Rete.Input('in',"Inicio", actSocket, true);
+        var out = new Rete.Output('out', "Fin", actSocket, true);
+        return node
+            .addInput(inp)
+            .addControl(ctrl)
+            .addOutput(out);
+    }
+
+    worker(node, inputs, outputs) {
+        var value = inputs['in'].length ? inputs['in'][0] : node.data.value;
+        outputs['value'] = value;
+    }
+}
+
+var container = document.querySelector('#rete');
+var components = [new GuarantorUserComponent(), new SigningUserComponent(), 
+                  new LegalSigningUserComponent(), new InputComponent(), 
+                  new OutputComponent()];
+
+var editor = new Rete.NodeEditor('demo@0.1.0', container);
+editor.use(ConnectionPlugin.default);
+editor.use(VueRenderPlugin.default);   
+editor.use(ContextMenuPlugin.default, {
+    searchBar: false,
+});
+editor.use(AreaPlugin);
+editor.use(CommentPlugin.default);
+editor.use(KeyboardPlugin);
+
+var engine = new Rete.Engine('demo@0.1.0');
+
+
+components.map(c => {
+    editor.register(c);
+    engine.register(c);
+});
+
+editor.on('connectioncreate connectionremove nodecreate noderemove process', ()=>{
+    compile();
+    if (mounted) {
+        $('#id-graph-alert').html('');
+    }
+});
+
+async function compile() {
+    await engine.abort();
+    await engine.process(editor.toJSON());
+    $('#id-graph').val(JSON.stringify(editor.toJSON()));
+}
+
+editor.fromJSON(graph).then(() => {
+    editor.view.resize();
+    compile();
+    mounted = true;    
+});
+
+editor.on('zoom', (e) => {
+  let k = e.transform.k; 
+  if (e.zoom > k) { 
+    e.zoom = k + 0.02;
+  } else if (e.zoom < k) {
+    e.zoom = k - 0.02;
+  }
+  e.zoom = +e.zoom.toFixed(2);
+  return e.source !== 'dblclick'; 
+});
+
+</script>
+
+{% endif %}
+
+
+
+

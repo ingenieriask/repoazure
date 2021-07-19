@@ -15,7 +15,7 @@ def find_user(context, target=None):
                 temp = True
             functional_tree.append((item, info, temp))
 
-    result = {'request':context['request'], 'functional_tree': functional_tree}
+    result = {'functional_tree': functional_tree}
     if target:
         result['target'] = target
     return result

@@ -21,18 +21,18 @@ class SignatureNode(models.Model):
     def __str__(self):
         return f'{self.type} {self.previous}'
 
-class RadicateFlow(models.Model):
-    subtype = models.OneToOneField(SubType, on_delete=models.PROTECT, null=True)
+class FilingFlow(models.Model):
+    subtype = models.OneToOneField(SubType, on_delete=models.PROTECT, null=False)
 
     def __str__(self):
-        return self.name
+        return f'{self.subtype.name}'
 
-class RadicateNode(models.Model):
+class FilingNode(models.Model):
     index = models.IntegerField(null=False)
     type = models.CharField(max_length=50)
     previous = models.ManyToManyField("self", symmetrical = False)
     properties = models.CharField(max_length=512)
-    radicate_flow = models.ForeignKey(RadicateFlow, on_delete=models.CASCADE)
+    filing_flow = models.ForeignKey(FilingFlow, on_delete=models.CASCADE)
     users = models.ManyToManyField(User, symmetrical=False)
     time = models.IntegerField(null=False, default=2)
 

@@ -1,16 +1,16 @@
 from django import forms
 from django.template import loader
 from django.utils.safestring import mark_safe
-from workflow.services import SignatureFlowService
+from workflow.services import FlowService
 
 class SignatureFlowWidget(forms.Widget):
     ''' '''
 
-    template_name = 'core/signature_flow.html'
+    template_name = 'workflow/signature_flow_admin.html'
 
     def get_context(self, name, value, attrs=None):
 
-        graph = SignatureFlowService.to_json(value) if value else ''
+        graph = FlowService.to_json(value, FlowService.FlowType.SIGNATURE) if value else ''
 
         return {'widget': {
             'name': name,
@@ -23,14 +23,14 @@ class SignatureFlowWidget(forms.Widget):
         template = loader.get_template(self.template_name).render(context)
         return mark_safe(template)
 
-class RadicateFlowWidget(forms.Widget):
+class FilingFlowWidget(forms.Widget):
     ''' '''
 
-    template_name = 'workflow/radicate_flow.html'
+    template_name = 'workflow/filing_flow_admin.html'
 
     def get_context(self, name, value, attrs=None):
 
-        graph = SignatureFlowService.to_json(value) if value else ''
+        graph = FlowService.to_json(value) if value else ''
 
         return {'widget': {
             'name': name,

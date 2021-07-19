@@ -1,0 +1,57 @@
+[
+  {
+    "model": "workflow.filingflow",
+    "pk": 1,
+    "fields": {
+      "subtype_id": 1
+    }
+  },
+  {
+    "model": "workflow.filingnode",
+    "pk": 1,
+    "fields": {
+      "index": 1,
+      "type": "Inicio",
+      "properties": "{\"position\": [0, 100]}",
+      "filing_flow_id": 1,
+      "previous": [],
+      "users": []
+    }
+  },
+  {
+    "model": "workflow.filingnode",
+    "pk": 11,
+    "fields": {
+      "index": 2,
+      "type": "Notificar",
+      "properties": "{\"position\": [530, 20]}",
+      "filing_flow_id": 1,
+      "previous": [1],
+      "users": [2, 3]
+    }
+  },
+  {
+    "model": "workflow.filingnode",
+    "pk": 12,
+    "fields": {
+      "index": 3,
+      "type": "Asignar",
+      "properties": "{\"position\": [530, 215]}",
+      "filing_flow_id": 1,
+      "previous": [1],
+      "users": [2]
+    }
+  },
+  {
+    "model": "workflow.filingnode",
+    "pk": 2,
+    "fields": {
+      "index": 4,
+      "type": "Fin",
+      "properties": "{\"position\": [800, 100]}",
+      "filing_flow_id": 1,
+      "previous": [11, 12],
+      "users": []
+    }
+  }
+]

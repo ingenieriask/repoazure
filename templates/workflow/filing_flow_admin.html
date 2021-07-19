@@ -1,8 +1,20 @@
-{% extends 'correspondence/main_template.html' %}
 {% load static %}
-{% block content %}
+
+<link href="{% static 'node_modules/datatables.net-bs4/css/dataTables.bootstrap4.min.css' %}" rel="stylesheet" />
+<link href="{% static 'node_modules/daterangepicker/daterangepicker.css' %}" rel="stylesheet" />
+<link href="{% static 'node_modules/bootstrap-select/dist/css/bootstrap-select.min.css' %}" rel="stylesheet" />
+<link href="{% static 'node_modules/jquery-ui-dist/jquery-ui.min.css' %}" rel="stylesheet" />
+<link href="{% static 'node_modules/bootstrap/dist/css/bootstrap.min.css' %}" rel="stylesheet" />
+<link href="{% static 'correspondence/css/styles.css' %}" rel="stylesheet" />
+<link href="{% static 'node_modules/@fortawesome/fontawesome-free/css/all.min.css' %}" rel="stylesheet" />
+
 
 <style type="text/css" scoped>
+
+form .aligned ul {
+    margin-left: 20px !important;
+    padding-left: 10px !important;
+}
 
 .inicio {
     background-color: #e9c46a !important;
@@ -48,11 +60,10 @@
     width: 100px !important;
 }
 
-.rete {
-    height: 430px;
-    padding: 10px;
-    border: 1px solid #bbbbbb;
-    border-radius: 5px;
+#rete {
+    height: 300px;
+    width: 1000px;
+    overflow-x: scroll
 }
 
 .userinput {
@@ -63,33 +74,21 @@
     color: red;
 }
 
+.submit-row a.deletelink {
+        height: 35px;
+}
+
 </style>
 
-<div class="card mb-4">
-    <div class="card-body">
-        <form method="post" enctype="multipart/form-data" action="{% url 'workflow:filing' radicate=radicate %}" autocomplete="off">
+<input id="id-graph" name="graph" type="hidden" value="">
+<input id="id-{{ widget.name }}" name="{{ widget.name }}" type="hidden" value="{{ widget.value }}">
 
-            {% csrf_token %}
+{% if widget.value == '' %}
+    <h2>Primero defina un tipo y guarde para continuar con la edición del flujo del proceso a definir</h2>
+{% else %}
 
-            <input id="id-graph" name="graph" type="hidden" value="">
-            <input id="id-id" name="id" type="hidden" value="{{ id }}">
-            <input id="id-next" name="next" type="hidden" value="{{ next }}">
+<div id="rete"></div>
 
-            <div class="rete">
-
-                {% if messages %}
-                    {% for message in messages %}
-                        <div id="id-graph-alert">{{ message|safe }}</div>
-                    {% endfor %}
-                {% endif %}
-
-                <div id="rete"></div>
-            </div>
-
-            <input type="submit" name="button" class="btn btn-success mt-3" value="Guardar">
-        </form>
-    </div>
-</div>
 
 <div class="modal fade" id="user_modal" tabindex="-1" role="dialog">
     <div class="modal-dialog modal-m" role="document">
@@ -102,9 +101,9 @@
             </div>
             <div class="modal-body">
                 <div class="row justify-content-center">
-                <div class="col-12" id="file-display-field">
-                    {% include "workflow/select_user.html" %} 
-                </div>
+                    <div class="col-12" id="file-display-field">
+                        {% include "workflow/select_user.html" %} 
+                    </div>
                 </div>
             </div>
         </div>
@@ -122,9 +121,9 @@
             </div>
             <div class="modal-body">
                 <div class="row justify-content-center">
-                <div class="col-12" id="file-display-field">
-                    {% include "workflow/select_users.html" %} 
-                </div>
+                    <div class="col-12" id="file-display-field">
+                        {% include "workflow/select_users.html" %} 
+                    </div>
                 </div>
             </div>
         </div>
@@ -142,13 +141,21 @@
 <script src="{% static 'node_modules/rete-comment-plugin/build/comment-plugin.min.js' %}"></script>
 <script src="{% static 'node_modules/rete-keyboard-plugin/build/keyboard-plugin.min.js' %}"></script>
 <script src="{% static 'node_modules/rete-area-plugin/build/area-plugin.min.js' %}"></script>
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+<script src="{% static 'correspondence/js/custom.js' %}" type="text/javascript"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-fileinput/5.0.9/js/fileinput.min.js"></script>
+<script src="https://cdn.datatables.net/1.10.22/js/jquery.dataTables.min.js" crossorigin="anonymous"></script>
+<script src="https://cdn.datatables.net/1.10.22/js/dataTables.bootstrap4.min.js" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap-select@1.13.14/dist/js/bootstrap-select.min.js"></script>
+<script src="{% static 'correspondence/js/custom.js' %}" type="text/javascript"></script>
 
-{{ graph|json_script:"graph" }}
+
+{{ widget.graph|json_script:"graph" }}
 
 <script>
 
 var graph = JSON.parse(document.getElementById('graph').textContent);
-
 var actSocket = new Rete.Socket("Action");
 var mounted = false;
 
@@ -480,5 +487,5 @@ editor.on('zoom', (e) => {
 
 </script>
 
-{% endblock %}
+{% endif %}
 

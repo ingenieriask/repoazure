@@ -4,19 +4,17 @@ from django.core.exceptions import ValidationError
 from django.contrib import messages
 from django.http import HttpResponseRedirect
 import json
-from workflow.services import SignatureFlowService
-from workflow.forms import SignatureFlowForm
+from workflow.services import FlowService
 
 def signature(request, radicate):
 
     graph_error = ''
     if request.method == 'POST':
-        form = SignatureFlowForm(request.POST)
         id = request.POST['id']
         next_view = request.POST['next']
         graph = json.loads(request.POST['graph'])
         try:
-            sf = SignatureFlowService.from_json(graph, id if id and id != 'None' else None)
+            sf = FlowService.from_json(graph, FlowService.FlowType.SIGNATURE, id if id and id != 'None' else None)
             id = sf.id
         except ValidationError as e:
             messages.error(request, e.message)
@@ -28,7 +26,7 @@ def signature(request, radicate):
     if request.method == 'GET':
         next_view = request.GET.get('next')
         id = request.GET.get('id')
-        graph = SignatureFlowService.to_json(id)
+        graph = FlowService.to_json(id, FlowService.FlowType.SIGNATURE)
 
     return render(
         request,
@@ -45,12 +43,12 @@ def filing(request, radicate):
 
     graph_error = ''
     if request.method == 'POST':
-        form = SignatureFlowForm(request.POST)
         id = request.POST['id']
         next_view = request.POST['next']
         graph = json.loads(request.POST['graph'])
+        print(request.POST['graph'])
         try:
-            sf = SignatureFlowService.from_json(graph, id if id and id != 'None' else None)
+            sf = FlowService.from_json(graph, None, id if id and id != 'None' else None)
             id = sf.id
         except ValidationError as e:
             messages.error(request, e.message)
@@ -58,11 +56,11 @@ def filing(request, radicate):
             messages.error(request, "Something else went wrong")
         if next_view and next_view != 'None':
             return HttpResponseRedirect(reverse(next_view))
-
+            
     if request.method == 'GET':
         next_view = request.GET.get('next')
         id = request.GET.get('id')
-        graph = SignatureFlowService.to_json(id)
+        graph = FlowService.to_json(id)
 
     return render(
         request,
