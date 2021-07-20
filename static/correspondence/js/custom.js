@@ -85,7 +85,7 @@ function searchPeople(areaId, url, areaName, kindTask, target='#user_selected') 
         $("#interest_area").val(areaId)
       },
       error: function (response) {
-        console.log(response)
+        console.error(response)
       }
   })
 }
@@ -256,7 +256,7 @@ function updateNotifications(url, disable_url) {
           addNotification(act, disable_url)
       },
       error: function (response) {
-        console.log(response)
+        console.error(response)
       }
     })
   }, 5000)
@@ -272,7 +272,7 @@ function disableNotification(url, pk) {
       //do nothing
     },
     error: function (response) {
-      console.log(response);
+      console.error(response);
     },
   });
 }

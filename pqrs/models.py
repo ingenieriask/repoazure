@@ -61,6 +61,7 @@ class SubType(models.Model):
         verbose_name_plural= 'Sub tipos PQRSD'
 class PQRS(models.Model):
     class Status(models.TextChoices):
+        EMAIL = 'EM', _('Importada')
         CREATED = 'CR', _('Recibida')
         ASSIGNED = 'AS', _('Asignada')
         RETURNED = 'RT', _('Devuelto')
@@ -78,12 +79,12 @@ class PQRS(models.Model):
         verbose_name_plural= 'Objetos PQRSD'
 # Create your models here.
 class PqrsContent(Radicate):
-    data = models.TextField(max_length=2000)
     response_mode = models.ForeignKey(RequestResponse, on_delete=models.PROTECT, related_name='pqrs_response_mode')
-    interestGroup = models.ForeignKey(InterestGroup, on_delete=models.PROTECT, related_name='pqr_interest_group', null=False, blank= False, default=None)
+    interestGroup = models.ForeignKey(InterestGroup, on_delete=models.PROTECT, related_name='pqr_interest_group', null=True, blank= True)
     subtype = models.ForeignKey(SubType, on_delete=models.PROTECT, related_name='pqr_type', null=True)
     pqrsobject = models.ForeignKey(PQRS,related_name='pqr_type_object', on_delete=models.PROTECT,blank=True, null=True)
     agreement_personal_data = models.BooleanField()
+
     def get_absolute_url(self):
         return reverse('pqrs_detail', args=[self.id])
 

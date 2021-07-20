@@ -38,8 +38,8 @@ from pinax.eventlog.models import log, Log
 from crum import get_current_user
 from django.core.files import File
 
-from core.services import NotificationsHandler, SystemParameterHelper
-from correspondence.services import ECMService
+from core.services import NotificationsHandler, SystemParameterHelper, UserHelper
+from correspondence.services import ECMService, RadicateService
 
 logger = logging.getLogger(__name__)
 
@@ -208,47 +208,21 @@ def return_to_last_user(request, radicate):
 
 def assign_user(request, radicate):
 
-    print('request.POST', request.POST, 'request.POST')
     if request.method == 'POST':
         form = AssignToUserForm(request.POST)
         if form.is_valid():
             userPk = request.POST.get('selectedUsersInput')
-            print('userPk', userPk, 'userPk')
             pqrs = PqrsContent.objects.get(pk=radicate)
             user = User.objects.get(pk=userPk)
-            pqrs.last_user = get_current_user()
-            pqrs.current_user = user
-            pqrs.pqrsobject.status = PQRS.Status.ASSIGNED
-
+            RadicateService.assign_to_user_service(pqrs, user, form.cleaned_data['observations'], 
+                reverse('pqrs:detail_pqr', kwargs={'pk': pqrs.pk}), get_current_user(), PQRS.Status.ASSIGNED)
             if pqrs.observation == None:
                 pqrs.observation = ''
             pqrs.observation = pqrs.observation + form.cleaned_data['observations']
-
-            action = ProcessActionStep()
-            action.user = get_current_user()
-            action.destination_user = user
-            action.action = 'Asignación'
-            action.detail = "El radicado %s ha sido asignado a %s" % (pqrs.number, user.username)
-            action.radicate = pqrs
-            action.observation = form.cleaned_data['observations']
-            action.save()
-
-            alert = Alert()
-            alert.info = 'Te han asignado el radicado %s' % pqrs.number
-            alert.assigned_user = user
-            alert.href = reverse('pqrs:detail_pqr', kwargs={'pk': pqrs.pk})
-            alert.save()
-
-            log(
-                user=request.user,
-                action="PQR_ASSIGNED",
-                obj=action,
-                extra={
-                    "number": pqrs.number,
-                    "message": "El radicado %s ha sido asignado a %s" % (pqrs.number, user.username)
-                }
-            )
+            
+            pqrs.pqrsobject.save()
             pqrs.save()
+
             get_args_str = urlencode({'pk': pqrs.pk, 'template': 'FINISH_ASSIGNATION', 'destination': 'pqrs:radicate_my_inbox'})
             return HttpResponseRedirect(reverse('pqrs:conclusion')+'?'+get_args_str)
     if request.method == 'GET':
@@ -292,7 +266,7 @@ def users_by_area(request):
     ###kind_task 1 is for assination, else is gonna be report
     permission = filters[int(kind_task)](area, user, permission_list)
     ###get destination users
-    users = User.objects.filter(Q(groups__permissions__in=permission) | Q(user_permissions__in=permission)).distinct()
+    users = UserHelper.list_by_permissions(permission)
     if request.is_ajax and request.method == "GET":
         users = [{
             'pk': u.user.pk,
@@ -311,7 +285,7 @@ def get_alerts(request):
             'icon': a.icon,
             'info': a.info,
             'href': a.href,
-            'user_creation': a.user_creation.username + ' ' + a.user_creation.first_name + ' ' + a.user_creation.last_name
+            'user_creation': (a.user_creation.username + ' ' + a.user_creation.first_name + ' ' + a.user_creation.last_name) if a.user_creation else None
         } for a in Alert.objects.filter(assigned_user=user, is_active = True)]
         return JsonResponse(alerts, safe=False, status=200)
     return JsonResponse({}, status=400)
@@ -332,48 +306,14 @@ def report_to_user(request, radicate):
         form = ReportToUserForm(request.POST)
         if form.is_valid():
             pqrs = PqrsContent.objects.get(pk=radicate)
-            users=''
-            destination_users = []
-            for userPK in request.POST.getlist('selectedUsersInput'):
-                print('userPK', userPK, 'fin userPK')
-                user = User.objects.get(pk=userPK)
+            RadicateService.report_to_users_service(pqrs, request.POST.getlist('selectedUsersInput'), 
+                form.cleaned_data['observations'], reverse('pqrs:reported_detail_pqr', kwargs={'pk': pqrs.pk}), get_current_user())
 
-                pqrs.reported_people.add(user)
-                users += user.username + ', '
-                destination_users.append(user)
-
-            
             if pqrs.observation == None:
                 pqrs.observation = ''
             pqrs.observation = pqrs.observation + form.cleaned_data['observations']
-
-            action = ProcessActionStep()
-            action.user = get_current_user()
-            action.action = 'Informe'
-            action.detail = "El radicado %s ha sido informado a los usuarios %s" % (pqrs.number, users)
-            action.radicate = pqrs
-            action.observation = form.cleaned_data['observations']
-            action.save()
-            action.destination_users.set(destination_users)
-            action.save()
-
-            for us in destination_users:
-                alert = Alert()
-                alert.info = 'Te han informado del radicado %s' % pqrs.number
-                alert.assigned_user = us
-                alert.href = reverse('pqrs:reported_detail_pqr', kwargs={'pk': pqrs.pk})
-                alert.save()
-
-            log(
-                user=request.user,
-                action="PQR_REPORTED",
-                obj=action,
-                extra={
-                    "number": pqrs.number,
-                    "message": "El radicado %s ha sido informado a los usuarios %s" % (pqrs.number, users)
-                }
-            )
             pqrs.save()
+
             get_args_str = urlencode({'pk': pqrs.pk, 'template': 'FINISH_REPORT', 'destination': 'pqrs:radicate_my_inbox'})
             return HttpResponseRedirect(reverse('pqrs:conclusion')+'?'+get_args_str)
             # return HttpResponseRedirect(reverse('pqrs:radicate_inbox'))

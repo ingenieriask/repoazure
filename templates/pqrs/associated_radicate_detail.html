@@ -28,93 +28,117 @@
         <div class="card mb-4 h-100 mb-3">
           <div class="card-header text-secundary">Información General</div>
           <div class="card-body">
-            <div class="col-xxl-12 col-xl-12 mb-12">
-              <div class="card  mb-3">
-                <div class="card-header">Informacion General</div>
-                <div class="card-body">
-                  <div class="row">
-                    <div class="col-md-4 text-sm">
-                      <p>
-                        <i data-feather="user"></i>
-                        <b>Tipo Persona:</b><br />{{radicate.person.person_type.name}}
-                      </p>
+            {% if radicate.person %}
+              <div class="col-xxl-12 col-xl-12 mb-12">
+                <div class="card  mb-3">
+                  <div class="card-header">Información General</div>
+                  <div class="card-body">
+                    <div class="row">
+                      <div class="col-md-4 text-sm">
+                        <p>
+                          <i data-feather="user"></i>
+                          <b>Tipo Persona:</b><br />{{radicate.person.person_type.name}}
+                        </p>
+                      </div>
+                      <div class="col-md-4 text-sm">
+                        <p>
+                          <i data-feather="user"></i>
+                          <b>Nombres y Apellidos:</b><br />{{ radicate.person.name }} {{ radicate.person.lasts_name }}
+                        </p>
+                      </div>
                     </div>
-                    <div class="col-md-4 text-sm">
-                      <p>
-                        <i data-feather="user"></i>
-                        <b>Nombres y Apellidos:</b><br />{{ radicate.person.name }} {{ radicate.person.lasts_name }}
-                      </p>
-                    </div>
-                  </div>
-                  <div class="row">
-                    <div class="col-md-4 text-sm">
-                      <p>
-                        <i data-feather="credit-card"></i>
-                        <b>Tipo Documento:</b><br />{{radicate.person.document_type.name}}
-                      </p>
-                    </div>
-                    <div class="col-md-4 text-sm">
-                      <p>
-                        <i data-feather="credit-card"></i>
-                        <b>Numero Documento:</b><br />{{radicate.person.document_number}}
-                      </p>
-                    </div>
-                    <div class="col-md-4 text-sm">
-                      <p>
-                        <i data-feather="calendar"></i>
-                        <b>Fecha de expedición:</b><br />{{ radicate.date_radicated|simple_date }}
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div class="col-xxl-12 col-xl-12 mb-12">
-              <div class="card  mb-3">
-                <div class="card-header">Informacion de Contacto</div>
-                <div class="card-body">
-                  <div class="row">
-                    <div class="col-md-7 text-sm">
-                      <p>
-                        <i data-feather="home"></i>
-                        <b>Medio deseado para recibir respuesta: </b><br />{{ radicate.person.request_response.name }}
-                      </p>
-                    </div>
-                    <div class="col-md-5 text-sm">
-                      <p>
-                        <i data-feather="mail"></i>
-                        <b>Corre electronico: </b><br />{{ radicate.person.email }}
-                      </p>
-                    </div>
-                  </div>
-                  <div class="row">
-                    <div class="col-md-3 text-sm">
-                      <p>
-                        <i data-feather="map-pin"></i>
-                        <b>Dirección:</b><br />
-                        {% if radicate.person.pk != 1 %}
-                        {{ radicate.person.address }} {% else %}
-                        Persona anonima {% endif %}
-                      </p>
-                    </div>
-                    <div class="col-md-5 text-sm">
-                      <p>
-                        <i data-feather="compass"></i>
-                        <b>Departamento y Municipio:</b><br />
-                        {% if radicate.person.pk != 1 %}
-                        {{ radicate.person.city }} {% else %}Persona anonima {% endif %}
-                      </p>
-                    </div>
-                    <div class="col-md-4 text-sm">
-                      <p>
-                        <i data-feather="smartphone"></i>
-                        <b>Teléfono/Celular: </b><br />{{ radicate.person.phone_number }}
-                      </p>
+                    <div class="row">
+                      <div class="col-md-4 text-sm">
+                        <p>
+                          <i data-feather="credit-card"></i>
+                          <b>Tipo Documento:</b><br />{{radicate.person.document_type.name}}
+                        </p>
+                      </div>
+                      <div class="col-md-4 text-sm">
+                        <p>
+                          <i data-feather="credit-card"></i>
+                          <b>Numero Documento:</b><br />{{radicate.person.document_number}}
+                        </p>
+                      </div>
+                      <div class="col-md-4 text-sm">
+                        <p>
+                          <i data-feather="calendar"></i>
+                          <b>Fecha de expedición:</b><br />{{ radicate.date_radicated|simple_date }}
+                        </p>
+                      </div>
                     </div>
                   </div>
                 </div>
               </div>
-            </div>
+              <div class="col-xxl-12 col-xl-12 mb-12">
+                <div class="card  mb-3">
+                  <div class="card-header">Informacion de Contacto</div>
+                  <div class="card-body">
+                    <div class="row">
+                      <div class="col-md-7 text-sm">
+                        <p>
+                          <i data-feather="home"></i>
+                          <b>Medio deseado para recibir respuesta: </b><br />{{ radicate.person.request_response.name }}
+                        </p>
+                      </div>
+                      <div class="col-md-5 text-sm">
+                        <p>
+                          <i data-feather="mail"></i>
+                          <b>Corre electrónico: </b><br />{{ radicate.person.email }}
+                        </p>
+                      </div>
+                    </div>
+                    <div class="row">
+                      <div class="col-md-3 text-sm">
+                        <p>
+                          <i data-feather="map-pin"></i>
+                          <b>Dirección:</b><br />
+                          {% if radicate.person.pk != 1 %}
+                          {{ radicate.person.address }} {% else %}
+                          Persona anonima {% endif %}
+                        </p>
+                      </div>
+                      <div class="col-md-5 text-sm">
+                        <p>
+                          <i data-feather="compass"></i>
+                          <b>Departamento y Municipio:</b><br />
+                          {% if radicate.person.pk != 1 %}
+                          {{ radicate.person.city }} {% else %}Persona anonima {% endif %}
+                        </p>
+                      </div>
+                      <div class="col-md-4 text-sm">
+                        <p>
+                          <i data-feather="smartphone"></i>
+                          <b>Teléfono/Celular: </b><br />{{ radicate.person.phone_number }}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            {% else %}
+              <div class="col-xxl-12 col-xl-12 mb-12">
+                <div class="card  mb-3">
+                  <div class="card-header">Información General</div>
+                  <div class="card-body">
+                    <div class="row">
+                      <div class="col-md-4 text-sm">
+                        <p>
+                          <i data-feather="user"></i>
+                          <b>Nombres y Apellidos:</b><br />{{ radicate.email_user_name }}
+                        </p>
+                      </div>
+                      <div class="col-md-5 text-sm">
+                        <p>
+                          <i data-feather="mail"></i>
+                          <b>Corre electrónico: </b><br />{{ radicate.email_user_email }}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            {% endif %}
             <div class="col-xxl-12 col-xl-12 mb-12">
               <div class="card  mb-3">
                 <div class="card-header">Detalle radicado</div>
@@ -135,7 +159,7 @@
                     <div class="col-12 text-sm">
                       <p>
                         <i data-feather="file-text"></i>
-                        <b>Detalle de la solicitud:</b><br />{{ radicate.observation }}
+                        <b>Detalle de la solicitud:</b><br />{{ radicate.data }}
                       </p>
                     </div>
                   </div>
@@ -251,125 +275,163 @@
     </div>
 
     <div id="parent" class="tab-pane fade">
-      <div class="col-xxl-12 col-xl-12 mb-12">
-        <div class="card  mb-4 h-100 mb-3">
-          <div class="card-header">Informacion General Radicado {{parent.number}}</div>
-          <div class="card-body">
-            <div class="row">
-              <div class="col-md-4 text-sm">
-                <p>
-                  <i data-feather="user"></i>
-                  <b>Tipo Persona:</b><br />{{parent.person.person_type.name}}
-                </p>
-                <p>
-                  <i data-feather="credit-card"></i>
-                  <b>Tipo Documento:</b><br />{{parent.person.document_type.name}}
-                </p>
-              </div>
-              <div class="col-md-4 text-sm">
-                <p>
-                  <i data-feather="user"></i>
-                  <b>Remitente:</b><br />{{ parent.person.name }} {{ parent.person.lasts_name }}
-                </p>
-                
-                <p>
-                  <i data-feather="credit-card"></i>
-                  <b>Numero Documento:</b><br />{{parent.person.document_number}}
-                </p>
-              </div>
-              <div class="col-md-4 text-sm">
-                <p>
-                  <i data-feather="calendar"></i>
-                  <b>Fecha:</b><br />{{ parent.date_radicated }}
-                </p>
-                <!--<p>
-                  <i data-feather="user"></i>
-                  <b>Usuario creador:</b><br />{{ parent.creator.user.first_name }} {{ parent.creator.user.last_name
-                  }}
-                </p>
-                <p>
-                  <i data-feather="user"></i>
-                  <b>Usuario actual:</b><br />{{ parent.current_user.user.first_name }} {{
-                  parent.current_user.user.last_name }}
-                </p>-->
+      {% if not parent.person %}
+        <div class="col-xxl-12 col-xl-12 mb-12">
+          <div class="card  mb-4 h-100 mb-3">
+            <div class="card-header">Informacion General Radicado {{parent.number}}</div>
+            <div class="card-body">
+              <div class="row">
+                <div class="col-md-4 text-sm">
+                  <p>
+                    <i data-feather="user"></i>
+                    <b>Nombre:</b><br />{{ parent.email_user_name }}
+                  </p>
+                  <p>
+                    <i data-feather="mail"></i>
+                    <b>Correo electrónico: </b><br />{{ parent.email_user_email }}
+                  </p>
+                </div>
               </div>
             </div>
           </div>
         </div>
-      </div>
-      <div class="col-xxl-12 col-xl-12 mb-12">
-        <div class="card  mb-3">
-          <div class="card-header">Informacion de Contacto</div>
-          <div class="card-body">
-            <div class="row">
-              <div class="col-md-6 text-sm">
-                <p>
-                  <i data-feather="home"></i>
-                  <b>Medio deseado para recibir respuesta: </b><br />{{ parent.person.request_response.name }}
-                </p>
-                <p>
-                  <i data-feather="map-pin"></i>
-                  <b>Dirección:</b><br />
-                  {% if parent.person.pk != 1 %}
-                  {{ parent.person.address }} {% else %}
-                  Persona anonima {% endif %}
-                </p>
-                <p>
-                  <i data-feather="smartphone"></i>
-                  <b>Telefono: </b><br />{{ parent.person.phone_number }}
-                </p>
-              </div>
-              <div class="col-md-6 text-sm">
-                <p>
-                  <i data-feather="mail"></i>
-                  <b>Corre electronico: </b><br />{{ parent.person.email }}
-                </p>
-                <p>
-                  <i data-feather="compass"></i>
-                  <b>Deparatamento y Municipio:</b><br />
-                  {% if parent.person.pk != 1 %}
-                  {{ parent.person.city }} {% else %}Persona anonima {% endif %}
-                </p>
+      {% elif parent.person.pk == 1 %}
+        <div class="col-xxl-12 col-xl-12 mb-12">
+          <div class="card  mb-4 h-100 mb-3">
+            <div class="card-header">Informacion General</div>
+            <div class="card-body">
+              <div class="row">
+                <div class="col-md-4 text-sm">
+                  <p>
+                    <i data-feather="user"></i>
+                    <b>Tipo Persona:</b><br />Persona anónima
+                  </p>
+                </div>
               </div>
             </div>
           </div>
         </div>
-      </div>
-      <div class="col-xxl-12 col-xl-12 mb-12">
-        <div class="card  mb-3">
-          <div class="card-header">Condiciones especiales</div>
-          <div class="card-body">
-            <div class="row">
-              <div class="col-md-6 text-sm">
-                <p>
-                  <i data-feather="user"></i>
-                  <b>Poblaci&oacute;n: </b><br />{{ parent.person.conflict_victim.name }}
-                </p>
-                <p>
-                  <i data-feather="align-justify"></i>
-                  <b>Poblaci&oacute;n preferencial: </b><br />
-                  {% for population in parent.person.preferencial_population.all%}
+      {% else %}
+        <div class="col-xxl-12 col-xl-12 mb-12">
+          <div class="card  mb-4 h-100 mb-3">
+            <div class="card-header">Informacion General</div>
+            <div class="card-body">
+              <div class="row">
+                <div class="col-md-4 text-sm">
+                  <p>
+                    <i data-feather="user"></i>
+                    <b>Tipo Persona:</b><br />{{parent.person.person_type.name}}
+                  </p>
+                  <p>
+                    <i data-feather="credit-card"></i>
+                    <b>Tipo Documento:</b><br />{{parent.person.document_type.name}}
+                  </p>
+                </div>
+                <div class="col-md-4 text-sm">
+                  <p>
+                    <i data-feather="user"></i>
+                    <b>Remitente:</b><br />{{ parent.person.name }} {{ parent.person.lasts_name }} {{ parent.email_user_name }}
+                  </p>
+                  
+                  <p>
+                    <i data-feather="credit-card"></i>
+                    <b>Numero Documento:</b><br />{{parent.person.document_number}}
+                  </p>
+                </div>
+                <div class="col-md-4 text-sm">
+                  <p>
+                    <i data-feather="calendar"></i>
+                    <b>Fecha:</b><br />{{ parent.date_radicated }}
+                  </p>
+                  <!--<p>
+                    <i data-feather="user"></i>
+                    <b>Usuario creador:</b><br />{{ parent.creator.user.first_name }} {{ parent.creator.user.last_name
+                    }}
+                  </p>
+                  <p>
+                    <i data-feather="user"></i>
+                    <b>Usuario actual:</b><br />{{ parent.current_user.user.first_name }} {{
+                    parent.current_user.user.last_name }}
+                  </p>-->
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-xxl-12 col-xl-12 mb-12">
+          <div class="card  mb-3">
+            <div class="card-header">Informacion de Contacto</div>
+            <div class="card-body">
+              <div class="row">
+                <div class="col-md-6 text-sm">
+                  <p>
+                    <i data-feather="home"></i>
+                    <b>Medio deseado para recibir respuesta: </b><br />{{ parent.person.request_response.name }}
+                  </p>
+                  <p>
+                    <i data-feather="map-pin"></i>
+                    <b>Dirección:</b><br />
+                    {% if parent.person.pk != 1 %}
+                    {{ parent.person.address }} {% else %}
+                    Persona anonima {% endif %}
+                  </p>
+                  <p>
+                    <i data-feather="smartphone"></i>
+                    <b>Telefono: </b><br />{{ parent.person.phone_number }}
+                  </p>
+                </div>
+                <div class="col-md-6 text-sm">
+                  <p>
+                    <i data-feather="mail"></i>
+                    <b>Correo electrónico: </b><br />{{ parent.person.email }}
+                  </p>
+                  <p>
+                    <i data-feather="compass"></i>
+                    <b>Departamento y Municipio:</b><br />
+                    {% if parent.person.pk != 1 %}
+                    {{ parent.person.city }} {% else %}Persona anonima {% endif %}
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-xxl-12 col-xl-12 mb-12">
+          <div class="card  mb-3">
+            <div class="card-header">Condiciones especiales</div>
+            <div class="card-body">
+              <div class="row">
+                <div class="col-md-6 text-sm">
+                  <p>
+                    <i data-feather="user"></i>
+                    <b>Poblaci&oacute;n: </b><br />{{ parent.person.conflict_victim.name }}
+                  </p>
+                  <p>
+                    <i data-feather="align-justify"></i>
+                    <b>Poblaci&oacute;n preferencial: </b><br />
+                    {% for population in parent.person.preferencial_population.all%}
+                      {{ population.name }} <br />
+                    {% endfor%}
+                  </p>
+                </div>
+                <div class="col-md-6 text-sm">
+                  <p>
+                    <i data-feather="user"></i>
+                    <b>Poblaci&oacute;n: </b><br />{{ parent.person.ethnic_group.name }}
+                  </p>
+                  <p>
+                    <i data-feather="align-justify"></i>
+                    <b>Situaci&oacute;n de discapacidad: </b><br />
+                    {% for population in parent.person.disabilities.all%}
                     {{ population.name }} <br />
-                  {% endfor%}
-                </p>
-              </div>
-              <div class="col-md-6 text-sm">
-                <p>
-                  <i data-feather="user"></i>
-                  <b>Poblaci&oacute;n: </b><br />{{ parent.person.ethnic_group.name }}
-                </p>
-                <p>
-                  <i data-feather="align-justify"></i>
-                  <b>Situaci&oacute;n de discapacidad: </b><br />
-                  {% for population in parent.person.disabilities.all%}
-                  {{ population.name }} <br />
-                  {% endfor%}
-                </p>
+                    {% endfor%}
+                  </p>
+                </div>
               </div>
             </div>
           </div>
         </div>
-      </div>
+      {% endif %}
       {% if parent.pqrsobject.multi_request_person.all %}
       <div class="col-xxl-12 col-xl-12 mb-12">
         <div class="card  mb-3">
@@ -573,7 +635,9 @@
                 <i class="far fa-file fa-lg" style="color: blue;"></i> Detalle de la solicitud   
               </div>        
               <div class="col-12 mt-2">
-                <textarea class="form-control" rows="15" cols="50" readonly>{{ parent.data }}</textarea>
+                <div class="modal-body">
+                  {% autoescape off %} {{ radicate.data }} {% endautoescape %}
+                </div>
               </div>
             </div>
           </div>
@@ -643,8 +707,8 @@
   </div>
 
 
-  <div class="form-group offset-2 col-md-2 mb-0">
-      <a class="btn btn-primary w-100" href="{% url 'pqrs:detail_pqr' pk=parent.id %}">Cancelar</a>
+  <div class="form-group offset-4 col-md-2 mb-0">
+      <a class="btn btn-primary w-100" href="{% url 'pqrs:detail_pqr' pk=parent.id %}">Volver</a>
   </div>
 </div>
 {% endblock %} 

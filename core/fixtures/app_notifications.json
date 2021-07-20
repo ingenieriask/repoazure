@@ -35,7 +35,7 @@
             "name": "EMAIL_PQR_CREATE",
             "subject": "Radicación de PQR",
             "body": "<strong>Cordial saludo,</strong> <p><strong>RINO</strong>, le informa que recibió su solicitud, la cual fue radicada con el número <strong><param>number</param></strong>. Por favor si requiere conocer el estado de su trámite indicar este número de radicado.</p>Contenido: <p><param>data</param></p><p>Puede hacer seguimiento al trámite de su solicitud dentro de los plazos establecidos en la Ley, ingresando a nuestra página web<a href=\"<param>url</param>\"><h3>Haga clic aquí</h3></a></p>",
-            "body_sms": "Cordial saludo, RINO, le informa que recibió su solicitud, la cual fue radicada con el número number.",
+            "body_sms": "Cordial saludo, RINO, le informa que recibió su solicitud, la cual fue radicada con el número <param>number</param>.",
             "notifications_services": [
                 1,
                 2
@@ -48,8 +48,8 @@
         "fields": {
             "name": "EMAIL_PQR_EXTEND",
             "subject": "Ampliación PQRSD - RINO",
-            "body": "<strong>Señor,</strong> <p><strong><param>person.name</param> <param>person.lasts_name</param></strong>, Por medio de la presente nos permitimos hacer una ampliación de información correspondiente a su soliciutd radicada en nuestro sistema el día <strong><param>date_radicated_formated</param></strong><strong><param>original_number</param></strong> y para la cual requerimos remita la siguiente información:</p><p><param>observation</param></p><p>Artículo... </p><a href=\"<param>url</param>\"><h3>Ampliar PQRSD</h3></a></p>",
-            "body_sms": "<strong>Señor,</strong> <p><strong><param>person.name</param> <param>person.lasts_name</param></strong>, Por medio de la presente nos permitimos hacer una ampliación de información correspondiente a su soliciutd radicada en nuestro sistema el día <strong><param>date_radicated_formated</param></strong><strong><param>original_number</param></strong> y para la cual requerimos remita la siguiente información:</p><p><param>observation</param></p><p>Artículo... </p><a href=\"<param>url</param>\"><h3>Ampliar PQRSD</h3></a></p>.",
+            "body": "<strong>Señor,</strong> <p><strong><param>person.name</param> <param>person.lasts_name</param></strong>, Por medio de la presente nos permitimos hacer una ampliación de información correspondiente a su soliciutd radicada en nuestro sistema el día <strong><param>date_radicated_formated</param></strong><strong><param>original_number</param></strong> y para la cual requerimos remita la siguiente información:</p><p><param>data</param></p><p>Artículo... </p><a href=\"<param>url</param>\"><h3>Ampliar PQRSD</h3></a></p>",
+            "body_sms": "Señor <param>person.name</param> <param>person.lasts_name</param>, Ha habido un cambio en el radicado <param>original_number</param>, por favor revise su correo.",
             "notifications_services": [
                 1,
                 2

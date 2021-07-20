@@ -119,5 +119,16 @@
 			"min_response_days" : 1,
 			"type_id" : 3
 		}
-	}
+	},
+  {
+    "model": "pqrs.subtype",
+    "pk": 12,
+    "fields": {
+      "name": "EMAIL",
+      "description": "Sin asignar",
+      "max_response_days": 15,
+      "min_response_days": 15,
+      "type_id": 7
+    }
+  }
 ]

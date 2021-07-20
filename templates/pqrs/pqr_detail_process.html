@@ -24,125 +24,164 @@
 
   <div class="tab-content">
     <div id="detail" class="tab-pane fade in active show">
-      <div class="col-xxl-12 col-xl-12 mb-12">
-        <div class="card  mb-4 h-100 mb-3">
-          <div class="card-header">Informacion General</div>
-          <div class="card-body">
-            <div class="row">
-              <div class="col-md-4 text-sm">
-                <p>
-                  <i data-feather="user"></i>
-                  <b>Tipo Persona:</b><br />{{pqrscontent.person.person_type.name}}
-                </p>
-                <p>
-                  <i data-feather="credit-card"></i>
-                  <b>Tipo Documento:</b><br />{{pqrscontent.person.document_type.name}}
-                </p>
-              </div>
-              <div class="col-md-4 text-sm">
-                <p>
-                  <i data-feather="user"></i>
-                  <b>Remitente:</b><br />{{ pqrscontent.person.name }} {{ pqrscontent.person.lasts_name }}
-                </p>
-                
-                <p>
-                  <i data-feather="credit-card"></i>
-                  <b>Numero Documento:</b><br />{{pqrscontent.person.document_number}}
-                </p>
-              </div>
-              <div class="col-md-4 text-sm">
-                <p>
-                  <i data-feather="calendar"></i>
-                  <b>Fecha:</b><br />{{ pqrscontent.date_radicated }}
-                </p>
-                <!--<p>
-                  <i data-feather="user"></i>
-                  <b>Usuario creador:</b><br />{{ pqrscontent.creator.user.first_name }} {{ pqrscontent.creator.user.last_name
-                  }}
-                </p>
-                <p>
-                  <i data-feather="user"></i>
-                  <b>Usuario actual:</b><br />{{ pqrscontent.current_user.user.first_name }} {{
-                  pqrscontent.current_user.user.last_name }}
-                </p>-->
+      {% if not pqrscontent.person %}
+        <div class="col-xxl-12 col-xl-12 mb-12">
+          <div class="card  mb-4 h-100 mb-3">
+            <div class="card-header">Informacion del solicitante</div>
+            <div class="card-body">
+              <div class="row">
+                <div class="col-md-4 text-sm">
+                  <p>
+                    <i data-feather="user"></i>
+                    <b>Nombre:</b><br />{{ pqrscontent.email_user_name }}
+                  </p>
+                  <p>
+                    <i data-feather="mail"></i>
+                    <b>Correo electrónico: </b><br />{{ pqrscontent.email_user_email }}
+                  </p>
+                </div>
               </div>
             </div>
           </div>
         </div>
-      </div>
-      <div class="col-xxl-12 col-xl-12 mb-12">
-        <div class="card  mb-3">
-          <div class="card-header">Informacion de Contacto</div>
-          <div class="card-body">
-            <div class="row">
-              <div class="col-md-6 text-sm">
-                <p>
-                  <i data-feather="home"></i>
-                  <b>Medio deseado para recibir respuesta: </b><br />{{ pqrscontent.person.request_response.name }}
-                </p>
-                <p>
-                  <i data-feather="map-pin"></i>
-                  <b>Dirección:</b><br />
-                  {% if pqrscontent.person.pk != 1 %}
-                  {{ pqrscontent.person.address }} {% else %}
-                  Persona anonima {% endif %}
-                </p>
-                <p>
-                  <i data-feather="smartphone"></i>
-                  <b>Telefono: </b><br />{{ pqrscontent.person.phone_number }}
-                </p>
-              </div>
-              <div class="col-md-6 text-sm">
-                <p>
-                  <i data-feather="mail"></i>
-                  <b>Corre electronico: </b><br />{{ pqrscontent.person.email }}
-                </p>
-                <p>
-                  <i data-feather="compass"></i>
-                  <b>Deparatamento y Municipio:</b><br />
-                  {% if pqrscontent.person.pk != 1 %}
-                  {{ pqrscontent.person.city }} {% else %}Persona anonima {% endif %}
-                </p>
+      {% elif pqrscontent.person.pk == 1 %}
+        <div class="col-xxl-12 col-xl-12 mb-12">
+          <div class="card  mb-4 h-100 mb-3">
+            <div class="card-header">Informacion General</div>
+            <div class="card-body">
+              <div class="row">
+                <div class="col-md-4 text-sm">
+                  <p>
+                    <i data-feather="user"></i>
+                    <b>Tipo Persona:</b><br />Persona anónima
+                  </p>
+                </div>
               </div>
             </div>
           </div>
         </div>
-      </div>
-      <div class="col-xxl-12 col-xl-12 mb-12">
-        <div class="card  mb-3">
-          <div class="card-header">Condiciones especiales</div>
-          <div class="card-body">
-            <div class="row">
-              <div class="col-md-6 text-sm">
-                <p>
-                  <i data-feather="user"></i>
-                  <b>Poblaci&oacute;n: </b><br />{{ pqrscontent.person.conflict_victim.name }}
-                </p>
-                <p>
-                  <i data-feather="align-justify"></i>
-                  <b>Poblaci&oacute;n preferencial: </b><br />
-                  {% for population in pqrscontent.person.preferencial_population.all%}
+      {% else %}
+        <div class="col-xxl-12 col-xl-12 mb-12">
+          <div class="card  mb-4 h-100 mb-3">
+            <div class="card-header">Informacion General</div>
+            <div class="card-body">
+              <div class="row">
+                <div class="col-md-4 text-sm">
+                  <p>
+                    <i data-feather="user"></i>
+                    <b>Tipo Persona:</b><br />{{pqrscontent.person.person_type.name}}
+                  </p>
+                  <p>
+                    <i data-feather="credit-card"></i>
+                    <b>Tipo Documento:</b><br />{{pqrscontent.person.document_type.name}}
+                  </p>
+                </div>
+                <div class="col-md-4 text-sm">
+                  <p>
+                    <i data-feather="user"></i>
+                    <b>Remitente:</b><br />{{ pqrscontent.person.name }} {{ pqrscontent.person.lasts_name }}
+                  </p>
+                  
+                  <p>
+                    <i data-feather="credit-card"></i>
+                    <b>Numero Documento:</b><br />{{pqrscontent.person.document_number}}
+                  </p>
+                </div>
+                <div class="col-md-4 text-sm">
+                  <p>
+                    <i data-feather="calendar"></i>
+                    <b>Fecha:</b><br />{{ pqrscontent.date_radicated }}
+                  </p>
+                  <!--<p>
+                    <i data-feather="user"></i>
+                    <b>Usuario creador:</b><br />{{ pqrscontent.creator.user.first_name }} {{ pqrscontent.creator.user.last_name
+                    }}
+                  </p>
+                  <p>
+                    <i data-feather="user"></i>
+                    <b>Usuario actual:</b><br />{{ pqrscontent.current_user.user.first_name }} {{
+                    pqrscontent.current_user.user.last_name }}
+                  </p>-->
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-xxl-12 col-xl-12 mb-12">
+          <div class="card  mb-3">
+            <div class="card-header">Informacion de Contacto</div>
+            <div class="card-body">
+              <div class="row">
+                <div class="col-md-6 text-sm">
+                  <p>
+                    <i data-feather="home"></i>
+                    <b>Medio deseado para recibir respuesta: </b><br />{{ pqrscontent.person.request_response.name }}
+                  </p>
+                  <p>
+                    <i data-feather="map-pin"></i>
+                    <b>Dirección:</b><br />
+                    {% if pqrscontent.person.pk != 1 %}
+                    {{ pqrscontent.person.address }} {% else %}
+                    Persona anonima {% endif %}
+                  </p>
+                  <p>
+                    <i data-feather="smartphone"></i>
+                    <b>Telefono: </b><br />{{ pqrscontent.person.phone_number }}
+                  </p>
+                </div>
+                <div class="col-md-6 text-sm">
+                  <p>
+                    <i data-feather="mail"></i>
+                    <b>Correo electrónico: </b><br />{{ pqrscontent.person.email }}
+                  </p>
+                  <p>
+                    <i data-feather="compass"></i>
+                    <b>Departamento y Municipio:</b><br />
+                    {% if pqrscontent.person.pk != 1 %}
+                    {{ pqrscontent.person.city }} {% else %}Persona anonima {% endif %}
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-xxl-12 col-xl-12 mb-12">
+          <div class="card  mb-3">
+            <div class="card-header">Condiciones especiales</div>
+            <div class="card-body">
+              <div class="row">
+                <div class="col-md-6 text-sm">
+                  <p>
+                    <i data-feather="user"></i>
+                    <b>Poblaci&oacute;n: </b><br />{{ pqrscontent.person.conflict_victim.name }}
+                  </p>
+                  <p>
+                    <i data-feather="align-justify"></i>
+                    <b>Poblaci&oacute;n preferencial: </b><br />
+                    {% for population in pqrscontent.person.preferencial_population.all%}
+                      {{ population.name }} <br />
+                    {% endfor%}
+                  </p>
+                </div>
+                <div class="col-md-6 text-sm">
+                  <p>
+                    <i data-feather="user"></i>
+                    <b>Poblaci&oacute;n: </b><br />{{ pqrscontent.person.ethnic_group.name }}
+                  </p>
+                  <p>
+                    <i data-feather="align-justify"></i>
+                    <b>Situaci&oacute;n de discapacidad: </b><br />
+                    {% for population in pqrscontent.person.disabilities.all%}
                     {{ population.name }} <br />
-                  {% endfor%}
-                </p>
-              </div>
-              <div class="col-md-6 text-sm">
-                <p>
-                  <i data-feather="user"></i>
-                  <b>Poblaci&oacute;n: </b><br />{{ pqrscontent.person.ethnic_group.name }}
-                </p>
-                <p>
-                  <i data-feather="align-justify"></i>
-                  <b>Situaci&oacute;n de discapacidad: </b><br />
-                  {% for population in pqrscontent.person.disabilities.all%}
-                  {{ population.name }} <br />
-                  {% endfor%}
-                </p>
+                    {% endfor%}
+                  </p>
+                </div>
               </div>
             </div>
           </div>
         </div>
-      </div>
+      {% endif %}
+
       {% if pqrscontent.pqrsobject.multi_request_person.all %}
       <div class="col-xxl-12 col-xl-12 mb-12">
         <div class="card  mb-3">
@@ -244,7 +283,7 @@
         </div>
       </div>
       {% endif %}
-      {% if pqrscontent.person.attornyCheck %}
+      {% if pqrscontent.reception_mode.abbr != 'EMAIL' and pqrscontent.person.attornyCheck %}
       <div class="col-xxl-12 col-xl-12 mb-12">
         <div class="card  mb-3">
           <div class="card-header">Datos Apoderado</div>
@@ -346,7 +385,9 @@
                 <i class="far fa-file fa-lg" style="color: blue;"></i> Detalle de la solicitud   
               </div>        
               <div class="col-12 mt-2">
-                <textarea class="form-control" rows="15" cols="50" readonly>{{ pqrscontent.data }}</textarea>
+                <div class="modal-body">
+                  {% autoescape off %} {{ pqrscontent.data }} {% endautoescape %}
+                </div>
               </div>
             </div>
           </div>
@@ -372,12 +413,15 @@
                     <td>
                     <div class="row text-center">
                       <div class="col-2">
-                        <img data-nodeid="{{ file.cmis_id | default_if_none:'' }}" class="img-fluid shadow" width="40"
+                        <img data-nodeid="{{ file.cmis_id | default_if_none:'' }}" class="img-fluid shadow display-modal" width="40"
                           height="45" src="{% static 'correspondence/assets/img/default.jpeg' %}" 
                           data-toggle="modal" data-target="#fileModal">
                       </div>
                       <div class=" offset-1 col-6 align-self-center">
-                        <a data-toggle="modal" data-target="#fileModal">{{ file.name }}{{file.extension}}</a>
+                        <a class="display-modal"
+                          data-nodeid="{{ file.cmis_id | default_if_none:'' }}"
+                          data-extension={{ file.extension }} data-toggle="modal" data-target="#fileModal"
+                        >{{ file.name }}{{file.extension}}</a>
                       </div>
                     </div>
                     </td> 
@@ -561,7 +605,7 @@
       else {
         embeded_file = $('<img class="w-100"/>'); 
       }
-      embeded_file.attr("height", "900");
+      embeded_file.attr("height", "500");
       embeded_file.attr("src", '{% url "correspondence:get_file" %}?cmis_id='+cmis);
       $('#file-display-field').append(embeded_file);
      }

@@ -1,0 +1,7 @@
+{% extends 'pqrs/pqr_detail_process.html' %} {% load static %} {% block actions %}
+
+<a class="btn btn-primary" href="{% url 'pqrs:change_clasification' pk=pqrscontent.pk  %}"
+        data-toggle="tooltip" data-placement="top" title="Modificar clasificación PQRSD">
+        <i class="fa fa-wrench" style="color: #ffffff;"></i>
+</a>
+{% endblock %}

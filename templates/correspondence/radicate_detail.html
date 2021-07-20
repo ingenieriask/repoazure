@@ -106,11 +106,11 @@
               <div class="col-md-6 text-sm">
                 <p>
                   <i data-feather="mail"></i>
-                  <b>Corre electronico: </b><br />{{ pqrscontent.person.email }}
+                  <b>Corre electrónico: </b><br />{{ pqrscontent.person.email }} {{ pqrscontent.email_user_email }}
                 </p>
                 <p>
                   <i data-feather="compass"></i>
-                  <b>Deparatamento y Municipio:</b><br />
+                  <b>Departamento y Municipio:</b><br />
                   {% if pqrscontent.person.pk != 1 %}
                   {{ pqrscontent.person.city }} {% else %}Persona anonima {% endif %}
                 </p>
@@ -362,7 +362,9 @@
                 <i class="far fa-file fa-lg" style="color: blue;"></i> Detalle de la solicitud   
               </div>        
               <div class="col-12 mt-2">
-                <textarea class="form-control" rows="15" cols="50" readonly>{{ pqrscontent.data }}</textarea>
+                <div class="modal-body">
+                  {% autoescape off %} {{ pqrscontent.data }} {% endautoescape %}
+                </div>
               </div>
             </div>
           </div>  

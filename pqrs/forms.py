@@ -263,16 +263,16 @@ class PqrsExtendRequestForm(forms.ModelForm):
 
     CHOICES = [('FIRMA JURIDICA','FIRMA JURIDICA'),('USUARIO','USUARIO')]
 
-    person_type = forms.CharField(max_length=32, label=mark_safe("<strong>Tipo de persona</strong>"),
+    person_type = forms.CharField(required=False, max_length=32, label=mark_safe("<strong>Tipo de persona</strong>"),
                                   widget = forms.TextInput(attrs={'class': 'w-75', 'readonly':True}))
-    document_type = forms.CharField(label=mark_safe("<strong>Tipo de documento</strong>"),
+    document_type = forms.CharField(required=False, label=mark_safe("<strong>Tipo de documento</strong>"),
                                     widget = forms.TextInput(attrs={'class': 'w-75', 'readonly':True}))
-    document_number = forms.CharField(max_length=25, label=mark_safe("<strong>Número de documento</strong>"),
+    document_number = forms.CharField(required=False, max_length=25, label=mark_safe("<strong>Número de documento</strong>"),
                                       widget = forms.TextInput(attrs={'class': 'w-75', 'readonly':True}))
-    expedition_date_last_digit = forms.CharField(label=mark_safe("<strong>Fecha de expedición</strong>"),
+    expedition_date_last_digit = forms.CharField(required=False, label=mark_safe("<strong>Fecha de expedición</strong>"),
                                       widget = forms.TextInput(attrs={'class': 'w-75', 'readonly':True}))
-    name_company_name = forms.CharField(max_length=120, widget = forms.TextInput(attrs={'readonly':True}))
-    lasts_name_representative = forms.CharField(max_length=120, widget = forms.TextInput(attrs={'readonly':True}))
+    name_company_name = forms.CharField(required=False, max_length=120, widget = forms.TextInput(attrs={'readonly':True}))
+    lasts_name_representative = forms.CharField(required=False, max_length=120, widget = forms.TextInput(attrs={'readonly':True}))
     email = forms.CharField(max_length=100, label=mark_safe("<strong>Correo Electrónico<strong>"),
                             widget = forms.TextInput(attrs={'readonly':True}))
     address = forms.CharField(max_length=120, required=False, label=mark_safe("<strong>Dirección de correspondencia</strong>"),
@@ -287,14 +287,14 @@ class PqrsExtendRequestForm(forms.ModelForm):
     
     class Meta:
         model = Radicate
-        fields = ('observation', 'number', 'subject')
+        fields = ('data', 'number', 'subject')
         labels = {
-            'observation' : 'Descripción de la solicitud de ampliación',
+            'data' : 'Descripción de la solicitud de ampliación',
             'number' : mark_safe('<strong>Número de radicación</strong>' ),
             'subject' : mark_safe("<strong>Asunto<strong>")
         }
         widgets = {
-            'observation' : forms.Textarea(),
+            'data' : forms.Textarea(),
             'number' : forms.TextInput(attrs={'style':'font-size:20px; font-weight: bold;', 'class':' text-center w-50', 'readonly':True}),
             'subject' : forms.TextInput(attrs={'readonly':True})
         }
@@ -303,70 +303,96 @@ class PqrsExtendRequestForm(forms.ModelForm):
  
         super(PqrsExtendRequestForm, self).__init__(*args, **kwargs)
         
-        if radicate.person.person_type.abbr == 'PJ':
-            self.fields['name_company_name'].label = mark_safe('<strong>Razón Social</strong>')
-            self.fields['lasts_name_representative'].label = mark_safe('<strong>Nombres y apellidos representante legal</strong>')
-            self.fields['lasts_name_representative'].required = False
-            self.fields['expedition_date_last_digit'].label = mark_safe('<strong>Dígito de verificación</strong>')      
-            
-        elif radicate.person.person_type.abbr == 'PN':
+        if radicate.person:
+            if radicate.person.person_type.abbr == 'PJ':
+                self.fields['name_company_name'].label = mark_safe('<strong>Razón Social</strong>')
+                self.fields['lasts_name_representative'].label = mark_safe('<strong>Nombres y apellidos representante legal</strong>')
+                self.fields['lasts_name_representative'].required = False
+                self.fields['expedition_date_last_digit'].label = mark_safe('<strong>Dígito de verificación</strong>')      
+                
+            elif radicate.person.person_type.abbr == 'PN':
+                self.fields['name_company_name'].label = mark_safe('<strong>Nombres</strong>')
+                self.fields['lasts_name_representative'].label = mark_safe('<strong>Apellidos</strong>')
+                self.fields['expedition_date_last_digit'].label = mark_safe('<strong>Fecha de expedición</strong>')
+        else:
             self.fields['name_company_name'].label = mark_safe('<strong>Nombres</strong>')
-            self.fields['lasts_name_representative'].label = mark_safe('<strong>Apellidos</strong>')
-            self.fields['expedition_date_last_digit'].label = mark_safe('<strong>Fecha de expedición</strong>')
-        
+
         self.helper = FormHelper(self)
-        self.helper.layout = Layout(
-            Row(
-                Column('person_type', css_class='form-group col-md-2 mb-0'),
-                Column('document_type', css_class='form-group col-md-3 mb-0'),
-                Column('document_number', css_class='form-group col-md-3 mb-0'),
-                Column('expedition_date_last_digit', css_class='form-group col-md-3 mb-0'),
-                css_class='form-row'
-            ),
-            Row(
-                Column('name_company_name', css_class='form-group col-md-6 mb-0'),
-                Column('lasts_name_representative', css_class='form-group col-md-6 mb-0'),
-                css_class='form-row'
-            ),
-            Row(
-                Column('email', css_class='form-group col-md-6 mb-0'),
-                css_class='form-row'
-            ),
-            Row(
-                Column('address', css_class='form-group col-md-4 mb-0'),
-                Column('phone_number', css_class='form-group col-md-4 mb-0'),
-                Column('city', css_class='form-group col-md-4 mb-0'),
-                css_class='form-row'
-            ),
-            Row(
-                Column('subject', css_class='form-group col-md-12 mb-0'),
-                css_class='form-row'
-            ),
-            Row(
-                Column('observation', css_class='form-group col-md-12 mb-0'),
-                css_class='form-row'
-            ),
-            Row(
-                Column(CustomFileInput('uploaded_files'), css_class='form-group offset-2 col-md-8 mb-0'),
-                css_class='form-row'
+        if radicate.person:
+            self.helper.layout = Layout(
+                Row(
+                    Column('person_type', css_class='form-group col-md-2 mb-0'),
+                    Column('document_type', css_class='form-group col-md-3 mb-0'),
+                    Column('document_number', css_class='form-group col-md-3 mb-0'),
+                    Column('expedition_date_last_digit', css_class='form-group col-md-3 mb-0'),
+                    css_class='form-row'
+                ),
+                Row(
+                    Column('name_company_name', css_class='form-group col-md-6 mb-0'),
+                    Column('lasts_name_representative', css_class='form-group col-md-6 mb-0'),
+                    css_class='form-row'
+                ),
+                Row(
+                    Column('email', css_class='form-group col-md-6 mb-0'),
+                    css_class='form-row'
+                ),
+                Row(
+                    Column('address', css_class='form-group col-md-4 mb-0'),
+                    Column('phone_number', css_class='form-group col-md-4 mb-0'),
+                    Column('city', css_class='form-group col-md-4 mb-0'),
+                    css_class='form-row'
+                ),
+                Row(
+                    Column('subject', css_class='form-group col-md-12 mb-0'),
+                    css_class='form-row'
+                ),
+                Row(
+                    Column('data', css_class='form-group col-md-12 mb-0'),
+                    css_class='form-row'
+                ),
+                Row(
+                    Column(CustomFileInput('uploaded_files'), css_class='form-group offset-2 col-md-8 mb-0'),
+                    css_class='form-row'
+                )
             )
-        )
+        else:
+            self.helper.layout = Layout(
+                Row(
+                    Column('name_company_name', css_class='form-group col-md-6 mb-0'),
+                    Column('email', css_class='form-group col-md-6 mb-0'),
+                    css_class='form-row'
+                ),
+                Row(
+                    Column('subject', css_class='form-group col-md-12 mb-0'),
+                    css_class='form-row'
+                ),
+                Row(
+                    Column('data', css_class='form-group col-md-12 mb-0'),
+                    css_class='form-row'
+                ),
+                Row(
+                    Column(CustomFileInput('uploaded_files'), css_class='form-group offset-2 col-md-8 mb-0'),
+                    css_class='form-row'
+                )
+            )
+
         
 
 class RequestAnswerForm(forms.ModelForm):
 
     uploaded_files = forms.FileField(widget=forms.ClearableFileInput(attrs={'multiple': True}), required=False,
                                     label=mark_safe("<span class='far fa-file-alt fa-3x' style='color: blue;'></span><strong>  Anexos, Documentos<strong>"))
-    
+    question = forms.CharField(required = False, max_length=20000, label=mark_safe('<strong>Información solicitada</strong>'),
+                             widget = forms.Textarea(attrs={'readonly':True}))
     class Meta:
         model = Radicate
-        fields = ('observation', 'number')
+        fields = ('data', 'number')
         labels = {
-            'observation' : '<strong>Descripción</strong>',
+            'data' : '<strong>Respuesta</strong>',
             'number' : mark_safe('<h3><strong>Radicado</strong></h3>'),
         }
         widgets = {
-            'observation' : forms.Textarea(),
+            'data' : forms.Textarea(),
             'number' : forms.TextInput(attrs={'style':'font-size:20px; font-weight: bold;', 'class': 'w-50', 'readonly':True}),
         }
         
@@ -379,7 +405,11 @@ class RequestAnswerForm(forms.ModelForm):
         self.helper = FormHelper(self)
         self.helper.layout = Layout(
             Row(
-                Column('observation', css_class='form-group col-md-12 mb-0'),
+                Column('question', css_class='form-group col-md-12 mb-0'),
+                css_class='form-row'
+            ),
+            Row(
+                Column('data', css_class='form-group col-md-12 mb-0'),
                 css_class='form-row'
             ),
             Row(
@@ -393,28 +423,28 @@ class PqrsAnswerForm(forms.ModelForm):
 
     CHOICES = [('FIRMA JURIDICA','FIRMA JURIDICA'),('USUARIO','USUARIO')]
 
-    person_type = forms.CharField(max_length=32, label=mark_safe("<strong>Tipo de persona</strong>"),
+    person_type = forms.CharField(required=False,max_length=32, label=mark_safe("<strong>Tipo de persona</strong>"),
                                   widget = forms.TextInput(attrs={'class': 'w-75', 'readonly':True}))
-    document_type = forms.CharField(label=mark_safe("<strong>Tipo de documento</strong>"),
+    document_type = forms.CharField(required=False,label=mark_safe("<strong>Tipo de documento</strong>"),
                                     widget = forms.TextInput(attrs={'class': 'w-75', 'readonly':True}))
-    document_number = forms.CharField(max_length=25, label=mark_safe("<strong>Número de documento</strong>"),
+    document_number = forms.CharField(required=False,max_length=25, label=mark_safe("<strong>Número de documento</strong>"),
                                       widget = forms.TextInput(attrs={'class': 'w-75', 'readonly':True}))
-    expedition_date_last_digit = forms.CharField(label=mark_safe("<strong>Dígito de verificación</strong>"),
+    expedition_date_last_digit = forms.CharField(required=False,label=mark_safe("<strong>Dígito de verificación</strong>"),
                                       widget = forms.TextInput(attrs={'class': 'w-75', 'readonly':True}))
-    name_company_name = forms.CharField(max_length=120, label=mark_safe("<strong>Razón social</strong>"),
+    name_company_name = forms.CharField(required=False,max_length=120, label=mark_safe("<strong>Razón social</strong>"),
                                    widget = forms.TextInput(attrs={'readonly':True}))
-    lasts_name_representative = forms.CharField(max_length=120, label=mark_safe("<strong>Representante legal</strong>"),
+    lasts_name_representative = forms.CharField(required=False,max_length=120, label=mark_safe("<strong>Representante legal</strong>"),
                                      widget = forms.TextInput(attrs={'readonly':True}))
-    email = forms.CharField(max_length=120, label=mark_safe("<strong>Correo Electrónico</strong>"))
+    email = forms.CharField(required=False,max_length=120, label=mark_safe("<strong>Correo Electrónico</strong>"))
     other_emails = forms.CharField(max_length=100, required=False, label=mark_safe("<strong>Otros correos destinatarios<strong>"))
-    address = forms.CharField(max_length=120, label=mark_safe("<strong>Dirección de correspondencia</strong>"))
+    address = forms.CharField(required=False,max_length=120, label=mark_safe("<strong>Dirección de correspondencia</strong>"))
     phone_number = forms.CharField(required=False, 
                                    label=mark_safe("<strong>Teléfono / Celular</strong>"))
     
     city = forms.ModelChoiceField(required=False, label=mark_safe("<strong>Municipio / Departamento<strong>"),
                                   queryset=City.objects.all())
-    observation = forms.CharField(required = False, max_length=20000, label=mark_safe('<strong>Respuesta</strong>'),
-                             widget = forms.Textarea())
+    # data = forms.CharField(required = False, max_length=20000, label=mark_safe('<strong>Respuesta</strong>'),
+    #                          widget = forms.Textarea())
     answer_uploaded_files = forms.FileField(widget=forms.ClearableFileInput(attrs={'multiple': True}), required=False,
                                     label=mark_safe("<span class='far fa-file-alt fa-3x' style='color: blue;'></span><strong>  Anexos, Documentos<strong>"))
     edit_subject = forms.BooleanField(widget=forms.CheckboxInput(), label="", required=False)
@@ -422,74 +452,101 @@ class PqrsAnswerForm(forms.ModelForm):
     
     class Meta:
         model = Radicate
-        fields = ('number', 'subject')
+        fields = ('number', 'subject', 'data')
         labels = {
             'number' : mark_safe('<strong>Número de radicación</strong>' ),
-            'subject' : mark_safe("<strong>Asunto<strong>")
+            'subject' : mark_safe("<strong>Asunto<strong>"),
+            'data': mark_safe("<strong>Respuesta<strong>")
         }
         widgets = {
             'number' : forms.TextInput(attrs={'style':'font-size:20px; font-weight: bold;', 'class':' text-center w-50', 'readonly':True}),
-            'subject' : forms.TextInput(attrs={'readonly': True})
+            'subject' : forms.TextInput(attrs={'readonly': True}),
+            'data': forms.Textarea()
         }
 
     def __init__(self, radicate, *args, **kwargs):
  
         super(PqrsAnswerForm, self).__init__(*args, **kwargs)
         
-        if radicate.person.person_type.abbr == 'PJ':
-            self.fields['name_company_name'].label = mark_safe('<strong>Razón Social</strong>')
-            self.fields['lasts_name_representative'].label = mark_safe('<strong>Representante legal</strong>')
-            self.fields['lasts_name_representative'].required = False
-            self.fields['expedition_date_last_digit'].label = mark_safe('<strong>Dígito de verificación</strong>')  
-            self.fields['expedition_date_last_digit'].required = False    
-            
-        elif radicate.person.person_type.abbr == 'PN':
+        if radicate.person:
+            if radicate.person.person_type.abbr == 'PJ':
+                self.fields['name_company_name'].label = mark_safe('<strong>Razón Social</strong>')
+                self.fields['lasts_name_representative'].label = mark_safe('<strong>Representante legal</strong>')
+                self.fields['lasts_name_representative'].required = False
+                self.fields['expedition_date_last_digit'].label = mark_safe('<strong>Dígito de verificación</strong>')  
+                self.fields['expedition_date_last_digit'].required = False    
+                
+            elif radicate.person.person_type.abbr == 'PN':
+                self.fields['name_company_name'].label = mark_safe('<strong>Nombres</strong>')
+                self.fields['lasts_name_representative'].label = mark_safe('<strong>Apellidos</strong>')
+                self.fields['expedition_date_last_digit'].label = mark_safe('<strong>Fecha de expedición</strong>')
+        else:
             self.fields['name_company_name'].label = mark_safe('<strong>Nombres</strong>')
-            self.fields['lasts_name_representative'].label = mark_safe('<strong>Apellidos</strong>')
-            self.fields['expedition_date_last_digit'].label = mark_safe('<strong>Fecha de expedición</strong>')
-        
-        self.fields['subject'].required = False
 
+        self.fields['subject'].required = False
         
         self.helper = FormHelper(self)
-        self.helper.layout = Layout(
-            Row(
-                Column('person_type', css_class='form-group col-md-2 mb-0'),
-                Column('document_type', css_class='form-group col-md-3 mb-0'),
-                Column('document_number', css_class='form-group col-md-3 mb-0'),
-                Column('expedition_date_last_digit', css_class='form-group col-md-3 mb-0'),
-                css_class='form-row'
-            ),
-            Row(
-                Column('name_company_name', css_class='form-group col-md-6 mb-0'),
-                Column('lasts_name_representative', css_class='form-group col-md-6 mb-0'),
-                css_class='form-row'
-            ),
-            Row(
-                Column('email', css_class='form-group col-md-6 mb-0'),
-                Column('other_emails', css_class='form-group col-md-6 mb-0'),
-                css_class='form-row'
-            ),
-            Row(
-                Column('address', css_class='form-group col-md-4 mb-0'),
-                Column('phone_number', css_class='form-group col-md-4 mb-0'),
-                Column('city', css_class='form-group col-md-4 mb-0'),
-                css_class='form-row'
-            ),
-            Row(
-                Column('subject', css_class='form-group col-md-11 mb-0'),
-                Column('edit_subject', css_class='form-group col-md-1 mb-0 mt-4'),
-                css_class='form-row'
-            ),
-            Row(
-                Column('observation', css_class='form-group col-md-12 mb-0'),
-                css_class='form-row'
-            ),
-            Row(
-                Column(CustomFileInput('answer_uploaded_files'), css_class='form-group offset-2 col-md-8 mb-0'),
-                css_class='form-row'
+        
+        if radicate.person:
+            self.helper.layout = Layout(
+                Row(
+                    Column('person_type', css_class='form-group col-md-2 mb-0'),
+                    Column('document_type', css_class='form-group col-md-3 mb-0'),
+                    Column('document_number', css_class='form-group col-md-3 mb-0'),
+                    Column('expedition_date_last_digit', css_class='form-group col-md-3 mb-0'),
+                    css_class='form-row'
+                ),
+                Row(
+                    Column('name_company_name', css_class='form-group col-md-6 mb-0'),
+                    Column('lasts_name_representative', css_class='form-group col-md-6 mb-0'),
+                    css_class='form-row'
+                ),
+                Row(
+                    Column('email', css_class='form-group col-md-6 mb-0'),
+                    Column('other_emails', css_class='form-group col-md-6 mb-0'),
+                    css_class='form-row'
+                ),
+                Row(
+                    Column('address', css_class='form-group col-md-4 mb-0'),
+                    Column('phone_number', css_class='form-group col-md-4 mb-0'),
+                    Column('city', css_class='form-group col-md-4 mb-0'),
+                    css_class='form-row'
+                ),
+                Row(
+                    Column('subject', css_class='form-group col-md-11 mb-0'),
+                    Column('edit_subject', css_class='form-group col-md-1 mb-0 mt-4'),
+                    css_class='form-row'
+                ),
+                Row(
+                    Column('data', css_class='form-group col-md-12 mb-0'),
+                    css_class='form-row'
+                ),
+                Row(
+                    Column(CustomFileInput('answer_uploaded_files'), css_class='form-group offset-2 col-md-8 mb-0'),
+                    css_class='form-row'
+                )
             )
-        )
+        else:
+            self.helper.layout = Layout(
+                Row(
+                    Column('name_company_name', css_class='form-group col-md-6 mb-0'),
+                    Column('email', css_class='form-group col-md-6 mb-0'),
+                    css_class='form-row'
+                ),
+                Row(
+                    Column('subject', css_class='form-group col-md-11 mb-0'),
+                    Column('edit_subject', css_class='form-group col-md-1 mb-0 mt-4'),
+                    css_class='form-row'
+                ),
+                Row(
+                    Column('data', css_class='form-group col-md-12 mb-0'),
+                    css_class='form-row'
+                ),
+                Row(
+                    Column(CustomFileInput('answer_uploaded_files'), css_class='form-group offset-2 col-md-8 mb-0'),
+                    css_class='form-row'
+                )
+            )
 
 class ChangeClassificationForm(forms.Form):
     pqrs_type = forms.ModelChoiceField(

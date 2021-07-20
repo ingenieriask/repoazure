@@ -6,6 +6,7 @@ from .utils_services import PDF
 import logging
 from datetime import datetime
 from django.db import transaction
+from django.db.models import Q
 import re
 import requests
 import json
@@ -17,7 +18,7 @@ from core.models import AppParameter, ConsecutiveFormat, Consecutive, Country, F
     Holiday, CalendarDay, CalendarDayType, Calendar, Notifications, SystemParameter, \
     SystemHelpParameter
 from core.utils_services import FormatHelper
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User, Permission
 from correspondence.models import AlfrescoFile
 from django.core.files import File
 from django.core.files.temp import NamedTemporaryFile
@@ -47,6 +48,18 @@ class SystemHelpParameterHelper():
     @classmethod
     def get_json(cls, format_name):
         return json.loads(cls.get(format_name).value)
+
+class UserHelper():
+    ''' '''
+    
+    @classmethod
+    def list_by_permissions(cls, permission):
+        return User.objects.filter(Q(groups__permissions__in=permission) | Q(user_permissions__in=permission)).distinct()
+    
+    @classmethod
+    def list_by_permission_name(cls, permission_name):
+        permission = Permission.objects.filter(codename=permission_name)
+        return UserHelper.list_by_permissions(permission)
 
 class Recipients():
 
@@ -121,14 +134,12 @@ class NotificationsHandler(object):
 
         try:
             headers = SystemParameterHelper.get_json('SMS_PARAMETERS')
-            print(headers)
-            for numb in to:
-                data = {'toNumber':numb, 'sms': body}
-                r = requests.post(cls.sms_api_endpoint, headers=headers, json=data)
-                print('r', r, 'r')
-                if r.ok:
-                    json_response = json.loads(r.text)
-                    print(json_response)
+            if to:
+                for numb in to:
+                    data = {'toNumber':numb, 'sms': body}
+                    r = requests.post(cls.sms_api_endpoint, headers=headers, json=data)
+                    if r.ok:
+                        print(json.loads(r.text))
 
         except Exception as Err:
             logger.error(Err) 
@@ -440,20 +451,25 @@ class PdfCreationService(object):
         pdf.set_font('Arial', '', 12)
         pdf.multi_cell(0, 5, 'CIUDAD - '+ radicate.date_radicated.strftime('%Y-%m-%d')+'\n\nSeñor(a)\n')
         pdf.set_font('Arial', 'B', 12)
-        if radicate.person.person_type.abbr == "PJ":
-            pdf.multi_cell(0, 5, radicate.person.parent.representative+'\n')
+        if radicate.person:
+            if radicate.person.person_type.abbr == "PJ":
+                pdf.multi_cell(0, 5, radicate.person.parent.representative+'\n')
+            else:
+                pdf.multi_cell(0, 5, radicate.person.name+' '+radicate.person.lasts_name+'\n')
+            pdf.set_font('Arial', '', 12)
+            if radicate.person.address:
+                pdf.multi_cell(0, 5, radicate.person.address+'\n'+radicate.person.email+'\n'+radicate.person.city.name+' '+radicate.person.city.state.name+'\n\n')
+            else:
+                pdf.multi_cell(0, 5, '\n'+radicate.person.email+'\n'+radicate.person.city.name+' '+radicate.person.city.state.name+'\n\n')
         else:
-            pdf.multi_cell(0, 5, radicate.person.name+' '+radicate.person.lasts_name+'\n')
-        pdf.set_font('Arial', '', 12)
-        if radicate.person.address:
-            pdf.multi_cell(0, 5, radicate.person.address+'\n'+radicate.person.email+'\n'+radicate.person.city.name+' '+radicate.person.city.state.name+'\n\n')
-        else:
-            pdf.multi_cell(0, 5, '\n'+radicate.person.email+'\n'+radicate.person.city.name+' '+radicate.person.city.state.name+'\n\n')
+            pdf.multi_cell(0, 5, radicate.email_user_name+'\n')
+            pdf.set_font('Arial', '', 12)
+            pdf.multi_cell(0, 5, radicate.email_user_email+'\n\n')
         pdf.set_font('Arial', 'B', 12)
         pdf.cell(20, 5, 'ASUNTO: ')
         pdf.set_font('Arial', '', 12)
         pdf.multi_cell(0,5, radicate.subject + '\n\n')
-        pdf.multi_cell(0,5, radicate.observation + '\n\n\n\n\n\nCordialmente,\n\n\n\nRINO GESTIÓN DOCUMENTAL'+
+        pdf.multi_cell(0,5, radicate.data + '\n\n\n\n\n\nCordialmente,\n\n\n\nRINO GESTIÓN DOCUMENTAL'+
                        '\nJosé Gonzáles\nGerente\n\n')
         pdf.set_font('Arial', '', 7)
         
@@ -472,4 +488,4 @@ class PdfCreationService(object):
         # Save pdf file
         # return pdf
         #pdf.output('answer.pdf', 'F')
-        return PdfCreationService._save_pdf_in_ecm(pdf, radicate, 'answer', '.pdf')
+        return PdfCreationService._save_pdf_in_ecm(pdf, radicate, 'answer' + radicate.number, '.pdf')

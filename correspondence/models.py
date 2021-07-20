@@ -74,11 +74,12 @@ class Radicate(models.Model):
     subject = models.CharField(max_length=256, null=True)
     annexes = models.TextField(max_length=256, null=True)
     observation = models.TextField(max_length=400, null=True)
+    data = models.TextField(max_length=2000, null=True)
     type = models.ForeignKey(RadicateTypes, on_delete=models.CASCADE, related_name='radicate_type', null=False, blank=False)
     date_radicated = models.DateTimeField(default=datetime.now, db_index=True)
     creator = models.ForeignKey(User, on_delete=models.CASCADE, related_name='radicates_creator', blank=True, null=True)
     record = models.ForeignKey('Record', on_delete=models.CASCADE, related_name='radicates', blank=True, null=True)
-    person = models.ForeignKey(Person, on_delete=models.CASCADE, related_name='radicates_person', default=False)
+    person = models.ForeignKey(Person, on_delete=models.CASCADE, related_name='radicates_person', blank=True, null=True)
     current_user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='radicates_user', blank=True, null=True)
     last_user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='radicates_last_user', blank=True, null=True)
     reception_mode = models.ForeignKey(ReceptionMode, on_delete=models.CASCADE, null=False, blank=False)
@@ -91,6 +92,10 @@ class Radicate(models.Model):
     folder_id = models.TextField(max_length=100, null=False, default='')
 
     reported_people = models.ManyToManyField(User, blank=True)
+    is_filed = models.BooleanField(default=False)
+
+    email_user_email = models.EmailField(null=True, blank=True)
+    email_user_name = models.CharField(max_length=256, null=True, blank=True)
 
     class Meta:
         ordering = ['date_radicated']
@@ -137,8 +142,8 @@ class PermissionRelationAssignation(BaseModel):
                 self.user_updated = user
         super(PermissionRelationAssignation, self).save()
     class Meta:
-        verbose_name= 'Asignacion de Permisos por Reporte'
-        verbose_name_plural= 'Asignaciones de Permisos por Reportes'
+        verbose_name= 'Permiso de asignación de radicados'
+        verbose_name_plural= 'Permisos de asignación de radicados'
 
 class PermissionRelationReport(BaseModel):
     current_permission = models.ForeignKey(Permission, on_delete=models.PROTECT)
@@ -154,8 +159,8 @@ class PermissionRelationReport(BaseModel):
                 self.user_updated = user
         super(PermissionRelationReport, self).save()
     class Meta:
-        verbose_name= 'Relacion de Permiso por Reporte'
-        verbose_name_plural= 'Relaciones de Permisos por Reportes'
+        verbose_name= 'Permiso de informe de radicados'
+        verbose_name_plural= 'Permisos de informe de radicados'
 
 class AlfrescoFile(models.Model):
     cmis_id = models.TextField(max_length=128, null=True)

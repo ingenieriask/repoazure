@@ -11,6 +11,49 @@ https://docs.djangoproject.com/en/3.0/ref/settings/
 """
 
 import os
+
+# import ldap
+# from django_auth_ldap.config import LDAPSearch, ActiveDirectoryGroupType
+
+# AUTH_LDAP_SERVER_URI = 'ldap://192.168.1.4'
+# AUTH_LDAP_BIND_DN = "CN=django,CN=Users,DC=skillnet,DC=local"
+# AUTH_LDAP_BIND_PASSWORD = "axVOyAjv6xLG"
+# AUTH_LDAP_USER_SEARCH = LDAPSearch(
+#     "dc=skillnet,dc=local", ldap.SCOPE_SUBTREE, "sAMAccountName=%(user)s"
+# )
+
+# AUTH_LDAP_USER_ATTR_MAP = {
+#     "username": "sAMAccountName",
+#     "first_name": "givenName",
+# }
+# AUTH_LDAP_GROUP_SEARCH = LDAPSearch(
+#     "dc=skillnet,dc=local", ldap.SCOPE_SUBTREE, "(objectClass=container)"
+# )
+# AUTH_LDAP_GROUP_TYPE = ActiveDirectoryGroupType(name_attr="cn")
+# AUTH_LDAP_USER_FLAGS_BY_GROUP = {
+#     "is_superuser": "CN=django,CN=Users,DC=SKILLNET,DC=LOCAL",
+#     "is_staff": "CN=Users,DC=skillnet,DC=local",
+# }
+# AUTH_LDAP_FIND_GROUP_PERMS = True
+# AUTH_LDAP_CACHE_GROUPS = True
+# AUTH_LDAP_GROUP_CACHE_TIMEOUT = 1  # 1 hour cache
+
+# AUTH_LDAP_CONNECTION_OPTIONS = {
+#     ldap.OPT_REFERRALS: 0
+# }
+
+# AUTHENTICATION_BACKENDS = [
+#     'django_auth_ldap.backend.LDAPBackend',
+#     'django.contrib.auth.backends.ModelBackend',
+# ]
+
+# LOGGING = {
+#     "version": 1,
+#     "disable_existing_loggers": False,
+#     "handlers": {"console": {"class": "logging.StreamHandler"}},
+#     "loggers": {"django_auth_ldap": {"level": "DEBUG", "handlers": ["console"]}},
+# }
+
 import environ
 import json
 
@@ -43,6 +86,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django_mailbox',
     'polls',
     'crispy_forms',
     'core',
@@ -214,4 +258,3 @@ CELERY_RESULT_BACKEND = 'django-db'
 CAPTCHA_IMAGE_SIZE = (200,50)
 CAPTCHA_FONT_SIZE = 40
 
-#DEBUG = True

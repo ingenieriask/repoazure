@@ -266,7 +266,6 @@ class FlowService(object):
         else:
             node_list = SignatureNode.objects.bulk_create(node_list)
 
-        print('user_list:', user_list)
 
         if flow_type == cls.FlowType.FILING:
             for i, n in enumerate(node_list):

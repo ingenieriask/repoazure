@@ -64,5 +64,16 @@
       "max_response_days": 15,
       "min_response_days": 1
     }
+  },
+  {
+    "model": "pqrs.type",
+    "pk": 7,
+    "fields": {
+      "name": "EMAIL",
+      "description": "PQRS cargada automáticamente, aún no ha sido tipificada",
+      "asociated_icon": "check-circle",
+      "max_response_days": 15,
+      "min_response_days": 1
+    }
   }
 ]

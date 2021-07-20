@@ -230,19 +230,14 @@ class RequestResponse(models.Model):
 
 class PersonBase(BaseModel):
     phone_number = models.CharField(blank=True, null=True, max_length=12)
-    document_type = models.ForeignKey(
-        DocumentTypes, on_delete=models.PROTECT, null=True, blank=True)
-    person_type = models.ForeignKey(
-        PersonType, related_name='personType', on_delete=models.PROTECT, null=True, blank=True, default=1)
-    document_number = models.CharField(
-        max_length=25, null=True, unique=True, db_index=True)
+    document_type = models.ForeignKey(DocumentTypes, on_delete=models.PROTECT, null=True, blank=True)
+    person_type = models.ForeignKey(PersonType, related_name='personType', on_delete=models.PROTECT, null=True, blank=True, default=1)
+    document_number = models.CharField(max_length=25, null=True, unique=True, db_index=True)
     email = models.EmailField(null=True, blank=True)
     name = models.CharField(max_length=256, null=True, blank=True)
     lasts_name = models.CharField(max_length=256,  null=True, blank=True)
-    city = models.ForeignKey(
-        City, on_delete=models.PROTECT, related_name='persons', null=True, blank=True)
-    address = models.CharField(
-        max_length=256, null=True, blank=True, unique=False)
+    city = models.ForeignKey(City, on_delete=models.PROTECT, related_name='persons', null=True, blank=True)
+    address = models.CharField(max_length=256, null=True, blank=True, unique=False)
     expedition_date = models.DateField(auto_now=False, null=True, blank=True)
 
 
@@ -256,14 +251,11 @@ class Attorny(PersonBase):
         verbose_name_plural= 'Apoderados'
 
 class LegalPerson(PersonBase):
-    verification_code = models.CharField(
-        max_length=10, null=False, blank=False)
+    verification_code = models.CharField(max_length=10, null=False, blank=False)
     company_name = models.CharField(max_length=256, null=False, blank=False)
-    document_company_number = models.CharField(
-        max_length=25, null=True, unique=True, db_index=True)
+    document_company_number = models.CharField(max_length=25, null=True, unique=True, db_index=True)
     representative = models.CharField(max_length=256, null=True, blank=True)
-    document_type_company = models.ForeignKey(
-        DocumentTypes, on_delete=models.PROTECT, null=True, blank=True, default=3)
+    document_type_company = models.ForeignKey(DocumentTypes, on_delete=models.PROTECT, null=True, blank=True, default=3)
 
     def __str__(self):
         return self.company_name
@@ -281,18 +273,13 @@ class LegalPerson(PersonBase):
 
 class Person(PersonBase):
     is_anonymous = models.BooleanField(blank=False, null=False, default=False)
-    parent = models.ForeignKey(
-        LegalPerson, on_delete=models.PROTECT, blank=True, null=True)
-    preferencial_population = models.ManyToManyField(
-        PreferencialPopulation, blank=True)
-    conflict_victim = models.ForeignKey(
-        BooleanSelection, on_delete=models.PROTECT, related_name='victimPerson', null=True, blank=True)
+    parent = models.ForeignKey(LegalPerson, on_delete=models.PROTECT, blank=True, null=True)
+    preferencial_population = models.ManyToManyField(PreferencialPopulation, blank=True)
+    conflict_victim = models.ForeignKey(BooleanSelection, on_delete=models.PROTECT, related_name='victimPerson', null=True, blank=True)
     disabilities = models.ManyToManyField(Disability, blank=True)
-    ethnic_group = models.ForeignKey(
-        EthnicGroup, on_delete=models.PROTECT, null=True, blank=True)
+    ethnic_group = models.ForeignKey(EthnicGroup, on_delete=models.PROTECT, null=True, blank=True)
     attornyCheck = models.BooleanField(default=False, blank=True, null=True)
-    request_response = models.ForeignKey(
-        RequestResponse, on_delete=models.PROTECT, default=1)
+    request_response = models.ForeignKey(RequestResponse, on_delete=models.PROTECT, default=1)
     reverse_url = 'correspondence:detail_person'
     uuid = ''
 

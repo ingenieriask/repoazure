@@ -2,13 +2,88 @@ import requests
 from django.conf import settings
 from requests.auth import HTTPBasicAuth
 from django.contrib.postgres.search import SearchVector, SearchQuery
-from correspondence.models import Radicate
+from correspondence.models import Radicate, ProcessActionStep
+from core.models import Alert
+from django.contrib.auth.models import User
 from django.core.files.temp import NamedTemporaryFile
 import logging
 import json
 from core.models import AppParameter
+from pinax.eventlog.models import log, Log
 
 logger = logging.getLogger(__name__)
+
+class RadicateService(object):
+    '''Utilities for Radicate'''
+
+    @classmethod
+    def assign_to_user_service(cls, pqrs, user, observation, url, current_user, status):
+        pqrs.last_user = current_user
+        pqrs.current_user = user
+        pqrs.pqrsobject.status = status
+
+        action = ProcessActionStep()
+        action.user = current_user
+        action.destination_user = user
+        action.action = 'Asignación'
+        action.detail = "El radicado %s ha sido asignado a %s" % (pqrs.number, user.username)
+        action.radicate = pqrs
+        action.observation = observation
+        action.save()
+
+        alert = Alert()
+        alert.info = 'Te han asignado el radicado %s' % pqrs.number
+        alert.assigned_user = user
+        alert.href = url
+        alert.save()
+
+        log(
+            user=current_user,
+            action="PQR_ASSIGNED",
+            obj=action,
+            extra={
+                "number": pqrs.number,
+                "message": "El radicado %s ha sido asignado a %s" % (pqrs.number, user.username)
+            }
+        )
+
+    @classmethod
+    def report_to_users_service(cls, pqrs, users_to_report, observation, url, current_user):
+        users=''
+        destination_users = []
+        for userPK in users_to_report:
+            user = User.objects.get(pk=userPK)
+
+            pqrs.reported_people.add(user)
+            users += user.username + ', '
+            destination_users.append(user)
+
+        action = ProcessActionStep()
+        action.user = current_user
+        action.action = 'Informe'
+        action.detail = "El radicado %s ha sido informado a los usuarios %s" % (pqrs.number, users)
+        action.radicate = pqrs
+        action.observation = observation
+        action.save()
+        action.destination_users.set(destination_users)
+        action.save()
+
+        for us in destination_users:
+            alert = Alert()
+            alert.info = 'Te han informado del radicado %s' % pqrs.number
+            alert.assigned_user = us
+            alert.href = url
+            alert.save()
+
+        log(
+            user=current_user,
+            action="PQR_REPORTED",
+            obj=action,
+            extra={
+                "number": pqrs.number,
+                "message": "El radicado %s ha sido informado a los usuarios %s" % (pqrs.number, users)
+            }
+        )
 
 class ECMService(object):
     '''ECM handler for Alfresco'''
@@ -82,7 +157,7 @@ class ECMService(object):
                 cls._params['ECM_PREVIEW_URL'].replace('{nodeId}', cmis_id), 
                 auth=cls.get_basic_authentication())
 
-            if prev_response.ok and prev_response.headers['Content-Type'] == "image/jpeg;charset=UTF-8":
+            if prev_response.ok and prev_response.headers['Content-Type'].startswith("image/"):
                 return prev_response
 
         except Exception as Err:
@@ -97,6 +172,24 @@ class ECMService(object):
             r = requests.post(
                 cls._params['ECM_RECORD_URL'], 
                 data=json.dumps({"name": name, "nodeType": "cm:folder"}), 
+                auth=cls.get_basic_authentication())
+
+            if r.ok:
+                json_response = (json.loads(r.text))
+                return json_response['entry']['id']
+
+        except Exception as Error:
+            logger.error(Error)
+
+    @classmethod
+    @get_params
+    def move_item(cls, cmis_id, target):
+        ''' '''
+
+        try:
+            r = requests.post(
+                cls._params['ECM_MOVE_URL'].replace('{nodeId}', cmis_id), 
+                data=json.dumps({"targetParentId": target}), 
                 auth=cls.get_basic_authentication())
 
             if r.ok:
@@ -159,14 +252,18 @@ class ECMService(object):
 
     @classmethod
     @get_params
-    def upload(cls, file, folder_id):
+    def upload(cls, file, folder_id, name=None):
         ''' Upload file to ECM'''
 
         try:
+            if name:
+                data = {"nodeType": "cm:content", "autoRename": "true", "name": name}
+            else:
+                data = {"nodeType": "cm:content", "autoRename": "true"}
             res_upload = requests.post(
                 cls._params['ECM_UPLOAD_URL'].replace('{nodeId}', folder_id),
                 files={"filedata": file},
-                data={"nodeType": "cm:content", "autoRename": "true"},
+                data=data,
                 auth=cls.get_basic_authentication())
             if res_upload.ok:  
                 json_response = (json.loads(res_upload.text))
@@ -197,7 +294,6 @@ class ECMService(object):
         ''' Download file from ECM'''
 
         try:
-            print('cls._params["ECM_DOWNLOAD_URL"]', cls._params['ECM_DOWNLOAD_URL'])
             res = requests.get(
                 cls._params['ECM_DOWNLOAD_URL'].replace('{nodeId}', node_id),
                 auth=cls.get_basic_authentication())

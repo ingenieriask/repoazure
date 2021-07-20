@@ -61,7 +61,8 @@
         10005,
         10007,
         10009,
-        10013
+        10013,
+        10019
       ]
     }
   },
@@ -94,6 +95,18 @@
     "pk": 9,
     "fields": {
       "parent": 5,
+      "name": "EMail",
+      "description": "Importados de correo electrónico",
+      "url_name": "pqrs:radicate_email_inbox",
+      "sib_order": 0,
+      "icon": "file-plus"
+    }
+  },
+  {
+    "model": "core.menu",
+    "pk": 10,
+    "fields": {
+      "parent": 5,
       "name": "Recibidos",
       "description": "Bandeja de Usuario",
       "url_name": "pqrs:radicate_inbox",
@@ -106,7 +119,7 @@
   },
   {
     "model": "core.menu",
-    "pk": 10,
+    "pk": 11,
     "fields": {
       "parent": 5,
       "name": "Mis tareas",
@@ -118,7 +131,7 @@
   },
   {
     "model": "core.menu",
-    "pk": 11,
+    "pk": 12,
     "fields": {
       "parent": 5,
       "name": "Mis informados",
@@ -130,7 +143,7 @@
   },
   {
     "model": "core.menu",
-    "pk": 12,
+    "pk": 13,
     "fields": {
       "parent": 3,
       "name": "Búsqueda",
@@ -142,7 +155,7 @@
   },
   {
     "model": "core.menu",
-    "pk": 13,
+    "pk": 14,
     "fields": {
       "parent": 3,
       "name": "Búsqueda PQRS",

@@ -46,7 +46,6 @@ def filing(request, radicate):
         id = request.POST['id']
         next_view = request.POST['next']
         graph = json.loads(request.POST['graph'])
-        print(request.POST['graph'])
         try:
             sf = FlowService.from_json(graph, None, id if id and id != 'None' else None)
             id = sf.id

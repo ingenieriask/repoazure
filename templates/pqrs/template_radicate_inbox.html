@@ -67,8 +67,10 @@
                     <td style="text-align: center;">{{ pqrs.subject }}</td>
                     {% if pqrs.person.is_anonymous == True %}
                         <td style="text-align: center;">ANÓNIMO</td>
-                    {% else %}
+                    {% elif pqrs.person %}
                         <td style="text-align: center;">{{ pqrs.person.name }}</td>
+                    {% else %}
+                        <td style="text-align: center;">{{ pqrs.email_user_name }}</td>
                     {% endif %}
                     <td style="text-align: center;">{{ pqrs.subtype.type.name }} - {{ pqrs.subtype.name }}</td>
                     <td style="text-align: center;">

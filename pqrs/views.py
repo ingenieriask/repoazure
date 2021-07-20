@@ -7,8 +7,11 @@ from numpy import number, subtract
 from requests.models import Request
 from correspondence.models import ReceptionMode, RadicateTypes, Radicate, AlfrescoFile, ProcessActionStep
 from pqrs.models import PQRS,Type, PqrsContent,Type, SubType, InterestGroup
-from core.models import Attorny, AttornyType, Atttorny_Person, City, LegalPerson, \
-    Person, Office, DocumentTypes, PersonRequest, PersonType 
+from workflow.models import FilingFlow, FilingNode
+from core.models import AppParameter, Attorny, AttornyType, Atttorny_Person, City, LegalPerson, \
+    Person, DocumentTypes, PersonRequest, PersonType, RequestResponse, Alert
+from django.contrib.auth.models import User
+from django_mailbox.models import Message
 from pqrs.forms import ChangeClassificationForm, LegalPersonForm, PqrsConsultantForm, SearchUniquePersonForm, PersonForm, \
     PqrRadicateForm, PersonRequestForm, PersonFormUpdate, PersonRequestFormUpdate, \
     PersonAttorny, PqrsConsultantForm, SearchLegalersonForm, PqrsExtendRequestForm, RequestAnswerForm, \
@@ -26,7 +29,7 @@ from django.views.generic.edit import CreateView
 from django.views.generic.edit import UpdateView
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from core.utils_redis import add_to_redis, read_from_redis
-from correspondence.services import ECMService
+from correspondence.services import ECMService, RadicateService
 from core.services import PdfCreationService
 from core.services import NotificationsHandler, RecordCodeService, Recipients
 from django.core.files.temp import NamedTemporaryFile
@@ -38,7 +41,10 @@ from core.decorators import has_any_permission
 from django.db.models import Q
 from datetime import date
 from core.utils_services import FormatHelper
+from core.services import UserHelper
 from django.utils.http import urlencode
+from django_mailbox.signals import message_received
+from django.dispatch import receiver
 
 from pinax.eventlog.models import log, Log
 from crum import get_current_user
@@ -62,8 +68,55 @@ import zipfile
 
 logger = logging.getLogger(__name__)
 
-# Create your views here.
+def _create_pqr_from_email(message):
+    pqrs_type = get_object_or_404(Type, name='EMAIL')
+    pqrs_object=PQRS(pqr_type = pqrs_type)
+    pqrs_object.status = PQRS.Status.EMAIL
+    pqrs_object.save()
 
+    instance = PqrsContent()
+    instance.subject = message.subject
+    instance.data = message.html
+    instance.email_user_email = message.from_address[0]
+    instance.email_user_name = message.from_header.replace(('<%s>' % instance.email_user_email), '')
+    instance.reception_mode = get_object_or_404(ReceptionMode, abbr='EMAIL')
+    instance.type = get_object_or_404(RadicateTypes, abbr='PQR')
+    instance.subtype = get_object_or_404(SubType, name='EMAIL')
+    instance.number = 'Por asignar'
+    instance.response_mode = get_object_or_404(RequestResponse, abbr='CE')
+    instance.pqrsobject = pqrs_object
+    instance.folder_id = AppParameter.objects.get(name='ECM_TEMP_FOLDER_ID').value
+    instance.agreement_personal_data = False
+
+    instance.save()
+
+    for att in message.attachments.all():
+        idx = att.headers.find('name="') + len('name="')
+        name = att.headers[idx:att.headers.find('"', idx)]
+        node_id = ECMService.upload(att.document, instance.folder_id, name)
+        alfrescoFile = AlfrescoFile(cmis_id=node_id, radicate=instance,
+                                    name=name.split('.')[-2],
+                                    extension='.' + name.split('.')[-1],
+                                    size=int(att.document.size/1000))
+        alfrescoFile.save()
+
+    action = ProcessActionStep()
+    action.action = 'Importación del correo'
+    action.detail = 'Un nuevo radicado ha sido importado'
+    action.radicate = instance
+    action.save()
+
+    for user in UserHelper.list_by_permission_name('receive_from_email'):
+        alert = Alert()
+        alert.info = 'Un nuevo radicado ha sido importado'
+        alert.assigned_user = user
+        alert.href = reverse('pqrs:email_detail_pqr', kwargs={'pk': instance.pk})
+        alert.save()
+
+@receiver(message_received)
+def process_email(sender, message, **args):
+    if sender.name == 'pqrs_mail':
+        _create_pqr_from_email(message)
 
 def index(request):
     rino_parameter = SystemParameterHelper.get('RINO_PQR_INFO')
@@ -90,8 +143,11 @@ def send_email_extend_request(request, instance):
     add_to_redis(unique_id, toSave, 'radicate')
     base_url = "{0}://{1}/pqrs/answer-request-email/{2}".format(request.scheme, request.get_host(), unique_id)
     instance.url = base_url
-    NotificationsHandler.send_notification('EMAIL_PQR_EXTEND', instance, Recipients(instance.person.email, None, instance.person.phone_number))
-
+    if instance.person:
+        NotificationsHandler.send_notification('EMAIL_PQR_EXTEND', instance, Recipients(instance.person.email, None, instance.person.phone_number))
+    else:
+        NotificationsHandler.send_notification('EMAIL_PQR_EXTEND', instance, Recipients(instance.email_user_email))
+    
 
 def send_email_person(request, pk, pqrs_type):
     unique_id = get_random_string(length=32)
@@ -132,7 +188,6 @@ def pqrs_answer_request_email(request, uuid_redis):
         return HttpResponseRedirect(reverse('pqrs:conclusion')+'?'+get_args_str)
     else:
         pk = json.loads(redis_pk)
-        print(pk["radicatePk"])
         pqrs = Radicate.objects.get(pk=pk["radicatePk"])
         if pqrs is None:
             return HttpResponseRedirect(reverse('pqrs:conclusion')+'?'+get_args_str)
@@ -181,6 +236,35 @@ def search_person(request,pqrs_type,person_type):
             "pqrs_type": pqrs_type,
             'person_type': person_type})
 
+def _process_next_action(pqrs):
+    try:
+        flow = FilingFlow.objects.get(subtype=pqrs.subtype)
+    except FilingFlow.DoesNotExist:
+        flow = None
+
+    if flow:
+        try:
+            notification = FilingNode.objects.get(type='Notificar', filing_flow=flow)
+        except:
+            notification = None
+        if notification:
+            users = []
+            for user in notification.users.all():
+                users.append(user.pk)
+            RadicateService.report_to_users_service(pqrs, users, 'Notificación automática', reverse('pqrs:reported_detail_pqr', kwargs={'pk': pqrs.pk}), get_current_user())
+            pqrs.save()
+        try:
+            notification = FilingNode.objects.get(type='Asignar', filing_flow=flow)
+        except:
+            notification = None
+        if notification:
+            users = []
+            for user in notification.users.all():
+                users.append(user.pk)
+            RadicateService.assign_to_user_service(pqrs, user, 'Asignación automática', reverse('pqrs:detail_pqr', kwargs={'pk': pqrs.pk}), get_current_user(), PQRS.Status.ASSIGNED)
+            
+            pqrs.pqrsobject.save()
+            pqrs.save()
 
 def create_pqr_multiple(request, pqrs):
     pqrsoparent = get_object_or_404(PQRS, uuid=pqrs)
@@ -190,11 +274,9 @@ def create_pqr_multiple(request, pqrs):
         form = PqrRadicateForm(pqrsoparent.pqr_type, request.POST)
         if form.is_valid():
             instance = form.save(commit=False)
-            instance.reception_mode = get_object_or_404(
-                ReceptionMode, abbr='VIR')
+            instance.reception_mode = get_object_or_404(ReceptionMode, abbr='VIR')
             instance.type = get_object_or_404(RadicateTypes, abbr='PQR')
-            instance.number = RecordCodeService.get_consecutive(
-                RecordCodeService.Type.INPUT)
+            instance.number = RecordCodeService.get_consecutive(RecordCodeService.Type.INPUT)
             instance.response_mode = person.request_response
             instance.person = person
             instance.pqrsobject = pqrsoparent
@@ -240,11 +322,11 @@ def create_pqr_multiple(request, pqrs):
                 alfrescoFile.save()
 
                 if not node_id or not ECMService.request_renditions(node_id):
-                    messages.error(
-                        request, "Ha ocurrido un error al guardar el archivo en el gestor de contenido")
+                    messages.error(request, "Ha ocurrido un error al guardar el archivo en el gestor de contenido")
 
             PdfCreationService.create_pqrs_confirmation_label(radicate)
             PdfCreationService.create_pqrs_summary(radicate)
+            _process_next_action(instance)
             messages.success(request, "El radicado se ha creado correctamente")
             # url = reverse('correspondence:detail_radicate', kwargs={'pk': radicate.pk})
             # return redirect('pqrs:pqrs_finish_creation', radicate.pk)
@@ -252,7 +334,6 @@ def create_pqr_multiple(request, pqrs):
             return HttpResponseRedirect(url)
         
         else:
-            print(form.errors)
             logger.error("Invalid create pqr form", form.is_valid(), form.errors)
             return render(request, 'pqrs/create_pqr.html', context={'form': form, 'person': person, 'pqrs': pqrs})
     else:
@@ -392,7 +473,7 @@ class PqrDetailView(DetailView):
 
     def get_context_data(self, **kwargs):
         context = super(PqrDetailView, self).get_context_data(**kwargs)
-        context['logs'] = Log.objects.all().filter(object_id=self.kwargs['pk'])
+        context['logs'] = ProcessActionStep.objects.all().filter(radicate=self.kwargs['pk'])
         return context
 
 
@@ -582,7 +663,6 @@ class RadicateListView(ListView):
             if term == 'None':
                 term = None
             if term:
-                print(term)
                 queryset = queryset.filter(Q(number__contains=term) | 
                 Q(person__name__icontains=term) | Q(subject__icontains=term) | 
                 Q(subtype__type__name__icontains=term) | Q(subtype__name__icontains=term) |
@@ -608,7 +688,20 @@ class RadicateInbox(RadicateListView):
     @RadicateListView.filter
     def get_queryset(self):
         queryset = super(RadicateInbox, self).get_queryset()
-        queryset = queryset.filter(subtype__isnull=False, pqrsobject__status=PQRS.Status.CREATED)
+        queryset = queryset.filter(is_filed=False, subtype__isnull=False, pqrsobject__status=PQRS.Status.CREATED)
+        return queryset
+
+#@method_decorator(login_required, name='dispatch')
+@method_decorator(has_any_permission(['auth.receive_external']), name='dispatch')
+class RadicateEmailInbox(RadicateListView):
+    model = PqrsContent
+    context_object_name = 'pqrs'
+    template_name = 'pqrs/radicate_email_inbox.html'
+
+    @RadicateListView.filter
+    def get_queryset(self):
+        queryset = super(RadicateEmailInbox, self).get_queryset()
+        queryset = queryset.filter(is_filed=False, subtype__isnull=False, pqrsobject__status=PQRS.Status.EMAIL)
         return queryset
 
 class RadicateMyInbox(RadicateListView):
@@ -619,7 +712,7 @@ class RadicateMyInbox(RadicateListView):
     @RadicateListView.filter
     def get_queryset(self):
         queryset = super(RadicateMyInbox, self).get_queryset()
-        queryset = queryset.filter(current_user = self.request.user, subtype__isnull=False)
+        queryset = queryset.filter(is_filed=False, current_user = self.request.user, subtype__isnull=False)
         return queryset
 
 class RadicateMyReported(RadicateListView):
@@ -630,7 +723,7 @@ class RadicateMyReported(RadicateListView):
     @RadicateListView.filter
     def get_queryset(self):
         queryset = super(RadicateMyReported, self).get_queryset()
-        queryset = queryset.filter(reported_people = self.request.user, subtype__isnull=False)
+        queryset = queryset.filter(is_filed=False, reported_people = self.request.user, subtype__isnull=False)
         return queryset
 
 @method_decorator(has_radicate_permission([]), name='dispatch')
@@ -642,7 +735,7 @@ class PqrDetailProcessView(DetailView):
         context = super(PqrDetailProcessView, self).get_context_data(**kwargs)
         context['logs'] = ProcessActionStep.objects.all().filter(radicate=self.kwargs['pk'])
         context['files'] = AlfrescoFile.objects.all().filter(radicate=self.kwargs['pk'])
-        if context['pqrscontent'].person.attornyCheck:
+        if context['pqrscontent'].person and context['pqrscontent'].person and context['pqrscontent'].person.attornyCheck:
             personAttorny = Atttorny_Person.objects.filter(person=context['pqrscontent'].person.pk)[0]
             context['personAttorny'] = personAttorny
         return context
@@ -656,7 +749,21 @@ class PqrDetailAssignView(DetailView):
         context = super(PqrDetailAssignView, self).get_context_data(**kwargs)
         context['logs'] = ProcessActionStep.objects.all().filter(radicate=self.kwargs['pk'])
         context['files'] = AlfrescoFile.objects.all().filter(radicate=self.kwargs['pk'])
-        if context['pqrscontent'].person.attornyCheck:
+        if context['pqrscontent'].person and context['pqrscontent'].person.attornyCheck:
+            personAttorny = Atttorny_Person.objects.filter(person=context['pqrscontent'].person.pk)[0]
+            context['personAttorny'] = personAttorny
+        return context
+
+@method_decorator(has_radicate_permission([]), name='dispatch')
+class PqrDetailEmailView(DetailView):
+    model = PqrsContent
+    template_name = 'pqrs/pqr_detail_process_actions_email.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(PqrDetailEmailView, self).get_context_data(**kwargs)
+        context['logs'] = ProcessActionStep.objects.all().filter(radicate=self.kwargs['pk'])
+        context['files'] = AlfrescoFile.objects.all().filter(radicate=self.kwargs['pk'])
+        if context['pqrscontent'].person and context['pqrscontent'].person.attornyCheck:
             personAttorny = Atttorny_Person.objects.filter(person=context['pqrscontent'].person.pk)[0]
             context['personAttorny'] = personAttorny
         return context
@@ -670,7 +777,7 @@ class PqrDetailReportedView(DetailView):
         context = super(PqrDetailReportedView, self).get_context_data(**kwargs)
         context['logs'] = ProcessActionStep.objects.all().filter(radicate=self.kwargs['pk'])
         context['files'] = AlfrescoFile.objects.all().filter(radicate=self.kwargs['pk'])
-        if context['pqrscontent'].person.attornyCheck:
+        if context['pqrscontent'].person and context['pqrscontent'].person.attornyCheck:
             personAttorny = Atttorny_Person.objects.filter(person=context['pqrscontent'].person.pk)[0]
             context['personAttorny'] = personAttorny
         return context
@@ -704,7 +811,7 @@ class PqrsConsultationResult(DetailView):
     model = PqrsContent
     context_object_name = 'pqrs'
     template_name = 'pqrs/consultation_result.html'
-    
+
     def get_context_data(self, **kwargs):
         context = super(PqrsConsultationResult, self).get_context_data(**kwargs)
         context['answers'] = Radicate.objects.filter(parent=context['pqrs'].id, 
@@ -721,12 +828,14 @@ def pqrs_extend_request(request, pk):
         form = PqrsExtendRequestForm(radicate, request.POST)
 
         if form.is_valid():
-            
             instance = form.save(commit=False)
-            instance.number = RecordCodeService.get_consecutive(RecordCodeService.Type.INPUT)
+            instance.number = RecordCodeService.get_consecutive(RecordCodeService.Type.OUTPUT)
             instance.type = radicate.type
             instance.record = radicate.record
             instance.person = radicate.person
+            if not instance.person:
+                instance.email_user_email = request.POST['email']
+                instance.email_user_name = request.POST['name_company_name']
             instance.reception_mode = radicate.reception_mode
             instance.office = radicate.office
             instance.doctype = radicate.doctype
@@ -790,26 +899,25 @@ def pqrs_extend_request(request, pk):
 
             messages.success(request, "La solicitud de ampliación se ha creado correctamente")
             return redirect('pqrs:detail_pqr', pk)
-
         return HttpResponseRedirect(request.path_info)
         
     else:
         initial_values = {
             'number': radicate.number,
-            'person_type' : radicate.person.person_type,
-            'document_type' : radicate.person.document_type,
-            'document_number' : radicate.person.document_number,
-            'expedition_date_last_digit' : radicate.person.expedition_date,
-            'name_company_name' : radicate.person.name,
-            'lasts_name_representative' : radicate.person.lasts_name,
-            'email' : radicate.person.email,
-            'address' : radicate.person.address,
-            'phone_number' : radicate.person.phone_number,
-            'city' : radicate.person.city,
+            'person_type' : radicate.person.person_type if radicate.person else None,
+            'document_type' : radicate.person.document_type if radicate.person else None,
+            'document_number' : radicate.person.document_number if radicate.person else None,
+            'expedition_date_last_digit' : radicate.person.expedition_date if radicate.person else None,
+            'name_company_name' : radicate.person.name if radicate.person else radicate.email_user_name,
+            'lasts_name_representative' : radicate.person.lasts_name if radicate.person else None,
+            'email' : radicate.person.email if radicate.person else radicate.email_user_email,
+            'address' : radicate.person.address if radicate.person else None,
+            'phone_number' : radicate.person.phone_number if radicate.person else None,
+            'city' : radicate.person.city if radicate.person else None,
             'subject' : 'Ampliación de solicitud - ' + radicate.subject,
         }
         
-        if radicate.person.person_type.abbr == 'PJ':
+        if radicate.person and radicate.person.person_type.abbr == 'PJ':
             initial_values['name_company_name'] = radicate.person.parent.company_name
             initial_values['lasts_name_representative'] = radicate.person.parent.representative
             initial_values['expedition_date_last_digit'] = radicate.person.parent.verification_code
@@ -888,15 +996,15 @@ def pqrs_answer_request(request, pk):
         if form.is_valid():
             
             instance = form.save(commit=False)
-            instance.number = RecordCodeService.get_consecutive(
-                RecordCodeService.Type.INPUT)
+            instance.number = RecordCodeService.get_consecutive(RecordCodeService.Type.INPUT)
             instance.type = radicate.type
             instance.record = radicate.record
             instance.person = radicate.person
+            instance.email_user_email = radicate.email_user_email
+            instance.email_user_name = radicate.email_user_name
             instance.reception_mode = radicate.reception_mode
             instance.office = radicate.office
             instance.doctype = radicate.doctype
-            instance.subject = radicate.subject
             instance.parent = radicate.parent
             instance.classification = Radicate.Classification.AMPLIATION_ANSWER
             
@@ -963,7 +1071,7 @@ def pqrs_answer_request(request, pk):
                 
     else:
         
-        form = RequestAnswerForm(initial={'number' : radicate.number})
+        form = RequestAnswerForm(initial={'number' : radicate.number, 'question': radicate.data})
         return render(request, 'pqrs/answer_request.html', context={'form': form, 'radicate': radicate})
     
     
@@ -1013,14 +1121,15 @@ def pqrs_answer_preview(request, pk):
             instance.type = radicate.type
             instance.record = radicate.record
             instance.person = radicate.person
+            instance.email_user_email = radicate.email_user_email
+            instance.email_user_name = radicate.email_user_name
             instance.reception_mode = radicate.reception_mode
             instance.office = radicate.office
             instance.doctype = radicate.doctype
             instance.parent = radicate
-            instance.observation = radicate.observation
             instance.subject = radicate.subject
             ### se crea un identificador de folder temporal
-            instance.folder_id = '5ce20d5c-f92b-4e77-98ce-038c0dd5ae51'
+            instance.folder_id = AppParameter.objects.get(name='ECM_TEMP_FOLDER_ID').value
             
             new_radicate = instance.save()
             
@@ -1044,27 +1153,26 @@ def pqrs_answer_preview(request, pk):
                         request, "Ha ocurrido un error al guardar el archivo en el gestor de contenido")
 
             PdfCreationService.create_radicate_answer(instance, True)
-        
         return redirect('pqrs:answer', pk, instance.pk)
         
     else:
         initial_values = {
             'number': radicate.number,
-            'person_type' : radicate.person.person_type,
-            'document_type' : radicate.person.document_type,
-            'document_number' : radicate.person.document_number,
-            'expedition_date_last_digit' : radicate.person.expedition_date,
-            'name_company_name' : radicate.person.name,
-            'lasts_name_representative' : radicate.person.lasts_name,
-            'email' : radicate.person.email,
-            'address' : radicate.person.address,
-            'phone_number' : radicate.person.phone_number,
-            'city' : radicate.person.city,
+            'person_type' : radicate.person.person_type if radicate.person else None,
+            'document_type' : radicate.person.document_type if radicate.person else None,
+            'document_number' : radicate.person.document_number if radicate.person else None,
+            'expedition_date_last_digit' : radicate.person.expedition_date if radicate.person else None,
+            'name_company_name' : radicate.person.name if radicate.person else radicate.email_user_name,
+            'lasts_name_representative' : radicate.person.lasts_name if radicate.person else None,
+            'email' : radicate.person.email if radicate.person else radicate.email_user_email,
+            'address' : radicate.person.address if radicate.person else None,
+            'phone_number' : radicate.person.phone_number if radicate.person else None,
+            'city' : radicate.person.city if radicate.person else None,
             'subject' : 'Respuesta - ' + radicate.subject,
-            'observation': ''
+            'data': ''
         }
         
-        if radicate.person.person_type.abbr == 'PJ':
+        if radicate.person and radicate.person.person_type.abbr == 'PJ':
             initial_values['name_company_name'] = radicate.person.parent.company_name
             initial_values['lasts_name_representative'] = radicate.person.parent.representative
             initial_values['expedition_date_last_digit'] = radicate.person.parent.verification_code
@@ -1126,60 +1234,90 @@ class AssociatedRadicateDetailView(DetailView):
     def get_context_data(self, **kwargs):
         context = super(AssociatedRadicateDetailView, self).get_context_data(**kwargs)
         radicate = PqrsContent.objects.get(associated_radicates=self.kwargs['pk'])
-        print(radicate.__dict__)
         context['parent'] = radicate
-        context['logs'] = Log.objects.all().filter(object_id=self.kwargs['pk'])
-        context['files'] = AlfrescoFile.objects.all().filter(
-            radicate=self.kwargs['pk'])
-        context['files_parent'] = AlfrescoFile.objects.all().filter(
-            radicate=radicate)
+        context['logs'] = ProcessActionStep.objects.all().filter(radicate=self.kwargs['pk'])
+        context['files'] = AlfrescoFile.objects.all().filter(radicate=self.kwargs['pk'])
+        context['files_parent'] = AlfrescoFile.objects.all().filter(radicate=radicate)
 
         return context
 
 def change_classification(request,pk):
-    pqrs_object = PqrsContent.objects.filter(pk=pk)
-    print(pqrs_object)
+    pqrs_object = PqrsContent.objects.get(pk=pk)
     form  = ChangeClassificationForm()
+
     if request.method == "POST":
+        create = pqrs_object.pqrsobject.status == PQRS.Status.EMAIL
         form = ChangeClassificationForm(request.POST)
         if form.is_valid():
-            
-            PQRS.objects.filter(
-                pk=pqrs_object[0].pqrsobject.id
-                ).update(pqr_type=form['pqrs_type'].value())
-            pqrs_object.update(
-                subtype = form['pqrs_subtype'].value(),
-                interestGroup=form['interest_group'].value()
-            )
-
-
             type = Type.objects.get(pk=form['pqrs_type'].value())
             subtype = SubType.objects.get(pk=form['pqrs_subtype'].value())
             interest_group = InterestGroup.objects.get(pk=form['interest_group'].value())
+            
+            pqrs_object.pqrsobject.pqr_type=type
+            pqrs_object.pqrsobject.status = PQRS.Status.CREATED
+            pqrs_object.subtype = subtype
+            pqrs_object.interestGroup = interest_group
 
-            action = ProcessActionStep()
-            action.user = get_current_user()
-            action.action = 'Cambio de tipo'
-            action.detail = "El radicado %s ha sido modificado al tipo %s, tema %s y grupo de interés %s" %  \
-                (pqrs_object[0].number, type, subtype, interest_group)
-            action.radicate = pqrs_object[0]
-            action.save()
+            if create:
+                pqrs_object.number = RecordCodeService.get_consecutive(RecordCodeService.Type.INPUT)
+                pqrs_object.folder_id = ECMService.create_folder(pqrs_object.number)
+
+                action = ProcessActionStep()
+                action.user = get_current_user()
+                action.action = 'Creación'
+                action.detail = 'El radicado %s ha sido creado' % (pqrs_object.number) 
+                action.radicate = pqrs_object
+                action.save()
+
+                for file in AlfrescoFile.objects.filter(radicate=pqrs_object):
+                    ECMService.move_item(file.cmis_id, pqrs_object.folder_id)
+
+                log(
+                    user = get_current_user(),
+                    action="PQR_CREATED",
+                    obj=action,
+                    extra={
+                        "number": pqrs_object.number,
+                        "message": "El radicado %s ha sido creado" % (pqrs_object.number)
+                    }
+                )
+            pqrs_object.pqrsobject.save()
+            pqrs_object.save()
+
+            if create:
+                query_url = "{0}://{1}/pqrs/consultation/result/{2}".format(request.scheme, request.get_host(), pqrs_object.pk)
+                pqrs_object.url = query_url
+                NotificationsHandler.send_notification('EMAIL_PQR_CREATE', pqrs_object, Recipients(pqrs_object.email_user_email))
+                PdfCreationService.create_pqrs_confirmation_label(pqrs_object)
+                PdfCreationService.create_pqrs_summary(pqrs_object)
+
+            else:
+                action = ProcessActionStep()
+                action.user = get_current_user()
+                action.action = 'Cambio de tipo'
+                action.detail = "El radicado %s ha sido modificado al tipo %s, tema %s y grupo de interés %s" %  \
+                    (pqrs_object.number, type, subtype, interest_group)
+                action.radicate = pqrs_object
+                action.save()
 
             log(
                 user=request.user,
                 action="PQR_CHANGED",
                 obj=action,
                 extra={
-                    "number": pqrs_object[0].number,
+                    "number": pqrs_object.number,
                     "message": "El radicado %s ha sido modificado al tipo %s, tema %s y grupo de interés %s" %  \
-                            (pqrs_object[0].number, type, subtype, interest_group)
+                            (pqrs_object.number, type, subtype, interest_group)
                 }
             )
-        return redirect('pqrs:detail_pqr', pk)
+            if create:
+                return redirect('pqrs:radicate_email_inbox')
+            else:
+                return redirect('pqrs:detail_pqr', pk)
     else:
         context = {
             'form':form,
-            'pqrs_object':pqrs_object[0]
+            'pqrs_object':pqrs_object
         }
         return render(
             request,
