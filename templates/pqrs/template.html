@@ -71,6 +71,7 @@
                         />
                         <img
                           id="company_logo"
+                          onerror="this.remove()"
                           class="float-left mr-2"
                           src="/media/company_logo/logo.png"
                           style="width: 7rem; height: 6rem"
@@ -146,11 +147,6 @@
     <script src="{% static 'correspondence/assets/demo/chart-bar-demo.js' %}"></script>
     <script src="{% static 'correspondence/assets/demo/chart-pie-demo.js' %}"></script>
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
-    <script>
-      $("#company_logo").on("error", function(){
-        $("#company_logo").remove();
-      });
-    </script>
     <script type="text/javascript">
         {% block script %} {% endblock %}
     </script>
