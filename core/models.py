@@ -584,3 +584,13 @@ class StyleSettings(models.Model):
     class Meta:
         verbose_name= 'Parametrización del Tema'
         verbose_name_plural= 'Parametrizaciones del Tema'
+
+
+class Notification(models.Model):
+    name = models.CharField(max_length=256, null=False, blank=False)
+    periodicity = models.IntegerField(default=1)
+    status = models.IntegerField(default=1)
+    last_execution_time = models.DateTimeField(auto_now=False, null=True, blank=True)
+
+    def __str__(self):
+        return f'{self.status}'
