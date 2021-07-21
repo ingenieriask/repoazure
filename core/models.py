@@ -18,9 +18,9 @@ from django.utils.translation import gettext_lazy as _
 
 class BaseModel(models.Model):
     user_creation = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE,
-                                      related_name='%(app_label)s_%(class)s_creation', null=True, blank=True)
+                                      related_name='%(app_label)s_%(class)s_creation', null=True, blank=True,editable=False)
     user_updated = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE,
-                                     related_name='%(app_label)s_%(class)s_update', null=True, blank=True)
+                                     related_name='%(app_label)s_%(class)s_update', null=True, blank=True,editable=False)
     date_creation = models.DateTimeField(
         auto_now=False, auto_now_add=True, null=True, blank=True)
     date_updated = models.DateTimeField(
@@ -563,3 +563,7 @@ class Template(BaseModel):
             else:
                 self.user_updated = user
         super(Template, self).save()
+
+    class Meta:
+        verbose_name= 'Plantilla'
+        verbose_name_plural= 'Plantillas'

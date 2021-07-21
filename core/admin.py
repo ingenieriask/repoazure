@@ -56,8 +56,17 @@ class CustomUserAdmin(UserAdmin):
 
 
 class FunctionalAreaAdmin(TreeAdmin):
-    list_display = ('name', 'parent', 'description')
+    list_display = ('name', 'parent', 'description',)
 
+class GeneralNullAdmin(admin.ModelAdmin):
+    def has_add_permission(self, request):
+        return False
+
+    def has_delete_permission(self, request, obj=None):
+        return False
+
+class TemplateAdmin(GeneralNullAdmin):
+    exclude = ('type','name','description')
 
 # Register your models here.
 admin.site.register(Attorny)
@@ -89,4 +98,4 @@ admin.site.unregister(User)
 admin.site.register(User, CustomUserAdmin)
 admin.site.register(FunctionalArea, FunctionalAreaAdmin)
 admin.site.register(Menu)
-admin.site.register(Template)
+admin.site.register(Template,TemplateAdmin)
