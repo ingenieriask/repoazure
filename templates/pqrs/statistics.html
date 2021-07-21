@@ -1,0 +1,30 @@
+{% extends 'pqrs/template.html' %} {% load static %}
+<!-- BLOCK Content -->
+{% block content %}
+<div class="row">
+  <div class="col-xl-12 mb-12">
+    <div class="card">
+      <div class="card-body">
+        <div class="row no-gutters justify-content-center">
+            <h1 style='font-size: 4.5rem'>Total PQRSD</h1>   
+            <h1 style='font-size: 4.5rem; color:red;' class="ml-4">{{ pqrsds.count }}<h1>
+        </div>
+        <div class="row no-gutters justify-content-center">
+            <div class="col-2">
+                <div class="card">
+                    <div class="card-header text-center">
+                        <p>PETICIONES</p>
+                    </div>
+                    <div class="card-body text-center">
+                        <h1 style="font-size:2.5rem">{{ petitions.count }}</h1>
+                        <br>
+                        <h1>{% widthratio petitions.count pqrsds.count 100 %}%</h1>
+                    </div>
+                </div>
+            </div
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

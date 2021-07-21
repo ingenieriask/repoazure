@@ -1327,3 +1327,19 @@ def change_classification(request,pk):
             'pqrs/change_classification.html',
             context)
 
+
+class PqrsStatistics(ListView):
+    model = PqrsContent
+    template_name = 'pqrs/statistics.html'
+    context_object_name = 'pqrsds'
+    
+    
+    def get_context_data(self, **kwargs):
+        context = super(PqrsStatistics, self).get_context_data(**kwargs)
+        context['petitions'] = PqrsContent.objects.filter(pqrsobject__pqr_type__name='Petición')
+        context['grievances'] = PqrsContent.objects.filter(pqrsobject__pqr_type__name='Queja')
+        context['claims'] = PqrsContent.objects.filter(pqrsobject__pqr_type__name='Reclamo')
+        context['suggestions'] = PqrsContent.objects.filter(pqrsobject__pqr_type__name='Sugerencia')
+        context['complains'] = PqrsContent.objects.filter(pqrsobject__pqr_type__name='Denuncia')
+        context['congratulations'] = PqrsContent.objects.filter(pqrsobject__pqr_type__name='Felicitación')
+        return context
