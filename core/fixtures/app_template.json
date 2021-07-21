@@ -1,0 +1,29 @@
+[
+  {
+    "model": "core.template",
+    "pk": 1,
+    "fields": {
+      "name": "Documento de Radicación",
+      "type": "CR",
+      "description": "Descripción Doceumnto De Radicación"
+    }
+  },
+  {
+    "model": "core.template",
+    "pk": 2,
+    "fields": {
+      "name": "Etiqueta de Radicación",
+      "type": "LR",
+      "description": "Descripción Etiqueta de Radicación"
+    }
+  },
+  {
+    "model": "core.template",
+    "pk": 3,
+    "fields": {
+      "name": "Documento de Respuesta",
+      "type": "AN",
+      "description": "Descripción Documento de Respuesta"
+    }
+  }
+]
