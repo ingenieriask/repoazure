@@ -1,0 +1,15 @@
+[
+    {
+        "model": "core.stylesettings", 
+        "pk": 1, 
+        "fields": {
+            "primary": "#1523FF", 
+            "secondary": "#FF4494", 
+            "h1_size": 1.5, "h2_size": 1.4, 
+            "h3_size": 1.3, "h4_size": 1.2, 
+            "h5_size": 1.1, 
+            "h16_size": 1.0, 
+            "p_size": 1.0
+        }
+    }
+]

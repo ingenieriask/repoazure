@@ -25,6 +25,7 @@ from core import views as core_views
 urlpatterns = [
     path('captcha/', include('captcha.urls')),
     path('admin/', admin.site.urls),
+    path('core/', include('core.urls', namespace='core')),
     path('correspondence/', include('correspondence.urls', namespace='correspondence')),
     path('pqrs/', include('pqrs.urls', namespace='pqrs')),
     path('polls/', include('polls.urls', namespace='polls')),
