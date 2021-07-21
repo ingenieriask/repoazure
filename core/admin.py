@@ -1,5 +1,5 @@
 from django.contrib import admin,messages
-from core.models import Attorny, AttornyType, Atttorny_Person, LegalPerson, State, \
+from core.models import Attorny, AttornyType, Atttorny_Person, GenderTypes, LegalPerson, State, \
     City, Office, Country, PreferencialPopulation, Disability, BooleanSelection, \
     EthnicGroup, RequestResponse, SystemParameter, AppParameter, ConsecutiveFormat, \
     FilingType, CalendarDay, CalendarDayType, Calendar, Alerts, FunctionalArea, \
@@ -99,6 +99,7 @@ admin.site.unregister(User)
 admin.site.register(User, CustomUserAdmin)
 admin.site.register(FunctionalArea, FunctionalAreaAdmin)
 admin.site.register(Menu)
-admin.site.register(Template)
+admin.site.register(Template,TemplateAdmin)
 admin.site.register(StyleSettings)
+admin.site.register(GenderTypes)
 

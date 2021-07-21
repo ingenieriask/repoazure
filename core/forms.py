@@ -55,7 +55,7 @@ class AbstractPersonForm(forms.ModelForm):
         fields = ['document_type', 'document_number', 'phone_number',
                   'request_response', 'expedition_date', 'name',
                   'lasts_name', 'email', 'city', 'address', 'parent', 'preferencial_population',
-                  'conflict_victim', 'disabilities', 'ethnic_group', 'attornyCheck']
+                  'conflict_victim', 'disabilities', 'ethnic_group', 'attornyCheck','gender_type']
         labels = {'document_type': 'Tipo de documento',
                   'document_number': 'Número de documento',
                   'expedition_date': 'Fecha de expedición',
@@ -68,11 +68,13 @@ class AbstractPersonForm(forms.ModelForm):
                   'parent': 'Entidad',
                   'conflict_victim': 'Población víctima del conflicto armado',
                   'ethnic_group': 'Grupo Étnico',
+                  "gender_type":"Genero",
                   'attornyCheck': "¿Presentará su solicitud con el acompañamiento de un apoderado?"}
 
         widgets = {
             'document_type': forms.Select(attrs={'class': 'selectpicker'}),
             'request_response': forms.Select(attrs={'class': 'selectpicker'}),
+            'gender_type': forms.Select(attrs={'class': 'selectpicker'}),
             'expedition_date': forms.DateInput(format='%Y-%m-%d', attrs={'placeholder': 'digite la fecha', 'type': 'date'}),
             'city': forms.Select(attrs={'class': 'selectpicker', 'data-live-search': 'true', 'data-size': '7'}),
             'parent': forms.Select(attrs={'class': 'selectpicker', 'data-live-search': 'true', 'data-size': '7'}),
@@ -110,8 +112,9 @@ class AbstractPersonForm(forms.ModelForm):
                         css_class='form-row'
                     ),
                     Row(
-                        Column('name', css_class='form-group col-md-6 mb-0'),
-                        Column('lasts_name', css_class='form-group col-md-6 mb-0'),
+                        Column('name', css_class='form-group col-md-4 mb-0'),
+                        Column('lasts_name', css_class='form-group col-md-4 mb-0'),
+                        Column('gender_type', css_class='form-group col-md-4 mb-0'),
                         css_class='form-row'
                     ), css_class='card-body'
                 ), css_class="card mb-3",

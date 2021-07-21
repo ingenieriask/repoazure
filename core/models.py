@@ -233,6 +233,18 @@ class RequestResponse(models.Model):
         verbose_name_plural= 'Tipos Respuestas Peticiones'
 
 
+class GenderTypes(models.Model):
+    abbr = models.CharField(max_length=10)
+    name = models.CharField(max_length=64)
+
+    def __str__(self):
+        return self.name
+    class Meta:
+        verbose_name= 'Tipo de Genero'
+        verbose_name_plural= 'Tipos de Generos'
+
+
+
 class PersonBase(BaseModel):
     phone_number = models.CharField(blank=True, null=True, max_length=12)
     document_type = models.ForeignKey(DocumentTypes, on_delete=models.PROTECT, null=True, blank=True)
@@ -285,6 +297,7 @@ class Person(PersonBase):
     ethnic_group = models.ForeignKey(EthnicGroup, on_delete=models.PROTECT, null=True, blank=True)
     attornyCheck = models.BooleanField(default=False, blank=True, null=True)
     request_response = models.ForeignKey(RequestResponse, on_delete=models.PROTECT, default=1)
+    gender_type = models.ForeignKey(GenderTypes, on_delete=models.PROTECT, default=1)
     reverse_url = 'correspondence:detail_person'
     uuid = ''
 
@@ -567,6 +580,9 @@ class Template(BaseModel):
             else:
                 self.user_updated = user
         super(Template, self).save()
+    class Meta:
+        verbose_name= 'Plantilla'
+        verbose_name_plural= 'Plantillas'
 
 class StyleSettings(models.Model):
     primary = ColorField(default='#FFFF00')

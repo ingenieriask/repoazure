@@ -1,0 +1,26 @@
+[
+  {
+    "model": "core.gendertypes",
+    "pk": 1,
+    "fields": {
+      "name": "Masculino",
+      "abbr": "M"
+    }
+  },
+  {
+    "model": "core.gendertypes",
+    "pk": 2,
+    "fields": {
+      "name": "Femenino",
+      "abbr": "F"
+    }
+  },
+  {
+    "model": "core.gendertypes",
+    "pk": 3,
+    "fields": {
+      "name": "LGTBTIQ",
+      "abbr": "LGTBTIQ"
+    }
+  }
+]
