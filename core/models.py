@@ -543,9 +543,11 @@ def template_directory_path(instance, filename):
 
 class Template(BaseModel):
     class Types(models.TextChoices):
-        ANSWER = 'AN', _('Respuesta')
+        PQR_CREATION = 'CR', _('Documento de radicación')
+        PQR_LABEL = 'LB', _('Etiqueta de radicación')
+        PQR_ANSWER = 'AN', _('Documento de respuesta')
 
-    type = models.CharField(unique=True, max_length=2, choices=Types.choices, default=Types.ANSWER)
+    type = models.CharField(unique=True, max_length=2, choices=Types.choices, default=Types.PQR_CREATION)
     file = models.FileField(upload_to=template_directory_path)
     name = models.TextField(max_length=64, null=False)
     description = models.TextField(max_length=256)

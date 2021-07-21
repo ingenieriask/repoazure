@@ -1153,7 +1153,7 @@ def pqrs_answer_preview(request, pk):
                         request, "Ha ocurrido un error al guardar el archivo en el gestor de contenido")
 
             PdfCreationService.create_radicate_answer(instance, True)
-            # DocxCreationService.mix_from_template(Template.Types.ANSWER, instance)
+            # DocxCreationService.mix_from_template(Template.Types.PQR_CREATION, instance)
         else:
             print(form.errors)
         return redirect('pqrs:answer', pk, instance.pk)
