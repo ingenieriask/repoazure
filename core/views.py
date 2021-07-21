@@ -120,11 +120,10 @@ def signature_flow_users(request):
 
 
 class StyleSettingsView(TemplateView):
-    template_name='core/home_global.css'
+    template_name='core/dynamic_stylesheet.css'
     content_type='text/css'
     
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['parameters'] = StyleSettings.objects.all()[0]
-        print(context['parameters'])
         return context

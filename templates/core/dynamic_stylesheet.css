@@ -1,13 +1,15 @@
+{% load core_extras %}
+
 :root {
     --primary: {{ parameters.primary }};
-    --secondary: {{ parameters.secondary }} ;
-    --h1-size : {{ parameters.h1_size }};
-    --h2-size : {{ parameters.h2_size }};
-    --h3-size : {{ parameters.h3_size }};
-    --h4-size : {{ parameters.h4_size }};
-    --h5-size : {{ parameters.h5_size }};
-    --h6-size : {{ parameters.h6_size }};
-    --p-size : {{ parameters.p_size }};
+    --secondary: {{ parameters.secondary }};
+    --h1-size : {{ parameters.h1_size|change_size_unit:'rem' }};
+    --h2-size : {{ parameters.h2_size|change_size_unit:'rem' }};
+    --h3-size : {{ parameters.h3_size|change_size_unit:'rem' }};
+    --h4-size : {{ parameters.h4_size|change_size_unit:'rem' }};
+    --h5-size : {{ parameters.h5_size|change_size_unit:'rem' }};
+    --h6-size : {{ parameters.h6_size|change_size_unit:'rem' }};
+    --p-size : {{ parameters.p_size|change_size_unit:'rem' }};
 }
 
 .btn-primary {
@@ -207,29 +209,29 @@ a.text-primary:hover, a.text-primary:focus {
 }
 
 h1, .h1 {
-    font-size: var(--h1-size)rem;
+    font-size: var(--h1-size);
 }
 
 h2, .h2 {
-    font-size: var(--h2-size)rem;
+    font-size: var(--h2-size);
 }
 
 h3, .h3 {
-    font-size: var(--h3-size)rem;
+    font-size: var(--h3-size);
 }
 
 h4, .h4 {
-    font-size: var(--h4-size)rem;
+    font-size: var(--h4-size);
 }
 
 h5, .h5 {
-    font-size: var(--h5-size)rem;
+    font-size: var(--h5-size);
 }
 
 h6, .h6 {
-    font-size: var(--h6-size)rem;
+    font-size: var(--h6-size);
 }
 
 p, .p {
-    font-size: var(--p-size)rem;
+    font-size: var(--p-size);
 }
