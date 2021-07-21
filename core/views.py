@@ -14,6 +14,8 @@ from django.conf import settings
 from django.shortcuts import render, redirect
 from django.db.models import Q
 from core.services import CalendarService, NotificationsHandler
+from django.views.generic import TemplateView
+from core.models import StyleSettings
 
 
 def holidays(request):
@@ -115,3 +117,13 @@ def signature_flow_users(request):
         return JsonResponse(formatted_users, safe=False, status=200)
 
     return JsonResponse({}, status=400)
+
+
+class StyleSettingsView(TemplateView):
+    template_name='core/dynamic_stylesheet.css'
+    content_type='text/css'
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['parameters'] = StyleSettings.objects.all()[0]
+        return context

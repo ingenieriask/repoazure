@@ -1,0 +1,237 @@
+{% load core_extras %}
+
+:root {
+    --primary: {{ parameters.primary }};
+    --secondary: {{ parameters.secondary }};
+    --h1-size : {{ parameters.h1_size|change_size_unit:'rem' }};
+    --h2-size : {{ parameters.h2_size|change_size_unit:'rem' }};
+    --h3-size : {{ parameters.h3_size|change_size_unit:'rem' }};
+    --h4-size : {{ parameters.h4_size|change_size_unit:'rem' }};
+    --h5-size : {{ parameters.h5_size|change_size_unit:'rem' }};
+    --h6-size : {{ parameters.h6_size|change_size_unit:'rem' }};
+    --p-size : {{ parameters.p_size|change_size_unit:'rem' }};
+}
+
+.btn-primary {
+    color: #fff;
+    background-color: var(--primary);
+    border-color: var(--primary);
+}
+.btn-primary:hover {
+    color: #fff;
+    background-color: var(--primary);
+    border-color: var(--primary);
+    filter: brightness(0.90);
+}
+.btn-primary:focus, .btn-primary.focus {
+    color: #fff;
+    background-color: var(--primary);
+    border-color: var(--primary);
+    box-shadow: 0 0 0 0.2rem var(--primary);
+    filter: brightness(0.90)
+}
+.btn-primary.disabled, .btn-primary:disabled {
+    color: #fff;
+    background-color: var(--primary);
+    border-color: var(--primary);
+}
+.btn-primary:not(:disabled):not(.disabled):active, .btn-primary:not(:disabled):not(.disabled).active, .show > .btn-primary.dropdown-toggle {
+    color: #fff;
+    background-color: var(--primary);
+    border-color: var(--primary);
+    filter: brightness(0.85);
+}
+.btn-primary:not(:disabled):not(.disabled):active:focus, .btn-primary:not(:disabled):not(.disabled).active:focus, .show > .btn-primary.dropdown-toggle:focus {
+    box-shadow: 0 0 0 0.2rem var(--primary);
+    filter: brightness(0.90)
+}
+
+.btn-secondary {
+    color: #fff;
+    background-color: var(--secondary);
+    border-color: var(--primary);
+}
+.btn-secondary:hover {
+    color: #fff;
+    background-color: var(--primary);
+    border-color: var(--primary);
+    filter: brightness(0.90);
+}
+.btn-secondary:focus, .btn-secondary.focus {
+    color: #fff;
+    background-color: var(--secondary);
+    border-color: var(--secondary);
+    box-shadow: 0 0 0 0.2rem var(--secondary);
+    filter: brightness(0.90)
+}
+.btn-secondary.disabled, .btn-secondary:disabled {
+    color: #fff;
+    background-color: var(--secondary);
+    border-color: var(--secondary);
+}
+.btn-secondary:not(:disabled):not(.disabled):active, .btn-secondary:not(:disabled):not(.disabled).active, .show > .btn-secondary.dropdown-toggle {
+    color: #fff;
+    background-color: var(--secondary);
+    border-color: var(--secondary);
+    filter: brightness(0.85);
+}
+.btn-secondary:not(:disabled):not(.disabled):active:focus, .btn-secondary:not(:disabled):not(.disabled).active:focus, .show > .btn-secondary.dropdown-toggle:focus {
+    box-shadow: 0 0 0 0.2rem var(--secondary);
+    filter: brightness(0.90);
+}
+
+.btn-outline-primary {
+    color: var(--primary);
+    border-color: var(--primary);
+}
+.btn-outline-primary:hover {
+    color: #fff;
+    background-color: var(--primary);
+    border-color: var(--primary);
+}
+.btn-outline-primary:focus, .btn-outline-primary.focus {
+    box-shadow: 0 0 0 0.2rem var(--primary);
+    filter: brightness(0.90);
+}
+.btn-outline-primary.disabled, .btn-outline-primary:disabled {
+    color: var(--primary);
+    background-color: transparent;
+}
+.btn-outline-primary:not(:disabled):not(.disabled):active, .btn-outline-primary:not(:disabled):not(.disabled).active, .show > .btn-outline-primary.dropdown-toggle {
+    color: #fff;
+    background-color: var(--primary);
+    border-color: var(--primary);
+}
+.btn-outline-primary:not(:disabled):not(.disabled):active:focus, .btn-outline-primary:not(:disabled):not(.disabled).active:focus, .show > .btn-outline-primary.dropdown-toggle:focus {
+    box-shadow: 0 0 0 0.2rem var(--primary);
+    filter: brightness(0.90);
+}
+
+.btn-outline-secondary {
+    color: var(--secondary);
+    border-color: var(--secondary);
+    }
+.btn-outline-secondary:hover {
+    color: #fff;
+    background-color: var(--secondary);
+    border-color: var(--secondary);
+}
+.btn-outline-secondary:focus, .btn-outline-secondary.focus {
+    box-shadow: 0 0 0 0.2rem var(--secondary);
+    filter: brightness(0.90);
+}
+.btn-outline-secondary.disabled, .btn-outline-secondary:disabled {
+    color: var(--secondary);
+    background-color: transparent;
+}
+.btn-outline-secondary:not(:disabled):not(.disabled):active, .btn-outline-secondary:not(:disabled):not(.disabled).active, .show > .btn-outline-secondary.dropdown-toggle {
+    color: #fff;
+    background-color: var(--secondary);
+    border-color: var(--secondary);
+    }
+.btn-outline-secondary:not(:disabled):not(.disabled):active:focus, .btn-outline-secondary:not(:disabled):not(.disabled).active:focus, .show > .btn-outline-secondary.dropdown-toggle:focus {
+    box-shadow: 0 0 0 0.2rem var(--secondary);
+    filter: brightness(0.90);
+}
+
+.badge-primary {
+    color: #fff;
+    background-color: var(--primary);
+}
+a.badge-primary:hover, a.badge-primary:focus {
+    color: #fff;
+    background-color: var(--primary);
+    filter: brightness(0.90);
+}
+a.badge-primary:focus, a.badge-primary.focus {
+    outline: 0;
+    box-shadow: 0 0 0 0.2rem var(--primary);
+    filter: brightness(0.90);
+}
+.badge-secondary {
+    color: #fff;
+    background-color: var(--secondary);
+}
+a.badge-secondary:hover, a.badge-secondary:focus {
+    color: #fff;
+    background-color: var(--secondary);
+    filter: brightness(0.90);
+}
+a.badge-secondary:focus, a.badge-secondary.focus {
+    outline: 0;
+    box-shadow: 0 0 0 0.2rem var(--secondary);
+    filter: brightness(0.90);
+}
+
+.bg-primary {
+    background-color: var(--primary) !important;
+}
+
+a.bg-primary:hover, a.bg-primary:focus,
+button.bg-primary:hover,
+button.bg-primary:focus {
+    background-color: var(--primary) !important;
+    filter: brightness(0.90);
+}
+.bg-secondary {
+    background-color: var(--secondary) !important;
+}
+
+a.bg-secondary:hover, a.bg-secondary:focus,
+button.bg-secondary:hover,
+button.bg-secondary:focus {
+    background-color: var(--secondary) !important;
+    filter: brightness(0.90);
+}
+.border-primary {
+    border-color: var(--primary) !important;
+}
+
+.border-secondary {
+    border-color: var(--secondary) !important;
+}
+.text-primary {
+    color: var(--primary) !important;
+}
+
+a.text-primary:hover, a.text-primary:focus {
+    color: var(--primary) !important;
+    filter: brightness(0.90);
+}
+
+.text-secondary {
+    color: var(--secondary) !important;
+    filter: brightness(0.90);
+}
+.bg-gradient-primary-to-secondary {
+    background-color: var(--primary);
+    background-image: linear-gradient(135deg, var(--primary) 0%, var(--secondary )100%);
+}
+
+h1, .h1 {
+    font-size: var(--h1-size);
+}
+
+h2, .h2 {
+    font-size: var(--h2-size);
+}
+
+h3, .h3 {
+    font-size: var(--h3-size);
+}
+
+h4, .h4 {
+    font-size: var(--h4-size);
+}
+
+h5, .h5 {
+    font-size: var(--h5-size);
+}
+
+h6, .h6 {
+    font-size: var(--h6-size);
+}
+
+p, .p {
+    font-size: var(--p-size);
+}

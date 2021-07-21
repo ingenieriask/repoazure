@@ -40,6 +40,7 @@
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
 
     <link rel="icon" type="image/x-icon" href="{% static 'correspondence/assets/img/favicon.png'%}" />
+    <link rel="stylesheet" href="{% url 'core:home-global' %}" type="text/css">
   </head>
   <div id="loading">
     <img id="loading-image" src="{% static 'loader/loader.gif'%}" alt="Loading..." />
@@ -66,7 +67,13 @@
                         <img
                           class="float-left"
                           src="{% static 'correspondence/assets/img/illustrations/FullColor_TransparentBg_1280x1024_72dpi_1.png' %}"
-                          style="max-width: 7rem"
+                          style="width: 7rem; height: 6rem"
+                        />
+                        <img
+                          id="company_logo"
+                          class="float-left mr-2"
+                          src="/media/company_logo/logo.png"
+                          style="width: 7rem; height: 6rem"
                         />
                       </a>
 
@@ -139,8 +146,14 @@
     <script src="{% static 'correspondence/assets/demo/chart-bar-demo.js' %}"></script>
     <script src="{% static 'correspondence/assets/demo/chart-pie-demo.js' %}"></script>
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <script>
+      $("#company_logo").on("error", function(){
+        $("#company_logo").remove();
+      });
+    </script>
     <script type="text/javascript">
         {% block script %} {% endblock %}
     </script>
   </body>
+
 </html>

@@ -13,6 +13,10 @@ from treebeard.al_tree import AL_Node
 from core.utils_services import FormatHelper
 from simple_history.models import HistoricalRecords
 from django.utils.translation import gettext_lazy as _
+from .utils_models import UploadToPathAndRename, OverwriteStorage
+
+import os
+
 # Create your models here.
 
 
@@ -563,3 +567,20 @@ class Template(BaseModel):
             else:
                 self.user_updated = user
         super(Template, self).save()
+
+class StyleSettings(models.Model):
+    primary = ColorField(default='#FFFF00')
+    secondary = ColorField(default='#FFFF00')
+    h1_size = models.FloatField(default=1.5)
+    h2_size = models.FloatField(default=1.4)
+    h3_size = models.FloatField(default=1.3)
+    h4_size = models.FloatField(default=1.2)
+    h5_size = models.FloatField(default=1.1)
+    h16_size = models.FloatField(default=1)
+    p_size = models.FloatField(default=1)
+    logo = models.ImageField(upload_to=UploadToPathAndRename(os.path.join('company_logo')), null=True,
+                            storage=OverwriteStorage())
+
+    class Meta:
+        verbose_name= 'Parametrización del Tema'
+        verbose_name_plural= 'Parametrizaciones del Tema'
