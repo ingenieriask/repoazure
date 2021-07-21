@@ -1,6 +1,6 @@
 from django.contrib import admin
 from correspondence.models import Radicate, Raft, Subraft, Doctype, DocsRetention, Record, \
-    RadicateTypes, ReceptionMode, ProcessType, SecurityLevel, FilePhases, FinalDisposition, Template, \
+    RadicateTypes, ReceptionMode, ProcessType, SecurityLevel, FilePhases, FinalDisposition, \
     AlfrescoFile, PermissionRelationReport, PermissionRelationAssignation
 from core.models import Person, PersonRequest, UserProfileInfo, DocumentTypes, PersonType
 from django.contrib.auth.models import Permission
@@ -49,7 +49,6 @@ admin.site.register(SecurityLevel)
 admin.site.register(FilePhases)
 admin.site.register(FinalDisposition)
 admin.site.register(PersonType)
-admin.site.register(Template)
 admin.site.register(AlfrescoFile)
 admin.site.register(PermissionRelationReport, PermissionRelationReportAdmin)
 admin.site.register(PermissionRelationAssignation, PermissionRelationAssignationAdmin)

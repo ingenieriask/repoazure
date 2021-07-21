@@ -2,7 +2,7 @@ from django import forms
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Submit, Row, Column, ButtonHolder, Button, Div, HTML
 from django.contrib.auth.models import User
-from correspondence.models import Radicate, Record, Template
+from correspondence.models import Radicate, Record
 from core.models import FunctionalAreaUser, Person, UserProfileInfo
 from core.forms import CustomFileInput
 from core.utils_services import FormatHelper
@@ -351,14 +351,3 @@ class RecordForm(forms.ModelForm):
             )
         )
 
-
-class TemplateForm(forms.ModelForm):
-    class Meta:
-        model = Template
-        fields = ('name', 'office', 'description', 'file')
-        labels = {'name': 'Nombre', 'office': 'Dependencia',
-                  'description': 'Descripción', 'file': 'Plantilla'}
-        widgets = {
-            'name': forms.TextInput(),
-            'office': forms.Select(attrs={'class': 'selectpicker', 'data-live-search': 'true'}),
-        }

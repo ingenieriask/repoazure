@@ -9,7 +9,7 @@ from correspondence.models import ReceptionMode, RadicateTypes, Radicate, Alfres
 from pqrs.models import PQRS,Type, PqrsContent,Type, SubType, InterestGroup
 from workflow.models import FilingFlow, FilingNode
 from core.models import AppParameter, Attorny, AttornyType, Atttorny_Person, City, LegalPerson, \
-    Person, DocumentTypes, PersonRequest, PersonType, RequestResponse, Alert
+    Person, DocumentTypes, PersonRequest, PersonType, RequestResponse, Alert, Template
 from django.contrib.auth.models import User
 from django_mailbox.models import Message
 from pqrs.forms import ChangeClassificationForm, LegalPersonForm, PqrsConsultantForm, SearchUniquePersonForm, PersonForm, \
@@ -30,7 +30,7 @@ from django.views.generic.edit import UpdateView
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from core.utils_redis import add_to_redis, read_from_redis
 from correspondence.services import ECMService, RadicateService
-from core.services import PdfCreationService
+from core.services import PdfCreationService, DocxCreationService
 from core.services import NotificationsHandler, RecordCodeService, Recipients
 from django.core.files.temp import NamedTemporaryFile
 from django.core.files.storage import default_storage
@@ -1153,6 +1153,9 @@ def pqrs_answer_preview(request, pk):
                         request, "Ha ocurrido un error al guardar el archivo en el gestor de contenido")
 
             PdfCreationService.create_radicate_answer(instance, True)
+            # DocxCreationService.mix_from_template(Template.Types.ANSWER, instance)
+        else:
+            print(form.errors)
         return redirect('pqrs:answer', pk, instance.pk)
         
     else:

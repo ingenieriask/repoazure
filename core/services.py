@@ -7,7 +7,9 @@ import logging
 from datetime import datetime
 from django.db import transaction
 from django.db.models import Q
+from django.conf import settings
 import re
+import io
 import requests
 import json
 import pandas as pd
@@ -16,13 +18,15 @@ from enum import Enum
 from django.core.exceptions import ValidationError
 from core.models import AppParameter, ConsecutiveFormat, Consecutive, Country, FilingType, \
     Holiday, CalendarDay, CalendarDayType, Calendar, Notifications, SystemParameter, \
-    SystemHelpParameter
+    SystemHelpParameter, Template
 from core.utils_services import FormatHelper
 from django.contrib.auth.models import User, Permission
 from correspondence.models import AlfrescoFile
 from django.core.files import File
 from django.core.files.temp import NamedTemporaryFile
 from correspondence.services import ECMService
+from docx import Document
+import os
 
 logger = logging.getLogger(__name__)
 
@@ -341,7 +345,7 @@ class CalendarService(object):
 
         except Exception as Err:
             logger.error(Err)
-
+        
 
 class PdfCreationService(object):
 
@@ -489,3 +493,41 @@ class PdfCreationService(object):
         # return pdf
         #pdf.output('answer.pdf', 'F')
         return PdfCreationService._save_pdf_in_ecm(pdf, radicate, 'answer' + radicate.number, '.pdf')
+
+class DocxCreationService(object):
+    
+    @classmethod
+    def _save_doc_in_ecm(cls, doc, pqrs, name, extension):
+        # Create in-memory buffer
+        file_stream = io.BytesIO()
+        # Save the .docx to the buffer
+        doc.save(file_stream)
+        # Reset the buffer's file-pointer to the beginning of the file
+        size = file_stream.tell()
+        file_stream.seek(0)
+        file_stream.flush()
+
+        node_id = ECMService.upload(File(file_stream, name=name+extension), pqrs.folder_id)
+
+        alfrescoFile = AlfrescoFile(cmis_id=node_id, 
+                                    radicate=pqrs,
+                                    name=name,
+                                    extension=extension,
+                                    size=int(size))
+        alfrescoFile.save()
+        return node_id
+
+    @classmethod
+    def mix_from_template(cls, template_type, pqrs):
+        try:
+            template = Template.objects.get(type=template_type)
+            doc = Document(template.file)
+            for p in doc.paragraphs:
+                p.text = FormatHelper.replace_data(p.text, pqrs),
+    
+
+            # doc.save(os.path.join(settings.BASE_DIR, 'media/output.docx'))
+            DocxCreationService._save_doc_in_ecm(doc, pqrs, template_type.name, '.docx')
+
+        except Template.DoesNotExist:
+            template = None

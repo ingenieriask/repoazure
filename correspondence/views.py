@@ -1,8 +1,8 @@
-from correspondence.models import AlfrescoFile, Radicate, Record, Template, PermissionRelationAssignation, PermissionRelationReport, ProcessActionStep
+from correspondence.models import AlfrescoFile, Radicate, Record, PermissionRelationAssignation, PermissionRelationReport, ProcessActionStep
 from core.models import FunctionalArea, NotificationsService, Person, Atttorny_Person, UserProfileInfo, FunctionalAreaUser, Alert
 from pqrs.models import PQRS, PqrsContent
 from correspondence.forms import RadicateForm, SearchForm, UserForm, UserProfileInfoForm, PersonForm, RecordForm, \
-    SearchContentForm, ChangeCurrentUserForm, ChangeRecordAssignedForm, LoginForm, TemplateForm, AssignToUserForm, ReturnToLastUserForm, ReportToUserForm, \
+    SearchContentForm, ChangeCurrentUserForm, ChangeRecordAssignedForm, LoginForm, AssignToUserForm, ReturnToLastUserForm, ReportToUserForm, \
     DeleteFromReportedForm
 from django.contrib.auth.models import User
 from datetime import datetime
@@ -585,8 +585,7 @@ def project_answer(request, pk):
             doc = Document(os.path.join(settings.BASE_DIR, 'media/temp.docx'))
 
         else:
-            doc = Document(os.path.join(
-                settings.BASE_DIR, 'media/template.docx'))
+            doc = Document(os.path.join(settings.BASE_DIR, 'media/template.docx'))
 
         Dictionary = {
             "*RAD_N*": datetime.now().strftime("%Y%m%d%H%M%S"),
@@ -793,27 +792,11 @@ def get_file(request):
         extension = AlfrescoFile.objects.get(cmis_id=cmis_id).extension
         if extension == '.pdf':
             content_type = "application/pdf"
-        elif extension == ".doc":
+        elif extension == ".doc" or extension == ".docx":
             content_type = "application/msword"
         elif extension == '.jpg':
             content_type = "image/jpeg"
         return HttpResponse(prev_response, content_type=content_type)
 
     return HttpResponse(default_storage.open('tmp/default.jpeg').read(), content_type="image/jpeg")
-
-
-class TemplateListView(ListView):
-    model = Template
-    context_object_name = 'templates'
-    paginate_by = 3
-
-
-class TemplateCreateView(CreateView):
-    model = Template
-    form_class = TemplateForm
-
-
-class TemplateEditView(UpdateView):
-    model = Template
-    form_class = TemplateForm
 

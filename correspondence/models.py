@@ -165,7 +165,7 @@ class PermissionRelationReport(BaseModel):
 class AlfrescoFile(models.Model):
     cmis_id = models.TextField(max_length=128, null=True)
     name = models.CharField(max_length=256, null=True)
-    extension = models.CharField(max_length=4, null=True)
+    extension = models.CharField(max_length=6, null=True)
     size = models.IntegerField(default=0)
     radicate = models.ForeignKey(Radicate, on_delete=models.PROTECT, related_name='files')
     
@@ -275,36 +275,9 @@ class Record(BaseModel):
         verbose_name= 'Registro'
         verbose_name_plural= 'Registros'
 
-def template_directory_path(instance, filename):
-    return 'templates/{0}/{1}'.format(instance.office.name, filename)
-
-
 def validate_file_extension(value):
     import os
     ext = os.path.splitext(value.name)[1]
     valid_extensions = ['.doc', '.docx']
     if ext not in valid_extensions:
         raise ValidationError(u'Archivo no soportado')
-
-
-class Template(BaseModel):
-    office = models.ForeignKey(to=Office, on_delete=models.CASCADE, related_name='templates')
-    name = models.TextField(max_length=64, null=False)
-    file = models.FileField(upload_to=template_directory_path)
-    description = models.TextField(max_length=256)
-
-    def __str__(self):
-        return self.name
-
-    def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
-        user = get_current_user()
-        if user is not None:
-            if not self.pk:
-                self.user_creation = user
-            else:
-                self.user_updated = user
-        super(Template, self).save()
-
-    @staticmethod
-    def get_absolute_url():
-        return reverse('correspondence:template_list')

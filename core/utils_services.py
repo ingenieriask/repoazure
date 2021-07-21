@@ -47,7 +47,9 @@ class FormatHelper():
     @classmethod
     def replace_data(cls, text, obj):
         for par in re.compile('<param>(.*?)</param>', re.IGNORECASE).findall(text):
-            text = text.replace('<param>' + par + '</param>', cls.get_data_from_obj(par, obj))
+            to_replace = cls.get_data_from_obj(par, obj)
+            if to_replace:
+                text = text.replace('<param>' + par + '</param>', to_replace)
         return text
 
 class PDF(FPDF):

@@ -12,6 +12,7 @@ from django.dispatch import receiver
 from treebeard.al_tree import AL_Node
 from core.utils_services import FormatHelper
 from simple_history.models import HistoricalRecords
+from django.utils.translation import gettext_lazy as _
 # Create your models here.
 
 
@@ -537,3 +538,26 @@ class Notifications(models.Model):
         verbose_name= 'Notificacion'
         verbose_name_plural= 'Notificaciones'
 
+def template_directory_path(instance, filename):
+    return 'templates/{0}/{1}'.format(instance.type, filename)
+
+class Template(BaseModel):
+    class Types(models.TextChoices):
+        ANSWER = 'AN', _('Respuesta')
+
+    type = models.CharField(unique=True, max_length=2, choices=Types.choices, default=Types.ANSWER)
+    file = models.FileField(upload_to=template_directory_path)
+    name = models.TextField(max_length=64, null=False)
+    description = models.TextField(max_length=256)
+
+    def __str__(self):
+        return self.name
+
+    def save(self):
+        user = get_current_user()
+        if user is not None:
+            if not self.pk:
+                self.user_creation = user
+            else:
+                self.user_updated = user
+        super(Template, self).save()
