@@ -5,7 +5,7 @@ from django.core.mail import EmailMessage
 from .utils_services import PDF
 import logging
 from datetime import datetime
-from django.db import transaction
+from django.db import transaction, OperationalError
 from django.db.models import Q
 from django.conf import settings
 import re
@@ -18,7 +18,7 @@ from enum import Enum
 from django.core.exceptions import ValidationError
 from core.models import AppParameter, ConsecutiveFormat, Consecutive, Country, FilingType, \
     Holiday, CalendarDay, CalendarDayType, Calendar, Notifications, SystemParameter, \
-    SystemHelpParameter, Template, Task
+    SystemHelpParameter, Template, Task, ProceedingsConsecutiveFormat, ProceedingsConsecutive
 from core.utils_services import FormatHelper
 from django.contrib.auth.models import User, Permission
 from correspondence.models import AlfrescoFile
@@ -187,8 +187,11 @@ class RecordCodeService(object):
         INPUT = 'input'
         OUTPUT = 'output'
         MEMO = 'memo'
+        PROCERDINGS = 'proceedings'
 
     tokens = ['{consecutive}', '{year}', '{type}']
+    tokens2 = ['{consecutivo}', '{dependencia}', '{subserie}', '{year}']
+
     digits_token = 'consecutive'
 
     @classmethod
@@ -245,6 +248,41 @@ class RecordCodeService(object):
         # Generate formatted code
         params = {
             'type': filing_type.code,
+            'year': now.year,
+            'consecutive': consecutive.current
+        }
+
+        return format.format(**params)
+
+    @classmethod
+    @transaction.atomic
+    def get_proceedings_consecutive(cls, subserie='02007', dependence='014'):
+        '''Retrieve the next consecutive code for a given type'''
+
+        now = datetime.now()
+        format = ProceedingsConsecutiveFormat.objects.filter(
+            effective_date__lte=now
+        ).latest('effective_date').format
+
+        # Retrieve the last consecutive code
+        try:
+            consecutive = ProceedingsConsecutive.objects.get()
+        except ProceedingsConsecutive.DoesNotExist:
+            consecutive = ProceedingsConsecutive(current=0)
+
+        # Update the consecutive code
+        if consecutive.date.year != now.year:
+            consecutive.current = 1
+        else:
+            consecutive.current += 1
+
+        consecutive.date = now
+        consecutive.save()
+
+        # Generate formatted code
+        params = {
+            'subserie': subserie, 
+            'dependence': dependence,
             'year': now.year,
             'consecutive': consecutive.current
         }
@@ -545,15 +583,17 @@ class Scheduler(object):
 
     @staticmethod
     def task1():
-        print('executing task 1 ...')
+        print('Executing Task 1 ...')
         time.sleep(2)
-        print('task 1, done')
+        print('Task 1, done')
 
     @staticmethod
     def task2():
-        print('executing task 2 ...')
+        print('Executing Task 2 ...')
         time.sleep(2)
-        print('task 2, done')
+        print('Task 2, done')
+        #consecutive = RecordCodeService.get_proceedings_consecutive()
+        #print(consecutive)
 
 
     @classmethod
@@ -563,40 +603,48 @@ class Scheduler(object):
             for task in Task.objects.all():
                 if task.code in cls._tasks:
                     if cls._tasks[task.code]:
-                        try:
+                        if cls._check(task):
                             with transaction.atomic():
-                                task2 = Task.objects.select_for_update().get(pk=task.id)
-                                if task2.status == 0:
-                                    periodicity = task2.periodicity
-                                    last = task2.last_execution_time
-                                    now = datetime.now()
-                                    if not last:
-                                        cls._eval(task2, now)
-                                        continue
-                                    if periodicity.isnumeric():
-                                        difference = (now - last).total_seconds()
-                                        if (difference > int(periodicity)):
-                                            cls._eval(task2, now)
-                                    else:  
-                                        iter = croniter(periodicity, last)
-                                        if now > iter.get_next(datetime):
-                                            cls._eval(task2, now)
-        
-                        except Exception as Error:
-                            logger.error(f'Task error: {Error}')
+                                try:
+                                    t = Task.objects.select_for_update(nowait=True).get(pk=task.id)
+                                    if cls._check(task):
+                                        cls._eval(task, datetime.now())
+                                except OperationalError as e:
+                                    print(e)
+                                    logger.error(f"Task '{task.code}' in progress")
                     else:
-                        logger.error(f"Task '{task}' unimplemented")
+                        logger.error(f"Task '{task.code}' unimplemented")
                 else:
-                    logger.error(f"Task '{task}' undefined")
+                    logger.error(f"Task '{task.code}' undefined")
+
+    @classmethod
+    def _check(cls, task):
+        periodicity = task.periodicity
+        last = task.last_execution_time
+        now = datetime.now()
+        if task.status == 1:
+            return False
+        if not last:
+            return True
+        if periodicity.isnumeric():
+            difference = (now - last).total_seconds()
+            return difference >= int(periodicity)
+        iter = croniter(periodicity, last)
+        return now >= iter.get_next(datetime)
+        
 
     @classmethod
     def _eval(cls, task, now):
-        task.status = 1
-        task.save()
-        cls._tasks[task.code]()
-        task.status = 0 
-        task.last_execution_time = now
-        task.save()
+        if task.status == 0:
+            task.status = 1
+            task.save()
+            try:
+                cls._tasks[task.code]()
+            except Exception as Error:
+                logger.error(f'Task error: {Error}')
+            task.last_execution_time = now
+            task.status = 0 
+            task.save()
 
 
     @classmethod

@@ -395,6 +395,26 @@ class ConsecutiveFormat(models.Model):
         verbose_name= 'Formato del Consecutivo'
         verbose_name_plural= 'Formatos de los Consecutivos'
 
+class ProceedingsConsecutiveFormat(models.Model):
+    format = models.CharField(max_length=256, null=False, blank=False)
+    effective_date = models.DateTimeField(
+        default=timezone.now, null=False, blank=False)
+        
+    history = HistoricalRecords()
+    def __str__(self):
+        return f"'{self.format}' {self.effective_date}"
+
+    class Meta:
+        db_table = "core_proceedings_consecutive_format"
+        verbose_name= 'Formato del Consecutivo de Expediente'
+        verbose_name_plural= 'Formatos de los Consecutivos de Expediente'
+
+class ProceedingsConsecutive(models.Model):
+    current = models.BigIntegerField(null=False)
+    date = models.DateTimeField(default=timezone.now, null=False, blank=False)
+
+    def __str__(self):
+        return f"{self.current} {self.date}"
 
 class FilingType(models.Model):
     name = models.CharField(max_length=128, blank=False,

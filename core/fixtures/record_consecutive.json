@@ -1,3 +1,24 @@
 [
-	{"model": "core.consecutiveformat", "pk": 1, "fields": {"format": "{year}{consecutive:08d}{type}", "effective_date": "2020-05-20 0:0:0"}}
+	{
+		"model": 
+		"core.consecutiveformat", 
+		"pk": 1, 
+		"fields": {
+			"format": 
+			"{year}{consecutive:08d}{type}", 
+			"effective_date": 
+			"2020-05-20 0:0:0"
+		}
+	},
+	{
+		"model": 
+		"core.proceedingsconsecutiveformat", 
+		"pk": 1, 
+		"fields": {
+			"format": 
+			"{year}{dependence}{subserie}{consecutive:08d}E", 
+			"effective_date": 
+			"2020-05-20 0:0:0"
+		}
+	}
 ]

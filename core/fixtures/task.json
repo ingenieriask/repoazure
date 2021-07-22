@@ -5,18 +5,7 @@
 		"fields": {
 			"code": "TASK1",
 			"description": "Task 1",
-			"periodicity": "*/2 * * * *",
-			"status": 0,
-			"last_execution_time": null
-		}
-	},
-	{
-		"model": "core.task",
-		"pk": 2,
-		"fields": {
-			"code": "TASK2",
-			"description": "Task 1",
-			"periodicity": "5",
+			"periodicity": "*/10 * * * *",
 			"status": 0,
 			"last_execution_time": null
 		}
