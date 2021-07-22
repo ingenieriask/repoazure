@@ -587,6 +587,17 @@ class RecordsForm(forms.ModelForm):
         self.helper = FormHelper(self)
         self.helper.layout = Layout(
             Div(
+                Div(HTML('Aplicacion de la TRD del expediente'),
+                    css_class='card-header'),
+                Div(
+                    Row(
+                        Column('type', css_class='form-group col-md-6 mb-0'),
+                        Column('subtype_field', css_class='form-group col-md-6 mb-0'),
+                        css_class='form-row'
+                    ), css_class='card-body'
+            ), css_class="card mb-3",
+            ), 
+            Div(
                 Div(HTML('Expediente'),
                     css_class='card-header'),
                 Div(
@@ -608,17 +619,6 @@ class RecordsForm(forms.ModelForm):
                     ), css_class='card-body'
             ), css_class="card mb-3",
             ),
-            Div(
-                Div(HTML('Aplicacion de la TRD del expediente'),
-                    css_class='card-header'),
-                Div(
-                    Row(
-                        Column('type', css_class='form-group col-md-6 mb-0'),
-                        Column('subtype_field', css_class='form-group col-md-6 mb-0'),
-                        css_class='form-row'
-                    ), css_class='card-body'
-            ), css_class="card mb-3",
-            ), 
             Div(
                 Submit('submit','Siguiente',
                 css_class="btn btn-primary mx-auto",

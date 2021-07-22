@@ -515,6 +515,14 @@ def records_form_param(request,pk):
         request,
         'pqrs/records_form.html',
         context={"form":form,"pk":pk})
+
+class RecordDetailView(DetailView):
+    model = Record
+
+class RecordListView(ListView):
+    model = Record
+    context_object_name = 'records'
+
 class PqrDetailView(DetailView):
     model = Radicate
     template_name = 'pqrs/pqr_detail.html'

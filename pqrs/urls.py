@@ -48,4 +48,6 @@ urlpatterns = [
     path('pqrs-consultant/', views.search_pqrsd, name='consultant_view'),
     path('records-form/', views.records_form, name='records_form'),
     path('records-form-param/<int:pk>/', views.records_form_param, name='records_form_parameter'),
+    path('records-detail/<int:pk>/', views.RecordDetailView.as_view(), name='records_detail'),
+    path('records-list/', views.RecordListView.as_view(), name='records_list'),
 ]
