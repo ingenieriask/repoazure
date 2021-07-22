@@ -18,7 +18,7 @@ from enum import Enum
 from django.core.exceptions import ValidationError
 from core.models import AppParameter, ConsecutiveFormat, Consecutive, Country, FilingType, \
     Holiday, CalendarDay, CalendarDayType, Calendar, Notifications, SystemParameter, \
-    SystemHelpParameter, Template
+    SystemHelpParameter, Template, Task
 from core.utils_services import FormatHelper
 from django.contrib.auth.models import User, Permission
 from correspondence.models import AlfrescoFile
@@ -27,6 +27,10 @@ from django.core.files.temp import NamedTemporaryFile
 from correspondence.services import ECMService
 from docx import Document
 import os
+import threading
+import time
+from croniter import croniter
+from django.apps import AppConfig
 
 logger = logging.getLogger(__name__)
 
@@ -531,3 +535,72 @@ class DocxCreationService(object):
 
         except Template.DoesNotExist:
             template = None
+
+class Scheduler(object):
+
+    _tasks = {
+        'TASK1': lambda : Scheduler.task1(),
+        'TASK2': lambda : Scheduler.task2()
+    }
+
+    @staticmethod
+    def task1():
+        print('executing task 1 ...')
+        time.sleep(2)
+        print('task 1, done')
+
+    @staticmethod
+    def task2():
+        print('executing task 2 ...')
+        time.sleep(2)
+        print('task 2, done')
+
+
+    @classmethod
+    def worker(cls, time_delay):
+        while True:
+            time.sleep(time_delay)
+            for task in Task.objects.all():
+                if task.code in cls._tasks:
+                    if cls._tasks[task.code]:
+                        try:
+                            with transaction.atomic():
+                                task2 = Task.objects.select_for_update().get(pk=task.id)
+                                if task2.status == 0:
+                                    periodicity = task2.periodicity
+                                    last = task2.last_execution_time
+                                    now = datetime.now()
+                                    if not last:
+                                        cls._eval(task2, now)
+                                        continue
+                                    if periodicity.isnumeric():
+                                        difference = (now - last).total_seconds()
+                                        if (difference > int(periodicity)):
+                                            cls._eval(task2, now)
+                                    else:  
+                                        iter = croniter(periodicity, last)
+                                        if now > iter.get_next(datetime):
+                                            cls._eval(task2, now)
+        
+                        except Exception as Error:
+                            logger.error(f'Task error: {Error}')
+                    else:
+                        logger.error(f"Task '{task}' unimplemented")
+                else:
+                    logger.error(f"Task '{task}' undefined")
+
+    @classmethod
+    def _eval(cls, task, now):
+        task.status = 1
+        task.save()
+        cls._tasks[task.code]()
+        task.status = 0 
+        task.last_execution_time = now
+        task.save()
+
+
+    @classmethod
+    def start(cls):
+        t = threading.Thread(target=cls.worker, args=(5,))
+        t.setDaemon(True)
+        t.start()

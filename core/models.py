@@ -586,11 +586,12 @@ class StyleSettings(models.Model):
         verbose_name_plural= 'Parametrizaciones del Tema'
 
 
-class Notification(models.Model):
-    name = models.CharField(max_length=256, null=False, blank=False)
-    periodicity = models.IntegerField(default=1)
-    status = models.IntegerField(default=1)
+class Task(models.Model):
+    code = models.CharField(max_length=128, null=False, blank=False)
+    description = models.CharField(max_length=256, null=True, blank=True)
+    periodicity = models.CharField(max_length=128, null=False, blank=False)
+    status = models.IntegerField(default=0)
     last_execution_time = models.DateTimeField(auto_now=False, null=True, blank=True)
 
     def __str__(self):
-        return f'{self.status}'
+        return f'{self.code} {self.description} [{self.periodicity}]'

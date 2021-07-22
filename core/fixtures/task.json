@@ -1,0 +1,25 @@
+[
+	{
+		"model": "core.task",
+		"pk": 1,
+		"fields": {
+			"code": "TASK1",
+			"description": "Task 1",
+			"periodicity": "*/2 * * * *",
+			"status": 0,
+			"last_execution_time": null
+		}
+	},
+	{
+		"model": "core.task",
+		"pk": 2,
+		"fields": {
+			"code": "TASK2",
+			"description": "Task 1",
+			"periodicity": "5",
+			"status": 0,
+			"last_execution_time": null
+		}
+	}
+]
+  

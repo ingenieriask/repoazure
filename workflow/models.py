@@ -18,9 +18,9 @@ class SignatureNode(models.Model):
         SIGNINGUSER = 'Firma Personal', _('Firma Personal')
         LEGALSIGNINGUSER = 'Firma Jurídica', _('Firma Jurídica')
 
-    index = models.IntegerField(null=False)
+    index = models.IntegerField(null=False, default=1)
     type = models.CharField(max_length=50)
-    previous = models.ManyToManyField("self", symmetrical = False)
+    previous = models.ManyToManyField("self", symmetrical=False)
     properties = models.CharField(max_length=512)
     signature_flow = models.ForeignKey(SignatureFlow, on_delete=models.CASCADE)
     user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
@@ -42,9 +42,9 @@ class FilingNode(models.Model):
         ASSIGNEDUSER = 'Asignar', _('Asignar')
         INFORMEDUSER = 'Notificar', _('Notificar')
 
-    index = models.IntegerField(null=False)
+    index = models.IntegerField(null=False, default=1)
     type = models.CharField(max_length=50)
-    previous = models.ManyToManyField("self", symmetrical = False)
+    previous = models.ManyToManyField("self", symmetrical=False)
     properties = models.CharField(max_length=512)
     filing_flow = models.ForeignKey(FilingFlow, on_delete=models.CASCADE)
     users = models.ManyToManyField(User, symmetrical=False)

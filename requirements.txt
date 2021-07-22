@@ -75,3 +75,4 @@ django-simple-history==3.0.0
 django-admin-confirm==0.2.4
 django-mailbox==4.8.2
 pydocx==0.9.10
+croniter==1.0.15
