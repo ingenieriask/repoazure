@@ -12,15 +12,6 @@ class FlowService(object):
     class FlowType(Enum):
         FILING = 'Filing'
         SIGNATURE = 'Signature'
-         
-    class NodeType(Enum):
-        INPUT = 'Inicio'
-        OUTPUT = 'Fin'
-        GUARANTORUSER = 'Visto Bueno'
-        SIGNINGUSER = 'Firma Personal'
-        LEGALSIGNINGUSER = 'Firma Jurídica'
-        ASSIGNEDUSER = 'Asignar'
-        INFORMEDUSER = 'Notificar'
 
     @classmethod
     def get_initial_json(cls):
@@ -68,9 +59,9 @@ class FlowService(object):
 
         end_node = None
         if flow_type == cls.FlowType.SIGNATURE:
-            end_node = SignatureNode.objects.filter(signature_flow__id=pk, type=cls.NodeType.OUTPUT.value).first()
+            end_node = SignatureNode.objects.filter(signature_flow__id=pk, type=SignatureNode.Types.OUTPUT).first()
         else:
-            end_node = FilingNode.objects.filter(filing_flow__id=pk, type=cls.NodeType.OUTPUT.value).first()
+            end_node = FilingNode.objects.filter(filing_flow__id=pk, type=FilingNode.Types.OUTPUT).first()
 
         if end_node:
             formated_nodes = {}
@@ -167,13 +158,13 @@ class FlowService(object):
         user_list = []
 
         acc = {
-            FlowService.NodeType.SIGNINGUSER.value: 0,
-            FlowService.NodeType.LEGALSIGNINGUSER.value: 0,
-            FlowService.NodeType.GUARANTORUSER.value: 0,
-            FlowService.NodeType.ASSIGNEDUSER.value: 0,
-            FlowService.NodeType.INFORMEDUSER.value: 0,
-            FlowService.NodeType.INPUT.value: 0,
-            FlowService.NodeType.OUTPUT.value: 0
+            SignatureNode.Types.SIGNINGUSER: 0,
+            SignatureNode.Types.LEGALSIGNINGUSER: 0,
+            SignatureNode.Types.GUARANTORUSER: 0,
+            FilingNode.Types.ASSIGNEDUSER: 0,
+            FilingNode.Types.INFORMEDUSER: 0,
+            FilingNode.Types.INPUT: 0,
+            FilingNode.Types.OUTPUT: 0
         }
 
         if flow_id:
@@ -185,11 +176,11 @@ class FlowService(object):
             properties = {'position': n['position']}
             time = 2
 
-            if n['name'] != FlowService.NodeType.INPUT.value:
+            if n['name'] != FilingNode.Types.INPUT:
                 if not n['inputs']['in']['connections']:
                     raise ValidationError("Todas las entradas y salidas deben estar interconectadas")
 
-            if n['name'] != FlowService.NodeType.OUTPUT.value:  
+            if n['name'] != FilingNode.Types.OUTPUT:  
                 if not n['outputs']['out']['connections']:
                     raise ValidationError("Todas las entradas y salidas deben estar interconectadas")
                                 
@@ -197,8 +188,8 @@ class FlowService(object):
 
             if flow_type == cls.FlowType.FILING:
                 users = []
-                if n['name'] in [FlowService.NodeType.ASSIGNEDUSER.value,  
-                                FlowService.NodeType.INFORMEDUSER.value]:
+                if n['name'] in [FilingNode.Types.ASSIGNEDUSER,  
+                                FilingNode.Types.INFORMEDUSER]:
                     if n['data'] and n['data']['users']:
                         for user_id in n['data']['users']:
                             user = User.objects.get(pk=int(user_id['id']))
@@ -223,9 +214,9 @@ class FlowService(object):
                 user_list.append(users)
             else:
                 user = None
-                if n['name'] in [FlowService.NodeType.SIGNINGUSER.value,  
-                            FlowService.NodeType.GUARANTORUSER.value,
-                            FlowService.NodeType.LEGALSIGNINGUSER.value]:
+                if n['name'] in [SignatureNode.Types.SIGNINGUSER,  
+                                SignatureNode.Types.GUARANTORUSER,
+                                SignatureNode.Types.LEGALSIGNINGUSER]:
                     if n['data'] and n['data']['user']['id'] and n['data']['user']['id'] != '-1':
                         user = User.objects.get(pk=int(n['data']['user']['id']))
                         n['data']['user'] = {
@@ -248,10 +239,12 @@ class FlowService(object):
 
             node_list.append(node)
 
-        if acc[FlowService.NodeType.INPUT.value] > 1 or acc[FlowService.NodeType.OUTPUT.value] > 1:
+        if acc[FilingNode.Types.INPUT] > 1 or acc[FilingNode.Types.OUTPUT] > 1:
             raise ValidationError("Solo se permiten un nodo de entrada y un nodo de salida")
-        if acc[FlowService.NodeType.INPUT.value] == 0 or acc[FlowService.NodeType.OUTPUT.value] == 0:
+        if acc[FilingNode.Types.INPUT] == 0 or acc[FilingNode.Types.OUTPUT] == 0:
             raise ValidationError("Se requiere un nodo de entrada y un nodo de salida")
+        if acc[FilingNode.Types.ASSIGNEDUSER] > 1 or acc[FilingNode.Types.INFORMEDUSER] > 1:
+            raise ValidationError("Solo se permiten un nodo de asignación  y un nodo de notificación")
 
         if flow_id:
             if flow_type == cls.FlowType.FILING:
