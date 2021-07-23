@@ -1,0 +1,97 @@
+{% extends 'correspondence/main_template.html' %}
+
+{% block content %}
+<div class="card mb-4">
+    <div class="card-header">Expediente {{ record.id }}</div>
+    <div class="card-body">
+        <div class="card-header">Aplicaci&oacute;n de la TRD del Expediente</div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <p class="text-dark">
+                        <p class="text-primary">
+                        Serie
+                        </p>
+                        <i data-feather="archive"></i>
+                        {{record.type.name}}
+                    </p>
+                </div>
+                <div class="col-md-6">
+                    <p class="text-dark">
+                        <p class="text-primary">
+                        Sub-Serie
+                        </p>
+                        <i data-feather="archive"></i>
+                        {{record.subtype.name}}
+                    </p>
+                </div>
+            </div>
+        </div>
+         <div class="card-header">Informaci&oacute;n del Expediente</div>
+        <div class="card-body">
+            <div class="row ">
+                <div class="col-md-6 mb-2">
+                    <p class="text-primary">
+                    Nombre
+                    </p>
+                    <i data-feather="bookmark"></i>
+                    {{record.name}}
+                </div>
+                <div class="col-md-6 mb-2">
+                    <p class="text-primary">
+                    Responsable
+                    </p>
+                    <i data-feather="user"></i>
+                    {{record.responsable}}
+                </div>
+                <div class="col-md-4 mb-2">
+                        <p class="text-primary">
+                        Fecha inicial
+                        </p>
+                        <i data-feather="calendar"></i>
+                        {{record.initial_date}}
+                </div>
+                <div class="col-md-4 mb-2">
+                        <p class="text-primary">
+                        Asunto
+                        </p>
+                        <i data-feather="align-justify"></i>
+                        {{record.subject}}
+                </div>
+                <div class="col-md-4 mb-2">
+                        <p class="text-primary">
+                        Fuente
+                        </p>
+                        <i data-feather="book-open"></i>
+                        {{record.source}}
+                </div>
+                <div class="col-md-12 mb-2">
+                    <p class="text-primary">
+                    Observaciones
+                    </p>
+                    <i data-feather="clipboard"></i>
+                    {{record.observations}}
+                </div>
+                <div class="col-md-6 mb-2">
+                    <p class="text-primary">
+                    Estado
+                    </p>
+                    <i data-feather="compass"></i>
+                    {{record.get_status_display}}
+                </div>
+                <div class="col-md-6 mb-2">
+                    <p class="text-primary">
+                    Seguridad
+                    </p>
+                    <i data-feather="codepen"></i>
+                    {{record.get_security_levels_display}}
+                </div>
+            </div>
+        </div>
+        <div class="d-flex ">
+            <button class="btn btn-success mx-auto">Regresar</button>
+        </div>
+    </div>
+
+</div>
+{% endblock %}

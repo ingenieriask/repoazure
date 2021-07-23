@@ -1,14 +1,17 @@
 {% extends 'pqrs/template.html' %} {% block content %}
 <div class="card mb-4" id="form_container">
   <div class="card-header">Otro Solicitante</div>
-  <div class="card-body overflow-auto">
+  <div class="card-body">
     <a
       type="button"
       href="{% url 'pqrs:create_person_request'  pqrs_type=context.pqrs_type %}"
       class="btn btn-primary mb-2"
       >Agregar Solicitante</a
     >
-      <table class="table table-hover nowrap" id="tb_request_sender">
+  </div>
+  <div class="card-body overflow-auto">
+    
+      <table class="table table-hover" id="tb_request_creator">
         <thead>
           <tr>
             <th scope="col">Orden</th>

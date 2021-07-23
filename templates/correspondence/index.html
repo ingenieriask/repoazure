@@ -32,6 +32,7 @@
       href="{% static 'node_modules/@fortawesome/fontawesome-free/css/all.min.css' %}"
       rel="stylesheet"
     />
+    <link rel="stylesheet" href="{% url 'core:home-global' %}" type="text/css">
     <!--
         <link href="https://cdn.datatables.net/1.10.22/css/dataTables.bootstrap4.min.css" rel="stylesheet" crossorigin="anonymous" />
         <link href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" rel="stylesheet" crossorigin="anonymous" />
@@ -68,13 +69,20 @@
                       RINO
                     </h1>
                   </div>
-                  <div class="col-8 col-xl-auto mt-4 d-flex justify-content-end">
+                  <div class="col-4 col-xl-auto mt-4 d-flex justify-content-end">
                     <div class="btn btn-white ">
                       <h5 class="text-primary">
-                    <script> document.write(new Date().toLocaleDateString()); </script>
-                    </h5>
+                        <script> document.write(new Date().toLocaleDateString()); </script>
+                      </h5>
                     </div>
-                    
+                  </div>
+                  <div class="col-auto mt-4 ml-auto">
+                    <img
+                      onerror="this.remove()"
+                      class="float-right"
+                      src="/media/company_logo/logo.png"
+                      style="height: 6rem"
+                    />
                   </div>
                 </div>
               </div>

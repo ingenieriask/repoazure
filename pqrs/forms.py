@@ -1,9 +1,10 @@
 from os import closerange
 from re import search, sub
+from django.contrib.auth.models import User
 from django.forms import widgets
 from six import class_types
 from core.models import DocumentTypes, City
-from pqrs.models import InterestGroup, PqrsContent, SubType, Type
+from pqrs.models import InterestGroup, PqrsContent, SubType, Type,Record
 from correspondence.models import Radicate
 from django import forms
 from crispy_forms.helper import FormHelper
@@ -547,6 +548,83 @@ class PqrsAnswerForm(forms.ModelForm):
                     css_class='form-row'
                 )
             )
+
+
+class RecordsForm(forms.ModelForm):
+    date = forms.DateField(
+        widget = forms.DateInput(
+            format='%YYYY-%mm-%d', 
+            attrs={'type': 'date',})
+        )
+    type = forms.ModelChoiceField(
+                        queryset=Type.objects.all(),
+                        label="Serie"
+                    )
+    subtype_field = forms.ModelChoiceField(
+                        queryset=SubType.objects.all(),
+                        label="Sub-Serie"
+                    )
+    responsable = forms.ModelChoiceField(
+                        queryset=User.objects.all(),
+                    )        
+    class Meta:
+        model = Record
+        fields = (
+             'status','subject',
+            'source','observations','security_levels')
+        labels = {
+            'date':'Fecha Inicial',
+            'responsable':'Responsable',
+            'status':'Estado',
+            'subject':'Asunto',
+            'source':'Fuente',
+            'observations':'Observaciones',
+            'security_levels':'Seguridad'
+        }
+    def __init__(self, *args, **kwargs):
+
+        super(RecordsForm, self).__init__(*args, **kwargs)
+        self.helper = FormHelper(self)
+        self.helper.layout = Layout(
+            Div(
+                Div(HTML('Aplicacion de la TRD del expediente'),
+                    css_class='card-header'),
+                Div(
+                    Row(
+                        Column('type', css_class='form-group col-md-6 mb-0'),
+                        Column('subtype_field', css_class='form-group col-md-6 mb-0'),
+                        css_class='form-row'
+                    ), css_class='card-body'
+            ), css_class="card mb-3",
+            ), 
+            Div(
+                Div(HTML('Expediente'),
+                    css_class='card-header'),
+                Div(
+                    Row(
+                        Column('responsable', css_class='form-group col-md-6 mb-0'),
+                        Column('date', css_class='form-group col-md-6 mb-0'),
+                        css_class='form-row'
+                    ),
+                    Row(
+                        Column('security_levels', css_class='form-group col-md-6 mb-0'),
+                        Column('status', css_class='form-group col-md-6 mb-0'),
+                        css_class='form-row'
+                    ),
+                    Row(
+                        Column('subject', css_class='form-group col-md-4 mb-0'),
+                        Column('source', css_class='form-group col-md-4 mb-0'),
+                        Column('observations', css_class='form-group col-md-4 mb-0'),
+                        css_class='form-row'
+                    ), css_class='card-body'
+            ), css_class="card mb-3",
+            ),
+            Div(
+                Submit('submit','Siguiente',
+                css_class="btn btn-primary mx-auto",
+                ),css_class="d-flex"),
+            
+        )
 
 class ChangeClassificationForm(forms.Form):
     pqrs_type = forms.ModelChoiceField(

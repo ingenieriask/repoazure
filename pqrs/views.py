@@ -6,13 +6,13 @@ from django.shortcuts import redirect, render
 from numpy import number, subtract
 from requests.models import Request
 from correspondence.models import ReceptionMode, RadicateTypes, Radicate, AlfrescoFile, ProcessActionStep
-from pqrs.models import PQRS,Type, PqrsContent,Type, SubType, InterestGroup
+from pqrs.models import PQRS, Record,Type, PqrsContent,Type, SubType, InterestGroup
 from workflow.models import FilingFlow, FilingNode
 from core.models import AppParameter, Attorny, AttornyType, Atttorny_Person, City, LegalPerson, \
     Person, DocumentTypes, PersonRequest, PersonType, RequestResponse, Alert, Template
 from django.contrib.auth.models import User
 from django_mailbox.models import Message
-from pqrs.forms import ChangeClassificationForm, LegalPersonForm, PqrsConsultantForm, SearchUniquePersonForm, PersonForm, \
+from pqrs.forms import ChangeClassificationForm, LegalPersonForm, PqrsConsultantForm, RecordsForm, SearchUniquePersonForm, PersonForm, \
     PqrRadicateForm, PersonRequestForm, PersonFormUpdate, PersonRequestFormUpdate, \
     PersonAttorny, PqrsConsultantForm, SearchLegalersonForm, PqrsExtendRequestForm, RequestAnswerForm, \
     PqrsAnswerForm,SearchPqrsd
@@ -467,6 +467,62 @@ def bring_subtype(request):
         return JsonResponse({"response":list(subtype)},status=200)
     return HttpResponse("error",status=404)
 
+@login_required
+def records_form(request):
+    if request.method == 'POST':
+        form = RecordsForm(request.POST)
+        if  form.is_valid():
+            record = Record(
+                type = Type.objects.get(id= form['type'].value()),
+                subtype =SubType.objects.get(id= form['subtype_field'].value()),
+                responsable = User.objects.get(id=form['responsable'].value()),
+                initial_date = form['date'].value(),
+                status =  form['status'].value(),
+                subject =  form['subject'].value(),
+                source =  form['source'].value(),
+                observations =  form['observations'].value(),
+                security_levels =  form['security_levels'].value(),
+            )
+            record.save()
+
+    else:
+        form = RecordsForm()
+    return render(
+        request,
+        'pqrs/records_form.html',
+        context={"form":form})
+
+
+@login_required
+def records_form_param(request,pk):
+    if request.method == 'POST':
+        form = RecordsForm(request.POST)
+        if  form.is_valid():
+            record = Record(
+                type = Type.objects.get(id= form['type'].value()),
+                subtype =SubType.objects.get(id= form['subtype_field'].value()),
+                responsable = User.objects.get(id=form['responsable'].value()),
+                initial_date = form['date'].value(),
+                status =  form['status'].value(),
+                subject =  form['subject'].value(),
+                source =  form['source'].value(),
+                observations =  form['observations'].value(),
+                security_levels =  form['security_levels'].value(),
+            )
+            record.save()
+    else:
+        form = RecordsForm()
+    return render(
+        request,
+        'pqrs/records_form.html',
+        context={"form":form,"pk":pk})
+
+class RecordDetailView(DetailView):
+    model = Record
+
+class RecordListView(ListView):
+    model = Record
+    context_object_name = 'records'
 
 class PqrDetailView(DetailView):
     model = Radicate

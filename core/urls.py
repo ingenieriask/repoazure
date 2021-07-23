@@ -1,5 +1,6 @@
 from django.conf.urls import url
 from core import views
+from core.services import Scheduler
 from django.urls import path
 
 

@@ -1,14 +1,15 @@
 from django.db import models
 from django.urls import reverse
+from datetime import datetime
 from django.db.models import CheckConstraint, Q, F
 from django.utils import tree
 from django.contrib.postgres.fields import ArrayField
 from core.models import RequestResponse, BaseModel, Person,PersonRequest,Alerts
 from correspondence.models import Radicate
 from crum import get_current_user
+from django.contrib.auth.models import User
 from django.utils.translation import gettext_lazy as _
 import uuid
-
 
 class InterestGroup(BaseModel):
     name = models.CharField(max_length=64)
@@ -34,12 +35,12 @@ class Type(models.Model):
     asociated_icon = models.CharField(blank=False, null=False, max_length=50,default='')
     max_response_days = models.SmallIntegerField(blank=False, null=False, default=15)
     min_response_days = models.SmallIntegerField(blank=False, null=False, default=1)
+    is_selectable = models.BooleanField(default=True)
     def __str__(self):
         return self.name
     class Meta:
         verbose_name= 'Tipo PQRSD'
         verbose_name_plural= 'Tipos PQRSD'
-
 
 class SubType(models.Model):
     type = models.ForeignKey(Type, on_delete=models.PROTECT, related_name='subtypes')
@@ -102,3 +103,26 @@ class PqrsContent(Radicate):
     class Meta:
         verbose_name= 'Contenido PQRSD'
         verbose_name_plural= 'Contenidos PQRSD'
+
+class Record(BaseModel):
+    class Phases(models.TextChoices):
+        GESTION = 'AG', _('Archivo de Gestión')
+        CREATED = 'AC', _('Archivo Central')
+        ASSIGNED = 'AI', _('Archivo Inactivo')
+    class SecurityLevels(models.TextChoices):
+        PUBLIC = 'PU', _('Público')
+        PRIVATE = 'PR', _('Privado')
+        DEPENDENCE = 'DE', _('Dependencia')
+        USER = 'US', _('Usuario')
+
+    name = models.TextField(max_length=30, null=False, db_index=True, default='Por asignar')
+    type = models.ForeignKey(Type,on_delete=models.PROTECT,null=False)
+    subtype = models.ForeignKey(SubType,on_delete=models.PROTECT,null=False)
+    initial_date = models.DateField(null=False, default=datetime.now)
+    responsable = models.ForeignKey(User, on_delete=models.PROTECT, default=False)
+    status = models.CharField(max_length=2, choices=Phases.choices, default=Phases.GESTION)
+    subject = models.CharField(max_length=256, null=True)
+    source = models.CharField(max_length=256, null=True)
+    observations = models.CharField(max_length=256, null=True)
+    security_levels = models.CharField(max_length=2, choices=SecurityLevels.choices, default=SecurityLevels.PUBLIC)
+    cmis_id = models.TextField(max_length=128, null=False, default='Por asignar')

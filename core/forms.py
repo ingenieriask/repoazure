@@ -7,7 +7,7 @@ from core.models import Attorny, AttornyType, DocumentTypes, LegalPerson, Person
     Disability, PreferencialPopulation, Disability, PersonRequest, PreferencialPopulation
 from crispy_forms.layout import Field
 import json
-from core.widgets import ConsecutiveFormatWidget, NonWorkingCalendarWidget
+from core.widgets import ConsecutiveFormatWidget, NonWorkingCalendarWidget, ProceedingsConsecutiveFormatWidget
 from core.services import RecordCodeService, CalendarService
 from core.utils_services import FormatHelper
 from django.db.models import Q
@@ -516,3 +516,32 @@ class CustomUserChangeForm(UserChangeForm):
         required=False
     )
 
+class ProceedingsConsecutiveFormatForm(forms.ModelForm):
+    '''Custom consecutive number configuration form for admin page'''
+
+    digits_range = (2, 12)
+
+    def clean(self, *args, **kwargs):
+        cleaned_data = super(ProceedingsConsecutiveFormatForm, self).clean()
+
+        if not self.data['digits']:
+            raise ValidationError(
+                "Número de dígitos del consecutivo es requerido")
+
+        if not self.data['digits'].isdigit()  \
+                or int(self.data['digits']) < ProceedingsConsecutiveFormatForm.digits_range[0] \
+                or int(self.data['digits']) > ProceedingsConsecutiveFormatForm.digits_range[1]:
+            raise ValidationError(
+                "Valor o rango invalido para el número de dígitos del consecutivo")
+
+        self.cleaned_data['format'] = RecordCodeService.compile(
+            self.data['format'],
+            self.data['digits'])
+        return cleaned_data
+
+    class Meta:
+        fields = ('format', 'effective_date')
+
+        widgets = {
+            'format': ProceedingsConsecutiveFormatWidget()
+        }

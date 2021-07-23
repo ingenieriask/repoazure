@@ -4,13 +4,22 @@ from core.models import Attorny, AttornyType, Atttorny_Person, GenderTypes, Lega
     EthnicGroup, RequestResponse, SystemParameter, AppParameter, ConsecutiveFormat, \
     FilingType, CalendarDay, CalendarDayType, Calendar, Alerts, FunctionalArea, \
     FunctionalAreaUser, Menu, NotificationsService, Notifications, Template, \
-    StyleSettings
+    StyleSettings, Task, ProceedingsConsecutiveFormat
 from core.forms import ConsecutiveFormatForm, CalendarForm, CustomGroupAdminForm, \
-    CustomUserChangeForm
+    CustomUserChangeForm, ProceedingsConsecutiveFormatForm
 from django.contrib.auth.models import Group, User
 from django.contrib.auth.admin import UserAdmin
 from treebeard.admin import TreeAdmin
 from simple_history.admin import SimpleHistoryAdmin    
+
+class ProceedingsConsecutiveFormatAdmin(admin.ModelAdmin):
+    form = ProceedingsConsecutiveFormatForm
+    
+    def has_add_permission(self, request):
+        return False
+
+    def has_delete_permission(self, request, obj=None):
+        return False
 
 class ConsecutiveFormatAdmin(admin.ModelAdmin):
     form = ConsecutiveFormatForm
@@ -102,4 +111,7 @@ admin.site.register(Menu)
 admin.site.register(Template,TemplateAdmin)
 admin.site.register(StyleSettings)
 admin.site.register(GenderTypes)
+admin.site.register(Task)
+admin.site.register(ProceedingsConsecutiveFormat, ProceedingsConsecutiveFormatAdmin)
+
 
