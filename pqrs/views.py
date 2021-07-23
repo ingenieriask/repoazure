@@ -1351,6 +1351,7 @@ def calculate_statistics(request):
             'pqrsds' : pqrsds,
             'cards' : cards  
         }
+        
         return render(request, 'pqrs/statistics_body.html', context)
 
     
@@ -1436,8 +1437,9 @@ def calculate_person_type_chart(request):
     }
     response['y'].append(natural)
     response['y'].append(legal)
-
+    
     return JsonResponse(response)
+
 
 def calculate_state_chart(request):
     
@@ -1456,4 +1458,5 @@ def calculate_state_chart(request):
         response['x'].append(status.name)
         filtered_pqrsds = pqrsds.filter(pqrsobject__status = status)
         response['y'].append(filtered_pqrsds.count())
+        
     return JsonResponse(response)

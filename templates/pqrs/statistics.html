@@ -254,6 +254,7 @@
 
   $('body').on('DOMSubtreeModified', '#reportrange span', function(){
     if ($('#reportrange span').html().split(' - ').length == 2){
+      selected_list.length = 0;
       updateGrafics();
       calculateStatistics();
     }
