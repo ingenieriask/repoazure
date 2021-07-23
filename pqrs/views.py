@@ -17,7 +17,7 @@ from pqrs.forms import ChangeClassificationForm, LegalPersonForm, PqrsConsultant
     PersonAttorny, PqrsConsultantForm, SearchLegalersonForm, PqrsExtendRequestForm, RequestAnswerForm, \
     PqrsAnswerForm,SearchPqrsd
 
-from django.http import HttpResponseRedirect, HttpResponse
+from django.http import HttpResponseRedirect, HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, render
 from django.urls import reverse
 from django.contrib import messages
@@ -39,7 +39,7 @@ from django.contrib.auth.decorators import login_required, permission_required
 from django.utils.decorators import method_decorator
 from core.decorators import has_any_permission
 from django.db.models import Q
-from datetime import date
+from datetime import date, datetime
 from core.utils_services import FormatHelper
 from core.services import UserHelper
 from django.utils.http import urlencode
@@ -1336,10 +1336,104 @@ class PqrsStatistics(ListView):
     
     def get_context_data(self, **kwargs):
         context = super(PqrsStatistics, self).get_context_data(**kwargs)
-        context['petitions'] = PqrsContent.objects.filter(pqrsobject__pqr_type__name='Petición')
-        context['grievances'] = PqrsContent.objects.filter(pqrsobject__pqr_type__name='Queja')
-        context['claims'] = PqrsContent.objects.filter(pqrsobject__pqr_type__name='Reclamo')
-        context['suggestions'] = PqrsContent.objects.filter(pqrsobject__pqr_type__name='Sugerencia')
-        context['complains'] = PqrsContent.objects.filter(pqrsobject__pqr_type__name='Denuncia')
-        context['congratulations'] = PqrsContent.objects.filter(pqrsobject__pqr_type__name='Felicitación')
+        cards = []
+        color_cards = ['#0080ff', 'green', 'orange', '#00cfd5', 'red', '#cccc00', '#0080ff']
+        color_text = ['green', 'blue', 'black', 'grey', 'blue', '#00cfd5', 'green']
+        for index, type in enumerate(list(Type.objects.all())):
+            cards.append((type.name.upper(), color_cards[index], color_text[index], 'id_'+type.name.lower()))
+        context['cards'] = cards
         return context
+    
+
+def calculate_statistics(request):
+    
+    dates = request.GET.get('dates').split(' - ')
+    if len(dates) > 1:
+        init_date = datetime.strptime(dates[0], '%B %d, %Y').date()
+        finish_date = datetime.strptime(dates[1], '%B %d, %Y').date()
+        pqrsds = PqrsContent.objects.filter(date_radicated__range=[init_date, finish_date])
+        
+    return JsonResponse()
+   
+    
+def calculate_horizontal_bar_chart(request):
+
+    dates = request.GET.get('dates').split(' - ')
+    response = {'x': [], 'y': []}
+    if len(dates) > 1:
+        init_date = datetime.strptime(dates[0], '%B %d, %Y').date()
+        finish_date = datetime.strptime(dates[1], '%B %d, %Y').date()
+        pqrsds = PqrsContent.objects.filter(date_radicated__range=[init_date, finish_date])
+        total = pqrsds.count()
+        for type in Type.objects.all():
+            for subtype in type.subtypes.all():
+                filtered_pqrsds = pqrsds.filter(subtype = subtype)
+                if filtered_pqrsds.count() > 0:
+                    response['y'].append(type.name+' / '+subtype.name)
+                    x_val = {
+                        'value' : filtered_pqrsds.count()/100,
+                        'itemStyle': {
+                                'color': '#a90000'
+                            }
+                    }
+                    response['x'].append(x_val)
+    return JsonResponse(response)
+
+
+def calculate_person_type_chart(request):
+    dates = request.GET.get('dates').split(' - ')
+    response = {'x': [], 'y': []}
+    legal_pqrsds = []
+    natural_pqrsds = []
+    if len(dates) > 1:
+        init_date = datetime.strptime(dates[0], '%B %d, %Y').date()
+        finish_date = datetime.strptime(dates[1], '%B %d, %Y').date()
+        pqrsds = PqrsContent.objects.filter(date_radicated__range=[init_date, finish_date])
+        for type in Type.objects.all():
+            filtered_pqrsds = pqrsds.filter(pqrsobject__pqr_type = type)
+            legal_pqrsds.append(filtered_pqrsds.filter(pqrsobject__principal_person__person_type__abbr = 'PJ').count())
+            natural_pqrsds.append(filtered_pqrsds.filter(pqrsobject__principal_person__person_type__abbr = 'PN').count())
+            response['x'].append(type.name)
+        
+        natural = {
+            'name': 'Natural',
+            'showBackground': True,
+            'type': 'bar',
+            'stack': 'total',
+            'label': {
+                'show': True
+            },
+            'data': natural_pqrsds
+        }
+        legal = {
+            'name': 'Jurídica',
+            'showBackground': True,
+            'type': 'bar',
+            'stack': 'total',
+            'itemStyle': {
+                'color': '#a90000'
+            },
+            'label': {
+                'show': True
+            },
+            'data': legal_pqrsds
+        }
+        response['y'].append(natural)
+        response['y'].append(legal)
+
+    return JsonResponse(response)
+
+def calculate_state_chart(request):
+    
+    dates = request.GET.get('dates').split(' - ')
+    response = {'x': [], 'y': []}
+    if len(dates) > 1:
+        init_date = datetime.strptime(dates[0], '%B %d, %Y').date()
+        finish_date = datetime.strptime(dates[1], '%B %d, %Y').date()
+        pqrsds = PqrsContent.objects.filter(date_radicated__range=[init_date, finish_date])
+        for status in PQRS.Status:
+            response['x'].append(status.name)
+            filtered_pqrsds = pqrsds.filter(pqrsobject__status = status)
+            response['y'].append(filtered_pqrsds.count())
+        print(response)
+    return JsonResponse(response)

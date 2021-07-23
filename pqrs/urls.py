@@ -46,5 +46,9 @@ urlpatterns = [
     path('change-classification/<int:pk>', views.change_classification, name="change_clasification"),
     path('bring-subtype/', views.bring_subtype, name="bring_subtype"),
     path('pqrs-consultant/', views.search_pqrsd, name='consultant_view'),
-    path('statistics/', views.PqrsStatistics.as_view(), name='statistics')
+    path('statistics/', views.PqrsStatistics.as_view(), name='statistics'),
+    path('horizontal-bar-chart/', views.calculate_horizontal_bar_chart, name="horizontal-bar-chart"),
+    path('person-type-chart/', views.calculate_person_type_chart, name='person-type-chart'),
+    path('state-chart/', views.calculate_state_chart, name='state-chart'),
+    path('calculate-statistics/', views.calculate_statistics, name='calculate-statistics')
 ]

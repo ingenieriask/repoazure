@@ -1,12 +1,12 @@
 {% extends 'pqrs/template.html' %} {% load static %} {% load pqrs_extras %}
 <!-- BLOCK Content -->
 {% block content %}
-<div class="row">
+<div class="row" id="try">
   <div class="col-xl-12 mb-12">
     <div class="card">
       <div class="card-body">
 
-        <div class="col-4 offset-1">
+        <div class="col-md-4 col-sm-11 offset-1">
           <div class="row"><h1>Desde - Hasta</h1></div>
           <div class="row">
             <div id="reportrange" style="background: #fff; cursor: pointer; padding: 5px 10px; border: 1px solid #ccc; width: 100%">
@@ -18,75 +18,22 @@
  
         <div class="row no-gutters justify-content-center my-5">
             <h1 style='font-size: 4.5rem;'>Total PQRSD</h1>   
-            <h1 style='font-size: 4.5rem; color:red;' class="ml-4">{{ pqrsds.count }}<h1>
+            <h1 style='font-size: 4.5rem; color:red;' class="ml-4" id="total_pqrsds">{{ pqrsds.count }}<h1>
         </div>
         <div class="row no-gutters justify-content-center">
-            <div class="col-2">
-                <div class="card" style="max-width: 10rem; border-color:#0080ff;">
+          {% for card in cards%}
+            <div class="col-md-2">
+                <div class="card" style="max-width: 10rem; border-color:{{ card.1 }}">
                     <div class="card-header text-center">
-                        <p style="font-size: 0.8rem; font-weight:bold">PETICIONES</p>
+                        <p style="font-size: 0.8rem; font-weight:bold">{{ card.0 }}</p>
                     </div>
                     <div class="card-body text-center">
-                        <h1 style="font-size:2.5rem; color: #0080ff;">{{ petitions.count }}</h1>
-                        <h1 style="color:green;">{% widthratio petitions.count pqrsds.count 100 %}%</h1>
+                        <h1 style="font-size:2.5rem; color:{{card.1}}" id="{{ card.3 }}">temporal</h1>
+                        <h1 style="color:{{ card.2 }}" id="{{ card.3 }}_percentage"></h1>
                     </div>
                 </div>
             </div>
-            <div class="col-2">
-                <div class="card" style="max-width: 10rem; border-color:green;">
-                    <div class="card-header text-center">
-                        <p style="font-size: 0.8rem; color:green; font-weight:bold">QUEJAS</p>
-                    </div>
-                    <div class="card-body text-center">
-                        <h1 style="font-size:2.5rem; color:green;">{{ grievances.count }}</h1>
-                        <h1 style="color:blue;">{% widthratio grievances.count pqrsds.count 100 %}%</h1>
-                    </div>
-                </div>
-            </div>
-            <div class="col-2">
-                <div class="card" style="max-width: 10rem; border-color:orange;">
-                    <div class="card-header text-center">
-                        <p style="font-size: 0.8rem; color:orange; font-weight:bold">RECLAMOS</p>
-                    </div>
-                    <div class="card-body text-center">
-                        <h1 style="font-size:2.5rem; color:orange;">{{ claims.count }}</h1>
-                        <h1>{% widthratio claims.count pqrsds.count 100 %}%</h1>
-                    </div>
-                </div>
-            </div>
-            <div class="col-2">
-                <div class="card" style="max-width: 10rem; border-color:#00cfd5;">
-                    <div class="card-header text-center">
-                        <p style="font-size: 0.8rem; color:#00cfd5; font-weight:bold">DENUNCIAS</p>
-                    </div>
-                    <div class="card-body text-center">
-                        <h1 style="font-size:2.5rem; color:#00cfd5;">{{ complains.count }}</h1>
-                        <h1 style="color:grey;">{% widthratio complains.count pqrsds.count 100 %}%</h1>
-                    </div>
-                </div>
-            </div>
-            <div class="col-2">
-                <div class="card" style="max-width: 10rem; border-color:red;">
-                    <div class="card-header text-center">
-                        <p style="font-size: 0.8rem; color:red; font-weight:bold">SUGERENCIAS</p>
-                    </div>
-                    <div class="card-body text-center">
-                        <h1 style="font-size:2.5rem; color:red;">{{ suggestions.count }}</h1>
-                        <h1 style="color:blue;">{% widthratio suggestions.count pqrsds.count 100 %}%</h1>
-                    </div>
-                </div>
-            </div>
-            <div class="col-2">
-                <div class="card" style="max-width: 10rem; border-color:#cccc00;">
-                    <div class="card-header text-center">
-                        <p style="font-size: 0.8rem; color:#cccc00; font-weight:bold ">FELICITACIONES</p>
-                    </div>
-                    <div class="card-body text-center">
-                        <h1 style="font-size:2.5rem; color:#cccc00;">{{ congratulations.count }}</h1>
-                        <h1 style="color:#00cfd5;">{% widthratio congratulations.count pqrsds.count 100 %}%</h1>
-                    </div>
-                </div>
-            </div>
+          {% endfor %}
         </div>
         <div class="row mt-5">
           <table class="table table-bordered table-hover" id="radicateList" width="100%" cellspacing='0'>
@@ -156,7 +103,25 @@
             </div>
           </div>
         </div>
-        <div id="main" style="width: 600px;height:400px;"></div>
+        <div class="row text-center">
+          <div class="col-md-6 col-sm-12">
+            <div class="row justify-content-center"><h1>Tipos de Persona</h1></div>
+            <div class="row">
+              <div id="person_type_chart" style="width: 100%;height:300px; background-color: #e6f3f8;"></div>
+            </div>
+          </div>
+          <div class="col-md-6 col-sm-12">
+            <div class="row justify-content-center"><h1>Estados</h1></div>
+            <div class="row">
+              <div id="state_chart" style="width: 100%;height:300px;"></div>
+            </div>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-md-6 col-sm-12">
+            <div id="horizontal_chart" style="width: 100%;height:300px;"></div>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -190,28 +155,153 @@
 
   });
 
-  var myChart = echarts.init(document.getElementById('main'));
+  $(document).on('ready', function(){
+    calculateHorizontal();
+  })
 
-        // specify chart configuration item and data
-        var option = {
-            title: {
-                text: 'ECharts entry example'
-            },
-            tooltip: {},
-            legend: {
-                data:['Sales']
-            },
-            xAxis: {
-                data: ["shirt","cardign","chiffon shirt","pants","heels","socks"]
-            },
-            yAxis: {},
-            series: [{
-                name: 'Sales',
-                type: 'bar',
-                data: [5, 20, 36, 10, 10, 20]
-            }]
-        };
+  function calculateHorizontal(){
 
-        // use configuration item and data specified to show chart
-        myChart.setOption(option);
+    $.ajax({
+      type: 'GET',
+      url: '{% url "pqrs:horizontal-bar-chart" %}',
+      data: {
+        dates : $('#reportrange span').html()
+      }
+    })
+    .done(function(response){
+      var myChart = echarts.init($('#horizontal_chart')[0]);
+
+      option = {
+          grid: {containLabel: true},
+          xAxis: {
+              type: 'value',
+              splitLine: false,
+              show: false,
+              max : 1,
+          },
+          yAxis: {
+              type: 'category',
+              axisLine: {
+                  show: false,
+              },
+              axisTick:{
+                  show: false
+              },
+              axisLabel: {
+                  show: true,
+                  inside: true,
+                  margin: 180,
+                  textStyle : {
+                    fontSize: 18
+                  }
+              },
+              data : response['y']
+          },
+          series: [
+              {
+                  type: 'bar',
+                  label: {
+                      show: true
+                  },
+                  showBackground: true,
+                  data : response['x']
+              }
+          ]
+      };
+      myChart.setOption(option);
+    })
+  }
+
+  function calculatePersonType(){
+
+    $.ajax({
+      type: 'GET',
+      url: '{% url "pqrs:person-type-chart" %}',
+      data: {
+        dates : $('#reportrange span').html()
+      }
+    })
+    .done(function(response){
+      var myChart = echarts.init($('#person_type_chart')[0]);
+
+      option = {
+          legend: {
+              data: ['Natural', 'Jurídica']
+          },
+          xAxis: {
+              type: 'category',
+              axisLine: {
+                        show: false,
+                    },
+              axisTick:{
+                  show: false
+              },
+              axisLabel: {
+                  show: true,
+                  textStyle : {
+                      fontSize: 14
+                  }
+              },
+              textStyle : {
+                  fontSize: 18
+              },
+              data: response['x'],
+          },
+          yAxis: {
+              type: 'value',
+              splitLine: true,
+              show: false,
+          },
+          series: response['y']
+      };
+      myChart.setOption(option);
+    })
+  }
+
+  function calculateState(){
+
+    $.ajax({
+      type: 'GET',
+      url: '{% url "pqrs:state-chart" %}',
+      data: {
+        dates : $('#reportrange span').html()
+      }
+    })
+    .done(function(response){
+      var myChart = echarts.init($('#state_chart')[0]);
+
+      option = {
+          xAxis: {
+              type: 'category',
+              data: response['x']
+          },
+          yAxis: {
+              type: 'value'
+          },
+          series: [{
+              data: response['y'],
+              type: 'bar'
+          }]
+      };
+
+      myChart.setOption(option);
+    })
+  } 
+
+  function calculateStatistics(){
+    $.ajax({
+      type: 'GET',
+      url: '{% url "pqrs:calculate-statistics" %}',
+      data: {
+        dates : $('#reportrange span').html()
+      }
+    })
+  }
+
+  $('body').on('DOMSubtreeModified', '#reportrange span', function(){
+    calculateHorizontal();
+    calculatePersonType();
+    calculateState();
+  });
+  
 {% endblock %}
