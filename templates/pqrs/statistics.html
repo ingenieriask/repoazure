@@ -1,4 +1,4 @@
-{% extends 'pqrs/template.html' %} {% load static %} {% load pqrs_extras %}
+{% extends 'pqrs/template.html' %} {% load static %} 
 <!-- BLOCK Content -->
 {% block content %}
 <div class="row" id="try">
@@ -15,94 +15,10 @@
             </div>
           </div>
         </div>
- 
-        <div class="row no-gutters justify-content-center my-5">
-            <h1 style='font-size: 4.5rem;'>Total PQRSD</h1>   
-            <h1 style='font-size: 4.5rem; color:red;' class="ml-4" id="total_pqrsds">{{ pqrsds.count }}<h1>
+        <div id="statistics_body">
+          {% include './statistics_body.html' %}
         </div>
-        <div class="row no-gutters justify-content-center">
-          {% for card in cards%}
-            <div class="col-md-2">
-                <div class="card" style="max-width: 10rem; border-color:{{ card.1 }}">
-                    <div class="card-header text-center">
-                        <p style="font-size: 0.8rem; font-weight:bold">{{ card.0 }}</p>
-                    </div>
-                    <div class="card-body text-center">
-                        <h1 style="font-size:2.5rem; color:{{card.1}}" id="{{ card.3 }}">temporal</h1>
-                        <h1 style="color:{{ card.2 }}" id="{{ card.3 }}_percentage"></h1>
-                    </div>
-                </div>
-            </div>
-          {% endfor %}
-        </div>
-        <div class="row mt-5">
-          <table class="table table-bordered table-hover" id="radicateList" width="100%" cellspacing='0'>
-            <thead>
-              <tr>
-                <th style="text-align: center;">Número de radicado</th>
-                <th style="text-align: center;">Fecha de radicación</th>
-                <th style="text-align: center;">Asunto</th>
-                <th style="text-align: center;">Solicitante</th>
-                <th style="text-align: center;">Tipo y Tema PQRSD</th>
-                <th style="text-align: center;">Días hábiles para dar respuesta</th>
-                <th style="text-align: center;">Estado</th>
-                <th style="text-align: center;">Unidad Administrativa</th>
-              </tr>
-            </thead>
-            
-            <tbody>
-              {% for pqrs in pqrsds %}
-              <tr>
-                <td style="text-align: center;">{{ pqrs.number }}</td>
-                <td style="text-align: center;">{{ pqrs.date_radicated }}</td>
-                <td style="text-align: center;">{{ pqrs.subject }}</td>
-                {% if pqrs.person.is_anonymous == True %}
-                    <td style="text-align: center;">ANÓNIMO</td>
-                {% elif pqrs.person %}
-                    <td style="text-align: center;">{{ pqrs.person.name }}</td>
-                {% else %}
-                    <td style="text-align: center;">{{ pqrs.email_user_name }}</td>
-                {% endif %}
-                <td style="text-align: center;">{{ pqrs.subtype.type.name }} - {{ pqrs.subtype.name }}</td>
-                <td style="text-align: center;">
-                    <svg height="8mm" width="8mm">
-                      <circle cx="4mm" cy="4mm" r="3mm" style="fill: {{ pqrs.subtype.alerts.all|get_color_traffic_light:pqrs.date_radicated }};" />
-                    </svg>
-                    {{ pqrs.date_radicated|get_missing_days:pqrs.subtype.max_response_days }}    
-                </td>
-                <td style="text-align: center;">{{ pqrs.pqrsobject.get_status_str }}</td>
-                <td style="text-align: center;">
-
-                  {% block actions %}
-                  {% endblock %}
-              </td>
-              </tr>
-              {% endfor %}
-            </tbody>
-          </table>
-        </div>
-        <div class="row">
-          <div class="col-sm-12 col-md-5"></div>
-          <div class="col-sm-12 col-md-7">
-            <div class="dataTables_paginate paging_simple_numbers" id="radicateList_paginate">
-              <ul class="pagination">
-                <li class="paginate_button page-item previous {% if not page_obj.has_previous %} disabled {% endif %}" 
-                  id="radicateList_previous">
-                  <a {% if page_obj.has_previous %} href="?page={{ page_obj.previous_page_number }}&filter={{ filter }}&paginate_by={{ paginator.per_page }}" {% endif %} aria-controls="radicateList" data-dt-idx="0" tabindex="0" class="page-link">Anterior</a>
-                </li>
-                {% for i in paginator.page_range %}
-                <li class="paginate_button page-item {% if page_obj.number == i %} active {% endif %}">
-                  <a href="?page={{i}}&filter={{ filter }}&paginate_by={{ paginator.per_page }}" aria-controls="radicateList" data-dt-idx="{{ i }}" tabindex="0" class="page-link">{{ i }}</a>
-                </li>
-                {% endfor %}
-                <li class="paginate_button page-item next {% if not page_obj.has_next %}disabled{% endif %}" 
-                id="radicateList_next">
-                  <a {% if page_obj.has_next %} href="?page={{ page_obj.next_page_number }}&filter={{ filter }}&paginate_by={{ paginator.per_page }}" {% endif %} aria-controls="radicateList" data-dt-idx="2" tabindex="0" class="page-link">Siguiente</a>
-                </li>
-              </ul>
-            </div>
-          </div>
-        </div>
+        
         <div class="row text-center">
           <div class="col-md-6 col-sm-12">
             <div class="row justify-content-center"><h1>Tipos de Persona</h1></div>
@@ -296,12 +212,16 @@
         dates : $('#reportrange span').html()
       }
     })
+    .done(function(data){
+      $('#statistics_body').html(data);
+    })
   }
 
   $('body').on('DOMSubtreeModified', '#reportrange span', function(){
     calculateHorizontal();
     calculatePersonType();
     calculateState();
+    calculateStatistics()
   });
   
 {% endblock %}

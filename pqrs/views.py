@@ -1331,30 +1331,28 @@ def change_classification(request,pk):
 class PqrsStatistics(ListView):
     model = PqrsContent
     template_name = 'pqrs/statistics.html'
-    context_object_name = 'pqrsds'
-    
-    
-    def get_context_data(self, **kwargs):
-        context = super(PqrsStatistics, self).get_context_data(**kwargs)
-        cards = []
-        color_cards = ['#0080ff', 'green', 'orange', '#00cfd5', 'red', '#cccc00', '#0080ff']
-        color_text = ['green', 'blue', 'black', 'grey', 'blue', '#00cfd5', 'green']
-        for index, type in enumerate(list(Type.objects.all())):
-            cards.append((type.name.upper(), color_cards[index], color_text[index], 'id_'+type.name.lower()))
-        context['cards'] = cards
-        return context
     
 
 def calculate_statistics(request):
-    
-    dates = request.GET.get('dates').split(' - ')
-    if len(dates) > 1:
-        init_date = datetime.strptime(dates[0], '%B %d, %Y').date()
-        finish_date = datetime.strptime(dates[1], '%B %d, %Y').date()
-        pqrsds = PqrsContent.objects.filter(date_radicated__range=[init_date, finish_date])
-        
-    return JsonResponse()
-   
+    if request.is_ajax():
+        dates = request.GET.get('dates').split(' - ')
+        if len(dates) > 1:
+            init_date = datetime.strptime(dates[0], '%B %d, %Y').date()
+            finish_date = datetime.strptime(dates[1], '%B %d, %Y').date()
+            pqrsds = PqrsContent.objects.filter(date_radicated__range=[init_date, finish_date])
+            cards = []
+            color_cards = ['#0080ff', 'green', 'orange', '#00cfd5', 'red', '#cccc00', '#0080ff']
+            color_text = ['green', 'blue', 'black', 'grey', 'blue', '#00cfd5', 'green']
+            for index, type in enumerate(list(Type.objects.all())):
+                pqrsds_count = pqrsds.filter(pqrsobject__pqr_type = type).count()
+                cards.append((type.name.upper(), color_cards[index], color_text[index], pqrsds_count))
+            context = {
+                'pqrsds' : pqrsds,
+                'cards' : cards  
+            }
+            return render(request, 'pqrs/statistics_body.html', context)
+
+        return HttpResponse()
     
 def calculate_horizontal_bar_chart(request):
 
@@ -1435,5 +1433,4 @@ def calculate_state_chart(request):
             response['x'].append(status.name)
             filtered_pqrsds = pqrsds.filter(pqrsobject__status = status)
             response['y'].append(filtered_pqrsds.count())
-        print(response)
     return JsonResponse(response)
