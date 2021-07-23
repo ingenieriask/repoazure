@@ -1363,15 +1363,17 @@ def calculate_horizontal_bar_chart(request):
     finish_date = datetime.strptime(dates[1], '%B %d, %Y').date()
     if selected_types == '':
         pqrsds = PqrsContent.objects.filter(date_radicated__range=[init_date, finish_date])
+        types_query_list = Type.objects.all()
     else:
         selected_types = selected_types.lower().split(',')
         pqrsds = PqrsContent.objects.annotate(name_lower=Lower('pqrsobject__pqr_type__name')).filter(date_radicated__range=[init_date, finish_date],
                                             name_lower__in = selected_types)
+        types_query_list = Type.objects.annotate(name_lower=Lower('name')).filter(name_lower__in = selected_types)
     if pqrsds.count() == 0:
         total = 1
     else:
         total = pqrsds.count()
-    for type in Type.objects.all():
+    for type in types_query_list:
         for subtype in type.subtypes.all():
             filtered_pqrsds = pqrsds.filter(subtype = subtype)
             
@@ -1397,11 +1399,13 @@ def calculate_person_type_chart(request):
     finish_date = datetime.strptime(dates[1], '%B %d, %Y').date()
     if selected_types == '':
         pqrsds = PqrsContent.objects.filter(date_radicated__range=[init_date, finish_date])
+        types_query_list = Type.objects.all()
     else:
         selected_types = selected_types.lower().split(',')
         pqrsds = PqrsContent.objects.annotate(name_lower=Lower('pqrsobject__pqr_type__name')).filter(date_radicated__range=[init_date, finish_date],
                                             name_lower__in = selected_types)
-    for type in Type.objects.all():
+        types_query_list = Type.objects.annotate(name_lower=Lower('name')).filter(name_lower__in = selected_types)
+    for type in types_query_list:
         filtered_pqrsds = pqrsds.filter(pqrsobject__pqr_type = type)
         legal_pqrsds.append(filtered_pqrsds.filter(pqrsobject__principal_person__person_type__abbr = 'PJ').count())
         natural_pqrsds.append(filtered_pqrsds.filter(pqrsobject__principal_person__person_type__abbr = 'PN').count())
