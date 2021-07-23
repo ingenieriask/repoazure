@@ -34,3 +34,7 @@
 #loading-image {
   z-index: 100;
 }
+
+.selected-div{
+  border-width:10px !important;
+}

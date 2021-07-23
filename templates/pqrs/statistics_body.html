@@ -10,11 +10,14 @@
     <div class="col-md-2 my-4">
         <div class="card" style="max-width: 10rem; border-color:{{ card.1 }}">
             <div class="card-header text-center">
-                <p style="font-size: 1rem; font-weight:bold">{{ card.0 }}</p>
+                <a style="font-size: 0.9rem; font-weight:bold; color:{{ card.1 }}"
+                type="button" onclick="select_card(this)">
+                    {{ card.0 }}
+                </a>
             </div>
             <div class="card-body text-center">
                 <h1 style="font-size:3.5rem; color:{{card.1}}">{{card.3}}</h1>
-                <h1 style="color:{{ card.2 }}">{% widthratio card.3 pqrsds.count 100 %}%</h1>
+                <h4 style="color:{{ card.2 }}">{% widthratio card.3 pqrsds.count 100 %}%</h4>
             </div>
         </div>
     </div>
@@ -56,11 +59,7 @@
             {{ pqrs.date_radicated|get_missing_days:pqrs.subtype.max_response_days }}    
         </td>
         <td style="text-align: center;">{{ pqrs.pqrsobject.get_status_str }}</td>
-        <td style="text-align: center;">
-
-            {% block actions %}
-            {% endblock %}
-        </td>
+        <td style="text-align: center;">ATENCIÓN AL CLIENTE</td>
         </tr>
         {% endfor %}
     </tbody>
