@@ -1,0 +1,263 @@
+{% extends 'pqrs/template.html' %} {% load static %} 
+<!-- BLOCK Content -->
+{% block content %}
+<div class="row" id="try">
+  <div class="col-xl-12 mb-12">
+    <div class="card">
+      <div class="card-body">
+        <div class="row">
+          <div class="col-md-4 col-sm-11 offset-1">
+            <div class="row"><h1>Desde - Hasta</h1></div>
+            <div class="row">
+              <div id="reportrange" style="background: #fff; cursor: pointer; padding: 5px 10px; border: 1px solid #ccc; width: 100%">
+                  <i class="fa fa-calendar"></i>&nbsp;
+                  <span></span> <i class="fa fa-caret-down"></i>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-6 col-sm-12 my-4 text-center">
+            <h1><strong>DEPENDENCIA</strong></h1>
+            <h3>ATENCIÓN AL CLIENTE</h3>
+          </div>
+        </div>
+        
+        <div id="statistics_body">
+          {% include './statistics_body.html' %}
+        </div>
+        
+        <div class="row text-center">
+          <div class="col-md-6 col-sm-12">
+            <div class="row justify-content-center"><h1>Tipos de Persona</h1></div>
+            <div class="row">
+              <div id="person_type_chart" style="width: 100%;height:300px; background-color: #e6f3f8;"></div>
+            </div>
+          </div>
+          <div class="col-md-6 col-sm-12">
+            <div class="row justify-content-center"><h1>Estados</h1></div>
+            <div class="row">
+              <div id="state_chart" style="width: 100%;height:300px;"></div>
+            </div>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-md-6 col-sm-12">
+            <div id="horizontal_chart" style="width: 100%;height:800px;"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block script %}
+  $(function() {
+
+    var start = moment().subtract(29, 'days');
+    var end = moment();
+
+    function cb(start, end) {
+        $('#reportrange span').html(start.format('MMMM D, YYYY') + ' - ' + end.format('MMMM D, YYYY'));
+    }
+
+    $('#reportrange').daterangepicker({
+        startDate: start,
+        endDate: end,
+        ranges: {
+           'Today': [moment(), moment()],
+           'Yesterday': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
+           'Last 7 Days': [moment().subtract(6, 'days'), moment()],
+           'Last 30 Days': [moment().subtract(29, 'days'), moment()],
+           'This Month': [moment().startOf('month'), moment().endOf('month')],
+           'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')]
+        }
+    }, cb);
+
+    cb(start, end);
+
+  });
+
+  function calculateHorizontal(){
+
+    $.ajax({
+      type: 'GET',
+      url: '{% url "pqrs:horizontal-bar-chart" %}',
+      data: {
+        dates : $('#reportrange span').html(),
+        selected_types : selected_list.join()
+      }
+    })
+    .done(function(response){
+      var myChart = echarts.init($('#horizontal_chart')[0]);
+
+      option = {
+          grid: {containLabel: true},
+          xAxis: {
+              type: 'value',
+              splitLine: false,
+              show: false,
+              max : 150,
+          },
+          yAxis: {
+              type: 'category',
+              axisLine: {
+                  show: false,
+              },
+              axisTick:{
+                  show: false
+              },
+              axisLabel: {
+                  show: true,
+                  inside: true,
+                  fontWeight : 'bold',
+                  width: 120,
+                  margin: 280,
+                  overflow: 'break',
+                  interval: 0,
+                  textStyle : {
+                    fontSize: 10,
+                  }
+              },
+              data : response['y']
+          },
+          series: [
+              {
+                  type: 'bar',
+                  label: {
+                      show: true,
+                      formatter: '{c}%',
+                  },
+                  showBackground: true,
+                  data : response['x']
+              }
+          ]
+      };
+      myChart.setOption(option);
+    })
+  }
+
+  function calculatePersonType(){
+
+    $.ajax({
+      type: 'GET',
+      url: '{% url "pqrs:person-type-chart" %}',
+      data: {
+        dates : $('#reportrange span').html(),
+        selected_types : selected_list.join()
+      }
+    })
+    .done(function(response){
+      var myChart = echarts.init($('#person_type_chart')[0]);
+
+      option = {
+          legend: {
+              data: ['Natural', 'Jurídica']
+          },
+          xAxis: {
+              type: 'category',
+              axisLine: {
+                        show: false,
+                    },
+              axisTick:{
+                  show: false
+              },
+              axisLabel: {
+                  show: true,
+                  textStyle : {
+                      fontSize: 9
+                  }
+              },
+              textStyle : {
+                  fontSize: 18
+              },
+              data: response['x'],
+          },
+          yAxis: {
+              type: 'value',
+              splitLine: true,
+              show: false,
+          },
+          series: response['y']
+      };
+      myChart.setOption(option);
+    })
+  }
+
+  function calculateState(){
+
+    $.ajax({
+      type: 'GET',
+      url: '{% url "pqrs:state-chart" %}',
+      data: {
+        dates : $('#reportrange span').html(),
+        selected_types : selected_list.join()
+      }
+    })
+    .done(function(response){
+      var myChart = echarts.init($('#state_chart')[0]);
+
+      option = {
+          xAxis: {
+              type: 'category',
+              data: response['x']
+          },
+          yAxis: {
+              type: 'value'
+          },
+          series: [{
+              data: response['y'],
+              type: 'bar'
+          }]
+      };
+
+      myChart.setOption(option);
+    })
+  } 
+
+  function calculateStatistics(){
+    $.ajax({
+      type: 'GET',
+      url: '{% url "pqrs:calculate-statistics" %}',
+      data: {
+        dates : $('#reportrange span').html(),
+      }
+    })
+    .done(function(data){
+      $('#statistics_body').html(data);
+    })
+  }
+
+  var selected_list = []
+
+  function select_card(element){
+
+    card_element = $(element).parent().parent()[0]
+    if ($(card_element).hasClass('selected-card')){
+      $(card_element).removeClass('selected-card');
+      index = selected_list.indexOf($(element)[0].innerHTML.trim());
+      selected_list.splice(index, 1);
+      updateGrafics();
+    }
+    else{
+      $(card_element).addClass('selected-card');
+      selected_list.push($(element)[0].innerHTML.trim());
+      updateGrafics();
+    }
+  }
+
+  function updateGrafics(){
+    calculateHorizontal();
+    calculatePersonType();
+    calculateState();
+  }
+
+
+  $('body').on('DOMSubtreeModified', '#reportrange span', function(){
+    if ($('#reportrange span').html().split(' - ').length == 2){
+      selected_list.length = 0;
+      updateGrafics();
+      calculateStatistics();
+    }
+  });
+  
+{% endblock %}
