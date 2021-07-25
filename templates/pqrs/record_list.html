@@ -1,0 +1,39 @@
+{% extends 'correspondence/main_template.html' %}
+
+{% block content %}
+<div class="card mb-4">
+    <div class="card-header">Expediente {{ record.id }}</div>
+    <div class="card-body"> 
+        <div class="datatable">
+          <table class="table table-bordered table-hover" id="radicateListTable" width="100%" cellspacing='0'>
+            <thead>
+              <tr>
+                <th>Nombre</th>
+                <th>Serie</th>
+                <th>Sub-Serie</th>
+                <th>Asunto</th>
+                <th>Fuente</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for record in records %}
+              <tr>
+                <td>{{ record.name }}</td>
+                <td>{{ record.type.name }}</td>
+                <td>{{ record.subtype.name }}</td>
+                <td>{{ record.subject }}</td>
+                <td>{{ record.source }}</td>
+                <td>
+                    <a href="{% url 'pqrs:records_detail' pk=record.pk %}" 
+                    class="btn btn-outline-primary">
+                    <i data-feather="plus-circle"></i></a>
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
