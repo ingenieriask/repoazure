@@ -52,8 +52,34 @@
     </div>
 </div>
 
+<div class="modal fade" id="confirm_modal" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-m" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                Confirmacion
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="row justify-content-center">
+                    <div class="col-12" id="file-display-field">
+                        {{message_confirm}}
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-primary" id="modal_save">Aceptar</button>
+              </div>
+        </div>
+    </div>
+</div>
+
 <script src="{% static 'node_modules/jquery/dist/jquery.min.js' %}"></script>
 <script src="{% static 'node_modules/suggestags/js/jquery.amsify.suggestags.js' %}"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
+<script src="https://cdn.datatables.net/1.10.22/js/dataTables.bootstrap4.min.js" crossorigin="anonymous"></script>
 
 {{ widget.options|json_script:"options" }}
 {{ widget.colors|json_script:"colors" }}
@@ -61,6 +87,7 @@
 <script>
     var options = JSON.parse(document.getElementById('options').textContent);
     var colors = JSON.parse(document.getElementById('colors').textContent);
+    var save = false;
 
     $('input[name="{{ widget.name }}"]').amsifySuggestags({
         suggestions: options,
@@ -70,11 +97,18 @@
         showAllSuggestions: true,
         defaultLabel:'TODO'
     });
+
+    $( "#modal_save" ).click(function() {
+        save = true;
+        $("#consecutiveformat_form").submit()
+    });
+    
     $("#consecutiveformat_form").submit(function(e){
-        confirmation = confirm('{{message_confirm}}');
-        if(confirmation == false){
+        if(!save) {
             e.preventDefault();
-        }
+            a = $('#confirm_modal').modal()
+        } 
+
     })
 </script>
 
