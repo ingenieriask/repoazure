@@ -31,3 +31,52 @@
         </div>
     </div>
 {% endblock %}
+
+{% block chat %}
+{% if  chat_rooms%}
+<div id="chat-circle" class="btn btn-raised">
+    <div id="chat-overlay"></div>
+    <i data-feather="message-circle"></i>
+</div>
+<div class="chat-box">
+    <div class="chat-box-header">
+    Responder Soporte
+    <span class="chat-box-toggle">
+        <i data-feather="x"></i></span>
+    </div>
+    <div class="chat-box-body">
+    <div class="chat-box-overlay">   
+    </div>
+    <div class="chat-logs">
+        <div id="crate-room-form" class="row">
+        <div class="col-md-12 form-group">
+            <label for="chat_respondle">Seleccione una Sala para responder los mensajes</label>
+            <select name="chat_respondle" id="chat_respondle" class="select form-control custom-select">
+                {% for chat_room in chat_rooms %}
+                <option value="{{chat_room.code_room}}">
+                    {{chat_room.name_room}} - {{chat_room.reference_name_creator}} 
+                </option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-md-12 d-flex">
+            <button 
+            id="response_click_button"
+            class="btn btn-success mx-auto">Responder  Chat</button>
+        </div>
+        </div>
+    </div><!--chat-log -->
+    </div>
+    <div class="chat-input">      
+    <form>
+        <input type="text" id="chat-input" placeholder="Send a message..."/>
+        <input type="hidden" id="room_id">
+        <input type="hidden" id="name_create_user" value="{{current_user}}">
+        <button disabled type="submit" class="chat-submit" id="chat-submit">
+        <i data-feather="send"></i></span>
+        </button>
+    </form>      
+    </div>
+</div>
+{% endif %}
+{% endblock %}

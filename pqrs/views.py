@@ -11,7 +11,9 @@ from pqrs.models import PQRS, Record,Type, PqrsContent,Type, SubType, InterestGr
 from workflow.models import FilingFlow, FilingNode
 from core.models import AppParameter, Attorny, AttornyType, Atttorny_Person, City, LegalPerson, \
     Person, DocumentTypes, PersonRequest, PersonType, RequestResponse, Alert, Template, \
-    Disability, EthnicGroup, PreferencialPopulation, GenderTypes
+    Disability, EthnicGroup, PreferencialPopulation, GenderTypes,\
+    Person, DocumentTypes, PersonRequest, PersonType, RequestResponse, Alert, Template,\
+    ChatRooms,MessageByRooms
 from django.contrib.auth.models import User
 from django_mailbox.models import Message
 from pqrs.forms import ChangeClassificationForm, LegalPersonForm, PqrsConsultantForm, RecordsForm, SearchUniquePersonForm, PersonForm, \
@@ -586,6 +588,18 @@ def records_form_param(request,pk):
         'pqrs/records_form.html',
         context={"form":form,"pk":pk})
 
+def create_room(request):
+    if request.method == 'POST':
+        data = request.POST
+        new_room = ChatRooms(
+            name_room=data['name_room'],
+            reference_name_creator=data['reference_name_creator'],
+            email=data['email_room']
+        )
+        new_room.save()
+        return HttpResponse(new_room.code_room)
+    return HttpResponse(False)
+    
 class RecordDetailView(DetailView):
     model = Record
 

@@ -61,4 +61,5 @@ urlpatterns = [
     path('records-form-param/<int:pk>/', views.records_form_param, name='records_form_parameter'),
     path('records-detail/<int:pk>/', views.RecordDetailView.as_view(), name='records_detail'),
     path('records-list/', views.RecordListView.as_view(), name='records_list'),
+    path('create-room/', views.create_room, name='create_room'),
 ]

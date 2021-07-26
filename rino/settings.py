@@ -104,7 +104,8 @@ INSTALLED_APPS = [
     'colorfield',
     'treebeard',
     'simple_history',
-    'workflow'
+    'workflow',
+    'channels'
 ]
 
 CRISPY_TEMPLATE_PACK = 'bootstrap4'
@@ -142,6 +143,12 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'rino.wsgi.application'
+ASGI_APPLICATION = 'rino.asgi.application'
+CHANNEL_LAYERS = {
+    'default': {
+        "BACKEND": "channels.layers.InMemoryChannelLayer"
+    },
+}
 
 DATABASES = env.json('RINO_DATABASES')
 

@@ -1,114 +1,140 @@
-function getSelectedOption(sel) {
-  var opt;
-  for ( var i = 0, len = sel.options.length; i < len; i++ ) {
-      opt = sel.options[i];
-      if ( opt.selected === true ) {
-          break;
-      }
+var socketClient;
+var INDEX = 0;
+function generate_message(msg, type) {
+  new_type = "user";
+  if (localStorage.getItem("user_id_room")) {
+    if (type == localStorage.getItem("user_id_room")) {
+      new_type = "self";
+      $("#chat-input").val("");
+    }
+  } else {
+    if (type == $("#name_create_user").val()) {
+      new_type = "self";
+      $("#chat-input").val("");
+    }
   }
-  return opt;
+
+  INDEX++;
+  var str = "";
+  str += "<div id='cm-msg-" + INDEX + "' class=\"chat-msg " + new_type + '">';
+  str += '          <span class="msg-avatar">';
+  str += '            <img src="https://uctlanguagecentre.com/wp-content/uploads/2020/05/avatar.png">';
+  str += "          </span>";
+  str += '          <div class="cm-msg-text">';
+  str += msg;
+  str += "          </div>";
+  str += "        </div>";
+  $(".chat-logs").append(str);
+  $("#cm-msg-" + INDEX)
+    .hide()
+    .fadeIn(300);
+
+  $(".chat-logs")
+    .stop()
+    .animate({ scrollTop: $(".chat-logs")[0].scrollHeight }, 1000);
 }
 
 function validatePersonExists(pk) {
-  var exists = false
-  $("input[name='selectedUsersInput']").each(function(idx, elem) {
-    if ($(elem).val() == pk)
-      exists = true
+  var exists = false;
+  $("input[name='selectedUsersInput']").each(function (idx, elem) {
+    if ($(elem).val() == pk) exists = true;
   });
-  return exists
+  return exists;
 }
 
 function deleteRow(btn, pk) {
   var row = btn.parentNode.parentNode;
   row.parentNode.removeChild(row);
 
-  $("input[name='selectedUsersInput']").each(function(idx, elem) {
-    if ($(elem).val() == pk)
-      $(elem).remove()
+  $("input[name='selectedUsersInput']").each(function (idx, elem) {
+    if ($(elem).val() == pk) $(elem).remove();
   });
 }
 
 function addPerson() {
-  var selectedUser = getSelectedOption(document.getElementById('user_selected'))
+  var selectedUser = getSelectedOption(document.getElementById("user_selected"));
   if (selectedUser === undefined || selectedUser.value == -1) {
-    window.alert('Por favor seleccione el usuario a agregar')
-    return
+    window.alert("Por favor seleccione el usuario a agregar");
+    return;
   }
   if (validatePersonExists(selectedUser.value)) {
-    window.alert('la persona ya existe')
-    return
+    window.alert("la persona ya existe");
+    return;
   }
-  let item = { user: {pk: selectedUser.value, username: selectedUser.text}, area: $("#interest_area").val()}
-  var tableUsers = document.getElementById('people_list')
+  let item = { user: { pk: selectedUser.value, username: selectedUser.text }, area: $("#interest_area").val() };
+  var tableUsers = document.getElementById("people_list");
   if (tableUsers) {
-    let row = tableUsers.insertRow(1)
-    let cellUser = row.insertCell(0)
-    let cellArea = row.insertCell(1)
-    let cellActions = row.insertCell(2)
-  
-    cellUser.innerHTML = item.user.username
-                  
-    cellArea.innerHTML = item.area
-  
-    cellActions.innerHTML = '<div onclick="deleteRow(this, ' + selectedUser.value + ')"><i class="fas fa-minus-circle fa-2x"></i></div>'
+    let row = tableUsers.insertRow(1);
+    let cellUser = row.insertCell(0);
+    let cellArea = row.insertCell(1);
+    let cellActions = row.insertCell(2);
+
+    cellUser.innerHTML = item.user.username;
+
+    cellArea.innerHTML = item.area;
+
+    cellActions.innerHTML =
+      '<div onclick="deleteRow(this, ' + selectedUser.value + ')"><i class="fas fa-minus-circle fa-2x"></i></div>';
   }
 
-  $('<input>', {
-      type: 'hidden',
-      id: 'selectedUser' + selectedUser.value,
-      name: 'selectedUsersInput',
-      value: selectedUser.value
-  }).appendTo('form');
-
+  $("<input>", {
+    type: "hidden",
+    id: "selectedUser" + selectedUser.value,
+    name: "selectedUsersInput",
+    value: selectedUser.value,
+  }).appendTo("form");
 }
 
-var permissions = []
+var permissions = [];
 
-function searchPeople(areaId, url, areaName, kindTask, target='#user_selected') {
-  
+function searchPeople(areaId, url, areaName, kindTask, target = "#user_selected") {
   $.ajax({
-      type: 'GET',
-      url: url,
-      data: {"filter_pk": areaId, "kind_task": kindTask, "permissions": permissions},
-      success: function (response) {
-        $(target)
-            .find('option')
-            .remove()
-            .end();
-        $(target).append('<option value=-1>Ninguno seleccionado</option>')
-        response.forEach(function (value) {
-          $(target)
-            .append('<option value=' + value.pk + '>['+ value.username + '] ' + value.first_name + ' ' + value.last_name + '</option>')
-        });
-        $(target).selectpicker('refresh');
-        $("#headerForm").text(areaName)
-        $("#interest_area").val(areaId)
-      },
-      error: function (response) {
-        console.error(response)
-      }
-  })
+    type: "GET",
+    url: url,
+    data: { filter_pk: areaId, kind_task: kindTask, permissions: permissions },
+    success: function (response) {
+      $(target).find("option").remove().end();
+      $(target).append("<option value=-1>Ninguno seleccionado</option>");
+      response.forEach(function (value) {
+        $(target).append(
+          "<option value=" +
+            value.pk +
+            ">[" +
+            value.username +
+            "] " +
+            value.first_name +
+            " " +
+            value.last_name +
+            "</option>"
+        );
+      });
+      $(target).selectpicker("refresh");
+      $("#headerForm").text(areaName);
+      $("#interest_area").val(areaId);
+    },
+    error: function (response) {
+      console.error(response);
+    },
+  });
 }
 function cleanSearch() {
-  $('#headerForm').html('')
+  $("#headerForm").html("");
 }
-function descriptionPersonRequest(
-  name,personType,dateDoc,docType,docNumber,
-  address,email,city,phoneNumber){
-  $('#containerpersonRequest').removeClass('d-none')
-  $('#contTypePerson').html(personType)
-  $('#contNameLastName').html(name)
-  $('#contDocNum').html(docNumber)
-  $('#contDocType').html(docType)
-  $('#contAddress').html(address)
-  $('#contDate').html(dateDoc)
-  $('#contPhoneNumber').html(phoneNumber)
-  $('#contDepMuni').html(city)
-  $('#contMail').html(email)
+function descriptionPersonRequest(name, personType, dateDoc, docType, docNumber, address, email, city, phoneNumber) {
+  $("#containerpersonRequest").removeClass("d-none");
+  $("#contTypePerson").html(personType);
+  $("#contNameLastName").html(name);
+  $("#contDocNum").html(docNumber);
+  $("#contDocType").html(docType);
+  $("#contAddress").html(address);
+  $("#contDate").html(dateDoc);
+  $("#contPhoneNumber").html(phoneNumber);
+  $("#contDepMuni").html(city);
+  $("#contMail").html(email);
 }
-function historyObservation(observation){
-  $('#containerObservation').removeClass('d-none')
-  $('#contObservation').html(observation)
+function historyObservation(observation) {
+  $("#containerObservation").removeClass("d-none");
+  $("#contObservation").html(observation);
 }
 function loaderBTN() {
   $("#loading").show();
@@ -215,53 +241,62 @@ $(document).ready(function () {
   $("form").submit(function (e) {
     loaderBTN();
   });
-
 });
 $;
 
-var el = document.querySelector('.notification');
+var el = document.querySelector(".notification");
 
-function addNotification(activity, disable_url){
-  var count = Number(el.getAttribute('data-count')) || 0;
-  el.setAttribute('data-count', count + 1);
-  el.classList.remove('notify');
+function addNotification(activity, disable_url) {
+  var count = Number(el.getAttribute("data-count")) || 0;
+  el.setAttribute("data-count", count + 1);
+  el.classList.remove("notify");
   el.offsetWidth = el.offsetWidth;
-  el.classList.add('notify');
-  if(count === 0){
-      el.classList.add('show-count');
+  el.classList.add("notify");
+  if (count === 0) {
+    el.classList.add("show-count");
   }
 
   $("#notification-list").append(
-    `<a class="dropdown-item dropdown-notifications-item" href="`+ activity.href + `" onclick="disableNotification('`+ disable_url + `', ` + activity.pk + `)">
-        <div class="dropdown-notifications-item-icon bg-warning"><i data-feather="`+ activity.icon + `"></i></div>
+    `<a class="dropdown-item dropdown-notifications-item" href="` +
+      activity.href +
+      `" onclick="disableNotification('` +
+      disable_url +
+      `', ` +
+      activity.pk +
+      `)">
+        <div class="dropdown-notifications-item-icon bg-warning"><i data-feather="` +
+      activity.icon +
+      `"></i></div>
         <div class="dropdown-notifications-item-content">
-            <div class="dropdown-notifications-item-content-details">`+ activity.icon + `</div>
-            <div class="dropdown-notifications-item-content-text">`+ activity.info + `</div>
+            <div class="dropdown-notifications-item-content-details">` +
+      activity.icon +
+      `</div>
+            <div class="dropdown-notifications-item-content-text">` +
+      activity.info +
+      `</div>
         </div>
     </a>`
   );
-};
+}
 
 function updateNotifications(url, disable_url) {
-  setInterval(function() {
+  setInterval(function () {
     $.ajax({
-      type: 'GET',
+      type: "GET",
       url: url,
       data: {},
       success: function (response) {
-        $("#notification-list").html("")
-        el.setAttribute('data-count', 0);
-        el.classList.add('show-count');
-        for (const act of response)
-          addNotification(act, disable_url)
+        $("#notification-list").html("");
+        el.setAttribute("data-count", 0);
+        el.classList.add("show-count");
+        for (const act of response) addNotification(act, disable_url);
       },
       error: function (response) {
-        console.error(response)
-      }
-    })
-  }, 5000)
+        console.error(response);
+      },
+    });
+  }, 5000);
 }
-
 
 function disableNotification(url, pk) {
   $.ajax({
@@ -278,4 +313,54 @@ function disableNotification(url, pk) {
 }
 $(window).on("load", function () {
   $("#loading").hide();
-}); 
+});
+$(function () {
+  $("#chat-submit").click(function (e) {
+    e.preventDefault();
+    var msg = $("#chat-input").val();
+    var msg = $("#chat-input").val();
+    if (msg.trim() == "") {
+      return false;
+    }
+    var data = {
+      user: $("#name_create_user").val(),
+      message: msg,
+    };
+    socketClient.send(JSON.stringify(data));
+    socketClient.onmessage = function (event) {
+      var arrive = JSON.parse(event.data);
+      arrive = arrive["payload"];
+      generate_message(arrive["message"], arrive["user"]);
+    };
+  });
+});
+$("#close-dialog").click(function (e) {
+  e.preventDefault();
+  $("#agreement-modal").modal("hide");
+});
+
+$("#link_agreement").click(function (e) {
+  $("#agreement-modal").modal("show");
+});
+
+$("#chat-circle").click(function () {
+  $("#chat-circle").toggle("scale");
+  $(".chat-box").toggle("scale");
+});
+
+$(".chat-box-toggle").click(function () {
+  $("#chat-circle").toggle("scale");
+  $(".chat-box").toggle("scale");
+});
+
+$("#response_click_button").on("click", function (event) {
+  $("#crate-room-form").hide();
+  $("#chat-submit").prop("disabled", false);
+  $("#room_id").val($("#chat_respondle").val());
+  socketClient = new WebSocket("ws://" + window.location.host + "/ws/some_url/" + $("#chat_respondle").val() + "/");
+  socketClient.onmessage = function (event) {
+    var arrive = JSON.parse(event.data);
+    arrive = arrive["payload"];
+    generate_message(arrive["message"], arrive["user"]);
+  };
+});
