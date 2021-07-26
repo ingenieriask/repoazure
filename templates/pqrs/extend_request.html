@@ -4,7 +4,7 @@
 {% block content %}
 <div class="card mb-4">
     <div class="card-body">
-        <form  method="post">
+        <form  method="post" enctype="multipart/form-data">
         {% csrf_token %}
             <div class="form-group offset-5 col-md-4 my-5">
                 {{ form.number|as_crispy_field }}

@@ -37,6 +37,7 @@ import xlsxwriter
 from pinax.eventlog.models import log, Log
 from crum import get_current_user
 from django.core.files import File
+from pydocx import PyDocX
 
 from core.services import NotificationsHandler, SystemParameterHelper, UserHelper
 from correspondence.services import ECMService, RadicateService
@@ -221,6 +222,7 @@ def assign_user(request, radicate):
             pqrs.observation = pqrs.observation + form.cleaned_data['observations']
             
             pqrs.pqrsobject.save()
+            pqrs.stage = Radicate.Stage.IN_PROCESS
             pqrs.save()
 
             get_args_str = urlencode({'pk': pqrs.pk, 'template': 'FINISH_ASSIGNATION', 'destination': 'pqrs:radicate_my_inbox'})
@@ -793,7 +795,8 @@ def get_file(request):
         if extension == '.pdf':
             content_type = "application/pdf"
         elif extension == ".doc" or extension == ".docx":
-            content_type = "application/msword"
+            html = PyDocX.to_html(io.BytesIO(prev_response[0]))
+            return HttpResponse(html)
         elif extension == '.jpg':
             content_type = "image/jpeg"
         return HttpResponse(prev_response, content_type=content_type)

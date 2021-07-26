@@ -66,6 +66,7 @@ class PQRS(models.Model):
         CREATED = 'CR', _('Recibida')
         ASSIGNED = 'AS', _('Asignada')
         RETURNED = 'RT', _('Devuelto')
+        ANSWERED = 'AN', _('Respondida')
         
     uuid = models.UUIDField(editable=False, default=uuid.uuid4, unique=True)
     pqr_type = models.ForeignKey(Type,on_delete=models.PROTECT,related_name='pqrs_object_type',null =True)
@@ -126,3 +127,5 @@ class Record(BaseModel):
     observations = models.CharField(max_length=256, null=True)
     security_levels = models.CharField(max_length=2, choices=SecurityLevels.choices, default=SecurityLevels.PUBLIC)
     cmis_id = models.TextField(max_length=128, null=False, default='Por asignar')
+
+    radicates = models.ManyToManyField(Radicate, related_name='records', blank=True)

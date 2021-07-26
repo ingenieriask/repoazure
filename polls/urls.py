@@ -5,5 +5,5 @@ from django.urls import path
 app_name = 'polls'
 
 urlpatterns = [
-    path('show_poll/<int:pk>/<int:radicate>/', views.show_poll, name="show_poll"),
+    path('show_poll/<int:pk>/<str:radicate>/', views.show_poll, name="show_poll"),
 ]

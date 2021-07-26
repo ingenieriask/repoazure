@@ -494,14 +494,14 @@
      if ($(element).data('extension')){
       extension = $(element).data('extension');
       $('#file-display-field').empty()
-      if (extension == '.pdf' || extension == '.doc'){
+      if (extension == '.pdf' || extension == '.doc' || extension == '.docx'){
         embeded_file = $('<embed class="w-100"/>'); 
       }
       else {
         embeded_file = $('<img class="w-100"/>'); 
       }
       embeded_file.attr("height", "900");
-      embeded_file.attr("src", '{% url "correspondence:get_file" %}?cmis_id='+cmis);
+      embeded_file.attr("src", '{% url "correspondence:get_file" %}?cmis_id='+$(element).data('nodeid'));
       $('#file-display-field').append(embeded_file);
      }
    })

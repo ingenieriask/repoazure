@@ -6,7 +6,7 @@ from django.shortcuts import redirect, render
 from numpy import number, subtract
 from requests.models import Request
 from correspondence.models import ReceptionMode, RadicateTypes, Radicate, AlfrescoFile, ProcessActionStep
-from pqrs.models import PQRS, Record,Type, PqrsContent,Type, SubType, InterestGroup
+from pqrs.models import PQRS, Type, PqrsContent,Type, SubType, InterestGroup, Record
 from workflow.models import FilingFlow, FilingNode
 from core.models import AppParameter, Attorny, AttornyType, Atttorny_Person, City, LegalPerson, \
     Person, DocumentTypes, PersonRequest, PersonType, RequestResponse, Alert, Template
@@ -68,6 +68,18 @@ from core.services import SystemParameterHelper, SystemHelpParameterHelper
 import zipfile
 
 logger = logging.getLogger(__name__)
+
+def _fill_from_parent(instance, radicate):
+    instance.type = radicate.type
+    instance.record = radicate.record
+    instance.person = radicate.person
+    instance.email_user_email = radicate.email_user_email
+    instance.email_user_name = radicate.email_user_name
+    instance.reception_mode = radicate.reception_mode
+    instance.office = radicate.office
+    instance.doctype = radicate.doctype
+    instance.parent = radicate
+    instance.subject = radicate.subject
 
 def _create_pqr_from_email(message):
     pqrs_type = get_object_or_404(Type, name='EMAIL')
@@ -237,6 +249,50 @@ def search_person(request,pqrs_type,person_type):
             "pqrs_type": pqrs_type,
             'person_type': person_type})
 
+def _answer_radicate(radicate, answered, request):
+    radicate.number = RecordCodeService.get_consecutive(RecordCodeService.Type.OUTPUT)
+    radicate.folder_id = ECMService.create_folder(radicate.number)
+    radicate.classification = Radicate.Classification.COMPLETE_ANSWER
+    radicate.stage = Radicate.Stage.CLOSED
+    radicate.mother = answered
+    radicate.save()
+
+    for file in AlfrescoFile.objects.filter(radicate=radicate):
+        ECMService.move_item(file.cmis_id, radicate.folder_id)
+
+    DocxCreationService.mix_from_template(Template.Types.PQR_CREATION, radicate)
+    query_url = "{0}://{1}/pqrs/consultation/result/{2}".format(request.scheme, request.get_host(), answered.pk)
+    radicate.url = query_url
+
+    NotificationsHandler.send_notification('EMAIL_PQR_ANSWER', radicate, Recipients(radicate.person.email if radicate.person else radicate.email_user_email))
+    
+    action = ProcessActionStep()
+    action.user = get_current_user()
+    action.action = 'Respuesta'
+    action.detail = 'La PQRSD %s ha sido respondida con el radicado %s' % (radicate.parent.number, radicate.number) 
+    action.radicate = radicate
+    action.save()
+
+def _create_record(pqrs):
+    record = Record()
+    record.type = pqrs.pqrsobject.pqr_type
+    record.subtype = pqrs.subtype
+    record.responsable = get_current_user()
+    record.subject = pqrs.subject
+    record.source = str(pqrs.person) if pqrs.person else pqrs.email_user_name
+    record.name = RecordCodeService.get_proceedings_consecutive(str(pqrs.pqrsobject.pqr_type.pk).zfill(2) + str(pqrs.subtype.pk).zfill(3))
+    record.cmis_id = ECMService.create_folder(record.name)
+    record.save()
+    record.radicates.add(pqrs)
+    record.save()
+    ECMService.copy_item(pqrs.folder_id, record.cmis_id)
+
+def _add_to_record(parent, current):
+    for record in parent.records.all():
+        record.radicates.add(current)
+        record.save()
+        ECMService.copy_item(current.folder_id, record.cmis_id)
+        
 def _process_next_action(pqrs):
     try:
         flow = FilingFlow.objects.get(subtype=pqrs.subtype)
@@ -304,10 +360,11 @@ def create_pqr_multiple(request, pqrs):
             )
             query_url = "{0}://{1}/pqrs/consultation/result/{2}".format(request.scheme, request.get_host(), radicate.pk)
             instance.url = query_url
-            NotificationsHandler.send_notification('EMAIL_PQR_CREATE', instance, 
-                                                    Recipients(instance.person.email, None, instance.person.phone_number))
+            NotificationsHandler.send_notification('EMAIL_PQR_CREATE', instance,  Recipients(instance.person.email, None, instance.person.phone_number))
 
+            consecutive = 0
             for fileUploaded in request.FILES.getlist('pqrs_creation_uploaded_files'):
+                consecutive += 1
                 document_temp_file = NamedTemporaryFile()
                 for chunk in fileUploaded.chunks():
                     document_temp_file.write(chunk)
@@ -317,7 +374,7 @@ def create_pqr_multiple(request, pqrs):
 
                 node_id = ECMService.upload(File(document_temp_file, name=fileUploaded.name), radicate.folder_id)
                 alfrescoFile = AlfrescoFile(cmis_id=node_id, radicate=radicate,
-                                            name=os.path.splitext(fileUploaded.name)[0],
+                                            name=os.path.splitext(radicate.number+'-'+str(consecutive).zfill(5))[0],
                                             extension=os.path.splitext(fileUploaded.name)[1],
                                             size=int(fileUploaded.size/1000))
                 alfrescoFile.save()
@@ -325,12 +382,12 @@ def create_pqr_multiple(request, pqrs):
                 if not node_id or not ECMService.request_renditions(node_id):
                     messages.error(request, "Ha ocurrido un error al guardar el archivo en el gestor de contenido")
 
-            PdfCreationService.create_pqrs_confirmation_label(radicate)
-            PdfCreationService.create_pqrs_summary(radicate)
+            ### TODO eval in intern creation
+            # PdfCreationService.create_pqrs_confirmation_label(radicate)
+            DocxCreationService.mix_from_template(Template.Types.PQR_CREATION, instance)
             _process_next_action(instance)
+            _create_record(instance)
             messages.success(request, "El radicado se ha creado correctamente")
-            # url = reverse('correspondence:detail_radicate', kwargs={'pk': radicate.pk})
-            # return redirect('pqrs:pqrs_finish_creation', radicate.pk)
             url = reverse('pqrs:pqrs_finish_creation', kwargs={'pk': radicate.pk})
             return HttpResponseRedirect(url)
         
@@ -345,7 +402,7 @@ def create_pqr_multiple(request, pqrs):
 
 
 def PQRSType(request, applicanType):
-    pqrs_types = Type.objects.all()
+    pqrs_types = Type.objects.filter(is_selectable=True)
     return render(
         request,
         'pqrs/pqrs_type.html',
@@ -415,7 +472,7 @@ def pqrsConsultan(request):
                 return redirect('pqrs:consultation_result', pqrsContent[0].id)
                 #render to send token and show resutl
             else:
-                messages.error( request, "La PQRDS no existe")
+                messages.error( request, "La PQRSD no existe")
     else:
         form = PqrsConsultantForm()
     return render(
@@ -496,8 +553,9 @@ def records_form(request):
 @login_required
 def records_form_param(request,pk):
     if request.method == 'POST':
-        form = RecordsForm(request.POST)
+        form = RecordsForm(pk, request.POST)
         if  form.is_valid():
+            pqrs = PqrsContent.objects.get(pk=pk)
             record = Record(
                 type = Type.objects.get(id= form['type'].value()),
                 subtype =SubType.objects.get(id= form['subtype_field'].value()),
@@ -509,9 +567,18 @@ def records_form_param(request,pk):
                 observations =  form['observations'].value(),
                 security_levels =  form['security_levels'].value(),
             )
+            record.name = RecordCodeService.get_proceedings_consecutive(str(record.type.pk).zfill(2) + str(record.subtype.pk).zfill(3))
+            record.cmis_id = ECMService.create_folder(record.name)
             record.save()
+            record.radicates.add(pqrs)
+            ECMService.copy_item(pqrs.folder_id, record.cmis_id)
+            for radicate in pqrs.associated_radicates.all():
+                record.radicates.add(radicate)
+                ECMService.copy_item(radicate.folder_id, record.cmis_id)
+            record.save()
+            return redirect('pqrs:detail_pqr', pk)
     else:
-        form = RecordsForm()
+        form = RecordsForm(pk)
     return render(
         request,
         'pqrs/records_form.html',
@@ -769,7 +836,7 @@ class RadicateMyInbox(RadicateListView):
     @RadicateListView.filter
     def get_queryset(self):
         queryset = super(RadicateMyInbox, self).get_queryset()
-        queryset = queryset.filter(is_filed=False, current_user = self.request.user, subtype__isnull=False)
+        queryset = queryset.filter(is_filed=False, current_user = self.request.user, subtype__isnull=False, stage=Radicate.Stage.IN_PROCESS)
         return queryset
 
 class RadicateMyReported(RadicateListView):
@@ -871,7 +938,7 @@ class PqrsConsultationResult(DetailView):
 
     def get_context_data(self, **kwargs):
         context = super(PqrsConsultationResult, self).get_context_data(**kwargs)
-        context['answers'] = Radicate.objects.filter(parent=context['pqrs'].id, 
+        context['answers'] = Radicate.objects.filter(mother=context['pqrs'].id, 
                                                      classification=Radicate.Classification.COMPLETE_ANSWER)
         return context
 
@@ -907,9 +974,11 @@ def pqrs_extend_request(request, pk):
             instance.date_radicated_formated = radicate.date_radicated.strftime('%Y-%m-%d')
             instance.original_number = radicate.number
             send_email_extend_request(request, instance)
+            DocxCreationService.mix_from_template(Template.Types.PQR_EXT_REQUEST, instance)
             
-            
+            consecutive = 0
             for fileUploaded in request.FILES.getlist('uploaded_files'):
+                consecutive += 1
                 document_temp_file = NamedTemporaryFile()
                 for chunk in fileUploaded.chunks():
                     document_temp_file.write(chunk)
@@ -919,7 +988,7 @@ def pqrs_extend_request(request, pk):
 
                 node_id = ECMService.upload(File(document_temp_file, name=fileUploaded.name), instance.folder_id)
                 alfrescoFile = AlfrescoFile(cmis_id=node_id, radicate=instance,
-                                            name=os.path.splitext(fileUploaded.name)[0],
+                                            name=os.path.splitext(instance.number+'-'+str(consecutive).zfill(5))[0],
                                             extension=os.path.splitext(fileUploaded.name)[1],
                                             size=int(fileUploaded.size/1000))
                 alfrescoFile.save()
@@ -928,7 +997,7 @@ def pqrs_extend_request(request, pk):
                     messages.error(
                         request, "Ha ocurrido un error al guardar el archivo en el gestor de contenido")
 
-
+            _add_to_record(instance.parent, instance)
             action = ProcessActionStep()
             action.user = get_current_user()
             action.action = 'Creación'
@@ -1000,17 +1069,31 @@ def pqrs_associate_request(request, pk):
 
         if error == False:
             try:
-                instance = Radicate.objects.get(number = number) 
+                instance = PqrsContent.objects.get(number = number)
                 instance.parent = radicate
+                instance.pqrsobject.status = PQRS.Status.ANSWERED
                 instance.classification = classification
+                instance.stage = Radicate.Stage.CLOSED
+                instance.pqrsobject.save()
                 instance.save()
 
                 action = ProcessActionStep()
                 action.user = get_current_user()
                 action.action = 'Asociación'
-                action.detail = 'El radicado %s ha sido asociado al radicado %s' % (instance.number, radicate.number) 
+                action.detail = 'El radicado %s ha sido asociado al radicado %s' % (instance.number, instance.parent.number) 
                 action.radicate = instance
                 action.save()
+
+                ### creation of the authomatic answer
+                ans = SystemParameterHelper.get_json('ANSWER_ASSOCIATION')
+                answer_pqr = Radicate()
+                _fill_from_parent(answer_pqr, instance)
+                answer_pqr.subject = ans['subject']
+                answer_pqr.data = FormatHelper.replace_data(ans['data'], answer_pqr)
+                _answer_radicate(answer_pqr, instance, request)
+
+                _add_to_record(instance.parent, instance)
+                _add_to_record(answer_pqr.parent, answer_pqr)
 
                 log(
                     user=request.user,
@@ -1032,7 +1115,8 @@ def pqrs_associate_request(request, pk):
 
                 messages.success(request, "La solicitud de asociación se ha procesado correctamente")
                 return redirect('pqrs:detail_pqr', pk)
-            except:
+            except Exception as Error:
+                print(Error)
                 messages.error(request, "No se ha encontrado el radicado seleccionado")
         return HttpResponseRedirect(request.path_info)
     else:
@@ -1065,13 +1149,18 @@ def pqrs_answer_request(request, pk):
             instance.parent = radicate.parent
             instance.classification = Radicate.Classification.AMPLIATION_ANSWER
             
-            new_radicate = instance.save()
+            instance.save()
             folder_id = ECMService.create_folder(instance.number)
             instance.folder_id = folder_id
             instance.save()
+
+            consecutive = 0
             
+            DocxCreationService.mix_from_template(Template.Types.PQR_EXT_ANSWER, instance)
+
             for fileUploaded in request.FILES.getlist('uploaded_files'):
                 document_temp_file = NamedTemporaryFile()
+                consecutive += 1
                 for chunk in fileUploaded.chunks():
                     document_temp_file.write(chunk)
 
@@ -1079,8 +1168,8 @@ def pqrs_answer_request(request, pk):
                 document_temp_file.flush()
 
                 node_id = ECMService.upload(File(document_temp_file, name=fileUploaded.name), instance.folder_id)
-                alfrescoFile = AlfrescoFile(cmis_id=node_id, radicate=new_radicate,
-                                            name=os.path.splitext(fileUploaded.name)[0],
+                alfrescoFile = AlfrescoFile(cmis_id=node_id, radicate=instance,
+                                            name=os.path.splitext(instance.number+'-'+str(consecutive).zfill(5))[0],
                                             extension=os.path.splitext(fileUploaded.name)[1],
                                             size=int(fileUploaded.size/1000))
                 alfrescoFile.save()
@@ -1088,6 +1177,8 @@ def pqrs_answer_request(request, pk):
                 if not node_id or not ECMService.request_renditions(node_id):
                     messages.error(request, "Ha ocurrido un error al guardar el archivo en el gestor de contenido")
 
+            _add_to_record(instance.parent, instance)
+            
             action = ProcessActionStep()
             action.user = get_current_user()
             action.action = 'Creación'
@@ -1141,24 +1232,12 @@ def get_thumbnail(request):
 
     return HttpResponse(default_storage.open('tmp/default.jpeg').read(), content_type="image/jpeg")    
     
+
 def pqrs_answer(request, pk, actualPk):
     radicate = get_object_or_404(Radicate, id=actualPk)
     if request.method == 'POST':
-        radicate.number = RecordCodeService.get_consecutive(RecordCodeService.Type.INPUT)
-        radicate.folder_id = ECMService.create_folder(radicate.number)
-        radicate.classification = Radicate.Classification.COMPLETE_ANSWER
-        radicate.save()
-        PdfCreationService.create_radicate_answer(radicate, True)
-
-        ## log de respuesta del radicado de solicitud de ampliación de información
-        action = ProcessActionStep()
-        action.user = get_current_user()
-        action.action = 'Respuesta'
-        action.detail = 'La PQRSD %s ha sido respondida con el radicado %s' % (radicate.number, radicate.number) 
-        action.radicate = radicate
-        action.save()
+        _answer_radicate(radicate, radicate.parent, request)
         messages.success(request, "El radicado se ha creado correctamente")
-    
         return redirect('pqrs:detail_pqr', pk)
     else:
         cmis = AlfrescoFile.objects.get(radicate=actualPk)
@@ -1175,22 +1254,15 @@ def pqrs_answer_preview(request, pk):
         if form.is_valid():
             
             instance = form.save(commit=False)
-            instance.type = radicate.type
-            instance.record = radicate.record
-            instance.person = radicate.person
-            instance.email_user_email = radicate.email_user_email
-            instance.email_user_name = radicate.email_user_name
-            instance.reception_mode = radicate.reception_mode
-            instance.office = radicate.office
-            instance.doctype = radicate.doctype
-            instance.parent = radicate
-            instance.subject = radicate.subject
+            _fill_from_parent(instance, radicate)
             ### se crea un identificador de folder temporal
             instance.folder_id = AppParameter.objects.get(name='ECM_TEMP_FOLDER_ID').value
             
             new_radicate = instance.save()
             
+            consecutive = 0
             for fileUploaded in request.FILES.getlist('answer_uploaded_files'):
+                consecutive += 1
                 document_temp_file = NamedTemporaryFile()
                 for chunk in fileUploaded.chunks():
                     document_temp_file.write(chunk)
@@ -1200,7 +1272,7 @@ def pqrs_answer_preview(request, pk):
 
                 node_id = ECMService.upload(File(document_temp_file, name=fileUploaded.name), instance.folder_id)
                 alfrescoFile = AlfrescoFile(cmis_id=node_id, radicate=new_radicate,
-                                            name=os.path.splitext(fileUploaded.name)[0],
+                                            name=os.path.splitext(instance.number+'-'+str(consecutive).zfill(5))[0],
                                             extension=os.path.splitext(fileUploaded.name)[1],
                                             size=int(fileUploaded.size/1000))
                 alfrescoFile.save()
@@ -1209,8 +1281,7 @@ def pqrs_answer_preview(request, pk):
                     messages.error(
                         request, "Ha ocurrido un error al guardar el archivo en el gestor de contenido")
 
-            PdfCreationService.create_radicate_answer(instance, True)
-            # DocxCreationService.mix_from_template(Template.Types.PQR_CREATION, instance)
+            DocxCreationService.mix_from_template(Template.Types.PQR_CREATION, instance)
         else:
             print(form.errors)
         return redirect('pqrs:answer', pk, instance.pk)
@@ -1321,6 +1392,7 @@ def change_classification(request,pk):
             if create:
                 pqrs_object.number = RecordCodeService.get_consecutive(RecordCodeService.Type.INPUT)
                 pqrs_object.folder_id = ECMService.create_folder(pqrs_object.number)
+                pqrs_object.stage = Radicate.Stage.IN_PROCESS
 
                 action = ProcessActionStep()
                 action.user = get_current_user()
@@ -1348,8 +1420,9 @@ def change_classification(request,pk):
                 query_url = "{0}://{1}/pqrs/consultation/result/{2}".format(request.scheme, request.get_host(), pqrs_object.pk)
                 pqrs_object.url = query_url
                 NotificationsHandler.send_notification('EMAIL_PQR_CREATE', pqrs_object, Recipients(pqrs_object.email_user_email))
-                PdfCreationService.create_pqrs_confirmation_label(pqrs_object)
-                PdfCreationService.create_pqrs_summary(pqrs_object)
+                DocxCreationService.mix_from_template(Template.Types.PQR_CREATION, pqrs_object)
+                _process_next_action(pqrs_object)
+                _create_record(pqrs_object)
 
             else:
                 action = ProcessActionStep()

@@ -583,6 +583,8 @@ class Template(BaseModel):
         PQR_CREATION = 'CR', _('Documento de radicación')
         PQR_LABEL = 'LB', _('Etiqueta de radicación')
         PQR_ANSWER = 'AN', _('Documento de respuesta')
+        PQR_EXT_REQUEST = 'ER', _('Solicitud de ampliación')
+        PQR_EXT_ANSWER = 'EA', _('Respuesta de solicitud de ampliación')
 
     type = models.CharField(unique=True, max_length=2, choices=Types.choices, default=Types.PQR_CREATION)
     file = models.FileField(upload_to=template_directory_path)

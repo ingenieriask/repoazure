@@ -476,7 +476,7 @@ class PdfCreationService(object):
         pdf.custom_footer()
         # Save pdf file
         #pdf.output('summary.pdf', 'F')
-        PdfCreationService._save_pdf_in_ecm(pdf, pqrs, 'radicate', '.pdf')
+        PdfCreationService._save_pdf_in_ecm(pdf, pqrs, pqrs.number, '.pdf')
     
     @classmethod
     def create_radicate_answer(cls, radicate, draft):
@@ -543,9 +543,7 @@ class DocxCreationService(object):
     @classmethod
     def _save_doc_in_ecm(cls, doc, pqrs, name, extension):
         # Create in-memory buffer
-        file_stream = io.BytesIO()
-        # Save the .docx to the buffer
-        doc.save(file_stream)
+        file_stream = io.BytesIO(doc)
         # Reset the buffer's file-pointer to the beginning of the file
         size = file_stream.tell()
         file_stream.seek(0)
@@ -562,16 +560,58 @@ class DocxCreationService(object):
         return node_id
 
     @classmethod
+    def _process_doc_to_pdf(cls, doc):
+        ###TODO this should be loaded from memory
+        doc.save(os.path.join(settings.BASE_DIR, 'media/output.docx'))
+
+        files = {'files': open(os.path.join(
+            settings.BASE_DIR, 'media/output.docx'), 'rb')}
+        response = requests.post(
+            settings.CONVERT_URL,
+            files=files
+        )
+        return response.content
+
+    @classmethod
+    def _replace_paragraph(cls, paragraph, pqrs):
+        inline = paragraph.runs
+        for i in range(len(inline)):
+            if len(inline)>i+2 and '<param>' in inline[i].text and '</param>' in inline[i+2].text:
+                text_from = inline[i].text + inline[i+1].text + inline[i+2].text
+                inline[i].text = FormatHelper.replace_data(text_from, pqrs)
+                inline[i+1].text = ''
+                inline[i+2].text = ''
+            elif len(inline)>i+1 and '<param>' in inline[i].text and '</param>' in inline[i+1].text:
+                text_from = inline[i].text + inline[i+1].text
+                inline[i].text = FormatHelper.replace_data(text_from, pqrs)
+                inline[i+1].text = ''
+            elif '<param>' in inline[i].text and '</param>' in inline[i].text:
+                inline[i].text = FormatHelper.replace_data(inline[i].text, pqrs)
+
+    @classmethod
+    def _process_section(cls, section, pqrs):
+        for p in section.paragraphs:
+            cls._replace_paragraph(p, pqrs)
+        
+        for table in section.tables:
+            for i, row in enumerate(table.rows):
+                for c in row.cells:
+                    for p in c.paragraphs:
+                        cls._replace_paragraph(p, pqrs)
+
+    @classmethod
     def mix_from_template(cls, template_type, pqrs):
         try:
             template = Template.objects.get(type=template_type)
             doc = Document(template.file)
-            for p in doc.paragraphs:
-                p.text = FormatHelper.replace_data(p.text, pqrs),
-    
+            cls._process_section(doc, pqrs)
 
-            # doc.save(os.path.join(settings.BASE_DIR, 'media/output.docx'))
-            DocxCreationService._save_doc_in_ecm(doc, pqrs, template_type.name, '.docx')
+            for section in doc.sections:
+                header = section.header
+                cls._process_section(header, pqrs)
+            
+            doc = cls._process_doc_to_pdf(doc)
+            cls._save_doc_in_ecm(doc, pqrs, pqrs.number, '.pdf')
 
         except Template.DoesNotExist:
             template = None

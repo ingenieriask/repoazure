@@ -64,6 +64,11 @@ class ReceptionMode(models.Model):
 
 
 class Radicate(models.Model):
+    class Stage(models.TextChoices):
+        CREATED = 'CR', _('Creada')
+        IN_PROCESS = 'PR', _('En proceso')
+        CLOSED = 'CL', _('Cerrada')
+
     class Classification(models.TextChoices):
         PQR = 'PQR', _('PQRSD')
         AMPLIATION_REQUEST = 'AR', _('Solicitud de ampliación')
@@ -88,6 +93,7 @@ class Radicate(models.Model):
     doctype = models.ForeignKey(Doctype, on_delete=models.CASCADE, related_name='radicates_doctype', blank=True, null=True)
 
     parent = models.ForeignKey('Radicate', on_delete=models.PROTECT, related_name='associated_radicates', null=True)
+    mother = models.ForeignKey('Radicate', on_delete=models.PROTECT, related_name='linked_radicates', null=True)
     classification = models.CharField(max_length=3, choices=Classification.choices, default=Classification.PQR)
     folder_id = models.TextField(max_length=100, null=False, default='')
 
@@ -96,6 +102,8 @@ class Radicate(models.Model):
 
     email_user_email = models.EmailField(null=True, blank=True)
     email_user_name = models.CharField(max_length=256, null=True, blank=True)
+
+    stage = models.CharField(max_length=2, choices=Stage.choices, default=Stage.CREATED)
 
     class Meta:
         ordering = ['date_radicated']

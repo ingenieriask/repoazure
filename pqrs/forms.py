@@ -11,6 +11,7 @@ from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Submit, Row, Column, Div, Field, Button, HTML
 from crispy_forms.utils import TEMPLATE_PACK
 from core.forms import AbstractPersonForm,AbstractPersonRequestForm,AbstractPersonAttorny,AbstractLegalPersonForm
+from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 from django.utils.safestring import mark_safe
 from core.forms import CustomFileInput
@@ -581,10 +582,11 @@ class RecordsForm(forms.ModelForm):
             'observations':'Observaciones',
             'security_levels':'Seguridad'
         }
-    def __init__(self, *args, **kwargs):
+    def __init__(self, pk=None, *args, **kwargs):
 
         super(RecordsForm, self).__init__(*args, **kwargs)
         self.helper = FormHelper(self)
+        cancel_url = reverse('pqrs:detail_pqr', kwargs={'pk': pk})
         self.helper.layout = Layout(
             Div(
                 Div(HTML('Aplicacion de la TRD del expediente'),
@@ -620,15 +622,30 @@ class RecordsForm(forms.ModelForm):
             ), css_class="card mb-3",
             ),
             Div(
+                Div(HTML('Aplicacion de la TRD del expediente'),
+                    css_class='card-header'),
+                Div(
+                    Row(
+                        Column('type', css_class='form-group col-md-6 mb-0'),
+                        Column('subtype_field', css_class='form-group col-md-6 mb-0'),
+                        css_class='form-row'
+                    ), css_class='card-body'
+            ), css_class="card mb-3",
+            ), 
+            Div(
+                Button('cancel', 'Volver', onclick='window.location.href="{}"'.format(
+                    cancel_url), css_class='btn btn-primary'),
                 Submit('submit','Siguiente',
-                css_class="btn btn-primary mx-auto",
-                ),css_class="d-flex"),
+                css_class="btn btn-success",
+                )
+                ,css_class="d-flex"
+            )
             
         )
 
 class ChangeClassificationForm(forms.Form):
     pqrs_type = forms.ModelChoiceField(
-        queryset=Type.objects.all(),
+        queryset=Type.objects.filter(is_selectable=True),
         required=True,
         label='Tipo')
     pqrs_subtype = forms.ModelChoiceField(

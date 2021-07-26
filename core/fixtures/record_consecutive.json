@@ -5,7 +5,7 @@
 		"pk": 1, 
 		"fields": {
 			"format": 
-			"{year}{consecutive:08d}{type}", 
+			"{type}{year}-{consecutive:08d}", 
 			"effective_date": 
 			"2020-05-20 0:0:0"
 		}

@@ -55,5 +55,19 @@
                 2
             ]
         }
+    },
+    {
+        "model": "core.notifications",
+        "pk": 4,
+        "fields": {
+            "name": "EMAIL_PQR_ANSWER",
+            "subject": "Respuesta de PQR",
+            "body": "<strong>Cordial saludo,</strong> <p><strong>RINO</strong>, le informa que su solicitud de número <param>mother.number</param> ha sido respondida, por favor consultela en <a href=\"<param>url</param>\"><h3>este enlace</h3></a>",
+            "body_sms": "Cordial saludo, RINO, le informa que respondió a su solicitud, la cual fue radicada con el número <param>number</param>.",
+            "notifications_services": [
+                1,
+                2
+            ]
+        }
     }
 ]

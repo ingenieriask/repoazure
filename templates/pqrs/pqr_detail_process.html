@@ -15,6 +15,9 @@
       <li class="nav-item">
         <a class="nav-link" data-toggle="tab" href="#associated">Radicados asociados</a>
       </li>
+      <li class="nav-item">
+        <a class="nav-link" data-toggle="tab" href="#records">Expedientes</a>
+      </li>
       <div class="col text-right">
         {% block actions %}
         {% endblock %}
@@ -421,7 +424,7 @@
                         <a class="display-modal"
                           data-nodeid="{{ file.cmis_id | default_if_none:'' }}"
                           data-extension={{ file.extension }} data-toggle="modal" data-target="#fileModal"
-                        >{{ file.name }}{{file.extension}}</a>
+                        >{{ file.name }}</a>
                       </div>
                     </div>
                     </td> 
@@ -501,6 +504,94 @@
             </div>
           </div>
         </div>
+      </div>
+    </div>
+    <div id="records" class="tab-pane fade">
+      <div>
+        <div class="col text-right">
+          <a class="btn btn-primary" href="{% url 'pqrs:records_form_parameter' pk=pqrscontent.pk  %}" 
+              data-toggle="tooltip" data-placement="top" title="Crear expediente">
+              <i class="fa fa-plus" style="color: #ffffff;"></i>
+          </a>
+        </div>
+      </div>
+      <div class="col-xxl-12 col-xl-12 mb-12" id="accordion">
+        {% for record in  pqrscontent.records.all %}
+          <div class="card bg-light mb-3">
+            <div class="card-header" id="heading{{record.pk}}">
+              <div data-toggle="collapse" data-target="#collapse{{record.pk}}" aria-expanded="false" aria-controls="collapse{{record.pk}}">
+                Expediente {{record.name}}
+              </div>
+            </div>
+            <div id="collapse{{record.pk}}" class="collapse" aria-labelledby="heading{{record.pk}}" data-parent="#accordion">
+              <div class="card-body">
+                <table class="table table-hover" id="tb_records_associated">
+                  <thead>
+                    <tr>
+                      <th scope="col">Orden</th>
+                      <th scope="col">Radicado</th>
+                      <th scope="col">Clasificación</th>
+                      <th scope="col">Fecha</th>
+                      <th scope="col">Solicitante</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {% for radicate in  record.radicates.all %}
+                    <tr>
+                      <td>{{forloop.counter}}</td>
+                      <td>{{radicate.number}}</td>
+                      <td>{{radicate.get_classification_str}}</td>
+                      <td>{{radicate.date_radicated}}</td>
+                      {% if radicate.person %}
+                      <td>{{radicate.person.name}} {{radicate.person.lasts_name}}</td>
+                      {% else %}
+                      <td>{{radicate.person.email_user_name}}</td>
+                      {% endif %}
+                    </tr>
+                    <tr>
+                      <td colspan="5">
+                        <table class="table table-hover" id="tb_record_files_associated">
+                          <thead>
+                            <tr>
+                              <th style="text-align: center;">Nombre del archivo</th>
+                              <th style="text-align: center;">Tamaño (MB)</th>
+                            </tr>
+                          </thead>
+                  
+                          <tbody>
+                            {% for file in  radicate.files.all %}
+                              <tr>
+                                <td>
+                                <div class="row text-center">
+                                  <div class="col-2">
+                                    <img data-nodeid="{{ file.cmis_id | default_if_none:'' }}" class="img-fluid shadow display-modal" width="40"
+                                      height="45" src="{% static 'correspondence/assets/img/default.jpeg' %}" 
+                                      data-toggle="modal" data-target="#fileModal">
+                                  </div>
+                                  <div class=" offset-1 col-6 align-self-center">
+                                    <a class="display-modal"
+                                      data-nodeid="{{ file.cmis_id | default_if_none:'' }}"
+                                      data-extension={{ file.extension }} data-toggle="modal" data-target="#fileModal"
+                                    >{{ file.name }}</a>
+                                  </div>
+                                </div>
+                                </td> 
+                                <td class="text-center">
+                                  {{ file.size|size_metric:'MB' }} MB
+                                </td>
+                              </tr>
+                            {% endfor %} 
+                          </tbody>
+                        </table>
+                      </td>
+                    </tr>
+                    {% endfor %} 
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        {% endfor %} 
       </div>
     </div>
     <div id="history" class="tab-pane fade">
@@ -599,14 +690,14 @@
      if ($(element).data('extension')){
       extension = $(element).data('extension');
       $('#file-display-field').empty()
-      if (extension == '.pdf' || extension == '.doc'){
+      if (extension == '.pdf' || extension == '.doc' || extension == '.docx'){
         embeded_file = $('<embed class="w-100"/>'); 
       }
       else {
         embeded_file = $('<img class="w-100"/>'); 
       }
       embeded_file.attr("height", "500");
-      embeded_file.attr("src", '{% url "correspondence:get_file" %}?cmis_id='+cmis);
+      embeded_file.attr("src", '{% url "correspondence:get_file" %}?cmis_id='+$(element).data('nodeid'));
       $('#file-display-field').append(embeded_file);
      }
    })

@@ -150,5 +150,13 @@
       "name": "POLL_FILLED_OUT",
       "value": "{\"title\": \"<h1>ENCUESTA DILIGENCIADA</h1> <br><hr>\", \"body\": \"La encuesta ya ha sido diligenciada, muchas gracias por realizar su trámite con nosotros.\"}"
     }
+  },
+  {
+    "model": "core.systemparameter",
+    "pk": 22,
+    "fields": {
+      "name": "ANSWER_ASSOCIATION",
+      "value": "{\"subject\": \"Respuesta automática\", \"data\": \"La solicitud con número de radicado <param>number</param> ha sido asociada a la solicitud con número de radicado <param>parent.number</param>. Para conocer el estado de su solicitud por favor remita sus consultas con el número de esta última.\"}"
+    }
   }
 ]

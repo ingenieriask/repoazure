@@ -201,15 +201,33 @@ class ECMService(object):
 
     @classmethod
     @get_params
+    def copy_item(cls, cmis_id, target):
+        ''' '''
+        try:
+            r = requests.post(
+                cls._params['ECM_COPY_URL'].replace('{nodeId}', cmis_id), 
+                data=json.dumps({"targetParentId": target}), 
+                auth=cls.get_basic_authentication())
+
+            if r.ok:
+                json_response = (json.loads(r.text))
+                return json_response['entry']['id']
+
+        except Exception as Error:
+            logger.error(Error)
+
+    @classmethod
+    @get_params
     def create_folder(cls, name):
         ''' '''
 
         try:
+            print(name)
             r = requests.post(
                 cls._params['ECM_FOLDER_URL'], 
                 data=json.dumps({"name": name, "nodeType": "cm:folder"}), 
                 auth=cls.get_basic_authentication())
-
+            print(r.__dict__)
             if r.ok:
                 json_response = (json.loads(r.text))
                 return json_response['entry']['id']

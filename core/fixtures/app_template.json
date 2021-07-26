@@ -25,5 +25,23 @@
       "type": "AN",
       "description": "Descripción Documento de Respuesta"
     }
+  },
+  {
+    "model": "core.template",
+    "pk": 4,
+    "fields": {
+      "name": "Documento de solicitud de ampliación",
+      "type": "ER",
+      "description": "Solicitud de amplicación"
+    }
+  },
+  {
+    "model": "core.template",
+    "pk": 5,
+    "fields": {
+      "name": "Documento de respuesta a la solicitud de ampliación",
+      "type": "EA",
+      "description": "Respuesta a solicitud de amplicación"
+    }
   }
 ]
