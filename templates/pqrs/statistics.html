@@ -25,23 +25,50 @@
           {% include './statistics_body.html' %}
         </div>
         
-        <div class="row text-center">
+        <div class="row">
           <div class="col-md-6 col-sm-12">
             <div class="row justify-content-center"><h1>Tipos de Persona</h1></div>
-            <div class="row">
-              <div id="person_type_chart" style="width: 100%;height:300px; background-color: #e6f3f8;"></div>
-            </div>
+            <div id="person_type_chart" style="width: 100%;height:400px; background-color: #e6f3f8;"></div>
           </div>
           <div class="col-md-6 col-sm-12">
             <div class="row justify-content-center"><h1>Estados</h1></div>
-            <div class="row">
-              <div id="state_chart" style="width: 100%;height:300px;"></div>
-            </div>
+            <div id="state_chart" style="width: 100%;height:400px;"></div>
           </div>
         </div>
         <div class="row">
           <div class="col-md-6 col-sm-12">
-            <div id="horizontal_chart" style="width: 100%;height:800px;"></div>
+            <div class="row justify-content-center mt-4"><h1>Tipos - Temas</h1></div>
+            <div id="horizontal_chart" style="width: 100%;height:600px;"></div>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-md-6 col-sm-12">
+            <div class="row justify-content-center"><h1>Situación de discapacidad</h1></div>
+            <div id="disability_condition_chart" style="width: 80%;height:400px;"></div>
+          </div>
+          <div class="col-md-6 col-sm-12">
+            <div class="row justify-content-center"><h1>Recibidas por canal</h1></div>
+            <div id="channel_chart" style="width: 80%;height:400px;"></div>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-md-4 col-sm-12">
+            <div class="row justify-content-center"><h1>Grupo Etnico</h1></div>
+            <div id="ethnic_group_chart" style="width: 100%;height:400px;"></div>
+          </div>
+          <div class="col-md-4 col-sm-12">
+            <div class="row justify-content-center"><h1>Victima de conflicto</h1></div>
+            <div id="conflict_victim_chart" style="width: 100%;height:400px;"></div>
+          </div>
+          <div class="col-md-4 col-sm-12">
+            <div class="row justify-content-center"><h1>Población preferencial</h1></div>
+            <div id="preferential_population_chart" style="width: 100%;height:400px;"></div>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-md-8 offset-2 col-sm-12">
+            <div class="row justify-content-center"><h1>Recibidas por género</h1></div>
+            <div id="gender_chart" style="width: 100%;height:400px;"></div>
           </div>
         </div>
       </div>
@@ -214,6 +241,300 @@
     })
   } 
 
+  function calculateDisabilityCondition(){
+    $.ajax({
+      type: 'GET',
+      url: '{% url "pqrs:disability-condition-chart" %}',
+      data: {
+        dates : $('#reportrange span').html(),
+        selected_types : selected_list.join()
+      }
+    })
+    .done(function(response){
+      var myChart = echarts.init($('#disability_condition_chart')[0]);
+      option = {
+          tooltip: {
+              trigger: 'item'
+          },
+          legend: {
+              orient: 'vertical',
+              left: 'right',
+          },
+          series: [
+              {
+                  name: 'Chart',
+                  type: 'pie',
+                  radius: '50%',
+                  data: response['data'],
+                  label: {
+                      normal: {
+                          formatter: '{c}%',
+                          position: 'inside'
+                      }
+                  },
+                  emphasis: {
+                      itemStyle: {
+                          shadowBlur: 10,
+                          shadowOffsetX: 0,
+                          shadowColor: 'rgba(0, 0, 0, 0.5)'
+                      }
+                  }
+              }
+          ]
+      };
+      myChart.setOption(option);
+    })    
+  }
+
+  function calculateChannel(){
+    $.ajax({
+      type: 'GET',
+      url: '{% url "pqrs:channel-chart" %}',
+      data: {
+        dates : $('#reportrange span').html(),
+        selected_types : selected_list.join()
+      }
+    })
+    .done(function(response){
+      var myChart = echarts.init($('#channel_chart')[0]);
+      option = {
+          legend: {
+              data: response['legend']
+          },
+          xAxis: {
+              type: 'category',
+              axisLine: {
+                        show: false,
+                    },
+              axisTick:{
+                  show: false
+              },
+              axisLabel: {
+                  show: true,
+                  textStyle : {
+                      fontSize: 9
+                  }
+              },
+              textStyle : {
+                  fontSize: 18
+              },
+              data: response['x'],
+          },
+          yAxis: {
+              type: 'value',
+              splitLine: true,
+              show: false,
+          },
+          series: response['y']
+      };
+      myChart.setOption(option);
+    })
+  }
+
+  function calculateEthnicGroup(){
+    $.ajax({
+      type: 'GET',
+      url: '{% url "pqrs:ethnic-group-chart" %}',
+      data: {
+        dates : $('#reportrange span').html(),
+        selected_types : selected_list.join()
+      }
+    })
+    .done(function(response){
+      var myChart = echarts.init($('#ethnic_group_chart')[0]);
+
+      option = {
+          tooltip: {
+              trigger: 'item'
+          },
+          legend: {
+              top: '5%',
+              left: 'center',
+              orient: 'horizontal'
+          },
+          series: [
+              {
+                  name: 'ethnic group',
+                  type: 'pie',
+                  radius: ['30%', '50%'],
+                  avoidLabelOverlap: false,
+                  label: {
+                      normal: {
+                          formatter: '{c}%',
+                          position: 'inside'
+                      }
+                  },
+                  emphasis: {
+                      label: {
+                          show: true,
+                          fontSize: '40',
+                          fontWeight: 'bold'
+                      }
+                  },
+                  labelLine: {
+                      show: false
+                  },
+                  data: response['data']
+              }
+          ]
+      };
+      myChart.setOption(option);
+    })
+  }
+
+  function calculateConflictVictim(){
+    $.ajax({
+      type: 'GET',
+      url: '{% url "pqrs:conflict-victim-chart" %}',
+      data: {
+        dates : $('#reportrange span').html(),
+        selected_types : selected_list.join()
+      }
+    })
+    .done(function(response){
+      var myChart = echarts.init($('#conflict_victim_chart')[0]);
+      option = {
+          tooltip: {
+              trigger: 'item'
+          },
+          legend: {
+              orient: 'horizontal',
+              left: 'right',
+              top: '60px'
+          },
+          series: [
+              {
+                  name: 'Chart',
+                  type: 'pie',
+                  radius: '50%',
+                  data: response['data'],
+                  label: {
+                      normal: {
+                          formatter: '{c}%',
+                          position: 'inside'
+                      }
+                  },
+                  emphasis: {
+                      itemStyle: {
+                          shadowBlur: 10,
+                          shadowOffsetX: 0,
+                          shadowColor: 'rgba(0, 0, 0, 0.5)'
+                      }
+                  }
+              }
+          ]
+      };
+      myChart.setOption(option);
+    })
+  }
+
+  function calculatePreferentialPopulation(){
+    $.ajax({
+      type: 'GET',
+      url: '{% url "pqrs:preferential-population-chart" %}',
+      data: {
+        dates : $('#reportrange span').html(),
+        selected_types : selected_list.join()
+      }
+    })
+    .done(function(response){
+      var myChart = echarts.init($('#preferential_population_chart')[0]);
+      option = {
+          grid: {containLabel: true},
+          xAxis: {
+              type: 'value',
+              splitLine: false,
+              show: false,
+              max : 200,
+          },
+          yAxis: {
+              type: 'category',
+              axisLine: {
+                  show: false,
+              },
+              axisTick:{
+                  show: false
+              },
+              axisLabel: {
+                  show: true,
+                  inside: true,
+                  fontWeight : 'bold',
+                  width: 120,
+                  margin: 150,
+                  overflow: 'break',
+                  interval: 0,
+                  textStyle : {
+                    fontSize: 10,
+                  }
+              },
+              data : response['y']
+          },
+          series: [
+              {
+                  type: 'bar',
+                  label: {
+                      show: true,
+                      formatter: '{c}%',
+                  },
+                  showBackground: true,
+                  data : response['x']
+              }
+          ]
+      };
+      myChart.setOption(option);
+    })
+  }
+
+  function gender(){
+    $.ajax({
+      type: 'GET',
+      url: '{% url "pqrs:gender-chart" %}',
+      data: {
+        dates : $('#reportrange span').html(),
+        selected_types : selected_list.join()
+      }
+    })
+    .done(function(response){
+      var myChart = echarts.init($('#gender_chart')[0]);
+      option = {
+          tooltip: {
+              trigger: 'item'
+          },
+          legend: {
+              top: '5%',
+              left: 'center',
+              orient: 'horizontal'
+          },
+          series: [
+              {
+                  name: 'ethnic group',
+                  type: 'pie',
+                  radius: ['30%', '50%'],
+                  avoidLabelOverlap: false,
+                  label: {
+                      normal: {
+                          formatter: '{c}%',
+                          position: 'inside'
+                      }
+                  },
+                  emphasis: {
+                      label: {
+                          show: true,
+                          fontSize: '40',
+                          fontWeight: 'bold'
+                      }
+                  },
+                  labelLine: {
+                      show: false
+                  },
+                  data: response['data']
+              }
+          ]
+      };
+      myChart.setOption(option);
+    })
+  }
+
   function calculateStatistics(){
     $.ajax({
       type: 'GET',
@@ -249,6 +570,12 @@
     calculateHorizontal();
     calculatePersonType();
     calculateState();
+    calculateDisabilityCondition();
+    calculateChannel();
+    calculateEthnicGroup();
+    calculateConflictVictim();
+    calculatePreferentialPopulation();
+    gender();
   }
 
 
