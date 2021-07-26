@@ -1,5 +1,6 @@
 from django.db import models
 from django.conf import settings
+from django.db.models.base import Model
 from django.http import response
 from django.urls import reverse
 from django.utils import timezone
@@ -14,7 +15,7 @@ from core.utils_services import FormatHelper
 from simple_history.models import HistoricalRecords
 from django.utils.translation import gettext_lazy as _
 from .utils_models import UploadToPathAndRename, OverwriteStorage
-
+import uuid
 import os
 
 # Create your models here.
@@ -633,3 +634,20 @@ class Task(models.Model):
 
     def __str__(self):
         return f'{self.code} {self.description} [{self.periodicity}]'
+    
+
+class ChatRooms(models.Model):
+    code_room = models.UUIDField(default=uuid.uuid4,unique=True)
+    name_room = models.CharField(max_length=256)
+    reference_name_creator = models.CharField( max_length=256)
+    date_created = models.DateField(auto_now=True)
+    email = models.EmailField( max_length=254)
+    
+    def __str__(self):
+        return f'{self.name_room}'
+
+class MessageByRooms(models.Model):
+    message_value=models.TextField()
+    date_message = models.DateField(auto_now=True)
+    user = models.CharField(max_length=50)
+    associate_room = models.ForeignKey(ChatRooms,related_name="message_room_associated", on_delete=models.CASCADE)
