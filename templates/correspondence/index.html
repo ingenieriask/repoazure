@@ -284,5 +284,10 @@
     <script src="{% static 'correspondence/js/scripts.js' %}"></script>
     <script src="{% static 'correspondence/js/custom.js' %}"></script>
     <script src="{% static 'correspondence/assets/demo/date-range-picker-demo.js' %}"></script>
+    <script>
+       if (window.localStorage.getItem("char-room-id")) {
+          localStorage.removeItem("char-room-id");
+       }
+    </script>
   </body>
 </html>
