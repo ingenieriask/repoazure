@@ -18,8 +18,7 @@ class ProceedingsConsecutiveFormatWidget(forms.Widget):
             'name': name,
             'value': format,
             'digits': digits,
-            'options': RecordCodeService.tokens2,
-            'colors': ['bg-primary', 'bg-success', 'bg-warning']
+            'options': RecordCodeService.tokens['proceedings']
         },
         "message_confirm":rino_parameter.value}
 
@@ -40,8 +39,7 @@ class ConsecutiveFormatWidget(forms.Widget):
             'name': name,
             'value': format,
             'digits': digits,
-            'options': RecordCodeService.tokens,
-            'colors': ['bg-primary', 'bg-success', 'bg-warning']
+            'options': RecordCodeService.tokens['filing']
         },
         "message_confirm":rino_parameter.value}
 
