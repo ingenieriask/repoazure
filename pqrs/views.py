@@ -5,11 +5,13 @@ from django.http.response import JsonResponse
 from django.shortcuts import redirect, render
 from numpy import number, subtract
 from requests.models import Request
-from correspondence.models import ReceptionMode, RadicateTypes, Radicate, AlfrescoFile, ProcessActionStep
+from correspondence.models import ReceptionMode, RadicateTypes, Radicate, AlfrescoFile, ProcessActionStep, \
+    ReceptionMode
 from pqrs.models import PQRS, Record,Type, PqrsContent,Type, SubType, InterestGroup
 from workflow.models import FilingFlow, FilingNode
 from core.models import AppParameter, Attorny, AttornyType, Atttorny_Person, City, LegalPerson, \
-    Person, DocumentTypes, PersonRequest, PersonType, RequestResponse, Alert, Template
+    Person, DocumentTypes, PersonRequest, PersonType, RequestResponse, Alert, Template, \
+    Disability, EthnicGroup, PreferencialPopulation, GenderTypes
 from django.contrib.auth.models import User
 from django_mailbox.models import Message
 from pqrs.forms import ChangeClassificationForm, LegalPersonForm, PqrsConsultantForm, RecordsForm, SearchUniquePersonForm, PersonForm, \
@@ -1505,7 +1507,7 @@ def calculate_state_chart(request):
     init_date = datetime.strptime(dates[0], '%B %d, %Y').date()
     finish_date = datetime.strptime(dates[1], '%B %d, %Y').date()
     if selected_types == '':
-        pqrsds = PqrsContent.objects.filter(date_radicated__range=[init_date, finish_date])
+        pqrsds = PqrsContent.objects.filter(date_radicated__range=[init_date, finish_date], pqrsobject__pqr_type__is_selectable=True)
     else:
         selected_types = selected_types.lower().split(',')
         pqrsds = PqrsContent.objects.annotate(name_lower=Lower('pqrsobject__pqr_type__name')).filter(date_radicated__range=[init_date, finish_date],
@@ -1514,5 +1516,194 @@ def calculate_state_chart(request):
         response['x'].append(status.name)
         filtered_pqrsds = pqrsds.filter(pqrsobject__status = status)
         response['y'].append(filtered_pqrsds.count())
+        
+    return JsonResponse(response)
+
+
+def calculate_disability_condition_chart(request):
+    
+    dates = request.GET.get('dates').split(' - ')
+    selected_types = request.GET.get('selected_types')
+    response = {'data': []}
+    init_date = datetime.strptime(dates[0], '%B %d, %Y').date()
+    finish_date = datetime.strptime(dates[1], '%B %d, %Y').date()
+    if selected_types == '':
+        pqrsds = PqrsContent.objects.filter(date_radicated__range=[init_date, finish_date], pqrsobject__pqr_type__is_selectable=True)
+    else:
+        selected_types = selected_types.lower().split(',')
+        pqrsds = PqrsContent.objects.annotate(name_lower=Lower('pqrsobject__pqr_type__name')).filter(date_radicated__range=[init_date, finish_date],
+                                            name_lower__in = selected_types, pqrsobject__pqr_type__is_selectable=True)
+    if pqrsds.count() == 0:
+        total = 1
+    else:
+        total = pqrsds.count()
+        
+    for disability in Disability.objects.all():
+        filtered_pqrsds = pqrsds.filter(pqrsobject__principal_person__disabilities=disability)
+        data = {
+            'value': filtered_pqrsds.count()*100/total,
+            'name' : disability.name
+        }
+        response['data'].append(data)
+        
+    return JsonResponse(response)
+
+
+def calculate_channel_chart(request):
+    dates = request.GET.get('dates').split(' - ')
+    selected_types = request.GET.get('selected_types')
+    response = {'legend': [], 'x': [], 'y': []}
+    init_date = datetime.strptime(dates[0], '%B %d, %Y').date()
+    finish_date = datetime.strptime(dates[1], '%B %d, %Y').date()
+    if selected_types == '':
+        pqrsds = PqrsContent.objects.filter(date_radicated__range=[init_date, finish_date])
+        types_query_list = Type.objects.filter(is_selectable=True)
+    else:
+        selected_types = selected_types.lower().split(',')
+        pqrsds = PqrsContent.objects.annotate(name_lower=Lower('pqrsobject__pqr_type__name')).filter(date_radicated__range=[init_date, finish_date],
+                                            name_lower__in = selected_types)
+        types_query_list = Type.objects.annotate(name_lower=Lower('name')).filter(name_lower__in = selected_types, is_selectable=True)
+    for type in types_query_list:
+        entry = {
+            'name': type.name,
+            'showBackground': True,
+            'type': 'bar',
+            'stack': 'total',
+            'label': {
+                'show': True
+            },
+            'data': []
+        }
+        for reception_mode in ReceptionMode.objects.all():
+            pqrsds_filtered = pqrsds.filter(pqrsobject__pqr_type=type, reception_mode=reception_mode)
+            entry['data'].append(pqrsds_filtered.count())
+        response['y'].append(entry)
+        response['legend'].append(type.name)
+    for reception_mode in ReceptionMode.objects.all():
+        response['x'].append(reception_mode.name)
+    
+    return JsonResponse(response)
+
+
+def calculate_ethnic_group_chart(request):
+    
+    dates = request.GET.get('dates').split(' - ')
+    selected_types = request.GET.get('selected_types')
+    response = {'data': []}
+    init_date = datetime.strptime(dates[0], '%B %d, %Y').date()
+    finish_date = datetime.strptime(dates[1], '%B %d, %Y').date()
+    if selected_types == '':
+        pqrsds = PqrsContent.objects.filter(date_radicated__range=[init_date, finish_date], pqrsobject__pqr_type__is_selectable=True)
+    else:
+        selected_types = selected_types.lower().split(',')
+        pqrsds = PqrsContent.objects.annotate(name_lower=Lower('pqrsobject__pqr_type__name')).filter(date_radicated__range=[init_date, finish_date],
+                                            name_lower__in = selected_types, pqrsobject__pqr_type__is_selectable=True)
+    if pqrsds.count() == 0:
+        total = 1
+    else:
+        total = pqrsds.count()
+        
+    for ethnic in EthnicGroup.objects.all():
+        filtered_pqrsds = pqrsds.filter(pqrsobject__principal_person__ethnic_group=ethnic)
+        data = {
+            'value': filtered_pqrsds.count()*100/total,
+            'name' : ethnic.name
+        }
+        response['data'].append(data)
+        
+    return JsonResponse(response)
+
+
+def calculate_conflict_victim_chart(request):
+    
+    dates = request.GET.get('dates').split(' - ')
+    selected_types = request.GET.get('selected_types')
+    response = {'data': []}
+    init_date = datetime.strptime(dates[0], '%B %d, %Y').date()
+    finish_date = datetime.strptime(dates[1], '%B %d, %Y').date()
+    if selected_types == '':
+        pqrsds = PqrsContent.objects.filter(date_radicated__range=[init_date, finish_date], pqrsobject__pqr_type__is_selectable=True)
+    else:
+        selected_types = selected_types.lower().split(',')
+        pqrsds = PqrsContent.objects.annotate(name_lower=Lower('pqrsobject__pqr_type__name')).filter(date_radicated__range=[init_date, finish_date],
+                                            name_lower__in = selected_types, pqrsobject__pqr_type__is_selectable=True)
+    if pqrsds.count() == 0:
+        total = 1
+    else:
+        total = pqrsds.count()
+        
+    yes = {
+        'value': pqrsds.filter(pqrsobject__principal_person__conflict_victim=True).count()*100/total,
+        'name' : 'Sí'
+    }    
+    no = {
+        'value': pqrsds.filter(pqrsobject__principal_person__conflict_victim=False).count()*100/total,
+        'name' : 'No'
+    }
+    
+    response['data'].append(yes)
+    response['data'].append(no)
+        
+    return JsonResponse(response)
+
+
+def calculate_preferential_population_chart(request):
+
+    dates = request.GET.get('dates').split(' - ')
+    selected_types = request.GET.get('selected_types')
+    response = {'x': [], 'y': []}
+    init_date = datetime.strptime(dates[0], '%B %d, %Y').date()
+    finish_date = datetime.strptime(dates[1], '%B %d, %Y').date()
+    if selected_types == '':
+        pqrsds = PqrsContent.objects.filter(date_radicated__range=[init_date, finish_date])
+        types_query_list = Type.objects.filter(is_selectable=True)
+    else:
+        selected_types = selected_types.lower().split(',')
+        pqrsds = PqrsContent.objects.annotate(name_lower=Lower('pqrsobject__pqr_type__name')).filter(date_radicated__range=[init_date, finish_date],
+                                            name_lower__in = selected_types)
+        types_query_list = Type.objects.annotate(name_lower=Lower('name')).filter(name_lower__in = selected_types, is_selectable=True)
+    if pqrsds.count() == 0:
+        total = 1
+    else:
+        total = pqrsds.count()
+    for population in PreferencialPopulation.objects.all():
+        filtered_pqrsds = pqrsds.filter(pqrsobject__principal_person__preferencial_population = population)
+        response['y'].append(population.name)
+        x_val = {
+            'value' : filtered_pqrsds.count()*100/total,
+            'itemStyle': {
+                    'color': '#a90000'
+                }
+        }
+        response['x'].append(x_val)
+            
+    return JsonResponse(response)
+
+
+def calculate_gender_chart(request):
+    
+    dates = request.GET.get('dates').split(' - ')
+    selected_types = request.GET.get('selected_types')
+    response = {'data': []}
+    init_date = datetime.strptime(dates[0], '%B %d, %Y').date()
+    finish_date = datetime.strptime(dates[1], '%B %d, %Y').date()
+    if selected_types == '':
+        pqrsds = PqrsContent.objects.filter(date_radicated__range=[init_date, finish_date], pqrsobject__pqr_type__is_selectable=True)
+    else:
+        selected_types = selected_types.lower().split(',')
+        pqrsds = PqrsContent.objects.annotate(name_lower=Lower('pqrsobject__pqr_type__name')).filter(date_radicated__range=[init_date, finish_date],
+                                            name_lower__in = selected_types, pqrsobject__pqr_type__is_selectable=True)
+    if pqrsds.count() == 0:
+        total = 1
+    else:
+        total = pqrsds.count()
+        
+    for gender in GenderTypes.objects.all():
+        filtered_pqrsds = pqrsds.filter(pqrsobject__principal_person__gender_type=gender)
+        data = {
+            'value': filtered_pqrsds.count()*100/total,
+            'name' : gender.name
+        }
+        response['data'].append(data)
         
     return JsonResponse(response)
