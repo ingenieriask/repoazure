@@ -576,6 +576,8 @@ class DocxCreationService(object):
 
 class Scheduler(object):
 
+    _running = False
+
     _tasks = {
         'TASK1': lambda : Scheduler.task1(),
         'TASK2': lambda : Scheduler.task2()
@@ -583,13 +585,13 @@ class Scheduler(object):
 
     @staticmethod
     def task1():
-        print('Executing Task 1 ...')
+        print('Executing Task 1...')
         time.sleep(2)
         print('Task 1, done')
 
     @staticmethod
     def task2():
-        print('Executing Task 2 ...')
+        print('Executing Task 2...')
         time.sleep(2)
         print('Task 2, done')
         #consecutive = RecordCodeService.get_proceedings_consecutive()
@@ -604,14 +606,7 @@ class Scheduler(object):
                 if task.code in cls._tasks:
                     if cls._tasks[task.code]:
                         if cls._check(task):
-                            with transaction.atomic():
-                                try:
-                                    t = Task.objects.select_for_update(nowait=True).get(pk=task.id)
-                                    if cls._check(task):
-                                        cls._eval(task, datetime.now())
-                                except OperationalError as e:
-                                    print(e)
-                                    logger.error(f"Task '{task.code}' in progress")
+                            cls._eval(task, datetime.now()) 
                     else:
                         logger.error(f"Task '{task.code}' unimplemented")
                 else:
@@ -635,20 +630,32 @@ class Scheduler(object):
 
     @classmethod
     def _eval(cls, task, now):
-        if task.status == 0:
-            task.status = 1
-            task.save()
+
+        with transaction.atomic():
             try:
-                cls._tasks[task.code]()
-            except Exception as Error:
-                logger.error(f'Task error: {Error}')
-            task.last_execution_time = now
-            task.status = 0 
-            task.save()
+                task = Task.objects.filter(id=task.id).select_for_update(nowait=True).get()
+                if task.status == 0:
+                    task.status = 1
+                    task.save()
+            except OperationalError as e:
+                logger.error(f"Task '{task.code}' status updating")
+                return
+
+        try:
+            cls._tasks[task.code]()
+        except Exception as Error:
+            logger.error(f'Task error: {Error}')
+
+        task.last_execution_time = now
+        task.status = 0 
+        task.save()
 
 
     @classmethod
     def start(cls):
+        if cls._running:
+            return 
+        cls._running = True
         t = threading.Thread(target=cls.worker, args=(5,))
         t.setDaemon(True)
         t.start()
