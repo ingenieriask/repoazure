@@ -189,8 +189,10 @@ class RecordCodeService(object):
         MEMO = 'memo'
         PROCERDINGS = 'proceedings'
 
-    tokens = ['{consecutive}', '{year}', '{type}']
-    tokens2 = ['{consecutivo}', '{dependencia}', '{subserie}', '{year}']
+    tokens = {
+        'filing': ['{consecutive}', '{year}', '{type}'],
+        'proceedings': ['{consecutive}', '{dependence}', '{subserie}', '{year}']
+    }
 
     digits_token = 'consecutive'
 
