@@ -1400,7 +1400,7 @@ def calculate_statistics(request):
         cards = []
         color_cards = ['#0080ff', 'green', 'orange', '#00cfd5', 'red', '#cccc00', '#0080ff']
         color_text = ['green', 'blue', 'black', 'grey', 'blue', '#00cfd5', 'green']
-        for index, type in enumerate(list(Type.objects.all())):
+        for index, type in enumerate(list(Type.objects.filter(is_selectable=True))):
             pqrsds_count = pqrsds.filter(pqrsobject__pqr_type = type).count()
             cards.append((type.name.upper(), color_cards[index], color_text[index], pqrsds_count))
         context = {
@@ -1420,12 +1420,12 @@ def calculate_horizontal_bar_chart(request):
     finish_date = datetime.strptime(dates[1], '%B %d, %Y').date()
     if selected_types == '':
         pqrsds = PqrsContent.objects.filter(date_radicated__range=[init_date, finish_date])
-        types_query_list = Type.objects.all()
+        types_query_list = Type.objects.filter(is_selectable=True)
     else:
         selected_types = selected_types.lower().split(',')
         pqrsds = PqrsContent.objects.annotate(name_lower=Lower('pqrsobject__pqr_type__name')).filter(date_radicated__range=[init_date, finish_date],
                                             name_lower__in = selected_types)
-        types_query_list = Type.objects.annotate(name_lower=Lower('name')).filter(name_lower__in = selected_types)
+        types_query_list = Type.objects.annotate(name_lower=Lower('name')).filter(name_lower__in = selected_types, is_selectable=True)
     if pqrsds.count() == 0:
         total = 1
     else:
@@ -1456,12 +1456,12 @@ def calculate_person_type_chart(request):
     finish_date = datetime.strptime(dates[1], '%B %d, %Y').date()
     if selected_types == '':
         pqrsds = PqrsContent.objects.filter(date_radicated__range=[init_date, finish_date])
-        types_query_list = Type.objects.all()
+        types_query_list = Type.objects.filter(is_selectable=True)
     else:
         selected_types = selected_types.lower().split(',')
         pqrsds = PqrsContent.objects.annotate(name_lower=Lower('pqrsobject__pqr_type__name')).filter(date_radicated__range=[init_date, finish_date],
                                             name_lower__in = selected_types)
-        types_query_list = Type.objects.annotate(name_lower=Lower('name')).filter(name_lower__in = selected_types)
+        types_query_list = Type.objects.annotate(name_lower=Lower('name')).filter(name_lower__in = selected_types, is_selectable=True)
     for type in types_query_list:
         filtered_pqrsds = pqrsds.filter(pqrsobject__pqr_type = type)
         legal_pqrsds.append(filtered_pqrsds.filter(pqrsobject__principal_person__person_type__abbr = 'PJ').count())
@@ -1509,7 +1509,7 @@ def calculate_state_chart(request):
     else:
         selected_types = selected_types.lower().split(',')
         pqrsds = PqrsContent.objects.annotate(name_lower=Lower('pqrsobject__pqr_type__name')).filter(date_radicated__range=[init_date, finish_date],
-                                            name_lower__in = selected_types)
+                                            name_lower__in = selected_types, pqrsobject__pqr_type__is_selectable=True)
     for status in PQRS.Status:
         response['x'].append(status.name)
         filtered_pqrsds = pqrsds.filter(pqrsobject__status = status)
