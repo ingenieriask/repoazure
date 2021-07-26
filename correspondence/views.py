@@ -1,5 +1,5 @@
 from correspondence.models import AlfrescoFile, Radicate, Record, PermissionRelationAssignation, PermissionRelationReport, ProcessActionStep
-from core.models import FunctionalArea, NotificationsService, Person, Atttorny_Person, UserProfileInfo, FunctionalAreaUser, Alert
+from core.models import ChatRooms, FunctionalArea, NotificationsService, Person, Atttorny_Person, UserProfileInfo, FunctionalAreaUser, Alert
 from pqrs.models import PQRS, PqrsContent
 from correspondence.forms import RadicateForm, SearchForm, UserForm, UserProfileInfoForm, PersonForm, RecordForm, \
     SearchContentForm, ChangeCurrentUserForm, ChangeRecordAssignedForm, LoginForm, AssignToUserForm, ReturnToLastUserForm, ReportToUserForm, \
@@ -709,7 +709,9 @@ class RecordListView(ListView):
 
 
 def charts(request):
-    return render(request, 'correspondence/charts.html', context={})
+    return render(
+        request, 'correspondence/charts.html', 
+        context={"chat_rooms":ChatRooms.objects.all(),'current_user':"Usuario Registrado"})
 
 
 def get_radicates_data(request):
