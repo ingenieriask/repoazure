@@ -239,3 +239,8 @@ p, .p {
 .selected-card{
     border-width:3px;
 }
+
+.welcome-message {
+    font-size: 3rem; 
+    color: var(--primary);
+}

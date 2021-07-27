@@ -709,9 +709,15 @@ class RecordListView(ListView):
 
 
 def charts(request):
-    return render(
-        request, 'correspondence/charts.html', 
-        context={"chat_rooms":ChatRooms.objects.all(),'current_user':"Usuario Registrado"})
+
+    user_welcome = SystemParameterHelper.get_json('USER_WELCOME')
+    context = {
+        "chat_rooms":ChatRooms.objects.all(),
+        'current_user':"Usuario Registrado",
+        'user_welcome' : user_welcome
+    }
+    
+    return render(request, 'correspondence/charts.html', context=context)
 
 
 def get_radicates_data(request):
@@ -805,3 +811,24 @@ def get_file(request):
 
     return HttpResponse(default_storage.open('tmp/default.jpeg').read(), content_type="image/jpeg")
 
+
+@login_required
+def processed_chart(request):
+    dates = request.GET.get('dates').split('')
+    print(dates)
+    response = {'data': []}
+    pqrsds_processed = PqrsContent.objects.filter(stage = Radicate.Stage.CLOSED).count()
+    pqrsds_in_process = PqrsContent.objects.all().count() - pqrsds_processed
+    response['data'].append(
+        {
+            'value' : pqrsds_processed,
+            'name' : 'Tramitadas'
+        }
+    )
+    response['data'].append(
+        {
+            'value' : pqrsds_in_process,
+            'name' : 'En trámite'
+        }
+    )
+    return JsonResponse(response)

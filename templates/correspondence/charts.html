@@ -1,6 +1,73 @@
 {% extends 'correspondence/main_template.html' %}
+{% load static %}
 
 {% block content %}
+    <div class="row">
+        <div class="col-md-5 col-12 mt-5">
+            <div class="card mb-4">
+                <div class="card-body">
+                    <div class="text-center mt-5">
+                        <h1 class="welcome-message">{{ user_welcome.title|safe }}</h1><br />
+                        <h1 class="welcome-message">{{ user_welcome.body|safe }}</h1>
+                        <img class="img-fluid my-5"
+                            src="{% static 'correspondence/assets/img/illustrations/at-work.svg' %}" />
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-7 col-12">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <div class="row">
+                        <div class="col-10">
+                            PQRSD Tramitadas 
+                        </div>
+                        <div class="col-2">
+                            <div class="dropdown mr-auto">
+                                <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                </button>
+                                <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                                    <p class="dropdown-item" value"1" name="processed_days">1 día</p>
+                                    <p class="dropdown-item" name="processed_days">7 días</p>
+                                    <p class="dropdown-item" name="processed_days">30 días</p>
+                                    <p class="dropdown-item" name="processed_days">12 meses</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div id="processed_chart" style="width: 100%;height:400px;"></div>
+                </div>
+            </div>
+            <div class="card mb-4">
+                <div class="card-header">
+                    <div class="row">
+                        <div class="col-10">
+                            PQRSD Tramitadas 
+                        </div>
+                    <div>
+                    <div class="dropdown mr-auto">
+                        <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        </button>
+                        <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                            <p class="dropdown-item" value"1" name="processed_days">1 día</p>
+                            <p class="dropdown-item" name="processed_days">7 días</p>
+                            <p class="dropdown-item" name="processed_days">30 días</p>
+                            <p class="dropdown-item" name="processed_days">12 meses</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body">
+                    
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+
     <div class="card mb-4">
         <div class="card-header">PQRS</div>
         <div class="card-body">
@@ -79,4 +146,27 @@
     </div>
 </div>
 {% endif %}
+{% endblock %}
+
+{% block script %}
+
+    var processed_days = '30 días'
+
+    $("[name='processed_days']").on('click', function(e){
+        processed_days = $(e.target).html();
+    })
+
+    function calculateProcessed(){
+        $.ajax({
+            type: 'GET',
+            url: '{% url "correspondence:processed-chart" %}',
+            data: {
+                dates : processed_days,
+            }
+        })
+    }
+    $(document).ready(function(){
+        calculateProcessed();
+    })
+
 {% endblock %}

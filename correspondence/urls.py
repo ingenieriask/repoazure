@@ -39,5 +39,6 @@ urlpatterns = [
     path('radicate/thumbnail/', views.get_thumbnail, name='get_thumbnail'),
     path('radicate/file/', views.get_file, name='get_file'),
     path('get-alerts/', views.get_alerts, name='get_alerts'),
-    path('disable-alert/', views.disable_alert, name='disable_alert')
+    path('disable-alert/', views.disable_alert, name='disable_alert'),
+    path('processed-chart/', views.processed_chart, name='processed-chart')
 ]

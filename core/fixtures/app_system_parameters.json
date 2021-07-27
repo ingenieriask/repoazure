@@ -158,5 +158,13 @@
       "name": "ANSWER_ASSOCIATION",
       "value": "{\"subject\": \"Respuesta automática\", \"data\": \"La solicitud con número de radicado <param>number</param> ha sido asociada a la solicitud con número de radicado <param>parent.number</param>. Para conocer el estado de su solicitud por favor remita sus consultas con el número de esta última.\"}"
     }
+  },
+  {
+    "model": "core.systemparameter",
+    "pk": 23,
+    "fields": {
+      "name": "PROCEDURE_CONCLUSION",
+      "value": "{\"title\": \"<h1>Bienvenido</h1> <br><hr>\", \"body\": \"Muchas gracias por usar el sistema de gestión documental RINO\"}"
+    }
   }
 ]
