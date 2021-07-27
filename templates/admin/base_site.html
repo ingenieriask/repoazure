@@ -2,11 +2,11 @@
 {% load static %}
 {% block branding %}
 {% block extrastyle %}
-    <link href="{% static 'correspondence/css/styles.css' %}" rel="stylesheet" />
+    <link href="{% static 'admin/css/styles.css' %}" rel="stylesheet" />
     <link rel="stylesheet" href="{% url 'core:home-global' %}" type="text/css">
 {% endblock %}
     <div class="row">
-        <div class="col-12 col-md-2">
+        <div class="col-12 col-md-1">
             <a href="/admin/">
                 <img
                     class="d-block img-responsive"
@@ -16,13 +16,13 @@
             </a>
         </div>
 
-        <div class="col-12 col-md-8 d-flex align-items-center justify-content-center">
-            <h1 class="page-header-title">
+        <div class="col-12 col-md-7 d-flex mx-3 align-items-center justify-content-center">
+            <h1 class="page-header-title admin-header-title">
                 Administración de RINO
             </h1>
         </div>
         
-        <div class="col-12 col-md-2">
+        <div class="col-12 col-md-1">
             <img
                 onerror="this.remove()"
                 class="float-right"
