@@ -5,7 +5,7 @@ from correspondence.forms import RadicateForm, SearchForm, UserForm, UserProfile
     SearchContentForm, ChangeCurrentUserForm, ChangeRecordAssignedForm, LoginForm, AssignToUserForm, ReturnToLastUserForm, ReportToUserForm, \
     DeleteFromReportedForm
 from django.contrib.auth.models import User
-from datetime import datetime
+from datetime import datetime, timedelta
 from django.conf import settings
 from django.shortcuts import get_list_or_404, get_object_or_404, render
 from django.http import HttpResponseRedirect, HttpResponse, JsonResponse
@@ -814,21 +814,11 @@ def get_file(request):
 
 @login_required
 def processed_chart(request):
-    dates = request.GET.get('dates').split('')
-    print(dates)
+    dates = request.GET.get('dates')
+    time_now = datetime.now()
+    if dates == '1':
+        for time in range(6):
+            print(time_now - timedelta(hours=3))
+                  
     response = {'data': []}
-    pqrsds_processed = PqrsContent.objects.filter(stage = Radicate.Stage.CLOSED).count()
-    pqrsds_in_process = PqrsContent.objects.all().count() - pqrsds_processed
-    response['data'].append(
-        {
-            'value' : pqrsds_processed,
-            'name' : 'Tramitadas'
-        }
-    )
-    response['data'].append(
-        {
-            'value' : pqrsds_in_process,
-            'name' : 'En trámite'
-        }
-    )
     return JsonResponse(response)

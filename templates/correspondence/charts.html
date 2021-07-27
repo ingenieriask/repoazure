@@ -27,10 +27,10 @@
                                 <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                 </button>
                                 <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                                    <p class="dropdown-item" value"1" name="processed_days">1 día</p>
-                                    <p class="dropdown-item" name="processed_days">7 días</p>
-                                    <p class="dropdown-item" name="processed_days">30 días</p>
-                                    <p class="dropdown-item" name="processed_days">12 meses</p>
+                                    <p class="dropdown-item" data-value="1" value"1" name="processed_days">24 horas</p>
+                                    <p class="dropdown-item" data-value="7" name="processed_days">7 días</p>
+                                    <p class="dropdown-item" data-value="30" name="processed_days">30 días</p>
+                                    <p class="dropdown-item" data-value="365" name="processed_days">12 meses</p>
                                 </div>
                             </div>
                         </div>
@@ -64,8 +64,6 @@
             </div>
         </div>
     </div>
-
-
 
 
     <div class="card mb-4">
@@ -150,10 +148,10 @@
 
 {% block script %}
 
-    var processed_days = '30 días'
+    var processed_days = '1'
 
     $("[name='processed_days']").on('click', function(e){
-        processed_days = $(e.target).html();
+        processed_days = $(e.target).data('value');
     })
 
     function calculateProcessed(){
