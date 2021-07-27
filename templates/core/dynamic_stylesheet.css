@@ -239,3 +239,27 @@ p, .p {
 .selected-card{
     border-width:3px;
 }
+
+#header{
+    background-color: var(--primary);
+    background-image: linear-gradient(135deg, var(--primary) 0%, var(--secondary )100%);
+    color: white;
+}
+
+#header a:link, #header a:visited{
+    color: white;
+}
+
+#branding h1{
+    color: white;
+}
+
+div.breadcrumbs {
+    background-color: var(--primary);
+    background-image: linear-gradient(135deg, var(--primary) 0%, var(--secondary )100%);
+}
+
+a.deletelink{
+    background-color: aqua;
+    height: 200px;
+}
