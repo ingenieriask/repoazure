@@ -43,7 +43,7 @@ from django.contrib.auth.decorators import login_required, permission_required
 from django.utils.decorators import method_decorator
 from core.decorators import has_any_permission
 from django.db.models import Q
-from datetime import date, datetime
+from datetime import date, datetime, timedelta
 from core.utils_services import FormatHelper
 from core.services import UserHelper
 from django.utils.http import urlencode
@@ -1484,7 +1484,7 @@ def calculate_statistics(request):
         dates = request.GET.get('dates').split(' - ')
         selected_types = request.GET.get('selected_types')
         init_date = datetime.strptime(dates[0], '%B %d, %Y').date()
-        finish_date = datetime.strptime(dates[1], '%B %d, %Y').date()
+        finish_date = datetime.strptime(dates[1], '%B %d, %Y').date() + timedelta(days=1)
         pqrsds = PqrsContent.objects.filter(date_radicated__range=[init_date, finish_date])
         cards = []
         color_cards = ['#0080ff', 'green', 'orange', '#00cfd5', 'red', '#cccc00', '#0080ff']
@@ -1506,7 +1506,7 @@ def calculate_horizontal_bar_chart(request):
     selected_types = request.GET.get('selected_types')
     response = {'x': [], 'y': []}
     init_date = datetime.strptime(dates[0], '%B %d, %Y').date()
-    finish_date = datetime.strptime(dates[1], '%B %d, %Y').date()
+    finish_date = datetime.strptime(dates[1], '%B %d, %Y').date() + timedelta(days=1)
     if selected_types == '':
         pqrsds = PqrsContent.objects.filter(date_radicated__range=[init_date, finish_date])
         types_query_list = Type.objects.filter(is_selectable=True)
@@ -1542,7 +1542,7 @@ def calculate_person_type_chart(request):
     legal_pqrsds = []
     natural_pqrsds = []
     init_date = datetime.strptime(dates[0], '%B %d, %Y').date()
-    finish_date = datetime.strptime(dates[1], '%B %d, %Y').date()
+    finish_date = datetime.strptime(dates[1], '%B %d, %Y').date() + timedelta(days=1)
     if selected_types == '':
         pqrsds = PqrsContent.objects.filter(date_radicated__range=[init_date, finish_date])
         types_query_list = Type.objects.filter(is_selectable=True)
@@ -1592,7 +1592,7 @@ def calculate_state_chart(request):
     selected_types = request.GET.get('selected_types')
     response = {'x': [], 'y': []}
     init_date = datetime.strptime(dates[0], '%B %d, %Y').date()
-    finish_date = datetime.strptime(dates[1], '%B %d, %Y').date()
+    finish_date = datetime.strptime(dates[1], '%B %d, %Y').date() + timedelta(days=1)
     if selected_types == '':
         pqrsds = PqrsContent.objects.filter(date_radicated__range=[init_date, finish_date], pqrsobject__pqr_type__is_selectable=True)
     else:
@@ -1613,7 +1613,7 @@ def calculate_disability_condition_chart(request):
     selected_types = request.GET.get('selected_types')
     response = {'data': []}
     init_date = datetime.strptime(dates[0], '%B %d, %Y').date()
-    finish_date = datetime.strptime(dates[1], '%B %d, %Y').date()
+    finish_date = datetime.strptime(dates[1], '%B %d, %Y').date() + timedelta(days=1)
     if selected_types == '':
         pqrsds = PqrsContent.objects.filter(date_radicated__range=[init_date, finish_date], pqrsobject__pqr_type__is_selectable=True)
     else:
@@ -1641,7 +1641,7 @@ def calculate_channel_chart(request):
     selected_types = request.GET.get('selected_types')
     response = {'legend': [], 'x': [], 'y': []}
     init_date = datetime.strptime(dates[0], '%B %d, %Y').date()
-    finish_date = datetime.strptime(dates[1], '%B %d, %Y').date()
+    finish_date = datetime.strptime(dates[1], '%B %d, %Y').date() + timedelta(days=1)
     if selected_types == '':
         pqrsds = PqrsContent.objects.filter(date_radicated__range=[init_date, finish_date])
         types_query_list = Type.objects.filter(is_selectable=True)
@@ -1678,7 +1678,7 @@ def calculate_ethnic_group_chart(request):
     selected_types = request.GET.get('selected_types')
     response = {'data': []}
     init_date = datetime.strptime(dates[0], '%B %d, %Y').date()
-    finish_date = datetime.strptime(dates[1], '%B %d, %Y').date()
+    finish_date = datetime.strptime(dates[1], '%B %d, %Y').date() + timedelta(days=1)
     if selected_types == '':
         pqrsds = PqrsContent.objects.filter(date_radicated__range=[init_date, finish_date], pqrsobject__pqr_type__is_selectable=True)
     else:
@@ -1707,7 +1707,7 @@ def calculate_conflict_victim_chart(request):
     selected_types = request.GET.get('selected_types')
     response = {'data': []}
     init_date = datetime.strptime(dates[0], '%B %d, %Y').date()
-    finish_date = datetime.strptime(dates[1], '%B %d, %Y').date()
+    finish_date = datetime.strptime(dates[1], '%B %d, %Y').date() + timedelta(days=1)
     if selected_types == '':
         pqrsds = PqrsContent.objects.filter(date_radicated__range=[init_date, finish_date], pqrsobject__pqr_type__is_selectable=True)
     else:
@@ -1739,8 +1739,8 @@ def calculate_preferential_population_chart(request):
     dates = request.GET.get('dates').split(' - ')
     selected_types = request.GET.get('selected_types')
     response = {'x': [], 'y': []}
-    init_date = datetime.strptime(dates[0], '%B %d, %Y').date()
-    finish_date = datetime.strptime(dates[1], '%B %d, %Y').date()
+    init_date = datetime.strptime(dates[0], '%B %d, %Y').date() 
+    finish_date = datetime.strptime(dates[1], '%B %d, %Y').date() + timedelta(days=1)
     if selected_types == '':
         pqrsds = PqrsContent.objects.filter(date_radicated__range=[init_date, finish_date])
         types_query_list = Type.objects.filter(is_selectable=True)
@@ -1773,7 +1773,7 @@ def calculate_gender_chart(request):
     selected_types = request.GET.get('selected_types')
     response = {'data': []}
     init_date = datetime.strptime(dates[0], '%B %d, %Y').date()
-    finish_date = datetime.strptime(dates[1], '%B %d, %Y').date()
+    finish_date = datetime.strptime(dates[1], '%B %d, %Y').date() + timedelta(days=1)
     if selected_types == '':
         pqrsds = PqrsContent.objects.filter(date_radicated__range=[init_date, finish_date], pqrsobject__pqr_type__is_selectable=True)
     else:
