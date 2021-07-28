@@ -34,6 +34,17 @@ function generate_message(msg, type) {
     .animate({ scrollTop: $(".chat-logs")[0].scrollHeight }, 1000);
 }
 
+function getSelectedOption(sel) {
+  var opt;
+  for ( var i = 0, len = sel.options.length; i < len; i++ ) {
+      opt = sel.options[i];
+      if ( opt.selected === true ) {
+          break;
+      }
+  }
+  return opt;
+}
+
 function validatePersonExists(pk) {
   var exists = false;
   $("input[name='selectedUsersInput']").each(function (idx, elem) {
