@@ -1,0 +1,33 @@
+{%  extends 'correspondence/main_template.html'  %}
+{% block content %}
+{% load crispy_forms_tags %}
+
+<div class="card mb-4">
+    <div class="card-header">Seleccione tipo de solicitante</div>
+    <div class="card-body">
+        <form action="{% url 'correspondence:search_person'%}" method="POST">
+            {% csrf_token %}
+            {% load crispy_forms_tags %}
+            {% crispy form %}
+        </form>
+    </div>
+
+</div>
+{% if form_new %}
+<div class="card mb-4">
+    <div class="card-header">Seleccione tipo de solicitante</div>
+    <div class="card-body">
+        {% if not update %}
+        <form action="{% url 'correspondence:create_person' %}" method="POST">
+        {% else %}
+        <form action="{% url 'correspondence:update_person' pk=2 %}" method="POST">
+        {% endif %}
+            {% csrf_token %}
+            {% load crispy_forms_tags %}
+            {% crispy form_new %}
+        </form>
+    </div>
+
+</div>
+{% endif %}
+{% endblock %}

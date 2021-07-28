@@ -3,14 +3,14 @@ from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Submit, Row, Column, ButtonHolder, Button, Div, HTML
 from django.contrib.auth.models import User
 from correspondence.models import Radicate, Record
-from core.models import FunctionalAreaUser, Person, UserProfileInfo
+from core.models import DocumentTypes, FunctionalAreaUser, Person, UserProfileInfo
 from core.forms import CustomFileInput
 from core.utils_services import FormatHelper
 from pinax.eventlog.models import log, Log
 from django.urls import reverse
 from django.core.exceptions import ValidationError
 from django.utils.translation import gettext_lazy as _
-
+from pqrs.forms import PqrRadicateForm
 
 from crispy_forms.bootstrap import (
     Accordion,
@@ -101,6 +101,44 @@ class SearchContentForm(forms.Form):
     term = forms.CharField(label='Búsqueda por términos clave',
                            help_text='Introduzca el termino a buscar')
 
+class SearchUserForm(forms.Form):
+    anonymous = forms.BooleanField(
+        label='Solicictante Anonimo',
+        widget= forms.CheckboxInput(),
+        required=False)
+    doc_num = forms.CharField(label='Numero de Documento' )
+    document_type= forms.ModelChoiceField(
+        queryset=DocumentTypes.objects.all(),
+        label='Tipo de documento'
+    )
+    def __init__(self, *args, **kwargs):
+        super(SearchUserForm, self).__init__(*args, **kwargs)
+        self.helper = FormHelper(self)
+        self.helper.layout = Layout(
+            Row(
+                Column('anonymous', css_class='form-group col-md-12 mb-0'),
+            ),
+            Row(
+                Column('document_type', css_class='form-group col-md-6 mb-0'),
+                Column('doc_num',
+                       css_class='form-group col-md-6 mb-0'),
+            ),
+            Row(
+                Submit('submit', 'Buscar'), css_class='d-flex justify-content-center',
+            )
+        )
+
+class CorrespondenceRadicateForm(PqrRadicateForm):
+    def __init__(self, *args, **kwargs):
+        super(CorrespondenceRadicateForm, self).__init__(*args, **kwargs)
+        self.fields['subtype_field'].widget = forms.HiddenInput()
+        self.fields['interestGroup'].widget = forms.HiddenInput()
+        self.helper.layout.extend([
+            Div(
+                Submit('submit','Siguiente',
+                css_class="btn btn-primary mx-auto",
+                ),css_class="d-flex"),
+                ])
 
 class PersonForm(forms.ModelForm):
     email_confirmation = forms.CharField(
