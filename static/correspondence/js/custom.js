@@ -209,7 +209,7 @@ $("#id_pqrs_type").on("change", function () {
     token = $("input[name=csrfmiddlewaretoken]").val();
     $.ajax({
       type: "POST",
-      url: "../bring-subtype/",
+      url:  "../../../pqrs/bring-subtype/",
       data: {
         csrfmiddlewaretoken: token,
         pqrs_type: this.value,
