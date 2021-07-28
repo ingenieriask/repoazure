@@ -1,0 +1,15 @@
+{% extends 'pqrs/template.html' %}
+{% load crispy_forms_tags %}
+{% block content %}
+<div class="card mb-4">
+    <div class="card-body">
+
+    <form method="post">
+      {% csrf_token %}
+      {{ form | crispy }}
+      <input class="btn btn-primary" type="submit" value="Update">
+    </form>
+    
+    </div>
+</div>
+{% endblock %}
