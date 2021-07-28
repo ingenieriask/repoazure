@@ -1,0 +1,34 @@
+{% load static %}
+
+<div id="editor-container">
+    {{ widget.value|safe }}
+</div>
+
+<div class="col-lg-10">
+    <input type="hidden" id="id-{{ widget.name }}" name="{{ widget.name }}" value="{{ widget.value }}"/>
+</div>
+
+<script src="{% static 'node_modules/jquery/dist/jquery.min.js' %}"></script>
+<script src="{% static 'node_modules/tinymce/tinymce.min.js' %}"></script>
+
+<script>
+    var inputId = '#id-{{ widget.name }}'
+
+    tinymce.init({
+        setup:function(ed) {
+            ed.on('change', function(e) {
+                $(inputId).val(ed.getContent())
+            });
+        },
+        selector: '#editor-container',
+        height: 500,
+        menubar: false,
+        plugins: [
+            'print preview powerpaste casechange importcss tinydrive searchreplace autolink autosave save directionality advcode visualblocks visualchars fullscreen image link media mediaembed template codesample table charmap hr pagebreak nonbreaking anchor toc insertdatetime advlist lists checklist wordcount tinymcespellchecker a11ychecker imagetools textpattern noneditable help formatpainter permanentpen pageembed charmap tinycomments mentions quickbars linkchecker emoticons advtable export'
+        ],
+        toolbar: 'undo redo | bold italic underline strikethrough | fontselect fontsizeselect formatselect | alignleft aligncenter alignright alignjustify | outdent indent |  numlist bullist checklist | forecolor backcolor casechange permanentpen formatpainter removeformat | pagebreak | charmap emoticons | fullscreen  preview save print | insertfile image media pageembed template link anchor codesample | a11ycheck ltr rtl | showcomments addcomment',
+
+        content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:14px }'
+    });
+
+</script>
