@@ -45,7 +45,7 @@ from crum import get_current_user
 from django.core.files import File
 from pydocx import PyDocX
 
-from core.services import DocxCreationService, NotificationsHandler, RecordCodeService, SystemParameterHelper, UserHelper
+from core.services import DocxCreationService, NotificationsHandler, Recipients, RecordCodeService, SystemParameterHelper, UserHelper
 from correspondence.services import ECMService, RadicateService
 
 logger = logging.getLogger(__name__)
