@@ -4,31 +4,23 @@
 {% block extrastyle %}
     <link href="{% static 'admin/css/styles.css' %}" rel="stylesheet" />
     <link rel="stylesheet" href="{% url 'core:home-global' %}" type="text/css">
+    <link rel="icon" type="image/x-icon" href="{% static 'correspondence/assets/img/favicon.png'%}" />
 {% endblock %}
     <div class="row">
         <div class="col-12 col-md-1">
             <a href="/admin/">
                 <img
-                    class="d-block img-responsive"
+                    class="d-block img-responsive .mx-auto"
                     src="{% static 'correspondence/assets/img/illustrations/FullColor_TransparentBg_1280x1024_72dpi_1.png' %}"
                     style="height: 6rem"
                 />
             </a>
         </div>
 
-        <div class="col-12 col-md-7 d-flex mx-3 align-items-center justify-content-center">
+        <div class="col-12 col-md-7 d-flex ml-5 align-items-center justify-content-center">
             <h1 class="page-header-title admin-header-title">
                 Administración de RINO
             </h1>
-        </div>
-        
-        <div class="col-12 col-md-1">
-            <img
-                onerror="this.remove()"
-                class="float-right"
-                src="/media/company_logo/logo.png"
-                style="height: 6rem"
-            />
         </div>
     </div>
 {% endblock %}

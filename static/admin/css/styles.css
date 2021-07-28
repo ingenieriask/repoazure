@@ -232,14 +232,6 @@ table {
   border-collapse: collapse;
 }
 
-caption {
-  padding-top: 0.75rem;
-  padding-bottom: 0.75rem;
-  color: #a7aeb8;
-  text-align: left;
-  caption-side: bottom;
-}
-
 th {
   text-align: inherit;
   text-align: -webkit-match-parent;
@@ -20824,4 +20816,12 @@ pre[class*=language-] {
 .cm-msg-button {
     clear: both;
     margin-bottom: 70px;
+}
+
+caption { 
+  caption-side:top; 
+}
+
+.login{
+  width: 100%;
 }
