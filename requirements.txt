@@ -77,3 +77,4 @@ django-mailbox==4.8.2
 pydocx==0.9.10
 croniter==1.0.15
 channels==3.0.4
+cubes==1.1

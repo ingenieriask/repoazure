@@ -16,6 +16,7 @@ from django.db.models import Q
 from core.services import CalendarService, NotificationsHandler
 from django.views.generic import TemplateView
 from core.models import StyleSettings
+from cubes import Workspace
 
 
 def holidays(request):
@@ -127,3 +128,5 @@ class StyleSettingsView(TemplateView):
         context = super().get_context_data(**kwargs)
         context['parameters'] = StyleSettings.objects.all()[0]
         return context
+
+#def password_reset_request(request):
