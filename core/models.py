@@ -39,7 +39,7 @@ class BaseModel(models.Model):
 class SystemParameter(models.Model):
     name = models.CharField(unique=True, max_length=128)
     value = models.TextField()
-
+    description = models.TextField(default="agregar descripcion")
     def __str__(self):
         return self.name
     class Meta:
