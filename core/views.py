@@ -129,4 +129,5 @@ class StyleSettingsView(TemplateView):
         context['parameters'] = StyleSettings.objects.all()[0]
         return context
 
-#def password_reset_request(request):
+def cubes(request):
+    return render(request, 'cubes/dashboard.html')

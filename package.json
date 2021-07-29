@@ -27,6 +27,7 @@
         "rete-task-plugin": "^0.3.0",
         "rete-vue-render-plugin": "0.5.1",
         "suggestags": "1.26.0",
-        "vue": "2.6.14"
+        "vue": "2.6.14",
+        "cubesviewer": "git+https://github.com/jjmontesl/cubesviewer.git"
     }
 }
