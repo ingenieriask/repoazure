@@ -924,17 +924,24 @@ class PqrDetailReportedView(DetailView):
 
 def procedure_conclusion(request):
     obj = {}
+    print(request.GET)
     if 'pk' in request.GET:
         obj = PqrsContent.objects.get(pk=request.GET['pk'])
         obj.date_radicated = obj.date_radicated.strftime("%d/%m/%y")
         obj.date_assignation = date.today().strftime("%d/%m/%y")
-        obj.pqrsobject.status_str = str(obj.pqrsobject.get_status_str())
+        if 'status' in request.GET:
+            obj.status = str(request.GET['status'])
+        else:
+            obj.pqrsobject.status_str = str(obj.pqrsobject.get_status_str())
 
         reported_people_str = ''
         for person in obj.reported_people.all():
             reported_people_str += person.username + ' - ' + person.first_name + ' ' + person.last_name + '<br/>'
 
         obj.reported_people_str = reported_people_str
+        
+        if 'addressee' in request.GET:
+            obj.addressee = request.GET['addressee']
     template = SystemParameterHelper.get_json(request.GET['template'])
     
     template['title'] = FormatHelper.replace_data(template['title'], obj)

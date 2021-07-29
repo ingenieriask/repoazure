@@ -1,11 +1,12 @@
 from pqrs.views import _create_record, _process_next_action
 from django import http
-from correspondence.models import AlfrescoFile, Radicate, RadicateTypes, ReceptionMode, Record, PermissionRelationAssignation, PermissionRelationReport, ProcessActionStep
+from correspondence.models import AlfrescoFile, Radicate, RadicateTypes, ReceptionMode, Record, PermissionRelationAssignation, PermissionRelationReport, ProcessActionStep, \
+    RequestInternalInfo
 from core.models import Attorny, AttornyType, ChatRooms, FunctionalArea, NotificationsService, Person, Atttorny_Person, Template, UserProfileInfo, FunctionalAreaUser, Alert
 from pqrs.models import InterestGroup, PQRS, PqrsContent, SubType, Type
 from correspondence.forms import CorrespondenceRadicateForm, RadicateForm, SearchForm, SearchUserForm, UserForm, UserProfileInfoForm, PersonForm, RecordForm, \
     SearchContentForm, ChangeCurrentUserForm, ChangeRecordAssignedForm, LoginForm, AssignToUserForm, ReturnToLastUserForm, ReportToUserForm, \
-    DeleteFromReportedForm
+    DeleteFromReportedForm, RequestInternalInformatioForm
 from pqrs.forms import PersonForm as PqrsPeronForm 
 from pqrs.forms import PersonAttorny as PqrsPeronAttornyForm 
 from pqrs.forms import PersonFormUpdate as PqrsPeronUpdateForm 
@@ -1021,3 +1022,38 @@ def get_file(request):
 
     return HttpResponse(default_storage.open('tmp/default.jpeg').read(), content_type="image/jpeg")
 
+
+def request_internal_info(request, radicate):
+
+    if request.method == 'POST':
+        form = RequestInternalInformatioForm(request.POST)
+        if form.is_valid():
+            instance = RequestInternalInfo(
+                assigned_user = User.objects.get(id=request.POST.get('user_selected')),
+                description = form.cleaned_data['description'],
+                radicate = PqrsContent.objects.get(pk=radicate),
+                area = FunctionalArea.objects.get(id=request.POST.get('interest_area'))
+            )
+            instance.save()
+            get_args_str = urlencode({'pk': radicate, 'template': 'FINISH_REQUEST', 
+                                      'destination': 'pqrs:radicate_my_inbox',
+                                      'status': instance.status,
+                                      'addressee': instance.assigned_user})
+            return HttpResponseRedirect(reverse('pqrs:conclusion')+'?'+get_args_str)
+    if request.method == 'GET':
+        functional_tree = []
+        for item, info in FunctionalArea.get_annotated_list():
+            temp = False
+            if info['level'] != 0 and int(item.parent.get_depth()+info['level']) > item.get_depth():
+                temp = True
+            functional_tree.append((item, info, temp))
+        form = RequestInternalInformatioForm(request.GET)
+
+    return render(
+        request,
+        'correspondence/request_internal_info.html',
+        context={
+            'form': form,
+            'functional_tree': functional_tree,
+            'radicate': radicate
+        })

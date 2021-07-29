@@ -86,6 +86,9 @@ class SearchForm(forms.Form):
 
 class AssignToUserForm(forms.Form):
     observations = forms.CharField(label='Observaciones:', widget=forms.Textarea())
+    
+class RequestInternalInformatioForm(forms.Form):
+    description = forms.CharField(label='DESCRIPCIÓN SOLICITUD DE INFORMACIÓN', widget=forms.Textarea())
 
 class ReportToUserForm(forms.Form):
     observations = forms.CharField(label='Observaciones:', widget=forms.Textarea())

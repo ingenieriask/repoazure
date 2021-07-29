@@ -4,10 +4,9 @@ from datetime import datetime
 from django.urls import reverse
 from django.conf import settings
 from crum import get_current_user
-from core.models import Office, BaseModel, UserProfileInfo, Person
+from core.models import Office, BaseModel, UserProfileInfo, Person, FunctionalArea
 from django.contrib.auth.models import User, Permission
 from django.utils.translation import gettext_lazy as _
-
 # Create your models here.
 
 class Raft(models.Model):
@@ -289,3 +288,21 @@ def validate_file_extension(value):
     valid_extensions = ['.doc', '.docx']
     if ext not in valid_extensions:
         raise ValidationError(u'Archivo no soportado')
+
+
+class RequestInternalInfo(BaseModel):
+    
+    class Status(models.TextChoices):
+        CREATED = 'CR', _('Creada')
+        CLOSED = 'CL', _('Cerrada')
+    assigned_user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='requests')
+    description = models.CharField(max_length=20000)
+    creation_date = models.DateField(auto_now_add=True)
+    answering_date = models.DateField(null=True)
+    radicate = models.ForeignKey(Radicate, on_delete=models.PROTECT, related_name='requests')
+    status = models.CharField(max_length=2, choices=Status.choices, default=Status.CREATED)
+    area = models.ForeignKey(FunctionalArea, on_delete=models.PROTECT, related_name='requests')
+
+    class Meta:
+        verbose_name= 'Requerimiento Interno de Información'
+        verbose_name_plural= 'Requerimientos Internos de Información'
