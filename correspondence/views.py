@@ -423,7 +423,10 @@ def search_user(request):
         if form.is_valid():
             check_anonimous = form['anonymous'].value()
             if check_anonimous:
-                print(check_anonimous)
+                person_anonnymous = get_object_or_404(Person, id=1)
+                pqrsObject = PQRS(principal_person=person_anonnymous)
+                pqrsObject.save()
+                return redirect('correspondence:create_pqrs', pqrsObject.uuid)
             else:
                 doc_num = form['doc_num'].value()
                 document_type = form['document_type'].value()
@@ -476,21 +479,20 @@ def create_pqr_type(request, pqrs):
     if request.method == 'POST':
         form= PqrsChangueType(request.POST)
         if form.is_valid():
-            type = Type.objects.get(pk=form['pqrs_type'].value())
-            subtype = SubType.objects.get(pk=form['pqrs_subtype'].value())
+            PQRS.objects.filter(uuid=pqrs).update(pqr_type=form['pqrs_type'].value())
+            subtype = SubType.objects.get(id=form['pqrs_subtype'].value())
             interest_group = InterestGroup.objects.get(pk=form['interest_group'].value())
             form_new = CorrespondenceRadicateForm(
-                typePqr=type,
                 initial={
-                    "subtype_field":subtype,
+                    "subtype":subtype,
                     "interestGroup":interest_group
                 })
             form_new.person = person
-            form= PqrsChangueType()
             context={
                 'subtype':subtype,
                 'interest_group':interest_group
             }
+            form=None
     return render(
         request,
         "correspondence/create_pqrs.html",
@@ -506,8 +508,7 @@ def finish_pqrs(request,pqrs):
     pqrsoparent = get_object_or_404(PQRS, uuid=pqrs)
     person = get_object_or_404(Person, id=int(pqrsoparent.principal_person.id))
     if request.method == 'POST':
-        type = SubType.objects.get(pk= request.POST['subtype_field'])
-        form = CorrespondenceRadicateForm(type.type, request.POST)
+        form = CorrespondenceRadicateForm(request.POST)
         if form.is_valid():
             instance = form.save(commit=False)
             instance.reception_mode = get_object_or_404(ReceptionMode, abbr='VIR')
@@ -515,6 +516,7 @@ def finish_pqrs(request,pqrs):
             instance.number = RecordCodeService.get_consecutive(RecordCodeService.Type.INPUT)
             instance.response_mode = person.request_response
             instance.person = person
+            instance.agreement_personal_data=True
             instance.pqrsobject = pqrsoparent
             radicate =  form.save()
             folder_id = ECMService.create_folder(radicate.number)
@@ -540,7 +542,6 @@ def finish_pqrs(request,pqrs):
             query_url = "{0}://{1}/pqrs/consultation/result/{2}".format(request.scheme, request.get_host(), radicate.pk)
             instance.url = query_url
             NotificationsHandler.send_notification('EMAIL_PQR_CREATE', instance,  Recipients(instance.person.email, None, instance.person.phone_number))
-
             consecutive = 0
             for fileUploaded in request.FILES.getlist('pqrs_creation_uploaded_files'):
                 consecutive += 1
@@ -567,6 +568,7 @@ def finish_pqrs(request,pqrs):
             _process_next_action(instance)
             _create_record(instance)
             messages.success(request, "El radicado se ha creado correctamente")
+            
             url = reverse('pqrs:pqrs_finish_creation', kwargs={'pk': radicate.pk})
             return HttpResponseRedirect(url)
         
@@ -587,7 +589,6 @@ def create_radicate(request, person):
 
         if form.is_valid():
             instance = form.save(commit=False)
-            cleaned_data = form.cleaned_data
             form.document_file = request.FILES['document_file']
             now = datetime.now()
             instance.number = now.strftime("%Y%m%d%H%M%S")
