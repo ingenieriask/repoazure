@@ -295,14 +295,18 @@ class RequestInternalInfo(BaseModel):
     class Status(models.TextChoices):
         CREATED = 'CR', _('Creada')
         CLOSED = 'CL', _('Cerrada')
-    assigned_user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='requests')
+    requested_user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='requests_assigned')
+    requesting_user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='requests_created')
     description = models.CharField(max_length=20000)
-    creation_date = models.DateField(auto_now_add=True)
+    request_date = models.DateField(auto_now_add=True)
     answering_date = models.DateField(null=True)
     radicate = models.ForeignKey(Radicate, on_delete=models.PROTECT, related_name='requests')
     status = models.CharField(max_length=2, choices=Status.choices, default=Status.CREATED)
     area = models.ForeignKey(FunctionalArea, on_delete=models.PROTECT, related_name='requests')
 
+    def get_status_str(self):
+        return self.Status(self.status).label
+    
     class Meta:
         verbose_name= 'Requerimiento Interno de Información'
         verbose_name_plural= 'Requerimientos Internos de Información'

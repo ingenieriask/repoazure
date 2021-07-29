@@ -1030,15 +1030,14 @@ def request_internal_info(request, radicate):
         if form.is_valid():
             instance = RequestInternalInfo(
                 assigned_user = User.objects.get(id=request.POST.get('user_selected')),
+                requesting_user = get_current_user(),
                 description = form.cleaned_data['description'],
                 radicate = PqrsContent.objects.get(pk=radicate),
                 area = FunctionalArea.objects.get(id=request.POST.get('interest_area'))
             )
             instance.save()
-            get_args_str = urlencode({'pk': radicate, 'template': 'FINISH_REQUEST', 
-                                      'destination': 'pqrs:radicate_my_inbox',
-                                      'status': instance.status,
-                                      'addressee': instance.assigned_user})
+            get_args_str = urlencode({'id': instance.id, 'template': 'FINISH_REQUEST', 
+                                      'destination': 'pqrs:radicate_my_inbox'})
             return HttpResponseRedirect(reverse('pqrs:conclusion')+'?'+get_args_str)
     if request.method == 'GET':
         functional_tree = []
@@ -1054,6 +1053,5 @@ def request_internal_info(request, radicate):
         'correspondence/request_internal_info.html',
         context={
             'form': form,
-            'functional_tree': functional_tree,
-            'radicate': radicate
+            'functional_tree': functional_tree
         })
