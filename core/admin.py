@@ -78,6 +78,9 @@ class GeneralNullAdmin(admin.ModelAdmin):
 class TemplateAdmin(GeneralNullAdmin):
     exclude = ('type','name','description')
 
+class SystemParametresList(admin.ModelAdmin):
+    list_display = ('name','description',)
+
 # Register your models here.
 admin.site.register(Attorny)
 admin.site.register(AttornyType)
@@ -92,7 +95,7 @@ admin.site.register(Disability)
 admin.site.register(BooleanSelection)
 admin.site.register(EthnicGroup)
 admin.site.register(RequestResponse)
-admin.site.register(SystemParameter)
+admin.site.register(SystemParameter,SystemParametresList)
 admin.site.register(Notifications)
 admin.site.register(NotificationsService)
 admin.site.register(AppParameter)

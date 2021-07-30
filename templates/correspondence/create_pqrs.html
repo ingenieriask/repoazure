@@ -2,6 +2,7 @@
 {% block content %}
 {% load crispy_forms_tags %}
 
+{% if form %}
 <div class="card mb-4">
     <div class="card-header">Tipo PQRSD</div>
     <div class="card-body">
@@ -17,6 +18,8 @@
     </div>
 
 </div>
+{% endif %}
+
 {% if form_new %}
 <div class="card mb-4">
     <div class="card-header">
@@ -29,7 +32,6 @@
     </div>
     <div class="card-body">
         <form action="{%url 'correspondence:finish_pqrs' pqrs=pqrs%}" method="POST"  enctype="multipart/form-data">
-            {% csrf_token %}
             {% load crispy_forms_tags %}
             {% crispy form_new %}
            

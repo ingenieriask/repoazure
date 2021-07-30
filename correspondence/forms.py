@@ -1,3 +1,6 @@
+from django.db.models.query_utils import Q
+from core.services import SystemParameterHelper
+from pqrs.models import PqrsContent, SubType
 from django import forms
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Submit, Row, Column, ButtonHolder, Button, Div, HTML
@@ -10,7 +13,6 @@ from pinax.eventlog.models import log, Log
 from django.urls import reverse
 from django.core.exceptions import ValidationError
 from django.utils.translation import gettext_lazy as _
-from pqrs.forms import PqrRadicateForm
 from core.widgets import RichTextTinyWidget
 
 from crispy_forms.bootstrap import (
@@ -132,18 +134,50 @@ class SearchUserForm(forms.Form):
             )
         )
 
-class CorrespondenceRadicateForm(PqrRadicateForm):
+class CorrespondenceRadicateForm(forms.ModelForm):
+    pqrs_creation_uploaded_files = forms.FileField(widget=forms.ClearableFileInput(attrs={'multiple': True}), required=False,
+                                    label="Anexos, Documentos (Múltiples archivos - Tamaño máximo = 10 MB)")
+
+    class Meta:
+        model = PqrsContent
+        fields = ('subject', 'data', 'interestGroup', 'subtype')
+        labels = {'subject': 'Asunto',
+                  'data': 'Detalle de la solicitud',
+                  'interestGroup': 'Grupo de interés'}
+
     def __init__(self, *args, **kwargs):
-        super(CorrespondenceRadicateForm, self).__init__(*args, **kwargs)
-        self.fields['subtype_field'].widget = forms.HiddenInput()
-        self.fields['interestGroup'].widget = forms.HiddenInput()
+        
+        super(CorrespondenceRadicateForm, self).__init__(*args, **kwargs)        
+        self.helper = FormHelper(self)
+        self.helper.layout = Layout(
+            Row(
+                Column('subtype', css_class='form-group col-md-6 mb-0'),
+                Column('interestGroup', css_class='form-group col-md-6 mb-0'),
+                css_class='form-row'
+            ),
+            Row(
+                Column('subject', css_class='form-group col-md-12 mb-0'),
+                css_class='form-row'
+            ),
+            Row(
+                Column('data', css_class='form-group col-md-12 mb-0'),
+                css_class='form-row'
+            ),
+            Row(
+                Column(CustomFileInput('pqrs_creation_uploaded_files'),css_class='form-group col-12 mb-0'),
+                css_class='form-row'
+            ),
+        )
+
         self.helper.layout.extend([
             Div(
                 Submit('submit','Siguiente',
                 css_class="btn btn-primary mx-auto",
                 ),css_class="d-flex"),
                 ])
-
+        self.fields['subtype'].widget = forms.HiddenInput()
+        self.fields['interestGroup'].widget = forms.HiddenInput()
+        
 class PersonForm(forms.ModelForm):
     email_confirmation = forms.CharField(
         label='Confirmación del correo electrónico', required=True)
