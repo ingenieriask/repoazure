@@ -924,7 +924,6 @@ class PqrDetailReportedView(DetailView):
 
 def procedure_conclusion(request):
     obj = {}
-    print(request.GET)
     if 'pk' in request.GET:
         obj = PqrsContent.objects.get(pk=request.GET['pk'])
         obj.date_radicated = obj.date_radicated.strftime("%d/%m/%y")
@@ -940,7 +939,7 @@ def procedure_conclusion(request):
     elif 'id' in request.GET:
         obj = RequestInternalInfo.objects.get(id=request.GET['id']) 
         obj.date_radicated = obj.radicate.date_radicated.strftime("%d/%m/%y")
-        obj.request_date = obj.request_date.strftime("%d/%m/%y")
+        obj.date_creation = obj.date_creation.strftime("%d/%m/%y")
         obj.status_str = str(obj.get_status_str())
         obj.number = obj.radicate.number
         

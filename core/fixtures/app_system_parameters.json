@@ -153,18 +153,10 @@
   },
   {
     "model": "core.systemparameter",
-    "pk": 22,
+    "pk": 22, 
     "fields": {
-      "name": "ANSWER_ASSOCIATION",
-      "value": "{\"subject\": \"Respuesta automática\", \"data\": \"La solicitud con número de radicado <param>number</param> ha sido asociada a la solicitud con número de radicado <param>parent.number</param>. Para conocer el estado de su solicitud por favor remita sus consultas con el número de esta última.\"}"
-    }
-  },
-  {
-    "model": "core.systemparameter",
-    "pk": 22,
-    "fields": {
-      "name": "FINISH_REQUEST",
-      "value": "{\"title\": \"<h1>REQUERIMIENTO DE LA PQRSD <param>number</param> EXITOSO</h1> <br><hr>\", \"body\": \"<body> <div style=\"margin: auto; width: 500px;\"><table> <tr>  <td style=\"text-align: left; padding: 5px 20px\"><strong>Fecha de radicación:</strong></td>  <td style=\"text-align: left; padding: 5px 20px\"><param>date_radicated</param></td> </tr> <tr>  <td style=\"text-align: left; padding: 5px 20px\"><strong>Fecha de solicitud:</strong></td>  <td style=\"text-align: left; padding: 5px 20px\"><param>request_date</param></td> </tr> <tr>  <td style=\"text-align: left; padding: 5px 20px\"><strong>Remitente:</strong></td>  <td style=\"text-align: left; padding: 5px 20px\"><param>requesting_user</param></td> </tr> <tr>  <td style=\"text-align: left; padding: 5px 20px\"><strong>Destinatario:</strong></td>  <td style=\"text-align: left; padding: 5px 20px\"><param>requested_user</param></td> </tr> <tr>  <td style=\"text-align: left; padding: 5px 20px\"><strong>Estado de la solicitud:</strong></td>  <td style=\"text-align: left; padding: 5px 20px\"><param>status_str</param></td> </tr> </table> </div></body>\"}"
+      "name": "FINISH_REQUEST", 
+      "value": "{\"title\": \"<h1>REQUERIMIENTO DE LA PQRSD <param>number</param> EXITOSO</h1> <br><hr>\", \"body\": \"<body> <div style=\\\"margin: auto; width: 650px;\\\"><table> <tr>  <td style=\\\"text-align: left; padding: 5px 20px\\\"><strong>Fecha de radicación:</strong></td>  <td style=\\\"text-align: left; padding: 5px 20px\\\"><param>date_radicated</param></td> </tr> <tr>  <td style=\\\"text-align: left; padding: 5px 20px\\\"><strong>Fecha de Solicitud:</strong></td>  <td style=\\\"text-align: left; padding: 5px 20px\\\"><param>date_creation</param></td> </tr> <tr>  <td style=\\\"text-align: left; padding: 5px 20px\\\"><strong>Remitente:</strong></td>  <td style=\\\"text-align: left; padding: 5px 20px\\\"><param>user_creation</param></td> </tr> <tr>  <td style=\\\"text-align: left; padding: 5px 20px\\\"><strong>Destinatarios:</strong></td>  <td style=\\\"text-align: left; padding: 5px 20px\\\"><param>requested_user</param></td> </tr> <tr>  <td style=\\\"text-align: left; padding: 5px 20px\\\"><strong>Estado de la solicitud:</strong></td>  <td style=\\\"text-align: left; padding: 5px 20px\\\"><param>status_str</param></td> </tr> </table> </div></body>\"}"
     }
   }
 ]
