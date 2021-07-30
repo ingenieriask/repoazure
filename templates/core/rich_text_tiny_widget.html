@@ -10,6 +10,7 @@
 
 <script src="{% static 'node_modules/jquery/dist/jquery.min.js' %}"></script>
 <script src="{% static 'node_modules/tinymce/tinymce.min.js' %}"></script>
+<script src="{% static 'node_modules/tinymce-i18n/langs/es.js' %}"></script>
 
 <script>
     var inputId = '#id-{{ widget.name }}'
@@ -20,6 +21,7 @@
                 $(inputId).val(ed.getContent())
             });
         },
+        language: 'es',
         selector: '#editor-container',
         height: 400,
         menubar: true,

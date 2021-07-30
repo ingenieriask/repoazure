@@ -29,6 +29,8 @@
         "rete-vue-render-plugin": "0.5.1",
         "suggestags": "1.26.0",
         "tinymce": "^5.8.2",
+        "tinymce-i18n": "^20.12.25",
+        "tinymce-plugins": "^1.0.14",
         "vue": "2.6.14"
     }
 }
