@@ -218,13 +218,13 @@ class ECMService(object):
 
     @classmethod
     @get_params
-    def create_folder(cls, name):
+    def create_folder(cls, cmis_id, name):
         ''' '''
 
         try:
             print(name)
             r = requests.post(
-                cls._params['ECM_FOLDER_URL'], 
+                cls._params['ECM_FOLDER_URL'].replace('{nodeId}', cmis_id), 
                 data=json.dumps({"name": name, "nodeType": "cm:folder"}), 
                 auth=cls.get_basic_authentication())
             print(r.__dict__)

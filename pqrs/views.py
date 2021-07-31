@@ -6,7 +6,7 @@ from django.shortcuts import redirect, render
 from numpy import number, subtract
 from requests.models import Request
 from correspondence.models import ReceptionMode, RadicateTypes, Radicate, AlfrescoFile, ProcessActionStep, \
-    ReceptionMode
+    ReceptionMode, RequestInternalInfo
 from pqrs.models import PQRS, Record,Type, PqrsContent,Type, SubType, InterestGroup
 from workflow.models import FilingFlow, FilingNode
 from core.models import AppParameter, Attorny, AttornyType, Atttorny_Person, City, LegalPerson, \
@@ -255,7 +255,8 @@ def search_person(request,pqrs_type,person_type):
 
 def _answer_radicate(radicate, answered, request):
     radicate.number = RecordCodeService.get_consecutive(RecordCodeService.Type.OUTPUT)
-    radicate.folder_id = ECMService.create_folder(radicate.number)
+    cmis_id = SystemParameterHelper.get('ECM_TEMP_FOLDER_ID').value
+    radicate.folder_id = ECMService.create_folder(cmis_id, radicate.number)
     radicate.classification = Radicate.Classification.COMPLETE_ANSWER
     radicate.stage = Radicate.Stage.CLOSED
     radicate.mother = answered
@@ -285,7 +286,8 @@ def _create_record(pqrs):
     record.subject = pqrs.subject
     record.source = str(pqrs.person) if pqrs.person else pqrs.email_user_name
     record.name = RecordCodeService.get_proceedings_consecutive(str(pqrs.pqrsobject.pqr_type.pk).zfill(2) + str(pqrs.subtype.pk).zfill(3))
-    record.cmis_id = ECMService.create_folder(record.name)
+    cmis_id = SystemParameterHelper.get('ECM_TEMP_FOLDER_ID').value
+    record.cmis_id = ECMService.create_folder(cmis_id, record.name)
     record.save()
     record.radicates.add(pqrs)
     record.save()
@@ -342,7 +344,8 @@ def create_pqr_multiple(request, pqrs):
             instance.person = person
             instance.pqrsobject = pqrsoparent
             radicate =  form.save()
-            folder_id = ECMService.create_folder(radicate.number)
+            cmis_id = SystemParameterHelper.get('ECM_TEMP_FOLDER_ID').value
+            folder_id = ECMService.create_folder(cmis_id, radicate.number)
             radicate.folder_id = folder_id
             radicate.save()
 
@@ -572,7 +575,8 @@ def records_form_param(request,pk):
                 security_levels =  form['security_levels'].value(),
             )
             record.name = RecordCodeService.get_proceedings_consecutive(str(record.type.pk).zfill(2) + str(record.subtype.pk).zfill(3))
-            record.cmis_id = ECMService.create_folder(record.name)
+            cmis_id = SystemParameterHelper.get('ECM_TEMP_FOLDER_ID').value
+            record.cmis_id = ECMService.create_folder(cmis_id, record.name)
             record.save()
             record.radicates.add(pqrs)
             ECMService.copy_item(pqrs.folder_id, record.cmis_id)
@@ -924,24 +928,25 @@ class PqrDetailReportedView(DetailView):
 
 def procedure_conclusion(request):
     obj = {}
-    print(request.GET)
     if 'pk' in request.GET:
         obj = PqrsContent.objects.get(pk=request.GET['pk'])
         obj.date_radicated = obj.date_radicated.strftime("%d/%m/%y")
         obj.date_assignation = date.today().strftime("%d/%m/%y")
-        if 'status' in request.GET:
-            obj.status = str(request.GET['status'])
-        else:
-            obj.pqrsobject.status_str = str(obj.pqrsobject.get_status_str())
+        obj.pqrsobject.status_str = str(obj.pqrsobject.get_status_str())
 
         reported_people_str = ''
         for person in obj.reported_people.all():
             reported_people_str += person.username + ' - ' + person.first_name + ' ' + person.last_name + '<br/>'
 
         obj.reported_people_str = reported_people_str
+    
+    elif 'id' in request.GET:
+        obj = RequestInternalInfo.objects.get(id=request.GET['id']) 
+        obj.date_radicated = obj.radicate.date_radicated.strftime("%d/%m/%y")
+        obj.date_creation = obj.date_creation.strftime("%d/%m/%y")
+        obj.status_str = str(obj.get_status_str())
+        obj.number = obj.radicate.number
         
-        if 'addressee' in request.GET:
-            obj.addressee = request.GET['addressee']
     template = SystemParameterHelper.get_json(request.GET['template'])
     
     template['title'] = FormatHelper.replace_data(template['title'], obj)
@@ -990,7 +995,8 @@ def pqrs_extend_request(request, pk):
             instance.classification = Radicate.Classification.AMPLIATION_REQUEST
             
             instance.save()
-            folder_id = ECMService.create_folder(instance.number)
+            cmis_id = SystemParameterHelper.get('ECM_TEMP_FOLDER_ID').value
+            folder_id = ECMService.create_folder(cmis_id, instance.number)
             instance.folder_id = folder_id
             instance.save()
 
@@ -1173,7 +1179,8 @@ def pqrs_answer_request(request, pk):
             instance.classification = Radicate.Classification.AMPLIATION_ANSWER
             
             instance.save()
-            folder_id = ECMService.create_folder(instance.number)
+            cmis_id = SystemParameterHelper.get('ECM_TEMP_FOLDER_ID').value
+            folder_id = ECMService.create_folder(cmis_id, instance.number)
             instance.folder_id = folder_id
             instance.save()
 
@@ -1414,7 +1421,8 @@ def change_classification(request,pk):
 
             if create:
                 pqrs_object.number = RecordCodeService.get_consecutive(RecordCodeService.Type.INPUT)
-                pqrs_object.folder_id = ECMService.create_folder(pqrs_object.number)
+                cmis_id = SystemParameterHelper.get('ECM_TEMP_FOLDER_ID').value
+                pqrs_object.folder_id = ECMService.create_folder(cmis_id, pqrs_object.number)
                 pqrs_object.stage = Radicate.Stage.IN_PROCESS
 
                 action = ProcessActionStep()

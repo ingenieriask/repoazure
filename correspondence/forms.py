@@ -5,7 +5,7 @@ from django import forms
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Submit, Row, Column, ButtonHolder, Button, Div, HTML
 from django.contrib.auth.models import User
-from correspondence.models import Radicate, Record
+from correspondence.models import Radicate, Record, RequestInternalInfo
 from core.models import DocumentTypes, FunctionalAreaUser, Person, UserProfileInfo
 from core.forms import CustomFileInput
 from core.utils_services import FormatHelper
@@ -13,6 +13,8 @@ from pinax.eventlog.models import log, Log
 from django.urls import reverse
 from django.core.exceptions import ValidationError
 from django.utils.translation import gettext_lazy as _
+from core.widgets import RichTextTinyWidget
+
 from crispy_forms.bootstrap import (
     Accordion,
     AccordionGroup
@@ -425,3 +427,31 @@ class RecordForm(forms.ModelForm):
             )
         )
 
+
+class AnswerRequestForm(forms.ModelForm):
+    request_answer_file = forms.FileField(widget=forms.ClearableFileInput(attrs={'multiple': True}), required=False,
+                                    label="Anexos, Documentos (Múltiples archivos - Tamaño máximo = 10 MB)")
+    
+    class Meta:
+        model = RequestInternalInfo
+
+        fields = ['answer']
+        labels = {'answer': 'Respuesta'}
+
+        widgets = {
+            'answer': RichTextTinyWidget(),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super(AnswerRequestForm, self).__init__(*args, **kwargs)
+        self.helper = FormHelper(self)
+        self.helper.layout = Layout(
+            Row(
+                Column('description', css_class='form-group col-md-6 mb-0'),
+                css_class='form-row'
+            ),
+            Row(
+                Column(CustomFileInput('request_answer_file'),css_class='form-group col-12 mb-0'),
+                css_class='form-row'
+            ),
+        )
