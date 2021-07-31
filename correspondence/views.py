@@ -519,7 +519,8 @@ def finish_pqrs(request,pqrs):
             instance.agreement_personal_data=True
             instance.pqrsobject = pqrsoparent
             radicate =  form.save()
-            folder_id = ECMService.create_folder(radicate.number)
+            cmis_id = SystemParameterHelper.get('ECM_TEMP_FOLDER_ID').value
+            folder_id = ECMService.create_folder(cmis_id, radicate.number)
             radicate.folder_id = folder_id
             radicate.save()
 
@@ -1066,7 +1067,7 @@ def answer_request(request, pk):
             request_instance.answer = request.POST.get('answer')
             request_instance.status = RequestInternalInfo.Status.CLOSED
             request_instance.save()
-            folder_id = ECMService.create_folder(request_instance.radicate.number+'/'+str(request_instance.id))
+            folder_id = ECMService.create_folder(request_instance.radicate.folder_id, request_instance.radicate.number+'-'+str(request_instance.id))
             
             consecutive = 0
             
