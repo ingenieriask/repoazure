@@ -169,12 +169,43 @@ class PermissionRelationReport(BaseModel):
         verbose_name= 'Permiso de informe de radicados'
         verbose_name_plural= 'Permisos de informe de radicados'
 
+
+
+class RequestInternalInfo(BaseModel):
+    
+    class Status(models.TextChoices):
+        CREATED = 'CR', _('Creada')
+        CLOSED = 'CL', _('Cerrada')
+    requested_user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='requests_assigned')
+    description = models.CharField(max_length=20000)
+    radicate = models.ForeignKey(Radicate, on_delete=models.PROTECT, related_name='requests')
+    status = models.CharField(max_length=2, choices=Status.choices, default=Status.CREATED)
+    area = models.ForeignKey(FunctionalArea, on_delete=models.PROTECT, related_name='requests')
+    answer = models.CharField(max_length=20000, blank=True, null=True)
+
+    def get_status_str(self):
+        return self.Status(self.status).label
+    
+    def save(self):
+        user = get_current_user()
+        if user is not None:
+            if not self.pk:
+                self.user_creation = user
+        super(RequestInternalInfo, self).save()
+    
+    class Meta:
+        verbose_name= 'Requerimiento Interno de Información'
+        verbose_name_plural= 'Requerimientos Internos de Información'
+        
+
 class AlfrescoFile(models.Model):
     cmis_id = models.TextField(max_length=128, null=True)
     name = models.CharField(max_length=256, null=True)
     extension = models.CharField(max_length=6, null=True)
     size = models.IntegerField(default=0)
-    radicate = models.ForeignKey(Radicate, on_delete=models.PROTECT, related_name='files')
+    radicate = models.ForeignKey(Radicate, on_delete=models.PROTECT, related_name='files', blank=True, null=True, default=None)
+    request = models.ForeignKey(RequestInternalInfo, on_delete=models.PROTECT, related_name='files', blank=True, null=True, default=None)
+    
     
     def __str__(self):
         return self.cmis_id
@@ -290,19 +321,4 @@ def validate_file_extension(value):
         raise ValidationError(u'Archivo no soportado')
 
 
-class RequestInternalInfo(BaseModel):
-    
-    class Status(models.TextChoices):
-        CREATED = 'CR', _('Creada')
-        CLOSED = 'CL', _('Cerrada')
-    assigned_user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='requests')
-    description = models.CharField(max_length=20000)
-    creation_date = models.DateField(auto_now_add=True)
-    answering_date = models.DateField(null=True)
-    radicate = models.ForeignKey(Radicate, on_delete=models.PROTECT, related_name='requests')
-    status = models.CharField(max_length=2, choices=Status.choices, default=Status.CREATED)
-    area = models.ForeignKey(FunctionalArea, on_delete=models.PROTECT, related_name='requests')
 
-    class Meta:
-        verbose_name= 'Requerimiento Interno de Información'
-        verbose_name_plural= 'Requerimientos Internos de Información'

@@ -6,7 +6,7 @@ from core.models import Attorny, AttornyType, ChatRooms, FunctionalArea, Notific
 from pqrs.models import InterestGroup, PQRS, PqrsContent, SubType, Type
 from correspondence.forms import CorrespondenceRadicateForm, RadicateForm, SearchForm, SearchUserForm, UserForm, UserProfileInfoForm, PersonForm, RecordForm, \
     SearchContentForm, ChangeCurrentUserForm, ChangeRecordAssignedForm, LoginForm, AssignToUserForm, ReturnToLastUserForm, ReportToUserForm, \
-    DeleteFromReportedForm, RequestInternalInformatioForm
+    DeleteFromReportedForm, RequestInternalInformatioForm, AnswerRequestForm
 from pqrs.forms import PersonForm as PqrsPeronForm 
 from pqrs.forms import PersonAttorny as PqrsPeronAttornyForm 
 from pqrs.forms import PersonFormUpdate as PqrsPeronUpdateForm 
@@ -519,7 +519,8 @@ def finish_pqrs(request,pqrs):
             instance.agreement_personal_data=True
             instance.pqrsobject = pqrsoparent
             radicate =  form.save()
-            folder_id = ECMService.create_folder(radicate.number)
+            cmis_id = SystemParameterHelper.get('ECM_TEMP_FOLDER_ID').value
+            folder_id = ECMService.create_folder(cmis_id, radicate.number)
             radicate.folder_id = folder_id
             radicate.save()
 
@@ -1030,16 +1031,14 @@ def request_internal_info(request, radicate):
         form = RequestInternalInformatioForm(request.POST)
         if form.is_valid():
             instance = RequestInternalInfo(
-                assigned_user = User.objects.get(id=request.POST.get('user_selected')),
+                requested_user = User.objects.get(id=request.POST.get('user_selected')),
                 description = form.cleaned_data['description'],
                 radicate = PqrsContent.objects.get(pk=radicate),
                 area = FunctionalArea.objects.get(id=request.POST.get('interest_area'))
             )
             instance.save()
-            get_args_str = urlencode({'pk': radicate, 'template': 'FINISH_REQUEST', 
-                                      'destination': 'pqrs:radicate_my_inbox',
-                                      'status': instance.status,
-                                      'addressee': instance.assigned_user})
+            get_args_str = urlencode({'id': instance.id, 'template': 'FINISH_REQUEST', 
+                                      'destination': 'pqrs:radicate_my_inbox'})
             return HttpResponseRedirect(reverse('pqrs:conclusion')+'?'+get_args_str)
     if request.method == 'GET':
         functional_tree = []
@@ -1055,6 +1054,54 @@ def request_internal_info(request, radicate):
         'correspondence/request_internal_info.html',
         context={
             'form': form,
-            'functional_tree': functional_tree,
-            'radicate': radicate
+            'functional_tree': functional_tree
+        })
+    
+
+def answer_request(request, pk):
+    
+    request_instance = RequestInternalInfo.objects.get(pk=pk)
+    if request.method == 'POST':
+        form = AnswerRequestForm(request.POST)
+        if form.is_valid():
+            request_instance.answer = request.POST.get('answer')
+            request_instance.status = RequestInternalInfo.Status.CLOSED
+            request_instance.save()
+            folder_id = ECMService.create_folder(request_instance.radicate.folder_id, request_instance.radicate.number+'-'+str(request_instance.id))
+            
+            consecutive = 0
+            
+            for fileUploaded in request.FILES.getlist('request_answer_file'):
+                document_temp_file = NamedTemporaryFile()
+                consecutive += 1
+                for chunk in fileUploaded.chunks():
+                    document_temp_file.write(chunk)
+
+                document_temp_file.seek(0)
+                document_temp_file.flush()
+
+                node_id = ECMService.upload(File(document_temp_file, name=fileUploaded.name), 
+                                            folder_id)
+                alfrescoFile = AlfrescoFile(cmis_id=node_id, request=request_instance,
+                                            name=os.path.splitext(request_instance.radicate.number+'-'+str(request_instance.pk)+'-'+str(consecutive).zfill(5))[0],
+                                            extension=os.path.splitext(fileUploaded.name)[1],
+                                            size=int(fileUploaded.size/1000))
+                alfrescoFile.save()
+
+                if not node_id or not ECMService.request_renditions(node_id):
+                    messages.error(request, "Ha ocurrido un error al guardar el archivo en el gestor de contenido")
+            
+            get_args_str = urlencode({'id': pk, 'template': 'FINISH_REQUEST', 'destination': 'pqrs:radicate_my_inbox'})
+            return HttpResponseRedirect(reverse('pqrs:conclusion')+'?'+get_args_str)
+    
+    if request.method == 'GET':
+        form = AnswerRequestForm()
+        
+    return render(
+        request,
+        'correspondence/answer_request.html',
+        context={
+            'form': form,
+            'user' : get_current_user(),
+            'request_instance' : request_instance
         })

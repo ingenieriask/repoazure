@@ -1,0 +1,54 @@
+{% extends 'correspondence/main_template.html' %} {% load static %}
+{% block content %}
+{% load crispy_forms_tags %}
+<div class="card mb-4">
+  <div class="card-header"></div>
+  <div class="card-body">
+    <div class="card mb-4 mb-4">
+        <div class="card-header">Datos usuario actual</div>
+        <div class="card-body">
+            <div class="row">
+              <div class="col-md-6 text-sm">
+                <p>
+                  <i data-feather="user"></i>
+                  <b>Nombre usuario actual:</b><br />{{ user|upper }}
+                </p>
+              </div>
+              <div class="col-md-6 text-sm">
+                <p>
+                  <i data-feather="align-justify"></i>
+                  <b>Dependencia:</b><br /> GRUPO CONTABILIDAD
+                </p>
+              </div>
+            </div>
+        </div>
+    </div>
+    <h3><strong>Solicitud de información para respuesta</strong></h3>
+    <p>{{ request_instance.description }}</p>
+    <br /><br />
+    <form action="" method="post" enctype="multipart/form-data">
+      {{ form | crispy }} {% csrf_token %}
+      <input type="hidden" class="btn btn-primary lift" name="interest_area" id="interest_area" />
+      <div class="col text-center">
+        <input type="submit" name="search" value="Solicitar" class="btn btn-success lift"/>
+        <a class="btn btn-primary" href="{% url 'pqrs:radicate_inbox' %}">Cancelar</a>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}
+
+{% block script %} 
+    $("#id_request_answer_file").fileinput({
+        theme: 'fas',
+        allowedFileExtensions: ['PDF', 'DOC', 'DOCX', 'XLS', 'XLSX', 'EXCEL', 'PPT', 'PPTX', 
+                                'JPG', 'GIF', 'PNG', 'TIFF', 'BMP', 'WAV', 'MP3', 'AVI', 'MPEG', 
+                                'MPG', 'OGG', 'M4A', 'MP4', 'WMV', 'OGV'],
+        overwriteInitial: true,
+        maxFileSize:10000,
+        language: 'es',
+        slugCallback: function (filename) {
+            return filename.replace('(', '_').replace(']', '_');
+        }
+      });
+{% endblock %}

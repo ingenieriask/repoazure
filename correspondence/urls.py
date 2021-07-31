@@ -46,4 +46,5 @@ urlpatterns = [
     path('create-pqrs/<uuid:pqrs>/',views.create_pqr_type,name='create_pqrs'),
     path('finish-pqrs/<uuid:pqrs>/',views.finish_pqrs,name='finish_pqrs'),
     path('request-internal-info/<int:radicate>/', views.request_internal_info, name='request_internal_info'),
+    path('answer-request/<int:pk>/', views.answer_request, name='answer-request'),
 ]
