@@ -128,6 +128,3 @@ class StyleSettingsView(TemplateView):
         context = super().get_context_data(**kwargs)
         context['parameters'] = StyleSettings.objects.all()[0]
         return context
-
-def cubes(request):
-    return render(request, 'cubes/dashboard.html')

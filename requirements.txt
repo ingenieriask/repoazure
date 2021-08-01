@@ -78,3 +78,4 @@ pydocx==0.9.10
 croniter==1.0.15
 channels==3.0.4
 cubes==1.1
+djangorestframework>=2.3.14

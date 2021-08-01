@@ -12,13 +12,14 @@ from rest_framework.renderers import TemplateHTMLRenderer
 
 from cubes import __version__, browser, cut_from_dict
 from cubes.workspace import Workspace, SLICER_INFO_KEYS
-from cubes.errors import NoSuchCubeError
+from cubes.errors import NoSuchCubeError, ConfigurationError
 from cubes.calendar import CalendarMemberConverter
 from cubes.browser import Cell, cuts_from_string
 
 from django.conf import settings
 from django.http import Http404
 from django.core.exceptions import ImproperlyConfigured
+from cubes.compat import ConfigParser
 
 API_VERSION = 2
 
@@ -37,14 +38,20 @@ def create_local_workspace(config, cubes_root):
     """
     Returns or creates a thread-local instance of Workspace
     """
+
+    print('data:', data)
     if not hasattr(data, 'workspace'):
+        print('workspace:', 'init')
         data.workspace = Workspace(config=config, cubes_root=cubes_root)
 
     return data.workspace
 
 
 class ApiVersion(APIView):
-    permission_classes = (permissions.IsAuthenticated,)
+    """
+    TODO Authentification
+    """
+    #permission_classes = (permissions.IsAuthenticated,)
 
     def get(self, request):
         info = {
@@ -56,9 +63,12 @@ class ApiVersion(APIView):
 
 
 class CubesView(APIView):
-    permission_classes = (permissions.IsAuthenticated,)
+    """
+    TODO Authentification
+    """
+    #permission_classes = (permissions.IsAuthenticated,)
     workspace = None
-    SET_CUT_SEPARATOR_CHAR = '~'
+    SET_CUT_SEPARATOR_CHAR = ';'
 
     def __init__(self, *args, **kwargs):
         super(CubesView, self).__init__(*args, **kwargs)
@@ -75,35 +85,45 @@ class CubesView(APIView):
         ))
 
     def initialize_slicer(self):
-        if self.workspace is None:
+        if CubesView.workspace is None:
             try:
-                config = settings.SLICER_CONFIG_FILE
+                configg = ConfigParser()
+                #config = settings.SLICER_CONFIG_FILE
+                configg.read(settings.SLICER_CONFIG_FILE)
                 cubes_root = settings.SLICER_MODELS_DIR
             except AttributeError:
                 raise ImproperlyConfigured('settings.SLICER_CONFIG_FILE and settings.SLICER_MODELS_DIR are not set.')
 
-            self.workspace = create_local_workspace(config=config, cubes_root=cubes_root)
+            print('config:', configg)
+            CubesView.workspace = create_local_workspace(config=configg, cubes_root=cubes_root)
+            if hasattr(settings, 'SLICER_DEFAULT_DATABASE'):
+                #try:
+                print('SLICER_DEFAULT_DATABASE:', settings.SLICER_DEFAULT_DATABASE)
+                CubesView.workspace.register_store("default", "sql", url=settings.SLICER_DEFAULT_DATABASE)
+                print('SLICER_DEFAULT_DATABASE: DONE')
+                #except ConfigurationError:
+                #  pass
 
     def get_cube(self, request, cube_name):
         self.initialize_slicer()
         try:
-            cube = self.workspace.cube(cube_name, request.user)
+            cube = CubesView.workspace.cube(cube_name, request.user)
         except NoSuchCubeError:
             raise Http404
 
         return cube
 
     def get_browser(self, cube):
-        return self.workspace.browser(cube)
+        return CubesView.workspace.browser(cube)
 
     def get_cell(self, request, cube, argname="cut", restrict=False):
         """Returns a `Cell` object from argument with name `argname`"""
         converters = {
-            "time": CalendarMemberConverter(self.workspace.calendar)
+            "time": CalendarMemberConverter(CubesView.workspace.calendar)
         }
 
         cuts = []
-        for cut_string in request.QUERY_PARAMS.getlist(argname):
+        for cut_string in request.query_params.getlist(argname):
             cuts += cuts_from_string(
                 cube, cut_string, role_member_converters=converters
             )
@@ -114,22 +134,22 @@ class CubesView(APIView):
             cell = None
 
         if restrict:
-            if self.workspace.authorizer:
-                cell = self.workspace.authorizer.restricted_cell(
+            if CubesView.workspace.authorizer:
+                cell = CubesView.workspace.authorizer.restricted_cell(
                     request.user, cube=cube, cell=cell
                 )
         return cell
 
     def get_info(self):
         self.initialize_slicer()
-        if self.workspace.info:
-            info = OrderedDict(self.workspace.info)
+        if CubesView.workspace.info:
+            info = OrderedDict(CubesView.workspace.info)
         else:
             info = OrderedDict()
 
         info["cubes_version"] = __version__
-        info["timezone"] = self.workspace.calendar.timezone_name
-        info["first_weekday"] = self.workspace.calendar.first_weekday
+        info["timezone"] = CubesView.workspace.calendar.timezone_name
+        info["first_weekday"] = CubesView.workspace.calendar.first_weekday
         info["api_version"] = API_VERSION
         return info
 
@@ -142,13 +162,13 @@ class CubesView(APIView):
 
     def _handle_pagination_and_order(self, request):
         try:
-            page = request.QUERY_PARAMS.get('page', None)
+            page = request.query_params.get('page', None)
         except ValueError:
             page = None
         request.page = page
 
         try:
-            page_size = request.QUERY_PARAMS.get('pagesize', None)
+            page_size = request.query_params.get('pagesize', None)
         except ValueError:
             page_size = None
         request.page_size = page_size
@@ -156,7 +176,7 @@ class CubesView(APIView):
         # Collect orderings:
         # order is specified as order=<field>[:<direction>]
         order = []
-        for orders in request.QUERY_PARAMS.getlist('order'):
+        for orders in request.query_params.getlist('order'):
             for item in orders.split(","):
                 split = item.split(":")
                 if len(split) == 1:
@@ -166,8 +186,10 @@ class CubesView(APIView):
         request.order = order
 
     def initialize_request(self, request, *args, **kwargs):
+        original_user = request.user
         request = super(CubesView, self).initialize_request(request, *args, **kwargs)
         self._handle_pagination_and_order(request)
+        request.user = original_user
         return request
 
 
@@ -190,7 +212,7 @@ class ListCubes(CubesView):
 
     def get(self, request):
         self.initialize_slicer()
-        cube_list = self.workspace.list_cubes(request.user)
+        cube_list = CubesView.workspace.list_cubes(request.user)
         return Response(cube_list)
 
 
@@ -198,8 +220,8 @@ class CubeModel(CubesView):
 
     def get(self, request, cube_name):
         cube = self.get_cube(request, cube_name)
-        if self.workspace.authorizer:
-            hier_limits = self.workspace.authorizer.hierarchy_limits(
+        if CubesView.workspace.authorizer:
+            hier_limits = CubesView.workspace.authorizer.hierarchy_limits(
                 request.user, cube_name
             )
         else:
@@ -213,7 +235,7 @@ class CubeModel(CubesView):
             hierarchy_limits=hier_limits
         )
 
-        model["features"] = self.workspace.cube_features(cube)
+        model["features"] = CubesView.workspace.cube_features(cube)
         return Response(model)
 
 
@@ -228,11 +250,11 @@ class CubeAggregation(CubesView):
 
         # Aggregates
         aggregates = []
-        for agg in request.QUERY_PARAMS.getlist('aggregates') or []:
+        for agg in request.query_params.getlist('aggregates') or []:
             aggregates += agg.split('|')
 
         drilldown = []
-        ddlist = request.QUERY_PARAMS.getlist('drilldown')
+        ddlist = request.query_params.getlist('drilldown')
         if ddlist:
             for ddstring in ddlist:
                 drilldown += ddstring.split('|')
@@ -297,8 +319,8 @@ class CubeReport(CubesView):
                 "Using cell from report specification (URL parameters are ignored)"
             )
 
-            if self.workspace.authorizer:
-                cell = self.workspace.authorizer.restricted_cell(
+            if CubesView.workspace.authorizer:
+                cell = CubesView.workspace.authorizer.restricted_cell(
                     request.user, cube=cube, cell=cell
                 )
         else:
@@ -325,14 +347,20 @@ class CubeFacts(CubesView):
         self.assert_enabled_action(request, browser, 'facts')
 
         # Construct the field list
-        fields_str = request.QUERY_PARAMS.get('fields')
+        fields_str = request.query_params.get('fields')
         if fields_str:
             attributes = cube.get_attributes(fields_str.split(','))
         else:
             attributes = cube.all_attributes
 
-        fields = [attr.ref() for attr in attributes]
+        print('attributes:', attributes)
+        for attr in attributes:
+            print('attr:', attr)
+
+        #fields = [attr.ref() for attr in attributes]
+        fields = [attr for attr in attributes]
         cell = self.get_cell(request, cube, restrict=True)
+        print('cell:', cell)
 
         # Get the result
         facts = browser.facts(
@@ -370,11 +398,11 @@ class CubeMembers(CubesView):
             logging.error(message)
             raise ParseError(detail=message)
 
-        hier_name = request.QUERY_PARAMS.get('hierarchy')
+        hier_name = request.query_params.get('hierarchy')
         hierarchy = dimension.hierarchy(hier_name)
 
-        depth = request.QUERY_PARAMS.get('depth', None)
-        level = request.QUERY_PARAMS.get('level', None)
+        depth = request.query_params.get('depth', None)
+        level = request.query_params.get('level', None)
 
         if depth and level:
             message = "Both depth and level provided, use only one (preferably level)"
