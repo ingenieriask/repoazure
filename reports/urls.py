@@ -27,6 +27,7 @@ urlpatterns = [
     path('cube/<str:cube_name>/facts/', CubeFacts.as_view(), name="cube_facts"),
     path('cube/<str:cube_name>/fact/<str:fact_id>/', CubeFact.as_view(), name="cube_fact"),
     path('cube/<str:cube_name>/members/<str:dimension_name>/', CubeMembers.as_view(), name="cube_members"),
+    path('/cube/<str:cube_name>/members/<str:dimension_name>/', CubeMembers.as_view(), name="cube_members"),
     path('dashboard/', views.cubes, name="dashboard"),
     #url(r'cube/(?P<cube_name>\S+)/facts/$', CubeFacts.as_view(), name='cube_facts'),
 ]

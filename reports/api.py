@@ -353,14 +353,11 @@ class CubeFacts(CubesView):
         else:
             attributes = cube.all_attributes
 
-        print('attributes:', attributes)
-        for attr in attributes:
-            print('attr:', attr)
-
-        #fields = [attr.ref() for attr in attributes]
-        fields = [attr for attr in attributes]
+        # TODO
+        fields = [attr.ref for attr in attributes]
+        print('fields:', fields)
+        fields = [] #'webshop_sales.id']
         cell = self.get_cell(request, cube, restrict=True)
-        print('cell:', cell)
 
         # Get the result
         facts = browser.facts(

@@ -1,3 +1,4 @@
+{# {% extends 'pqrs/template.html' %} #}
 {% load static %}
 
 {% block content %}
@@ -36,8 +37,8 @@
 // Initialize CubesViewer when document is ready
 $(document).ready(function() {
 
-    var cubesUrl = "http://localhost:8000/reports"; //"{% url 'reports:index'  %}"
-    //var cubesUrl = "http://localhost:5000"; //"{% url 'reports:index'  %}"
+    var cubesUrl = "{{ request.scheme }}://{{ request.get_host }}{% url 'reports:index' %}"
+    //var cubesUrl = "http://localhost:5000";
 
     cubesviewerStudio.init({
         cubesUrl: cubesUrl,
@@ -49,12 +50,15 @@ $(document).ready(function() {
 
 </script>
 
-<div>
-    <div style="clear: both;"></div>
+<div class="card mb-4">
+    <div class="card-body">
+        <div>
+            <div style="clear: both;"></div>
 
-    <!-- Cubes Viewer container -->
-    <div id="cubesviewer">
+            <!-- Cubes Viewer container -->
+            <div id="cubesviewer">
+            </div>
+        </div>
     </div>
 </div>
-
 {% endblock %}
