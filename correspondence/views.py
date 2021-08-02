@@ -927,20 +927,22 @@ class LegalPersonCreateView(CreateView):
                 id=int(form['document_type_company'].value()))[0],
         )
         self.object.save()
-        person_legal = Person(
-            name=form['name'].value(),
-            lasts_name=form['lasts_name'].value(),
-            document_type=DocumentTypes.objects.filter(
-                id=int(form['document_type'].value()))[0],
-            document_number=form['document_number'].value(),
-            expedition_date=form['expedition_date'].value(),
-            email=form['email'].value(),
-            city=City.objects.filter(id=int(form['city'].value()))[0],
-            phone_number=form['phone_number'].value(),
-            address=form['address'].value(),
-            parent=self.object
-        )
-        person_legal.save()
+        person_legal, created=Person.objects.get_or_create(document_number=form['document_number'].value())
+        if not created:
+            person_legal = Person(
+                name=form['name'].value(),
+                lasts_name=form['lasts_name'].value(),
+                document_type=DocumentTypes.objects.filter(
+                    id=int(form['document_type'].value()))[0],
+                document_number=form['document_number'].value(),
+                expedition_date=form['expedition_date'].value(),
+                email=form['email'].value(),
+                city=City.objects.filter(id=int(form['city'].value()))[0],
+                phone_number=form['phone_number'].value(),
+                address=form['address'].value(),
+                parent=self.object
+            )
+            person_legal.save()
         pqrsObject = PQRS(principal_person=person_legal)
         pqrsObject.save()
         return redirect('correspondence:create_pqrs', pqrsObject.uuid)
