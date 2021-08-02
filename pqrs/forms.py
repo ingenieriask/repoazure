@@ -2,6 +2,7 @@ from os import closerange
 from re import search, sub
 from django.contrib.auth.models import User
 from django.forms import widgets
+from core.widgets import RichTextTinyWidget
 from six import class_types
 from core.models import DocumentTypes, City
 from pqrs.models import InterestGroup, PqrsContent, SubType, Type,Record
@@ -312,7 +313,7 @@ class PqrsExtendRequestForm(forms.ModelForm):
             'subject' : mark_safe("<strong>Asunto<strong>")
         }
         widgets = {
-            'data' : forms.Textarea(),
+            'data' : RichTextTinyWidget(),
             'number' : forms.TextInput(attrs={'style':'font-size:20px; font-weight: bold;', 'class':' text-center w-50', 'readonly':True}),
             'subject' : forms.TextInput(attrs={'readonly':True})
         }
@@ -479,7 +480,7 @@ class PqrsAnswerForm(forms.ModelForm):
         widgets = {
             'number' : forms.TextInput(attrs={'style':'font-size:20px; font-weight: bold;', 'class':' text-center w-50', 'readonly':True}),
             'subject' : forms.TextInput(attrs={'readonly': True}),
-            'data': forms.Textarea()
+            'data': RichTextTinyWidget()
         }
 
     def __init__(self, radicate, *args, **kwargs):
@@ -637,17 +638,6 @@ class RecordsForm(forms.ModelForm):
                     ), css_class='card-body'
             ), css_class="card mb-3",
             ),
-            Div(
-                Div(HTML('Aplicacion de la TRD del expediente'),
-                    css_class='card-header'),
-                Div(
-                    Row(
-                        Column('type', css_class='form-group col-md-6 mb-0'),
-                        Column('subtype_field', css_class='form-group col-md-6 mb-0'),
-                        css_class='form-row'
-                    ), css_class='card-body'
-            ), css_class="card mb-3",
-            ), 
             Div(
                 Button('cancel', 'Volver', onclick='window.location.href="{}"'.format(
                     cancel_url), css_class='btn btn-primary'),

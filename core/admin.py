@@ -4,7 +4,7 @@ from core.models import Attorny, AttornyType, Atttorny_Person, ChatRooms, Gender
     EthnicGroup, RequestResponse, SystemParameter, AppParameter, ConsecutiveFormat, \
     FilingType, CalendarDay, CalendarDayType, Calendar, Alerts, FunctionalArea, \
     FunctionalAreaUser, Menu, NotificationsService, Notifications, Template, \
-    StyleSettings, Task, ProceedingsConsecutiveFormat
+    StyleSettings, Task, ProceedingsConsecutiveFormat, SystemHelpParameter
 from core.forms import ConsecutiveFormatForm, CalendarForm, CustomGroupAdminForm, \
     CustomUserChangeForm, ProceedingsConsecutiveFormatForm
 from django.contrib.auth.models import Group, User
@@ -117,4 +117,5 @@ admin.site.register(GenderTypes)
 admin.site.register(Task)
 admin.site.register(ProceedingsConsecutiveFormat, ProceedingsConsecutiveFormatAdmin)
 admin.site.register(ChatRooms)
+admin.site.register(SystemHelpParameter)
 

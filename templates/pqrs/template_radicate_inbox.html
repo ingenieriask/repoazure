@@ -62,7 +62,12 @@
                 <tbody>
                   {% for pqrs in pqrs %}
                   <tr>
-                    <td style="text-align: center;">{{ pqrs.number }}</td>
+                    <td style="text-align: center;">
+                      <a class="display-modal"
+                        data-pk="{{ pqrs.pk }}"
+                        data-toggle="modal" data-target="#fileModal"
+                      >{{ pqrs.number }}</a>
+                    </td>
                     <td style="text-align: center;" class="d-none d-md-table-cell">{{ pqrs.date_radicated }}</td>
                     <td style="text-align: center;">{{ pqrs.subject }}</td>
                     {% if pqrs.person.is_anonymous == True %}
@@ -120,6 +125,23 @@
     </div>
   </div>
 
+  <div class="modal fade" id="fileModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-xl" role="document">
+      <div class="modal-content">
+      <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <div class="row justify-content-center">
+            <div class="col-12" id="file-display-field">
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
   <script>
   console.info('test')
   $("#radicateList_length").change(function() {
@@ -134,5 +156,31 @@
   });
 
   </script>
+
+{% endblock %}
+
+
+{% block script %} 
+
+  $(document).ready(function() {
+        $('#radicateList').DataTable( {
+            "language": {
+                "url": "{% static 'pqrs/js/dataTableSpanish.json' %}",
+            },
+            "lengthMenu": [ 3, 6, 9, 12],
+            "dom": "b<'row'<'#keyword.mr-auto'f><'col-4'l>>" +
+                    "<'row'<'col-sm-12'tr>>" +
+                    "<'row'<'col-sm-12 col-md-7'i><'col-sm-12 col-md-5'p>>",
+        });
+    });     
+
+   $('.display-modal').click(function(event){
+      element = event.target;
+      $('#file-display-field').empty()
+        embeded_file = $('<embed class="w-100"/>'); 
+      embeded_file.attr("height", "500");
+      embeded_file.attr("src", '{% url "correspondence:get_file" %}?pk='+$(element).data('pk'));
+      $('#file-display-field').append(embeded_file);
+   })
 
 {% endblock %}

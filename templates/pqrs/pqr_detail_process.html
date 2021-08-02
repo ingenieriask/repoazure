@@ -1,7 +1,7 @@
 {% extends 'correspondence/main_template.html' %} {% load static %}  {% load pqrs_extras %}{% block content %}
 
 <div class="card mb-12 h-100">
-  <div class="card-header text-secundary">Radicado No. {{pqrscontent.number}}
+  <div class="card-header text-secundary">Radicado No. {{pqrscontent.number}} Asignado a {{pqrscontent.current_functional_area.name}}
     <ul class="nav nav-tabs card-header-tabs">
       <li class="nav-item active">
         <a class="nav-link active" data-toggle="tab" href="#detail">Detalle</a>
@@ -603,42 +603,30 @@
               <table class="table table-hover" id="tb_request_history">
                 <thead>
                   <tr>
+                    <th scope="col">Nombre usuario origen</th>
+                    <th scope="col">Departamento</th>
+                    <th scope="col">Acción</th>
                     <th scope="col">Fecha</th>
-                    <th scope="col">Detalle</th>
-                    <th scope="col">Ver más</th>
+                    <th scope="col">Comentario</th>
                   </tr>
                 </thead>
                 <tbody>
                   {% for log in logs %}
                   <tr>
-                    <td>{{ log.date_execution | date:"d M" }}</td>
-                    <td>{{ log.detail }} el {{ log.date_execution | date:"D d M Y P " }}</td>
-                    <td class="d-flex">
-                      <button class="btn btn-link mx-auto" 
-                      onclick="historyObservation(
-                        '{{log.observation}}'
-                      )">
-                        <i data-feather="plus-circle"></i>
-                      </button>
-                      
+                    <td>[{{ log.user.username }}] {{ log.user.first_name }} {{ log.user.last_name }}</td>
+                    <td>{{ log.functional_area.name }}</td>
+                    <td>{{ log.detail }}</td>
+                    <td>{{ log.date_execution | date:"D d M Y P" }}</td>
+                    <td>
+                    {% if log.observation %}
+                      {{log.observation}}
+                    {% endif %}
                     </td>
+                    
                   </tr>
                   {% endfor %} 
                 </tbody>
               </table>
-              <div id="containerObservation" class="card mb-3 d-none">
-              <div id="historyRequest" class="card-header"></div>
-              <div class="card-body">
-                <div class="row">
-                  <div class="col-md-12 text-sm">
-                    <p >
-                      <i data-feather="align-justify"></i>
-                      <b>Observaciones:</b><br />
-                      <span id="contObservation"></span>
-                    </p>
-                  </div>
-                </div>
-              </div>
             </div>
           </div>
         </div>

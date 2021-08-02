@@ -1,8 +1,8 @@
-from pqrs.views import _create_record, _process_next_action
 from django import http
 from correspondence.models import AlfrescoFile, Radicate, RadicateTypes, ReceptionMode, Record, PermissionRelationAssignation, PermissionRelationReport, ProcessActionStep, \
     RequestInternalInfo
-from core.models import Attorny, AttornyType, ChatRooms, City, DocumentTypes, FunctionalArea, LegalPerson, NotificationsService, Person, Atttorny_Person, Template, UserProfileInfo, FunctionalAreaUser, Alert
+from core.models import Attorny, AttornyType, ChatRooms, City, DocumentTypes, FunctionalArea, LegalPerson, Person, Atttorny_Person, Template, \
+    FunctionalAreaUser, Alert, AppParameter
 from pqrs.models import InterestGroup, PQRS, PqrsContent, SubType, Type
 from correspondence.forms import CorrespondenceRadicateForm, RadicateForm, SearchForm, SearchLegalUserForm, SearchUserForm, UserForm, UserProfileInfoForm, PersonForm, RecordForm, \
     SearchContentForm, ChangeCurrentUserForm, ChangeRecordAssignedForm, LoginForm, AssignToUserForm, ReturnToLastUserForm, ReportToUserForm, \
@@ -51,7 +51,8 @@ from django.core.files import File
 from pydocx import PyDocX
 
 from core.services import DocxCreationService, NotificationsHandler, Recipients, RecordCodeService, SystemParameterHelper, UserHelper
-from correspondence.services import ECMService, RadicateService
+from correspondence.services import RadicateService
+from correspondence.ecm_services import ECMService
 
 logger = logging.getLogger(__name__)
 
@@ -182,7 +183,7 @@ def return_to_last_user(request, radicate):
 
             action = ProcessActionStep()
             action.user = get_current_user()
-            action.action = 'Devolución'
+            action.action = ProcessActionStep.ActionTypes.RETURN
             action.detail = "El radicado %s ha sido retornado a %s" % (pqrs.number, user.username)
             action.radicate = pqrs
             action.observation = form.cleaned_data['observations']
@@ -225,8 +226,10 @@ def assign_user(request, radicate):
         if form.is_valid():
             userPk = request.POST.get('selectedUsersInput')
             pqrs = PqrsContent.objects.get(pk=radicate)
+            area_pk = request.POST.get('interest_area')
+            area = FunctionalArea.objects.get(pk=area_pk)
             user = User.objects.get(pk=userPk)
-            RadicateService.assign_to_user_service(pqrs, user, form.cleaned_data['observations'], 
+            RadicateService.assign_to_user_service(pqrs, user, area, form.cleaned_data['observations'], 
                 reverse('pqrs:detail_pqr', kwargs={'pk': pqrs.pk}), get_current_user(), PQRS.Status.ASSIGNED)
             if pqrs.observation == None:
                 pqrs.observation = ''
@@ -371,7 +374,7 @@ def delete_from_reported(request, radicate):
             
             action = ProcessActionStep()
             action.user = get_current_user()
-            action.action = 'Eliminación de informe'
+            action.action = ProcessActionStep.ActionTypes.REMOVE_REPORT
             action.detail = "El usuario %s ha abandonado el informe del radicado %s" % (pqrs.number, current_user)
             action.radicate = pqrs
             action.observation = form.cleaned_data['observations']
@@ -559,64 +562,7 @@ def finish_pqrs(request,pqrs):
     if request.method == 'POST':
         form = CorrespondenceRadicateForm(request.POST)
         if form.is_valid():
-            instance = form.save(commit=False)
-            instance.reception_mode = get_object_or_404(ReceptionMode, abbr='VIR')
-            instance.type = get_object_or_404(RadicateTypes, abbr='PQR')
-            instance.number = RecordCodeService.get_consecutive(RecordCodeService.Type.INPUT)
-            instance.response_mode = person.request_response
-            instance.person = person
-            instance.agreement_personal_data=True
-            instance.pqrsobject = pqrsoparent
-            radicate =  form.save()
-            cmis_id = SystemParameterHelper.get('ECM_TEMP_FOLDER_ID').value
-            folder_id = ECMService.create_folder(cmis_id, radicate.number)
-            radicate.folder_id = folder_id
-            radicate.save()
-
-            action = ProcessActionStep()
-            action.user = get_current_user()
-            action.action = 'Creación'
-            action.detail = 'El radicado %s ha sido creado' % (radicate.number) 
-            action.radicate = radicate
-            action.save()
-
-            log(
-                user=request.user,
-                action="PQR_CREATED",
-                obj=action,
-                extra={
-                    "number": radicate.number,
-                    "message": "El radicado %s ha sido creado" % (radicate.number)
-                }
-            )
-            query_url = "{0}://{1}/pqrs/consultation/result/{2}".format(request.scheme, request.get_host(), radicate.pk)
-            instance.url = query_url
-            NotificationsHandler.send_notification('EMAIL_PQR_CREATE', instance,  Recipients(instance.person.email, None, instance.person.phone_number))
-            consecutive = 0
-            for fileUploaded in request.FILES.getlist('pqrs_creation_uploaded_files'):
-                consecutive += 1
-                document_temp_file = NamedTemporaryFile()
-                for chunk in fileUploaded.chunks():
-                    document_temp_file.write(chunk)
-
-                document_temp_file.seek(0)
-                document_temp_file.flush()
-
-                node_id = ECMService.upload(File(document_temp_file, name=fileUploaded.name), radicate.folder_id)
-                alfrescoFile = AlfrescoFile(cmis_id=node_id, radicate=radicate,
-                                            name=os.path.splitext(radicate.number+'-'+str(consecutive).zfill(5))[0],
-                                            extension=os.path.splitext(fileUploaded.name)[1],
-                                            size=int(fileUploaded.size/1000))
-                alfrescoFile.save()
-
-                if not node_id or not ECMService.request_renditions(node_id):
-                    messages.error(request, "Ha ocurrido un error al guardar el archivo en el gestor de contenido")
-
-            ### TODO eval in intern creation
-            # PdfCreationService.create_pqrs_confirmation_label(radicate)
-            DocxCreationService.mix_from_template(Template.Types.PQR_CREATION, instance)
-            _process_next_action(instance)
-            _create_record(instance)
+            radicate = RadicateService.process_pqr_creation(pqrsoparent, form, request, person)
             messages.success(request, "El radicado se ha creado correctamente")
             
             url = reverse('pqrs:pqrs_finish_creation', kwargs={'pk': radicate.pk})
@@ -630,8 +576,6 @@ def finish_pqrs(request,pqrs):
 
 @login_required
 def create_radicate(request, person):
-    from django.core import files
-
     person = get_object_or_404(Person, id=person)
 
     if request.method == 'POST':
@@ -709,7 +653,7 @@ class RadicateList(ListView):
     def get_queryset(self):
         queryset = super(RadicateList, self).get_queryset()
         queryset = queryset.filter(
-            current_user=self.request.user.profile_user.pk)
+            current_user=self.request.user.pk)
         return queryset
 
 
@@ -765,7 +709,7 @@ class RadicateDetailView(DetailView):
         context['logs'] = Log.objects.all().filter(object_id=self.kwargs['pk'])
         context['files'] = AlfrescoFile.objects.all().filter(
             radicate=self.kwargs['pk'])
-        if context['pqrscontent'].person.attornyCheck:
+        if context['pqrscontent'].person and context['pqrscontent'].person.attornyCheck:
             personAttorny = Atttorny_Person.objects.filter(
                 person=context['pqrscontent'].person.pk)[0]
             context['personAttorny'] = personAttorny
@@ -1129,9 +1073,17 @@ def get_thumbnail(request):
 def get_file(request):
 
     cmis_id = request.GET.get('cmis_id')
+    if not cmis_id:
+        files = AlfrescoFile.objects.filter(radicate__pk = request.GET.get('pk'))
+        for f in files:
+            if f.name == f.radicate.number:
+                file = f
+                cmis_id = file.cmis_id
+    else:
+        file = AlfrescoFile.objects.get(cmis_id=cmis_id)
     prev_response = ECMService.download(cmis_id)
     if prev_response:
-        extension = AlfrescoFile.objects.get(cmis_id=cmis_id).extension
+        extension = file.extension
         if extension == '.pdf':
             content_type = "application/pdf"
         elif extension == ".doc" or extension == ".docx":

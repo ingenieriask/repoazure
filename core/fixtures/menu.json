@@ -164,5 +164,17 @@
       "sib_order": 0,
       "icon": "search" 
     }
+  },
+  {
+    "model": "core.menu",
+    "pk": 15,
+    "fields": {
+      "parent": 5,
+      "name": "Crear",
+      "description": "Crear una nueva PQRS",
+      "url_name": "correspondence:search_person",
+      "sib_order": 0,
+      "icon": "file-plus"
+    }
   }
 ]

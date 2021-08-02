@@ -73,18 +73,22 @@ class Radicate(models.Model):
         AMPLIATION_REQUEST = 'AR', _('Solicitud de ampliación')
         AMPLIATION_ANSWER = 'AA', _('Respuesta de solicitante')
         COMPLETE_ANSWER = 'CA', _('Respuesta final')
+        ANSWERED = 'AN', _('Respondido')
 
     number = models.TextField(max_length=30, null=False, db_index=True)
     subject = models.CharField(max_length=256, null=True)
     annexes = models.TextField(max_length=256, null=True)
     observation = models.TextField(max_length=400, null=True)
-    data = models.TextField(max_length=2000, null=True)
+    data = models.TextField(null=True)
     type = models.ForeignKey(RadicateTypes, on_delete=models.CASCADE, related_name='radicate_type', null=False, blank=False)
     date_radicated = models.DateTimeField(default=datetime.now, db_index=True)
     creator = models.ForeignKey(User, on_delete=models.CASCADE, related_name='radicates_creator', blank=True, null=True)
     record = models.ForeignKey('Record', on_delete=models.CASCADE, related_name='radicates', blank=True, null=True)
     person = models.ForeignKey(Person, on_delete=models.CASCADE, related_name='radicates_person', blank=True, null=True)
     current_user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='radicates_user', blank=True, null=True)
+    current_functional_area = models.ForeignKey(FunctionalArea, on_delete=models.CASCADE, related_name='radicates_area', blank=True, null=True)
+    attachment_quantity = models.IntegerField(null=True, default=0)
+
     last_user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='radicates_last_user', blank=True, null=True)
     reception_mode = models.ForeignKey(ReceptionMode, on_delete=models.CASCADE, null=False, blank=False)
     use_parent_address = models.BooleanField(default=False)
@@ -117,13 +121,27 @@ class Radicate(models.Model):
         return reverse('correspondence:detail_radicate', args=[str(self.id)])
 
 class ProcessActionStep(BaseModel):
+    
+    class ActionTypes(models.TextChoices):
+        MAIL_IMPORT = 'MI', _('Importación del correo')
+        ANSWER = 'AN', _('Respuesta')
+        CREATION = 'CR', _('Creación')
+        AMPLIATION_REQUEST = 'AR', _('Solicitud de ampliación de información')
+        ASSOCIATION = 'ASS', _('Asociación')
+        ASSIGNATION = 'ASI', _('Asignación')
+        CHANGE_TYPE = 'CT', _('Cambio de tipo')
+        RETURN = 'RET', _('Devolución')
+        REPORT = 'REP', _('Informe')
+        REMOVE_REPORT = 'RER', _('Eliminar informe')
+
     date_execution = models.DateTimeField(default=datetime.now, db_index=True)
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='prac_user', blank=True, null=True)
-    destination_user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='prac_dest_user', blank=True, null=True)
+    functional_area = models.ForeignKey(FunctionalArea, on_delete=models.PROTECT, related_name='prac_area', blank=True, null=True)
+    destination_user = models.ForeignKey(User, on_delete=models.PROTECT, related_name='prac_dest_user', blank=True, null=True)
     destination_users = models.ManyToManyField(User, related_name='prac_dest_users', blank=True)
     observation = models.TextField(max_length=512, null=True)
     detail = models.TextField(max_length=256, null=True)
-    action = models.TextField(max_length=32, null=True)
+    action = models.CharField(max_length=3, choices=ActionTypes.choices, default=ActionTypes.MAIL_IMPORT)
     radicate = models.ForeignKey(Radicate, on_delete=models.PROTECT, related_name='history')
 
     def save(self):
@@ -176,7 +194,8 @@ class RequestInternalInfo(BaseModel):
     class Status(models.TextChoices):
         CREATED = 'CR', _('Creada')
         CLOSED = 'CL', _('Cerrada')
-    requested_user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='requests_assigned')
+
+    requested_user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='requests_assigned', default=None)
     description = models.CharField(max_length=20000)
     radicate = models.ForeignKey(Radicate, on_delete=models.PROTECT, related_name='requests')
     status = models.CharField(max_length=2, choices=Status.choices, default=Status.CREATED)

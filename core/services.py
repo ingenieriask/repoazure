@@ -24,13 +24,14 @@ from django.contrib.auth.models import User, Permission
 from correspondence.models import AlfrescoFile
 from django.core.files import File
 from django.core.files.temp import NamedTemporaryFile
-from correspondence.services import ECMService
+from correspondence.ecm_services import ECMService
 from docx import Document
 import os
 import threading
 import time
 from croniter import croniter
 from django.apps import AppConfig
+import pdfkit
 
 logger = logging.getLogger(__name__)
 
@@ -615,6 +616,50 @@ class DocxCreationService(object):
 
         except Template.DoesNotExist:
             template = None
+
+class HtmlPdfCreationService(object):
+    @classmethod
+    def _save_pdf_in_ecm(cls, file_stream, pqrs, name, extension):
+        size = file_stream.tell()
+        file_stream.seek(0)
+        file_stream.flush()
+
+        node_id = ECMService.upload(File(file_stream, name=name+extension), pqrs.folder_id)
+
+        alfrescoFile = AlfrescoFile(cmis_id=node_id, 
+                                    radicate=pqrs,
+                                    name=name,
+                                    extension=extension,
+                                    size=int(size))
+        alfrescoFile.save()
+        return node_id
+
+    @classmethod
+    def generate_pdf(cls, template_type, body, pqrs):
+        output_name = ''
+        try:
+            template = Template.objects.get(type=template_type)
+            options = {
+                '--load-error-handling': 'skip',
+            }
+            with NamedTemporaryFile(suffix='.pdf', delete=False) as output:
+                header_text = FormatHelper.replace_data(template.header_file.read().decode("utf-8"), pqrs)
+                with NamedTemporaryFile(mode='w', suffix='.html', delete=False) as header_html:
+                    header_html.write(header_text)
+                    options['header-html'] = header_html.name
+                
+                footer_text = FormatHelper.replace_data(template.footer_file.read().decode("utf-8"), pqrs)
+                with NamedTemporaryFile(mode='w', suffix='.html', delete=False) as footer_html:
+                    footer_html.write(footer_text)
+                    options['footer-html'] = footer_html.name
+
+                output_name = output.name
+                pdfkit.from_string(body, output_name, options=options)
+                return HtmlPdfCreationService._save_pdf_in_ecm(output, pqrs, pqrs.number, '.pdf')
+        finally:
+            os.remove(output_name)
+            os.remove(options['header-html'])
+            os.remove(options['footer-html'])
 
 class Scheduler(object):
 
