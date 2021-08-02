@@ -257,7 +257,7 @@ class AbstractLegalPersonForm(forms.ModelForm):
             'document_number', 'document_company_number', 'verification_code',
             'phone_number', 'document_type',
             'expedition_date', 'company_name', 'name', 'lasts_name',
-            'email', 'city', 'address']
+            'email', 'city', 'address','document_type_company']
         labels = {
             'verification_code': 'Código de verificación',
             'company_name': 'Razon Social',

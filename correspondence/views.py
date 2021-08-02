@@ -2,15 +2,19 @@ from pqrs.views import _create_record, _process_next_action
 from django import http
 from correspondence.models import AlfrescoFile, Radicate, RadicateTypes, ReceptionMode, Record, PermissionRelationAssignation, PermissionRelationReport, ProcessActionStep, \
     RequestInternalInfo
-from core.models import Attorny, AttornyType, ChatRooms, FunctionalArea, NotificationsService, Person, Atttorny_Person, Template, UserProfileInfo, FunctionalAreaUser, Alert
+from core.models import Attorny, AttornyType, ChatRooms, City, DocumentTypes, FunctionalArea, LegalPerson, NotificationsService, Person, Atttorny_Person, Template, UserProfileInfo, FunctionalAreaUser, Alert
 from pqrs.models import InterestGroup, PQRS, PqrsContent, SubType, Type
-from correspondence.forms import CorrespondenceRadicateForm, RadicateForm, SearchForm, SearchUserForm, UserForm, UserProfileInfoForm, PersonForm, RecordForm, \
+from correspondence.forms import CorrespondenceRadicateForm, RadicateForm, SearchForm, SearchLegalUserForm, SearchUserForm, UserForm, UserProfileInfoForm, PersonForm, RecordForm, \
     SearchContentForm, ChangeCurrentUserForm, ChangeRecordAssignedForm, LoginForm, AssignToUserForm, ReturnToLastUserForm, ReportToUserForm, \
     DeleteFromReportedForm, RequestInternalInformatioForm, AnswerRequestForm
-from pqrs.forms import PersonForm as PqrsPeronForm 
+
+from pqrs.forms import PersonForm as PqrsPersonForm 
+from pqrs.forms import LegalPersonForm as PqrsLegalPersonForm
 from pqrs.forms import PersonAttorny as PqrsPeronAttornyForm 
 from pqrs.forms import PersonFormUpdate as PqrsPeronUpdateForm 
+from pqrs.forms import LegalPersonFormUpdate as PqrsLegalPersonFormUpdate
 from pqrs.forms import ChangeClassificationForm as PqrsChangueType
+
 from django.contrib.auth.models import User
 from datetime import datetime
 from django.conf import settings
@@ -416,27 +420,32 @@ def autocomplete(request):
 @login_required
 def search_user(request):
     form_new=None
-    form =SearchUserForm()
+    form_np =SearchUserForm()
+    form_lp = SearchLegalUserForm()
     update = False
+    np = False
+    update_id = None
     if request.method == 'POST':
-        form = SearchUserForm(request.POST)
-        if form.is_valid():
-            check_anonimous = form['anonymous'].value()
+        form_np = SearchUserForm(request.POST)
+        form_lp = SearchLegalUserForm(request.POST)
+        if form_np.is_valid():
+            check_anonimous = form_np['anonymous'].value()
+            np = True
             if check_anonimous:
                 person_anonnymous = get_object_or_404(Person, id=1)
                 pqrsObject = PQRS(principal_person=person_anonnymous)
                 pqrsObject.save()
                 return redirect('correspondence:create_pqrs', pqrsObject.uuid)
             else:
-                doc_num = form['doc_num'].value()
-                document_type = form['document_type'].value()
+                doc_num = form_np['doc_num'].value()
+                document_type = form_np['document_type'].value()
                 qs = Person.objects.filter(
                     Q(document_number=doc_num) & 
                     Q(document_type=document_type))
                 if not qs.count():
                     messages.warning(
                         request, "La búsqueda no obtuvo resultados. Registre la siguiente informacion para continuar con el proceso")
-                    form_new = PqrsPeronForm()
+                    form_new = PqrsPersonForm()
                 else:
                     person = qs[0]
                     data = {
@@ -459,13 +468,53 @@ def search_user(request):
                     }
                     form_new=PqrsPeronUpdateForm(initial=data)
                     update=True
+                    update_id= person.pk
+
+        elif form_lp.is_valid():
+            doc_num = form_lp['doc_num'].value()
+            verif_code = form_lp['verification_code'].value()
+            document_type = form_lp['document_type'].value()
+            qs = LegalPerson.objects.filter(
+                Q(document_company_number=doc_num) & 
+                Q(document_type_company=document_type)&
+                Q(verification_code=verif_code))
+            if not qs.count():
+                messages.warning(
+                    request, "La búsqueda no obtuvo resultados. Registre la siguiente informacion para continuar con el proceso")
+                form_new = PqrsLegalPersonForm()
+            else:
+                person_legal = qs[0]
+                representative=Person.objects.get(parent=person_legal)
+                data = {
+                    'document_type_company':person_legal.document_type_company,
+                    'document_company_number':person_legal.document_company_number,
+                    'company_name':person_legal.company_name,
+                    'verification_code':person_legal.verification_code,
+                    'document_type':representative.document_type,
+                    'document_number':representative.document_number,
+                    'expedition_date':representative.expedition_date,
+                    'name':representative.name,
+                    'lasts_name':representative.lasts_name,
+                    'email':representative.email,
+                    'email_confirmation':representative.email,
+                    'city':representative.city,
+                    'phone_number':representative.phone_number,
+                    'address':representative.address,
+                }
+                form_new=PqrsLegalPersonFormUpdate(initial=data)
+                update=True 
+                update_id= person_legal.pk
+
     return render(
         request,
         "correspondence/search_user.html",
         context={
-            'form':form,
+            'form_np':form_np,
+            'form_lp':form_lp,
             'form_new':form_new,
-            'update':update
+            'update':update,
+            'np':np,
+            'update_id':update_id
         })
 
 
@@ -833,7 +882,7 @@ class PersonAtronyCreate(CreateView):
 
 class PersonCreateView(CreateView):
     model = Person
-    form_class = PqrsPeronForm
+    form_class = PqrsPersonForm
     template_name = 'correspondence/person_form.html'
 
     def form_valid(self, form):
@@ -861,6 +910,76 @@ class PersonUpdateViewNew(UpdateView):
             return redirect('correspondence:create_person_attorny', pqrsObject.uuid)
         return redirect('correspondence:create_pqrs', pqrsObject.uuid)
 
+class LegalPersonCreateView(CreateView):
+    model = LegalPerson
+    form_class = PqrsLegalPersonForm
+    template_name = 'correspondence/person_form.html'
+
+    def form_valid(self, form):
+        self.object = LegalPerson(
+            verification_code=form['verification_code'].value(),
+            company_name=form['company_name'].value(),
+            document_company_number=form['document_company_number'].value(),
+            document_number=form['document_company_number'].value(),
+            email=form['email'].value(),
+            representative=f"{form['name'].value()} {form['lasts_name'].value()}",
+            document_type_company=DocumentTypes.objects.filter(
+                id=int(form['document_type_company'].value()))[0],
+        )
+        self.object.save()
+        person_legal, created=Person.objects.get_or_create(document_number=form['document_number'].value())
+        if not created:
+            person_legal = Person(
+                name=form['name'].value(),
+                lasts_name=form['lasts_name'].value(),
+                document_type=DocumentTypes.objects.filter(
+                    id=int(form['document_type'].value()))[0],
+                document_number=form['document_number'].value(),
+                expedition_date=form['expedition_date'].value(),
+                email=form['email'].value(),
+                city=City.objects.filter(id=int(form['city'].value()))[0],
+                phone_number=form['phone_number'].value(),
+                address=form['address'].value(),
+                parent=self.object
+            )
+            person_legal.save()
+        pqrsObject = PQRS(principal_person=person_legal)
+        pqrsObject.save()
+        return redirect('correspondence:create_pqrs', pqrsObject.uuid)
+
+class LegalPersonUpdateView(UpdateView):
+    model = LegalPerson
+    form_class = PqrsLegalPersonFormUpdate
+    template_name = 'correspondence/person_form.html'
+
+    def form_valid(self, form):
+        self.object = LegalPerson.objects.\
+            filter(
+                Q(document_company_number=form['document_company_number'].value()) & 
+                Q(verification_code=form['verification_code'].value() )&
+                Q(document_type_company=DocumentTypes.objects.filter(
+                    id=int(form['document_type_company'].value()))[0])
+            )
+        self.object.update(
+            company_name=form['company_name'].value(),
+            email=form['email'].value(),
+            representative=f"{form['name'].value()} {form['lasts_name'].value()}",
+        )
+        person_legal = Person.objects.filter(parent=self.object[0])
+        person_legal.update(
+            name=form['name'].value(),
+            lasts_name=form['lasts_name'].value(),
+            email=form['email'].value(),
+            city=City.objects.filter(id=int(form['city'].value()))[0],
+            phone_number=form['phone_number'].value(),
+            address=form['address'].value(),
+        )
+        
+        pqrsObject = PQRS(principal_person=person_legal[0])
+        pqrsObject.save()
+        return redirect('correspondence:create_pqrs', pqrsObject.uuid)
+
+    
 class PersonDetailView(DetailView):
     model = Person
 

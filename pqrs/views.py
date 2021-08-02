@@ -231,7 +231,7 @@ def search_person(request,pqrs_type,person_type):
                 document_type_company = form['document_type_company'].value()
                 verification_digit = form['verification_digit'].value()
                 qs = LegalPerson.objects.all().filter(
-                    Q(document_number=doc_num) &
+                    Q(document_company_number=doc_num) &
                     Q(document_type_company=document_type_company) &
                     Q(verification_code=verification_digit))
                 person_form = LegalPersonForm()

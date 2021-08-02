@@ -114,7 +114,7 @@ class SearchUserForm(forms.Form):
         required=False)
     doc_num = forms.CharField(label='Numero de Documento' )
     document_type= forms.ModelChoiceField(
-        queryset=DocumentTypes.objects.all(),
+        queryset=DocumentTypes.objects.exclude(Q(id=3) | Q(id=6)),
         label='Tipo de documento'
     )
     def __init__(self, *args, **kwargs):
@@ -133,6 +133,30 @@ class SearchUserForm(forms.Form):
                 Submit('submit', 'Buscar'), css_class='d-flex justify-content-center',
             )
         )
+
+class SearchLegalUserForm(forms.Form):
+    doc_num = forms.CharField(label='Numero de Documento' )
+    verification_code = forms.CharField(label='Codigo de Verificación' )
+    document_type= forms.ModelChoiceField(
+        queryset=DocumentTypes.objects.filter(Q(id=3) | Q(id=6)),
+        label='Tipo de documento'
+    )
+    def __init__(self, *args, **kwargs):
+        super(SearchLegalUserForm, self).__init__(*args, **kwargs)
+        self.helper = FormHelper(self)
+        self.helper.layout = Layout(
+            Row(
+                Column('document_type', css_class='form-group col-md-4 mb-0'),
+                Column('doc_num',
+                       css_class='form-group col-md-4 mb-0'),
+                Column('verification_code',
+                       css_class='form-group col-md-4 mb-0'),
+            ),
+            Row(
+                Submit('submit', 'Buscar'), css_class='d-flex justify-content-center',
+            )
+        )
+
 
 class CorrespondenceRadicateForm(forms.ModelForm):
     pqrs_creation_uploaded_files = forms.FileField(widget=forms.ClearableFileInput(attrs={'multiple': True}), required=False,
