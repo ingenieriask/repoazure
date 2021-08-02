@@ -227,6 +227,10 @@ $("#id_pqrs_type").on("change", function () {
     });
   }
 });
+$("#bologna-list a").on("click", function (e) {
+  e.preventDefault();
+  $(this).tab("show");
+});
 $(document).ready(function () {
   if ($("#id_pqrs_subtype")) {
     $("#id_pqrs_subtype").html("");
