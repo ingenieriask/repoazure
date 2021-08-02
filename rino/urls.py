@@ -21,6 +21,7 @@ from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib.auth import views as auth_views
 from core import views as core_views
+from django.conf.urls import url
 
 urlpatterns = [
     path('captcha/', include('captcha.urls')),
@@ -30,6 +31,7 @@ urlpatterns = [
     path('pqrs/', include('pqrs.urls', namespace='pqrs')),
     path('polls/', include('polls.urls', namespace='polls')),
     path('workflow/', include('workflow.urls', namespace='workflow')),
+    path('reports/', include('reports.urls', namespace='reports')),
     path('logout/', auth_views.LogoutView.as_view(), name='logout'),
     path('login/', auth_views.LoginView.as_view(), name='login'),
     path('password_change/', auth_views.PasswordChangeView.as_view(), name='password_change'),
