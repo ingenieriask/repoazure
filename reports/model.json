@@ -1,0 +1,114 @@
+{
+    "name": "PQRS",
+    "label": "Modelo de PQRS",
+    "description": "Modelo de PQRS",   
+    "dimensions": [   
+        {
+            "name":"dw_date",
+            "label":"Fecha",
+            "role": "time",
+            "hierarchies": [
+                {
+                    "label": "Diario", 
+                    "levels": [
+                        "year", 
+                        "month", 
+                        "day"
+                    ], 
+                    "name": "daily"
+                }, 
+                {
+                    "label": "Semanal", 
+                    "levels": [
+                        "year", 
+                        "weekyear"
+                    ], 
+                    "name": "weekly"
+                }
+            ], 
+            "levels" :[
+                {
+                    "name":"year",
+                    "label":"Año",
+                    "attributes": ["year"]
+                },
+                {
+                    "name":"month",
+                    "label":"Mes",
+                    "attributes": ["month"]
+                },
+                {
+                    "name":"weekyear",
+                    "label":"Semana",
+                    "attributes": ["weekyear"]
+                },
+                {
+                    "name":"day",
+                    "label":"Día",
+                    "attributes": ["day"]
+                }
+            ]
+        },
+        {
+            "name":"dw_subtype",
+            "label":"Tipo",
+            "levels" :[
+                {
+                    "name":"type",
+                    "label":"Tipo",
+                    "attributes": ["type_name"]
+                },
+                {
+                    "name":"subtype",
+                    "label":"Subtipo",
+                    "attributes": ["name"]
+                }
+            ]
+        }
+    ],
+    "cubes": [
+    	 {
+            "name": "dw_pqrs",
+            "dimensions": ["dw_date", "dw_subtype"],
+            "measures": [{"name":"amount", "label":"Cantidad"}],
+            "joins": [
+                {
+                    "alias": "dw_subtype", 
+                    "detail": "dw_subtype.id", 
+                    "master": "dw_pqrs.subtype_id"
+                }, 
+                {
+                    "alias": "dw_date", 
+                    "detail": "dw_date.id", 
+                    "master": "dw_pqrs.date_id"
+                }
+            ], 
+            "aggregates": [
+                {
+                    "function": "sum", 
+                    "label": "Quantity Sum", 
+                    "measure": "amount", 
+                    "name": "amount_sum"
+                }, 
+                {
+                    "function": "avg", 
+                    "label": "Quantity Avg", 
+                    "measure": "amount", 
+                    "name": "amount_avg"
+                }, 
+                {
+                    "function": "max", 
+                    "label": "Quantity Max", 
+                    "measure": "amount", 
+                    "name": "amount_max"
+                }, 
+                {
+                    "function": "min", 
+                    "label": "Quantity Min", 
+                    "measure": "amount", 
+                    "name": "amount_min"
+                }
+            ]
+        }
+    ]
+}

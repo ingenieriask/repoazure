@@ -105,7 +105,8 @@ INSTALLED_APPS = [
     'treebeard',
     'simple_history',
     'workflow',
-    'channels'
+    'channels',
+    'reports'
 ]
 
 CRISPY_TEMPLATE_PACK = 'bootstrap4'
@@ -264,4 +265,6 @@ CELERY_RESULT_BACKEND = 'django-db'
 #Captcha
 CAPTCHA_IMAGE_SIZE = (200,50)
 CAPTCHA_FONT_SIZE = 40
-
+SLICER_MODELS_DIR = os.path.join(BASE_DIR, 'reports')
+SLICER_CONFIG_FILE = os.path.join(BASE_DIR, 'reports', 'slicer.ini')
+SLICER_DEFAULT_DATABASE = env.str('SLICER_DEFAULT_DATABASE')

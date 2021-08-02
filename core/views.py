@@ -21,6 +21,7 @@ from core.models import PersonType
 from core.forms import TestFormQuill, TestFormTiny
 
 
+
 def holidays(request):
     '''Return the list of holidays for a given year and country'''
 
@@ -150,3 +151,4 @@ class TestViewQuill(UpdateView):
         self.object = form.save(commit=False)
         self.object.save()
         return redirect('core:test_view', self.kwargs['pk'])
+

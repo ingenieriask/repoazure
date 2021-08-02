@@ -31,6 +31,7 @@
         "tinymce": "^5.8.2",
         "tinymce-i18n": "^20.12.25",
         "tinymce-plugins": "^1.0.14",
-        "vue": "2.6.14"
+        "vue": "2.6.14",
+        "cubesviewer": "git+https://github.com/jjmontesl/cubesviewer.git"
     }
 }
