@@ -9,10 +9,10 @@
             <thead>
               <tr>
                 <th>Nombre</th>
-                <th>Serie</th>
-                <th>Sub-Serie</th>
+                <th class="d-none d-md-table-cell">Serie</th>
+                <th class="d-none d-md-table-cell">Sub-Serie</th>
                 <th>Asunto</th>
-                <th>Fuente</th>
+                <th class="d-none d-md-table-cell">Fuente</th>
                 <th>Acciones</th>
               </tr>
             </thead>
@@ -20,10 +20,10 @@
               {% for record in records %}
               <tr>
                 <td>{{ record.name }}</td>
-                <td>{{ record.type.name }}</td>
-                <td>{{ record.subtype.name }}</td>
+                <td class="d-none d-md-table-cell">{{ record.type.name }}</td>
+                <td class="d-none d-md-table-cell">{{ record.subtype.name }}</td>
                 <td>{{ record.subject }}</td>
-                <td>{{ record.source }}</td>
+                <td class="d-none d-md-table-cell">{{ record.source }}</td>
                 <td>
                     <a href="{% url 'pqrs:records_detail' pk=record.pk %}" 
                     class="btn btn-outline-primary">

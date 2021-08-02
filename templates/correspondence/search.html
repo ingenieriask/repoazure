@@ -27,20 +27,20 @@
       <table class="table table-bordered table-hover" id="radicateListTable" width="100%" cellspacing='0'>
         <thead>
           <tr>
-            <th scope="col">Organización</th>
+            <th scope="col" class="d-none d-md-table-cell">Organización</th>
             <th scope="col">Nombres</th>
             <th scope="col">Email</th>
-            <th scope="col">Dirección</th>
+            <th scope="col" class="d-none d-md-table-cell">Dirección</th>
             <th scope="col">Acciones</th>
           </tr>
         </thead>
         <tbody>
           {% for person in list %}
             <tr>
-              <td>{{ person.parent | default_if_none:"" }}</td>
+              <td class="d-none d-md-table-cell">{{ person.parent | default_if_none:"" }}</td>
               <td>{{ person.name }}</td>
               <td>{{ person.email }}</td>
-              <td>{{ person.address }}</td>
+              <td class="d-none d-md-table-cell">{{ person.address }}</td>
               <td>
                 <a title="Radicar"  data-toggle="tooltip"  href="{% url 'correspondence:create_radicate' person=person.pk %}" class="btn btn-datatable btn-icon btn-transparent-dark">
                   <i data-feather="play-circle"></i>

@@ -49,12 +49,12 @@
                 <thead>
                   <tr>
                     <th style="text-align: center;">Número de radicado</th>
-                    <th style="text-align: center;">Fecha de radicación</th>
+                    <th style="text-align: center;" class="d-none d-md-table-cell">Fecha de radicación</th>
                     <th style="text-align: center;">Asunto</th>
-                    <th style="text-align: center;">Solicitante</th>
-                    <th style="text-align: center;">Tipo y Tema PQRSD</th>
-                    <th style="text-align: center;">Días hábiles para dar respuesta</th>
-                    <th style="text-align: center;">Estado</th>
+                    <th style="text-align: center;" class="d-none d-md-table-cell">Solicitante</th>
+                    <th style="text-align: center;" class="d-none d-md-table-cell">Tipo y Tema PQRSD</th>
+                    <th style="text-align: center;" class="d-none d-md-table-cell">Días hábiles para dar respuesta</th>
+                    <th style="text-align: center;" class="d-none d-md-table-cell">Estado</th>
                     <th style="text-align: center;">Detalles</th>
                   </tr>
                 </thead>
@@ -63,23 +63,23 @@
                   {% for pqrs in pqrs %}
                   <tr>
                     <td style="text-align: center;">{{ pqrs.number }}</td>
-                    <td style="text-align: center;">{{ pqrs.date_radicated }}</td>
+                    <td style="text-align: center;" class="d-none d-md-table-cell">{{ pqrs.date_radicated }}</td>
                     <td style="text-align: center;">{{ pqrs.subject }}</td>
                     {% if pqrs.person.is_anonymous == True %}
-                        <td style="text-align: center;">ANÓNIMO</td>
+                        <td style="text-align: center;" class="d-none d-md-table-cell">ANÓNIMO</td>
                     {% elif pqrs.person %}
-                        <td style="text-align: center;">{{ pqrs.person.name }}</td>
+                        <td style="text-align: center;" class="d-none d-md-table-cell">{{ pqrs.person.name }}</td>
                     {% else %}
-                        <td style="text-align: center;">{{ pqrs.email_user_name }}</td>
+                        <td style="text-align: center;" class="d-none d-md-table-cell">{{ pqrs.email_user_name }}</td>
                     {% endif %}
-                    <td style="text-align: center;">{{ pqrs.subtype.type.name }} - {{ pqrs.subtype.name }}</td>
-                    <td style="text-align: center;">
+                    <td style="text-align: center;" class="d-none d-md-table-cell">{{ pqrs.subtype.type.name }} - {{ pqrs.subtype.name }}</td>
+                    <td style="text-align: center;" class="d-none d-md-table-cell">
                         <svg height="8mm" width="8mm">
                           <circle cx="4mm" cy="4mm" r="3mm" style="fill: {{ pqrs.subtype.alerts.all|get_color_traffic_light:pqrs.date_radicated }};" />
                         </svg>
                         {{ pqrs.date_radicated|get_missing_days:pqrs.subtype.max_response_days }}    
                     </td>
-                    <td style="text-align: center;">{{ pqrs.pqrsobject.get_status_str }}</td>
+                    <td style="text-align: center;" class="d-none d-md-table-cell">{{ pqrs.pqrsobject.get_status_str }}</td>
                     <td style="text-align: center;">
 
                       {% block actions %}

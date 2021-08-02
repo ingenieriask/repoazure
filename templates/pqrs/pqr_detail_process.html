@@ -196,7 +196,7 @@
                   <tr>
                     <th scope="col">Orden</th>
                     <th scope="col">Nombre y apellido</th>
-                    <th scope="col">Tipo y Numero de Documento</th>
+                    <th scope="col" class="d-none d-md-table-cell">Tipo y Numero de Documento</th>
                     <th scope="col">Detalles</th>
                   </tr>
                 </thead>
@@ -205,7 +205,7 @@
                   <tr>
                     <td>{{forloop.counter}}</td>
                     <td>{{people.name}} {{people.lasts_name}}</td>
-                    <td>{{people.document_type.abbr}} {{people.document_number}}</td>
+                    <td class="d-none d-md-table-cell">{{people.document_type.abbr}} {{people.document_number}}</td>
                     <td class="d-flex">
                       <button class="btn btn-link mx-auto" 
                       onclick="descriptionPersonRequest(
@@ -480,10 +480,10 @@
                 <thead>
                   <tr>
                     <th scope="col">Orden</th>
-                    <th scope="col">Clasificación</th>
+                    <th scope="col" class="d-none d-md-table-cell">Clasificación</th>
                     <th scope="col">Número de radicado</th>
-                    <th scope="col">Nombre y apellido</th>
-                    <th scope="col">Fecha de radicación</th>
+                    <th scope="col" class="d-none d-md-table-cell">Nombre y apellido</th>
+                    <th scope="col" class="d-none d-md-table-cell">Fecha de radicación</th>
                     <th scope="col">Ver detalles</th>
                   </tr>
                 </thead>
@@ -491,10 +491,10 @@
                   {% for radicate in  pqrscontent.associated_radicates.all %}
                   <tr>
                     <td>{{forloop.counter}}</td>
-                    <td>{{radicate.get_classification_str}}</td>
+                    <td class="d-none d-md-table-cell">{{radicate.get_classification_str}}</td>
                     <td>{{radicate.number}}</td>
-                    <td>{{radicate.person.name}} {{radicate.person.lasts_name}}</td>
-                    <td>{{radicate.date_radicated }}</td>
+                    <td class="d-none d-md-table-cell">{{radicate.person.name}} {{radicate.person.lasts_name}}</td>
+                    <td class="d-none d-md-table-cell">{{radicate.date_radicated }}</td>
                     <td><a class="btn btn-link mx-auto" href="{% url 'pqrs:associated_radicate_detail' pk=radicate.pk  %}">
                         <i data-feather="plus-circle"></i></a></td>
                   </tr>
@@ -530,9 +530,9 @@
                     <tr>
                       <th scope="col">Orden</th>
                       <th scope="col">Radicado</th>
-                      <th scope="col">Clasificación</th>
+                      <th scope="col" class="d-none d-md-table-cell">Clasificación</th>
                       <th scope="col">Fecha</th>
-                      <th scope="col">Solicitante</th>
+                      <th scope="col" class="d-none d-md-table-cell">Solicitante</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -540,12 +540,12 @@
                     <tr>
                       <td>{{forloop.counter}}</td>
                       <td>{{radicate.number}}</td>
-                      <td>{{radicate.get_classification_str}}</td>
+                      <td class="d-none d-md-table-cell">{{radicate.get_classification_str}}</td>
                       <td>{{radicate.date_radicated}}</td>
                       {% if radicate.person %}
-                      <td>{{radicate.person.name}} {{radicate.person.lasts_name}}</td>
+                      <td class="d-none d-md-table-cell">{{radicate.person.name}} {{radicate.person.lasts_name}}</td>
                       {% else %}
-                      <td>{{radicate.person.email_user_name}}</td>
+                      <td class="d-none d-md-table-cell">{{radicate.person.email_user_name}}</td>
                       {% endif %}
                     </tr>
                     <tr>

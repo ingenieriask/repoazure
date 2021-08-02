@@ -443,7 +443,7 @@
                   <tr>
                     <th scope="col">Orden</th>
                     <th scope="col">Nombre y apellido</th>
-                    <th scope="col">Tipo y Numero de Documento</th>
+                    <th scope="col" class="d-none d-md-table-cell">Tipo y Numero de Documento</th>
                     <th scope="col">Detalles</th>
                   </tr>
                 </thead>
@@ -452,7 +452,7 @@
                   <tr>
                     <td>{{forloop.counter}}</td>
                     <td>{{people.name}} {{people.lasts_name}}</td>
-                    <td>{{people.document_type.abbr}} {{people.document_number}}</td>
+                    <td class="d-none d-md-table-cell">{{people.document_type.abbr}} {{people.document_number}}</td>
                     <td class="d-flex">
                       <button class="btn btn-link mx-auto" 
                       onclick="descriptionPersonRequest(
