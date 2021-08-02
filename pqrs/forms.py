@@ -67,6 +67,22 @@ class LegalPersonForm(AbstractLegalPersonForm):
                 ),css_class="d-flex"),
                 ])
 
+class LegalPersonFormUpdate(AbstractLegalPersonForm):
+    def __init__(self, *args, **kwargs):
+        super(LegalPersonFormUpdate, self).__init__(*args, **kwargs)
+        self.fields['document_company_number'].disabled = True
+        self.fields['document_type_company'].disabled = True
+        self.fields['document_number'].disabled = True
+        self.fields['document_type'].disabled = True
+        self.fields['expedition_date'].disabled = True
+        self.fields['verification_code'].disabled = True
+        self.helper.layout.extend([
+            Div(
+                Submit('submit','Siguiente',
+                css_class="btn btn-primary mx-auto",
+                ),css_class="d-flex"),
+                ])
+
 class PersonAttorny(AbstractPersonAttorny):
     def __init__(self,pqrs_type=None,  *args, **kwargs):
         super(PersonAttorny, self).__init__(*args, **kwargs)
