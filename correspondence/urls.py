@@ -8,7 +8,8 @@ app_name = 'correspondence'
 
 urlpatterns = [
     path('api/v1/radicates/', correspondence.api_views.RadicateList.as_view(), name='search_radicates'),
-    path('api/v1/radicates/<str:radi_nuber>/', correspondence.api_views.RadicateDetail.as_view(), name='search_radicate'),
+    path('api/v1/radicates/<str:radi_number>/', correspondence.api_views.RadicateDetail.as_view(), name='search_radicate'),
+    path('api/v1/radicates/file/<str:radi_number>/', correspondence.api_views.FileDetail.as_view(), name='search_radicate_file'),
     url(r'^$', views.index, name='index'),
     path('search-names/', views.search_names, name='search_names'),
     path('users-by-area/', views.users_by_area, name='users_by_area'),

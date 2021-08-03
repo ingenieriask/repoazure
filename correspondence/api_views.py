@@ -1,3 +1,4 @@
+from os import truncate
 from django.http.response import HttpResponse
 from rest_framework.generics import ListAPIView
 from django_filters.rest_framework import DjangoFilterBackend
@@ -9,8 +10,8 @@ from rest_framework.authentication import SessionAuthentication, BasicAuthentica
 from rest_framework.permissions import IsAuthenticated
 
 from rest_framework.response import Response
-from correspondence.serializers import RadicateSerializer,RadicateSerializerDetail
-from correspondence.models import Radicate
+from correspondence.serializers import RadicateSerializer,RadicateSerializerDetail,FilesSerializerDetail
+from correspondence.models import AlfrescoFile, Radicate
 
 
 class RadicatePagination(LimitOffsetPagination):
@@ -33,15 +34,32 @@ class RadicateDetail(APIView):
     authentication_classes = [SessionAuthentication, BasicAuthentication]
     permission_classes = [IsAuthenticated]
 
-    def get_object(self,radi_nuber):
+    def get_object(self,radi_number):
         try:
-            return Radicate.objects.get(number=radi_nuber)
+            return Radicate.objects.get(number=radi_number)
         except:
             return HttpResponse(
                 status=status.HTTP_404_NOT_FOUND)
 
-    def get(self,request,radi_nuber):
-        radicate = self.get_object(radi_nuber)
+    def get(self,request,radi_number):
+        radicate = self.get_object(radi_number)
         serializer = RadicateSerializerDetail(radicate)
+        return Response(serializer.data)
+
+
+class FileDetail(APIView):
+    authentication_classes = [SessionAuthentication, BasicAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def get_object(self,radi_number):
+        try:
+            return AlfrescoFile.objects.filter(radicate__number=radi_number)
+        except:
+            return HttpResponse(
+                status=status.HTTP_404_NOT_FOUND)
+
+    def get(self,request,radi_number):
+        file = self.get_object(radi_number)
+        serializer = FilesSerializerDetail(file,many=True)
         return Response(serializer.data)
 
