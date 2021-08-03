@@ -59,7 +59,7 @@
             </svg>
             {{ pqrs.date_radicated|get_missing_days:pqrs.subtype.max_response_days }}    
         </td>
-        <td style="text-align: center;" class="d-none d-md-table-cell">{{ pqrs.pqrsobject.get_status_str }}</td>
+        <td style="text-align: center;" class="d-none d-md-table-cell">{{ pqrs.get_status_str }}</td>
         <td style="text-align: center;" class="d-none d-md-table-cell">ATENCIÓN AL CLIENTE</td>
         </tr>
         {% endfor %}

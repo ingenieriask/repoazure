@@ -174,7 +174,7 @@ def return_to_last_user(request, radicate):
             user = pqrs.last_user
             pqrs.last_user = pqrs.current_user
             pqrs.current_user = user
-            pqrs.pqrsobject.status = PQRS.Status.RETURNED
+            pqrs.status = Radicate.Status.RETURNED
 
             if pqrs.observation == None:
                 pqrs.observation = ''
@@ -230,7 +230,7 @@ def assign_user(request, radicate):
             area = FunctionalArea.objects.get(pk=area_pk)
             user = User.objects.get(pk=userPk)
             RadicateService.assign_to_user_service(pqrs, user, area, form.cleaned_data['observations'], 
-                reverse('pqrs:detail_pqr', kwargs={'pk': pqrs.pk}), get_current_user(), PQRS.Status.ASSIGNED)
+                reverse('pqrs:detail_pqr', kwargs={'pk': pqrs.pk}), get_current_user(), Radicate.Status.ASSIGNED)
             if pqrs.observation == None:
                 pqrs.observation = ''
             pqrs.observation = pqrs.observation + form.cleaned_data['observations']
@@ -562,7 +562,7 @@ def finish_pqrs(request,pqrs):
     if request.method == 'POST':
         form = CorrespondenceRadicateForm(request.POST)
         if form.is_valid():
-            radicate = RadicateService.process_pqr_creation(pqrsoparent, form, request, person)
+            radicate = RadicateService.process_pqr_creation(pqrsoparent, form, request, person, True)
             messages.success(request, "El radicado se ha creado correctamente")
             
             url = reverse('pqrs:pqrs_finish_creation', kwargs={'pk': radicate.pk})

@@ -4,6 +4,7 @@ from correspondence.models import ReceptionMode
 from pqrs.models import PQRS, Type, PqrsContent,Type
 from core.models import Disability, EthnicGroup, PreferencialPopulation, GenderTypes
 
+from django.views.generic import ListView
 from django.http import JsonResponse
 from django.shortcuts import render
 from datetime import datetime, timedelta
@@ -13,6 +14,10 @@ import logging
 
 logger = logging.getLogger(__name__)
 
+class PqrsStatistics(ListView):
+    model = PqrsContent
+    template_name = 'pqrs/statistics.html'
+    
 
 def calculate_statistics(request):
     if request.is_ajax():

@@ -5,7 +5,6 @@ from django.shortcuts import redirect, render
 from correspondence.models import Radicate, AlfrescoFile, ProcessActionStep, \
     ReceptionMode, RequestInternalInfo
 from pqrs.models import PQRS, Record,Type, PqrsContent,Type, SubType, InterestGroup
-
 from core.models import AppParameter, Atttorny_Person, LegalPerson, \
     Person, DocumentTypes, PersonRequest, PersonType, Template, ChatRooms
 from django.contrib.auth.models import User
@@ -469,7 +468,7 @@ class RadicateInbox(RadicateListView):
     @RadicateListView.filter
     def get_queryset(self):
         queryset = super(RadicateInbox, self).get_queryset()
-        queryset = queryset.filter(is_filed=False, subtype__isnull=False, pqrsobject__status=PQRS.Status.CREATED)
+        queryset = queryset.filter(is_filed=False, subtype__isnull=False, status=Radicate.Status.CREATED)
         return queryset
 
 #@method_decorator(login_required, name='dispatch')
@@ -482,7 +481,7 @@ class RadicateEmailInbox(RadicateListView):
     @RadicateListView.filter
     def get_queryset(self):
         queryset = super(RadicateEmailInbox, self).get_queryset()
-        queryset = queryset.filter(is_filed=False, subtype__isnull=False, pqrsobject__status=PQRS.Status.EMAIL)
+        queryset = queryset.filter(is_filed=False, subtype__isnull=False, status=Radicate.Status.EMAIL)
         return queryset
 
 class RadicateMyInbox(RadicateListView):
@@ -569,7 +568,7 @@ def procedure_conclusion(request):
         obj = PqrsContent.objects.get(pk=request.GET['pk'])
         obj.date_radicated = obj.date_radicated.strftime("%d/%m/%y")
         obj.date_assignation = date.today().strftime("%d/%m/%y")
-        obj.pqrsobject.status_str = str(obj.pqrsobject.get_status_str())
+        obj.status_str = str(obj.get_status_str())
 
         reported_people_str = ''
         for person in obj.reported_people.all():
@@ -610,12 +609,10 @@ class PqrsConsultationResult(DetailView):
 def pqrs_extend_request(request, pk):
     
     radicate = PqrsContent.objects.get(pk=pk) #get_object_or_404(PqrsContent, id=pk)
-    print(request.method)
 
     if request.method == 'POST':
         
         form = PqrsExtendRequestForm(radicate, request.POST)
-        print(form.is_valid(), form.errors)
         if form.is_valid():
             instance = form.save(commit=False)
             instance.number = RecordCodeService.get_consecutive(RecordCodeService.Type.OUTPUT)
@@ -630,6 +627,7 @@ def pqrs_extend_request(request, pk):
             instance.doctype = radicate.doctype
             instance.parent = radicate
             instance.classification = Radicate.Classification.AMPLIATION_REQUEST
+            instance.stage = Radicate.Stage.CREATED
             
             instance.save()
             cmis_id = AppParameter.objects.get(name = 'ECM_TEMP_FOLDER_ID').value
@@ -645,6 +643,10 @@ def pqrs_extend_request(request, pk):
 
             RadicateService.add_to_record(instance.parent, instance)
             RadicateService.create_action_creation(instance)
+            radicate.status = Radicate.Status.AMPLIATION_REQUESTED
+            radicate.save()
+            instance.stage = Radicate.Stage.IN_PROCESS
+            instance.save()
 
             ## log de solicitud de ampliación de información del radicado original
             action = ProcessActionStep()
@@ -706,10 +708,9 @@ def pqrs_associate_request(request, pk):
             try:
                 instance = PqrsContent.objects.get(number = number)
                 instance.parent = radicate
-                instance.pqrsobject.status = PQRS.Status.ANSWERED
+                instance.status = Radicate.Status.ANSWERED
                 instance.classification = classification
                 instance.stage = Radicate.Stage.CLOSED
-                instance.pqrsobject.save()
                 instance.save()
 
                 action = ProcessActionStep()
@@ -773,16 +774,18 @@ def pqrs_answer_request(request, pk):
             
             instance = form.save(commit=False)
             instance.number = RecordCodeService.get_consecutive(RecordCodeService.Type.INPUT)
-            instance.type = radicate.type
-            instance.record = radicate.record
-            instance.person = radicate.person
-            instance.email_user_email = radicate.email_user_email
-            instance.email_user_name = radicate.email_user_name
-            instance.reception_mode = radicate.reception_mode
-            instance.office = radicate.office
-            instance.doctype = radicate.doctype
+            RadicateService.fill_from_parent(instance, radicate)
+            instance.mother = radicate
             instance.parent = radicate.parent
             instance.classification = Radicate.Classification.AMPLIATION_ANSWER
+
+            instance.status = Radicate.Status.CLOSED
+            instance.stage = Radicate.Stage.CLOSED
+            radicate.status = Radicate.Status.ANSWERED
+            radicate.stage = Radicate.Stage.CLOSED
+            radicate.parent.status = Radicate.Status.AMPLIATION_ANSWERED
+            radicate.save()
+            radicate.parent.save()
             
             instance.save()
             cmis_id = AppParameter.objects.get(name='ECM_TEMP_FOLDER_ID').value
@@ -791,17 +794,16 @@ def pqrs_answer_request(request, pk):
             instance.save()
 
             
-            DocxCreationService.mix_from_template(Template.Types.PQR_EXT_ANSWER, instance)
-
             RadicateService.process_files(request.FILES.getlist('uploaded_files'), instance, request)
             RadicateService.add_to_record(instance.parent, instance)
+            HtmlPdfCreationService.generate_pdf(Template.Types.PQR_EXT_ANSWER, instance.data, instance)
             
             RadicateService.create_action_creation(instance)
 
             ## log de respuesta del radicado de solicitud de ampliación de información
             action = ProcessActionStep()
             action.user = get_current_user()
-            action.action = ProcessActionStep.ActionTypes.ANSWER
+            action.action = ProcessActionStep.ActionTypes.AMPLIATION_ANSWER
             action.detail = 'El radicado %s ha sido respondido' % (radicate.number) 
             action.radicate = radicate
             action.save()
@@ -809,8 +811,8 @@ def pqrs_answer_request(request, pk):
             ## log de respuesta del radicado original de la solicitud de ampliación de información
             action = ProcessActionStep()
             action.user = get_current_user()
-            action.action = ProcessActionStep.ActionTypes.ANSWER
-            action.detail = 'El radicado %s ha sido respondido' % (radicate.number) 
+            action.action = ProcessActionStep.ActionTypes.AMPLIATION_ANSWER
+            action.detail = 'El radicado %s ha sido respondido' % (instance.parent.number) 
             action.radicate = instance.parent
             action.save()
 
@@ -820,8 +822,8 @@ def pqrs_answer_request(request, pk):
         return HttpResponseRedirect(request.path_info)
                 
     else:
-        
-        form = RequestAnswerForm(initial={'number' : radicate.number, 'question': radicate.data})
+        data = '<div id="editor-container"><div class="nonEditable"><div class="mceEditable"></div></div></div>'
+        form = RequestAnswerForm(initial={'number' : radicate.number, 'question': radicate.data, 'data': data})
         return render(request, 'pqrs/answer_request.html', context={'form': form, 'radicate': radicate})
     
     
@@ -862,12 +864,15 @@ def pqrs_answer_preview(request, pk):
 
             RadicateService.process_files(request.FILES.getlist('answer_uploaded_files'), instance, request)
             
-            DocxCreationService.mix_from_template(Template.Types.PQR_CREATION, instance)
+            HtmlPdfCreationService.generate_pdf(Template.Types.PQR_CREATION, instance.data, instance)
             return redirect('pqrs:answer', pk, instance.pk)
         else:
-            print(form.errors)
-        
+            logger.error("Invalid answer pqr form", form.is_valid(), form.errors)
+            messages.error( request, "La PQRSD no Pudo ser respondida")
+            return render(request, 'pqrs/answer_form.html', context={'form': form, 'radicate': radicate})
     else:
+        formatted_data = Template.objects.get(type=Template.Types.PQR_EXT_REQUEST).file.read().decode("utf-8") 
+        formatted_data = FormatHelper.replace_data_preparing_html(formatted_data, radicate)
         initial_values = {
             'number': radicate.number,
             'person_type' : radicate.person.person_type if radicate.person else None,
@@ -881,7 +886,7 @@ def pqrs_answer_preview(request, pk):
             'phone_number' : radicate.person.phone_number if radicate.person else None,
             'city' : radicate.person.city if radicate.person else None,
             'subject' : 'Respuesta - ' + radicate.subject,
-            'data': ''
+            'data': formatted_data
         }
         
         if radicate.person and radicate.person.person_type.abbr == 'PJ':
@@ -958,7 +963,7 @@ def change_classification(request,pk):
     form  = ChangeClassificationForm()
 
     if request.method == "POST":
-        create = pqrs_object.pqrsobject.status == PQRS.Status.EMAIL
+        create = pqrs_object.status == Radicate.Status.EMAIL
         form = ChangeClassificationForm(request.POST)
         if form.is_valid():
             type = Type.objects.get(pk=form['pqrs_type'].value())
@@ -966,7 +971,7 @@ def change_classification(request,pk):
             interest_group = InterestGroup.objects.get(pk=form['interest_group'].value())
             
             pqrs_object.pqrsobject.pqr_type=type
-            pqrs_object.pqrsobject.status = PQRS.Status.CREATED
+            pqrs_object.status = Radicate.Status.CREATED
             pqrs_object.subtype = subtype
             pqrs_object.interestGroup = interest_group
 
@@ -1028,8 +1033,3 @@ def change_classification(request,pk):
             'pqrs/change_classification.html',
             context)
 
-
-class PqrsStatistics(ListView):
-    model = PqrsContent
-    template_name = 'pqrs/statistics.html'
-    

@@ -63,6 +63,16 @@ class ReceptionMode(models.Model):
 
 
 class Radicate(models.Model):
+    class Status(models.TextChoices):
+        EMAIL = 'EM', _('Importada')
+        CREATED = 'CR', _('Recibida')
+        ASSIGNED = 'AS', _('Asignada')
+        RETURNED = 'RT', _('Devuelto')
+        AMPLIATION_REQUESTED = 'AR', _('Ampliación solicitada')
+        AMPLIATION_ANSWERED = 'AA', _('Ampliación respondida')
+        ANSWERED = 'AN', _('Respondida')
+        CLOSED = 'CL', _('Cerrada')
+
     class Stage(models.TextChoices):
         CREATED = 'CR', _('Creada')
         IN_PROCESS = 'PR', _('En proceso')
@@ -73,7 +83,6 @@ class Radicate(models.Model):
         AMPLIATION_REQUEST = 'AR', _('Solicitud de ampliación')
         AMPLIATION_ANSWER = 'AA', _('Respuesta de solicitante')
         COMPLETE_ANSWER = 'CA', _('Respuesta final')
-        ANSWERED = 'AN', _('Respondido')
 
     number = models.TextField(max_length=30, null=False, db_index=True)
     subject = models.CharField(max_length=256, null=True)
@@ -98,6 +107,7 @@ class Radicate(models.Model):
     parent = models.ForeignKey('Radicate', on_delete=models.PROTECT, related_name='associated_radicates', null=True)
     mother = models.ForeignKey('Radicate', on_delete=models.PROTECT, related_name='linked_radicates', null=True)
     classification = models.CharField(max_length=3, choices=Classification.choices, default=Classification.PQR)
+    status = models.CharField(max_length=2, choices=Status.choices, default=Status.CREATED)
     folder_id = models.TextField(max_length=100, null=False, default='')
 
     reported_people = models.ManyToManyField(User, blank=True)
@@ -120,6 +130,9 @@ class Radicate(models.Model):
     def get_absolute_url(self):
         return reverse('correspondence:detail_radicate', args=[str(self.id)])
 
+    def get_status_str(self):
+        return self.Status(self.status).label
+
 class ProcessActionStep(BaseModel):
     
     class ActionTypes(models.TextChoices):
@@ -127,6 +140,7 @@ class ProcessActionStep(BaseModel):
         ANSWER = 'AN', _('Respuesta')
         CREATION = 'CR', _('Creación')
         AMPLIATION_REQUEST = 'AR', _('Solicitud de ampliación de información')
+        AMPLIATION_ANSWER = 'AA', _('Respuesta de ampliación de información')
         ASSOCIATION = 'ASS', _('Asociación')
         ASSIGNATION = 'ASI', _('Asignación')
         CHANGE_TYPE = 'CT', _('Cambio de tipo')
