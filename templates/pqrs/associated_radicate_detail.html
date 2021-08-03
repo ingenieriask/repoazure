@@ -159,7 +159,7 @@
                     <div class="col-12 text-sm">
                       <p>
                         <i data-feather="file-text"></i>
-                        <b>Detalle de la solicitud:</b><br />{{ radicate.data }}
+                        <b>Detalle de la solicitud:</b><br />{% autoescape off %} {{ radicate.data }} {% endautoescape %}
                       </p>
                     </div>
                   </div>

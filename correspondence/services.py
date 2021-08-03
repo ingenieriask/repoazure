@@ -50,7 +50,7 @@ class RadicateService(object):
             if notification:
                 user = notification.users.all()[0]
                 ###TODO definir el área
-                RadicateService.assign_to_user_service(pqrs, user, None, 'Asignación automática', reverse('pqrs:detail_pqr', kwargs={'pk': pqrs.pk}), get_current_user(), PQRS.Status.ASSIGNED)
+                RadicateService.assign_to_user_service(pqrs, user, None, 'Asignación automática', reverse('pqrs:detail_pqr', kwargs={'pk': pqrs.pk}), get_current_user(), Radicate.Status.ASSIGNED)
                 
                 pqrs.pqrsobject.save()
                 pqrs.save()
@@ -171,10 +171,10 @@ class RadicateService(object):
     def create_pqr_from_email(cls, message):
         pqrs_type = get_object_or_404(Type, name='EMAIL')
         pqrs_object=PQRS(pqr_type = pqrs_type)
-        pqrs_object.status = PQRS.Status.EMAIL
         pqrs_object.save()
 
         instance = PqrsContent()
+        instance.status = Radicate.Status.EMAIL
         instance.subject = message.subject
         instance.data = message.html
         instance.email_user_email = message.from_address[0]
@@ -218,7 +218,7 @@ class RadicateService(object):
             alert.save()
 
     @classmethod
-    def process_pqr_creation(cls, pqrsoparent, form, request, person):
+    def process_pqr_creation(cls, pqrsoparent, form, request, person, is_from_logged_user = False):
         instance = form.save(commit=False)
         instance.reception_mode = get_object_or_404(ReceptionMode, abbr='VIR')
         instance.type = get_object_or_404(RadicateTypes, abbr='PQR')
@@ -226,6 +226,8 @@ class RadicateService(object):
         instance.response_mode = person.request_response
         instance.person = person
         instance.pqrsobject = pqrsoparent
+        if is_from_logged_user:
+            instance.agreement_personal_data = True
         radicate =  form.save()
         cmis_id = AppParameter.objects.get(name='ECM_TEMP_FOLDER_ID').value
         folder_id = ECMService.create_folder(cmis_id, radicate.number)
@@ -288,7 +290,7 @@ class RadicateService(object):
         pqrs.last_user = current_user
         pqrs.current_user = user
         pqrs.current_functional_area = area
-        pqrs.pqrsobject.status = status
+        pqrs.status = status
 
         detail = "El radicado %s ha sido asignado a %s" % (pqrs.number, user.username)
         alert_info = 'Te han asignado el radicado %s' % pqrs.number

@@ -61,21 +61,12 @@ class SubType(models.Model):
         verbose_name= 'Sub tipo PQRSD'
         verbose_name_plural= 'Sub tipos PQRSD'
 class PQRS(models.Model):
-    class Status(models.TextChoices):
-        EMAIL = 'EM', _('Importada')
-        CREATED = 'CR', _('Recibida')
-        ASSIGNED = 'AS', _('Asignada')
-        RETURNED = 'RT', _('Devuelto')
-        ANSWERED = 'AN', _('Respondida')
         
     uuid = models.UUIDField(editable=False, default=uuid.uuid4, unique=True)
     pqr_type = models.ForeignKey(Type,on_delete=models.PROTECT,related_name='pqrs_object_type',null =True)
     principal_person = models.ForeignKey(Person, on_delete=models.PROTECT,related_name='pqrs_object_principal_person',null=True)
     multi_request_person = models.ManyToManyField(PersonRequest, related_name="multi_pqrs_request_person")
-    status = models.CharField(max_length=2, choices=Status.choices, default=Status.CREATED)
 
-    def get_status_str(self):
-        return self.Status(self.status).label
     class Meta:
         verbose_name= 'Objeto PQRSD'
         verbose_name_plural= 'Objetos PQRSD'
