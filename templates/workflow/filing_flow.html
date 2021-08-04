@@ -175,6 +175,7 @@ function getVueAssignUserControl(key, userType, users, time, permission) {
             }
             return {
                 value: user.id,
+                area_id: user.area_id,
                 username: user.username,
                 user: user,
                 title: `[${user.username}] ${user.first_name} ${user.last_name}`,
@@ -201,6 +202,7 @@ function getVueAssignUserControl(key, userType, users, time, permission) {
                 $('#user_selected_submit').click(function(){ 
                     self.value = $('#user_selected').val();
                     self.title = $('#user_selected').find("option:selected").text()
+                    self.area_id = $('#user_selected_area').val()
                     self.username = self.title.match(/\[(.*)\]/i)[1];
                     $('.collapse').collapse('hide')
                     $("#headerForm").text('')
@@ -213,7 +215,7 @@ function getVueAssignUserControl(key, userType, users, time, permission) {
                 $('#user_modal').modal()
             },
             update() {
-                    this.putData('users', [{'id': this.value}])
+                    this.putData('users', [{'id': this.value, 'area_id': self.area_id}])
                     this.putData('time', this.time)
                 this.emitter.trigger('process');
             }
@@ -313,7 +315,7 @@ function getVueNotifyUserControl(key, userType, users, time, permission) {
                 });
 
                 $('#users_selected').change(function(){ 
-                    value = $('#users_selected').val()
+                    value = $('#users_selected').val();
                     title = {'user': $('#users_selected').find("option:selected").text(), 'area_id': $('#users_selected_area').val()}
                     self.addUser(value, title)
 
