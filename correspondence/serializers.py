@@ -2,7 +2,7 @@ from correspondence.ecm_services import ECMService
 from django.db import models
 from rest_framework import serializers
 from correspondence.models import Radicate,AlfrescoFile
-
+import base64
 
 class RadicateSerializer(serializers.ModelSerializer):
     class Meta:
@@ -37,11 +37,15 @@ class RadicateSerializerDetail(serializers.ModelSerializer):
 class FilesSerializerDetail(serializers.ModelSerializer):
 
     url_file = serializers.SerializerMethodField()
+    header_file = serializers.SerializerMethodField()
     class Meta:
         model= AlfrescoFile
         fields=(
-            'radicate','size','name',
+            'radicate','size','name','header_file',
             'extension','request','url_file','cmis_id'
         )
     def get_url_file(self,obj):
-        return str(ECMService.download(obj.cmis_id))
+        return str(base64.b64encode(ECMService.download(obj.cmis_id)[0]))
+    
+    def get_header_file(self,obj):
+        return str(ECMService.download(obj.cmis_id)[1])
