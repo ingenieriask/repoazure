@@ -28,10 +28,10 @@ class ETLHandler():
 
     @classmethod
     def start(cls):
-        source_string = "host='localhost' dbname='rino' user='rino' password='rino'"
+        source_string = "host='localhost' dbname='rino' user='rino' password='rino' port='5433'"
         source_conn = psycopg2.connect(source_string)
 
-        dw_string = "host='localhost' dbname='rino' user='rino' password='rino'"
+        dw_string = "host='localhost' dbname='rino' user='rino' password='rino' port='5433'"
         dw_conn = psycopg2.connect(dw_string)
 
         dw_conn_wrapper = pygrametl.ConnectionWrapper(connection=dw_conn)

@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    {% load static %}
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+    <meta name="description" content="" />
+    <meta name="author" content="" />
+    <title>RINO</title>
+
+    {% block styles %}
+    {% endblock %}
+
+    <link href="{% static 'correspondence/css/styles.css' %}" rel="stylesheet" />
+    <link href="{% static 'pqrs/css/styles.css' %}" rel="stylesheet" />
+    
+    <link rel="icon" type="image/x-icon" href="{% static 'correspondence/assets/img/favicon.jpg'%}" />
+    <link rel="stylesheet" href="{% url 'core:home-global' %}" type="text/css">
+
+  </head>
+  <div id="loading">
+    <img id="loading-image" src="{% static 'loader/loader.gif'%}" alt="Loading..." />
+  </div>
+  <body class="nav-fixed">
+    <div id="layoutnav">
+      <div id="layoutSidenav_content">
+        {% if messages %} {% for message in messages %}
+        <div class="alert {{message.tags}} alert-dismissible fade show mt-2" role="alert">
+          {{message|safe}}
+          <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        {% endfor %} {% endif %}
+        <main>
+          <header class="page-header page-header-dark bg-gradient-primary-to-secondary pb-10">
+            <div class="container">
+              <div class="page-header-content pt-4">
+                <div class="row align-items-center justify-content-between">
+                  <div class="col-auto mt-4">
+                    <h1 class="page-header-title">
+                      <a href="/">
+                        <img
+                          class="float-left"
+                          src="{% static 'correspondence/assets/img/illustrations/FullColor_TransparentBg_1280x1024_72dpi_1.png' %}"
+                          style="height: 6rem"
+                        />
+                      </a>
+                      RINO - PQRSD
+                    </h1>
+                  </div>
+                  <div class="col-auto mt-4 ml-auto">
+                    <img
+                      onerror="this.remove()"
+                      class="float-right"
+                      src="/media/company_logo/logo.png"
+                      style="height: 6rem"
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+          </header>
+          <!-- Main page content-->
+          <div class="container mt-n10">{% block content %} {% endblock %}</div>
+          
+        </main>
+        <footer class="footer mt-auto footer-light">
+          <div class="container-fluid">
+            <div class="row">
+              <div class="col-md-6 small">Copyright &copy; RINO 2021</div>
+              <div class="col-md-6 text-md-right small">
+                <a href="#!">Privacy Policy</a>
+                &middot;
+                <a href="#!">Terms &amp; Conditions</a>
+              </div>
+            </div>
+          </div>
+        </footer>
+      </div>
+    </div>
+    <script src="{% static 'node_modules/jquery/dist/jquery.js' %}"></script>
+    <script src="{% static 'node_modules/bootstrap/dist/js/bootstrap.js' %}"></script>
+
+    <script type="text/javascript">
+        $(window).on("load", function () {
+            $("#loading").hide();
+            $( ":button" ).addClass( "no-after" );
+        });
+    </script>
+    {% block script %} {% endblock %}
+    
+  </body>
+
+</html>
