@@ -8,6 +8,33 @@
     }
   },
   {
+    "model": "workflow.signatureareauser",
+    "pk": 1,
+    "fields": {
+      "user_id": 2,
+      "area_id": 1,
+      "signature_flow_id": 1
+    }
+  },
+  {
+    "model": "workflow.signatureareauser",
+    "pk": 2,
+    "fields": {
+      "user_id": 3,
+      "area_id": 2,
+      "signature_flow_id": 1
+    }
+  },
+  {
+    "model": "workflow.signatureareauser",
+    "pk": 3,
+    "fields": {
+      "user_id": 4,
+      "area_id": 3,
+      "signature_flow_id": 1
+    }
+  },
+  {
     "model": "workflow.signaturenode",
     "pk": 11,
     "fields": {
@@ -27,7 +54,7 @@
       "properties": "{\"position\": [282, 173]}",
       "signature_flow_id": 1,
       "previous": [11],
-      "user_id": 2,
+      "area_user_id": 1,
       "time": 2
     }
   },
@@ -40,7 +67,7 @@
       "properties": "{\"position\": [530, 20]}",
       "signature_flow_id": 1,
       "previous": [12],
-      "user_id": 3,
+      "area_user_id": 2,
       "time": 2
     }
   },
@@ -53,7 +80,7 @@
       "properties": "{\"position\": [530, 215]}",
       "signature_flow_id": 1,
       "previous": [12],
-      "user_id": 4,
+      "area_user_id": 3,
       "time": 2
     }
   },

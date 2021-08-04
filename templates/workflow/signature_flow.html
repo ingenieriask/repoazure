@@ -162,6 +162,7 @@ function getVueUserControl(key, userType, user, time, permission) {
             return {
                 value: user.id,
                 username: user.username,
+                area_id: user.area_id,
                 user: user,
                 title: `[${user.username}] ${user.first_name} ${user.last_name}`,
                 time: time,
@@ -184,6 +185,7 @@ function getVueUserControl(key, userType, user, time, permission) {
                 self = this;
                 $('#user_selected_submit').click(function(){ 
                     self.value = $('#user_selected').val();
+                    self.area_id = $('#user_selected_area').val();
                     self.title = $('#user_selected').find("option:selected").text()
                     self.username = self.title.match(/\[(.*)\]/i)[1];
                     $('.collapse').collapse('hide')
@@ -202,7 +204,7 @@ function getVueUserControl(key, userType, user, time, permission) {
             },
             update() {
                 if (this.ikey)
-                    this.putData('user', {'id': this.value})
+                    this.putData('user', {'id': this.value, 'area_id': this.area_id})
                     this.putData('time', this.time)
                 this.emitter.trigger('process');
             }
