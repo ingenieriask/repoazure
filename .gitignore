@@ -129,6 +129,6 @@ node_modules/
 core/fixtures/app_parameter.json
 
 # Usefull comands Nicolas
-
+params_nicolas.json
 commands.txt
 **/migrations/**

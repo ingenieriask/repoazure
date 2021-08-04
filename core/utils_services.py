@@ -1,3 +1,4 @@
+from os import name
 from fpdf import FPDF
 from io import BytesIO
 from django.core.files import File
@@ -51,6 +52,39 @@ class FormatHelper():
             if not to_replace or str(to_replace).endswith('.None'):
                 to_replace = ''
             text = text.replace('<param>' + par + '</param>', str(to_replace))
+        for par in re.compile('&lt;param&gt;(.*?)&lt;/param&gt;', re.IGNORECASE).findall(text):
+            if '>' in par:
+                name_par = re.compile('>(\\w.+?)<', re.IGNORECASE).findall(par)[0]
+            else:
+                name_par = par
+            
+            to_replace = cls.get_data_from_obj(name_par, obj)
+            
+            if not to_replace or str(to_replace).endswith('.None'):
+                to_replace = ''
+            text = text.replace('&lt;param&gt;' + par + '&lt;/param&gt;', str(to_replace))
+        return text
+
+    @classmethod
+    def replace_data_preparing_html(cls, text, obj):
+        for body in re.compile('<body.*>', re.IGNORECASE).findall(text):
+            new_body = body + ' <div class="nonEditable">'
+            text = text.replace(body, new_body)
+            text = text.replace('</body>', '</div></body>')
+        for par in re.compile('&lt;param&gt;(.*?)&lt;/param&gt;', re.IGNORECASE).findall(text):
+            if '>' in par:
+                name_par = re.compile('>(\\w.+?)<', re.IGNORECASE).findall(par)[0]
+            else:
+                name_par = par
+            
+            if name_par == 'data' and not cls.get_data_from_obj(name_par, obj):
+                to_replace = '<div class="mceEditable">Diligencia acá</div>'
+            else:
+                to_replace = cls.get_data_from_obj(name_par, obj)
+            
+            if not to_replace or str(to_replace).endswith('.None'):
+                to_replace = ''
+            text = text.replace('&lt;param&gt;' + par + '&lt;/param&gt;', str(to_replace))
         return text
 
 class PDF(FPDF):

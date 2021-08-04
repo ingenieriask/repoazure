@@ -7,6 +7,33 @@
     }
   },
   {
+    "model": "workflow.filingareauser",
+    "pk": 1,
+    "fields": {
+      "user_id": 2,
+      "area_id": 1,
+      "filing_flow_id": 1
+    }
+  },
+  {
+    "model": "workflow.filingareauser",
+    "pk": 2,
+    "fields": {
+      "user_id": 3,
+      "area_id": 2,
+      "filing_flow_id": 1
+    }
+  },
+  {
+    "model": "workflow.filingareauser",
+    "pk": 3,
+    "fields": {
+      "user_id": 4,
+      "area_id": 3,
+      "filing_flow_id": 1
+    }
+  },
+  {
     "model": "workflow.filingnode",
     "pk": 1,
     "fields": {
@@ -15,7 +42,7 @@
       "properties": "{\"position\": [0, 100]}",
       "filing_flow_id": 1,
       "previous": [],
-      "users": []
+      "area_users": []
     }
   },
   {
@@ -27,7 +54,7 @@
       "properties": "{\"position\": [530, 20]}",
       "filing_flow_id": 1,
       "previous": [1],
-      "users": [2, 3]
+      "area_users": [1, 2]
     }
   },
   {
@@ -39,7 +66,7 @@
       "properties": "{\"position\": [530, 215]}",
       "filing_flow_id": 1,
       "previous": [1],
-      "users": [2]
+      "area_users": [3]
     }
   },
   {
@@ -51,7 +78,7 @@
       "properties": "{\"position\": [800, 100]}",
       "filing_flow_id": 1,
       "previous": [11, 12],
-      "users": []
+      "area_users": []
     }
   }
 ]

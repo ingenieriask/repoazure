@@ -1,13 +1,24 @@
-from correspondence.models import AlfrescoFile, Radicate, Record, PermissionRelationAssignation, PermissionRelationReport, ProcessActionStep
-from core.models import ChatRooms, FunctionalArea, NotificationsService, Person, Atttorny_Person, UserProfileInfo, FunctionalAreaUser, Alert
-from pqrs.models import PQRS, PqrsContent
-from correspondence.forms import RadicateForm, SearchForm, UserForm, UserProfileInfoForm, PersonForm, RecordForm, \
+from django import http
+from correspondence.models import AlfrescoFile, Radicate, RadicateTypes, ReceptionMode, Record, PermissionRelationAssignation, PermissionRelationReport, ProcessActionStep, \
+    RequestInternalInfo
+from core.models import Attorny, AttornyType, ChatRooms, City, DocumentTypes, FunctionalArea, LegalPerson, Person, Atttorny_Person, Template, \
+    FunctionalAreaUser, Alert, AppParameter
+from pqrs.models import InterestGroup, PQRS, PqrsContent, SubType, Type
+from correspondence.forms import CorrespondenceRadicateForm, RadicateForm, SearchForm, SearchLegalUserForm, SearchUserForm, UserForm, UserProfileInfoForm, PersonForm, RecordForm, \
     SearchContentForm, ChangeCurrentUserForm, ChangeRecordAssignedForm, LoginForm, AssignToUserForm, ReturnToLastUserForm, ReportToUserForm, \
-    DeleteFromReportedForm
+    DeleteFromReportedForm, RequestInternalInformatioForm, AnswerRequestForm
+
+from pqrs.forms import PersonForm as PqrsPersonForm 
+from pqrs.forms import LegalPersonForm as PqrsLegalPersonForm
+from pqrs.forms import PersonAttorny as PqrsPeronAttornyForm 
+from pqrs.forms import PersonFormUpdate as PqrsPeronUpdateForm 
+from pqrs.forms import LegalPersonFormUpdate as PqrsLegalPersonFormUpdate
+from pqrs.forms import ChangeClassificationForm as PqrsChangueType
+
 from django.contrib.auth.models import User
 from datetime import datetime, timedelta
 from django.conf import settings
-from django.shortcuts import get_list_or_404, get_object_or_404, render
+from django.shortcuts import get_list_or_404, get_object_or_404, redirect, render
 from django.http import HttpResponseRedirect, HttpResponse, JsonResponse
 from django.urls import reverse
 from django.contrib.auth.decorators import login_required
@@ -39,8 +50,9 @@ from crum import get_current_user
 from django.core.files import File
 from pydocx import PyDocX
 
-from core.services import NotificationsHandler, SystemParameterHelper, UserHelper
-from correspondence.services import ECMService, RadicateService
+from core.services import DocxCreationService, NotificationsHandler, Recipients, RecordCodeService, SystemParameterHelper, UserHelper
+from correspondence.services import RadicateService
+from correspondence.ecm_services import ECMService
 
 logger = logging.getLogger(__name__)
 
@@ -162,7 +174,7 @@ def return_to_last_user(request, radicate):
             user = pqrs.last_user
             pqrs.last_user = pqrs.current_user
             pqrs.current_user = user
-            pqrs.pqrsobject.status = PQRS.Status.RETURNED
+            pqrs.status = Radicate.Status.RETURNED
 
             if pqrs.observation == None:
                 pqrs.observation = ''
@@ -171,7 +183,7 @@ def return_to_last_user(request, radicate):
 
             action = ProcessActionStep()
             action.user = get_current_user()
-            action.action = 'Devolución'
+            action.action = ProcessActionStep.ActionTypes.RETURN
             action.detail = "El radicado %s ha sido retornado a %s" % (pqrs.number, user.username)
             action.radicate = pqrs
             action.observation = form.cleaned_data['observations']
@@ -214,9 +226,11 @@ def assign_user(request, radicate):
         if form.is_valid():
             userPk = request.POST.get('selectedUsersInput')
             pqrs = PqrsContent.objects.get(pk=radicate)
+            area_pk = request.POST.get('interest_area')
+            area = FunctionalArea.objects.get(pk=area_pk)
             user = User.objects.get(pk=userPk)
-            RadicateService.assign_to_user_service(pqrs, user, form.cleaned_data['observations'], 
-                reverse('pqrs:detail_pqr', kwargs={'pk': pqrs.pk}), get_current_user(), PQRS.Status.ASSIGNED)
+            RadicateService.assign_to_user_service(pqrs, user, area, form.cleaned_data['observations'], 
+                reverse('pqrs:detail_pqr', kwargs={'pk': pqrs.pk}), get_current_user(), Radicate.Status.ASSIGNED)
             if pqrs.observation == None:
                 pqrs.observation = ''
             pqrs.observation = pqrs.observation + form.cleaned_data['observations']
@@ -360,7 +374,7 @@ def delete_from_reported(request, radicate):
             
             action = ProcessActionStep()
             action.user = get_current_user()
-            action.action = 'Eliminación de informe'
+            action.action = ProcessActionStep.ActionTypes.REMOVE_REPORT
             action.detail = "El usuario %s ha abandonado el informe del radicado %s" % (pqrs.number, current_user)
             action.radicate = pqrs
             action.observation = form.cleaned_data['observations']
@@ -406,11 +420,162 @@ def autocomplete(request):
 
 
 # Radicate Views
+@login_required
+def search_user(request):
+    form_new=None
+    form_np =SearchUserForm()
+    form_lp = SearchLegalUserForm()
+    update = False
+    np = False
+    update_id = None
+    if request.method == 'POST':
+        form_np = SearchUserForm(request.POST)
+        form_lp = SearchLegalUserForm(request.POST)
+        if form_np.is_valid():
+            check_anonimous = form_np['anonymous'].value()
+            np = True
+            if check_anonimous:
+                person_anonnymous = get_object_or_404(Person, id=1)
+                pqrsObject = PQRS(principal_person=person_anonnymous)
+                pqrsObject.save()
+                return redirect('correspondence:create_pqrs', pqrsObject.uuid)
+            else:
+                doc_num = form_np['doc_num'].value()
+                document_type = form_np['document_type'].value()
+                qs = Person.objects.filter(
+                    Q(document_number=doc_num) & 
+                    Q(document_type=document_type))
+                if not qs.count():
+                    messages.warning(
+                        request, "La búsqueda no obtuvo resultados. Registre la siguiente informacion para continuar con el proceso")
+                    form_new = PqrsPersonForm()
+                else:
+                    person = qs[0]
+                    data = {
+                        'document_type':person.document_type,
+                        'document_number':person.document_number,
+                        'expedition_date':person.expedition_date,
+                        'name':person.name,
+                        'lasts_name':person.lasts_name,
+                        'gender_type':person.gender_type,
+                        'email':person.email,
+                        'email_confirmation':person.email,
+                        'request_response':person.request_response,
+                        'city':person.city,
+                        'phone_number':person.phone_number,
+                        'address':person.address,
+                        'conflict_victim':person.conflict_victim,
+                        'ethnic_group':person.ethnic_group,
+                        'preferencial_population':person.preferencial_population.all,
+                        'disabilities':person.disabilities.all,
+                    }
+                    form_new=PqrsPeronUpdateForm(initial=data)
+                    update=True
+                    update_id= person.pk
+
+        elif form_lp.is_valid():
+            doc_num = form_lp['doc_num'].value()
+            verif_code = form_lp['verification_code'].value()
+            document_type = form_lp['document_type'].value()
+            qs = LegalPerson.objects.filter(
+                Q(document_company_number=doc_num) & 
+                Q(document_type_company=document_type)&
+                Q(verification_code=verif_code))
+            if not qs.count():
+                messages.warning(
+                    request, "La búsqueda no obtuvo resultados. Registre la siguiente informacion para continuar con el proceso")
+                form_new = PqrsLegalPersonForm()
+            else:
+                person_legal = qs[0]
+                representative=Person.objects.get(parent=person_legal)
+                data = {
+                    'document_type_company':person_legal.document_type_company,
+                    'document_company_number':person_legal.document_company_number,
+                    'company_name':person_legal.company_name,
+                    'verification_code':person_legal.verification_code,
+                    'document_type':representative.document_type,
+                    'document_number':representative.document_number,
+                    'expedition_date':representative.expedition_date,
+                    'name':representative.name,
+                    'lasts_name':representative.lasts_name,
+                    'email':representative.email,
+                    'email_confirmation':representative.email,
+                    'city':representative.city,
+                    'phone_number':representative.phone_number,
+                    'address':representative.address,
+                }
+                form_new=PqrsLegalPersonFormUpdate(initial=data)
+                update=True 
+                update_id= person_legal.pk
+
+    return render(
+        request,
+        "correspondence/search_user.html",
+        context={
+            'form_np':form_np,
+            'form_lp':form_lp,
+            'form_new':form_new,
+            'update':update,
+            'np':np,
+            'update_id':update_id
+        })
+
+
+@login_required
+def create_pqr_type(request, pqrs):
+    pqrsoparent = get_object_or_404(PQRS, uuid=pqrs)
+    person = get_object_or_404(Person, id=int(pqrsoparent.principal_person.id))
+    form= PqrsChangueType()
+    form_new=None
+    context=None
+    if request.method == 'POST':
+        form= PqrsChangueType(request.POST)
+        if form.is_valid():
+            PQRS.objects.filter(uuid=pqrs).update(pqr_type=form['pqrs_type'].value())
+            subtype = SubType.objects.get(id=form['pqrs_subtype'].value())
+            interest_group = InterestGroup.objects.get(pk=form['interest_group'].value())
+            form_new = CorrespondenceRadicateForm(
+                initial={
+                    "subtype":subtype,
+                    "interestGroup":interest_group
+                })
+            form_new.person = person
+            context={
+                'subtype':subtype,
+                'interest_group':interest_group
+            }
+            form=None
+    return render(
+        request,
+        "correspondence/create_pqrs.html",
+        context={
+            'form':form,
+            'form_new':form_new,
+            'pqrs': pqrs,
+            'context':context
+        })
+    
+@login_required
+def finish_pqrs(request,pqrs):
+    pqrsoparent = get_object_or_404(PQRS, uuid=pqrs)
+    person = get_object_or_404(Person, id=int(pqrsoparent.principal_person.id))
+    if request.method == 'POST':
+        form = CorrespondenceRadicateForm(request.POST)
+        if form.is_valid():
+            radicate = RadicateService.process_pqr_creation(pqrsoparent, form, request, person, True)
+            messages.success(request, "El radicado se ha creado correctamente")
+            
+            url = reverse('pqrs:pqrs_finish_creation', kwargs={'pk': radicate.pk})
+            return HttpResponseRedirect(url)
+        
+        else:
+            logger.error("Invalid create pqr form", form.is_valid(), form.errors)
+            messages.error( request, "La PQRSD no Pudo ser creada")
+    return create_pqr_type(request,pqrs)
+
 
 @login_required
 def create_radicate(request, person):
-    from django.core import files
-
     person = get_object_or_404(Person, id=person)
 
     if request.method == 'POST':
@@ -418,7 +583,6 @@ def create_radicate(request, person):
 
         if form.is_valid():
             instance = form.save(commit=False)
-            cleaned_data = form.cleaned_data
             form.document_file = request.FILES['document_file']
             now = datetime.now()
             instance.number = now.strftime("%Y%m%d%H%M%S")
@@ -489,7 +653,7 @@ class RadicateList(ListView):
     def get_queryset(self):
         queryset = super(RadicateList, self).get_queryset()
         queryset = queryset.filter(
-            current_user=self.request.user.profile_user.pk)
+            current_user=self.request.user.pk)
         return queryset
 
 
@@ -545,7 +709,7 @@ class RadicateDetailView(DetailView):
         context['logs'] = Log.objects.all().filter(object_id=self.kwargs['pk'])
         context['files'] = AlfrescoFile.objects.all().filter(
             radicate=self.kwargs['pk'])
-        if context['pqrscontent'].person.attornyCheck:
+        if context['pqrscontent'].person and context['pqrscontent'].person.attornyCheck:
             personAttorny = Atttorny_Person.objects.filter(
                 person=context['pqrscontent'].person.pk)[0]
             context['personAttorny'] = personAttorny
@@ -637,11 +801,129 @@ def project_answer(request, pk):
 
 
 # PERSONS Views
+
+class PersonAtronyCreate(CreateView):
+    model = Attorny
+    form_class = PqrsPeronAttornyForm
+    template_name = 'correspondence/person_form.html'
+
+    def form_valid(self, form):
+        self.object = form.save(commit=False)
+        self.object.save()
+        pqrsObject = get_object_or_404(PQRS, uuid=self.kwargs['pqrs_type'])
+        attorny_type = get_object_or_404(
+            AttornyType, id=int(form['attorny_type'].value()))
+        atornyPerson = Atttorny_Person(
+            attorny=self.object, person=pqrsObject.principal_person, attorny_type=attorny_type)
+        atornyPerson.save()
+        return redirect('correspondence:create_pqrs', pqrsObject.uuid)
+
+    def get_form_kwargs(self):
+        kwargs = super(PersonAtronyCreate, self).get_form_kwargs()
+        # update the kwargs for the form init method with yours
+        kwargs.update(self.kwargs)  # self.kwargs contains all url conf params
+        return kwargs
+
 class PersonCreateView(CreateView):
     model = Person
-    form_class = PersonForm
+    form_class = PqrsPersonForm
+    template_name = 'correspondence/person_form.html'
 
+    def form_valid(self, form):
+        self.object = form.save(commit=False)
+        self.object.save()
+        form.save_m2m()
+        pqrsObject = PQRS( principal_person=self.object)
+        pqrsObject.save()
+        if self.object.attornyCheck or form['document_type'].value() == 4:
+            return redirect('correspondence:create_person_attorny', pqrsObject.uuid)
+        return redirect('correspondence:create_pqrs', pqrsObject.uuid)
 
+class PersonUpdateViewNew(UpdateView):
+    model = Person
+    form_class = PqrsPeronUpdateForm
+    template_name = 'correspondence/person_form.html'
+
+    def form_valid(self, form):
+        self.object = form.save(commit=False)
+        self.object.save()
+        form.save_m2m()
+        pqrsObject = PQRS(principal_person=self.object)
+        pqrsObject.save()
+        if self.object.attornyCheck or form['document_type'].value() == 4:
+            return redirect('correspondence:create_person_attorny', pqrsObject.uuid)
+        return redirect('correspondence:create_pqrs', pqrsObject.uuid)
+
+class LegalPersonCreateView(CreateView):
+    model = LegalPerson
+    form_class = PqrsLegalPersonForm
+    template_name = 'correspondence/person_form.html'
+
+    def form_valid(self, form):
+        self.object = LegalPerson(
+            verification_code=form['verification_code'].value(),
+            company_name=form['company_name'].value(),
+            document_company_number=form['document_company_number'].value(),
+            document_number=form['document_company_number'].value(),
+            email=form['email'].value(),
+            representative=f"{form['name'].value()} {form['lasts_name'].value()}",
+            document_type_company=DocumentTypes.objects.filter(
+                id=int(form['document_type_company'].value()))[0],
+        )
+        self.object.save()
+        person_legal, created=Person.objects.get_or_create(document_number=form['document_number'].value())
+        if not created:
+            person_legal = Person(
+                name=form['name'].value(),
+                lasts_name=form['lasts_name'].value(),
+                document_type=DocumentTypes.objects.filter(
+                    id=int(form['document_type'].value()))[0],
+                document_number=form['document_number'].value(),
+                expedition_date=form['expedition_date'].value(),
+                email=form['email'].value(),
+                city=City.objects.filter(id=int(form['city'].value()))[0],
+                phone_number=form['phone_number'].value(),
+                address=form['address'].value(),
+                parent=self.object
+            )
+            person_legal.save()
+        pqrsObject = PQRS(principal_person=person_legal)
+        pqrsObject.save()
+        return redirect('correspondence:create_pqrs', pqrsObject.uuid)
+
+class LegalPersonUpdateView(UpdateView):
+    model = LegalPerson
+    form_class = PqrsLegalPersonFormUpdate
+    template_name = 'correspondence/person_form.html'
+
+    def form_valid(self, form):
+        self.object = LegalPerson.objects.\
+            filter(
+                Q(document_company_number=form['document_company_number'].value()) & 
+                Q(verification_code=form['verification_code'].value() )&
+                Q(document_type_company=DocumentTypes.objects.filter(
+                    id=int(form['document_type_company'].value()))[0])
+            )
+        self.object.update(
+            company_name=form['company_name'].value(),
+            email=form['email'].value(),
+            representative=f"{form['name'].value()} {form['lasts_name'].value()}",
+        )
+        person_legal = Person.objects.filter(parent=self.object[0])
+        person_legal.update(
+            name=form['name'].value(),
+            lasts_name=form['lasts_name'].value(),
+            email=form['email'].value(),
+            city=City.objects.filter(id=int(form['city'].value()))[0],
+            phone_number=form['phone_number'].value(),
+            address=form['address'].value(),
+        )
+        
+        pqrsObject = PQRS(principal_person=person_legal[0])
+        pqrsObject.save()
+        return redirect('correspondence:create_pqrs', pqrsObject.uuid)
+
+    
 class PersonDetailView(DetailView):
     model = Person
 
@@ -797,9 +1079,17 @@ def get_thumbnail(request):
 def get_file(request):
 
     cmis_id = request.GET.get('cmis_id')
+    if not cmis_id:
+        files = AlfrescoFile.objects.filter(radicate__pk = request.GET.get('pk'))
+        for f in files:
+            if f.name == f.radicate.number:
+                file = f
+                cmis_id = file.cmis_id
+    else:
+        file = AlfrescoFile.objects.get(cmis_id=cmis_id)
     prev_response = ECMService.download(cmis_id)
     if prev_response:
-        extension = AlfrescoFile.objects.get(cmis_id=cmis_id).extension
+        extension = file.extension
         if extension == '.pdf':
             content_type = "application/pdf"
         elif extension == ".doc" or extension == ".docx":
@@ -812,13 +1102,83 @@ def get_file(request):
     return HttpResponse(default_storage.open('tmp/default.jpeg').read(), content_type="image/jpeg")
 
 
-@login_required
-def processed_chart(request):
-    dates = request.GET.get('dates')
-    time_now = datetime.now()
-    if dates == '1':
-        for time in range(6):
-            print(time_now - timedelta(hours=3))
-                  
-    response = {'data': []}
-    return JsonResponse(response)
+def request_internal_info(request, radicate):
+
+    if request.method == 'POST':
+        form = RequestInternalInformatioForm(request.POST)
+        if form.is_valid():
+            instance = RequestInternalInfo(
+                requested_user = User.objects.get(id=request.POST.get('user_selected')),
+                description = form.cleaned_data['description'],
+                radicate = PqrsContent.objects.get(pk=radicate),
+                area = FunctionalArea.objects.get(id=request.POST.get('interest_area'))
+            )
+            instance.save()
+            get_args_str = urlencode({'id': instance.id, 'template': 'FINISH_REQUEST', 
+                                      'destination': 'pqrs:radicate_my_inbox'})
+            return HttpResponseRedirect(reverse('pqrs:conclusion')+'?'+get_args_str)
+    if request.method == 'GET':
+        functional_tree = []
+        for item, info in FunctionalArea.get_annotated_list():
+            temp = False
+            if info['level'] != 0 and int(item.parent.get_depth()+info['level']) > item.get_depth():
+                temp = True
+            functional_tree.append((item, info, temp))
+        form = RequestInternalInformatioForm(request.GET)
+
+    return render(
+        request,
+        'correspondence/request_internal_info.html',
+        context={
+            'form': form,
+            'functional_tree': functional_tree
+        })
+    
+
+def answer_request(request, pk):
+    
+    request_instance = RequestInternalInfo.objects.get(pk=pk)
+    if request.method == 'POST':
+        form = AnswerRequestForm(request.POST)
+        if form.is_valid():
+            request_instance.answer = request.POST.get('answer')
+            request_instance.status = RequestInternalInfo.Status.CLOSED
+            request_instance.save()
+            folder_id = ECMService.create_folder(request_instance.radicate.folder_id, request_instance.radicate.number+'-'+str(request_instance.id))
+            
+            consecutive = 0
+            
+            for fileUploaded in request.FILES.getlist('request_answer_file'):
+                document_temp_file = NamedTemporaryFile()
+                consecutive += 1
+                for chunk in fileUploaded.chunks():
+                    document_temp_file.write(chunk)
+
+                document_temp_file.seek(0)
+                document_temp_file.flush()
+
+                node_id = ECMService.upload(File(document_temp_file, name=fileUploaded.name), 
+                                            folder_id)
+                alfrescoFile = AlfrescoFile(cmis_id=node_id, request=request_instance,
+                                            name=os.path.splitext(request_instance.radicate.number+'-'+str(request_instance.pk)+'-'+str(consecutive).zfill(5))[0],
+                                            extension=os.path.splitext(fileUploaded.name)[1],
+                                            size=int(fileUploaded.size/1000))
+                alfrescoFile.save()
+
+                if not node_id or not ECMService.request_renditions(node_id):
+                    messages.error(request, "Ha ocurrido un error al guardar el archivo en el gestor de contenido")
+            
+            get_args_str = urlencode({'id': pk, 'template': 'FINISH_REQUEST', 'destination': 'pqrs:radicate_my_inbox'})
+            return HttpResponseRedirect(reverse('pqrs:conclusion')+'?'+get_args_str)
+    
+    if request.method == 'GET':
+        form = AnswerRequestForm()
+        
+    return render(
+        request,
+        'correspondence/answer_request.html',
+        context={
+            'form': form,
+            'user' : get_current_user(),
+            'request_instance' : request_instance
+        })

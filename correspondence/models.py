@@ -4,10 +4,9 @@ from datetime import datetime
 from django.urls import reverse
 from django.conf import settings
 from crum import get_current_user
-from core.models import Office, BaseModel, UserProfileInfo, Person
+from core.models import Office, BaseModel, UserProfileInfo, Person, FunctionalArea
 from django.contrib.auth.models import User, Permission
 from django.utils.translation import gettext_lazy as _
-
 # Create your models here.
 
 class Raft(models.Model):
@@ -64,6 +63,16 @@ class ReceptionMode(models.Model):
 
 
 class Radicate(models.Model):
+    class Status(models.TextChoices):
+        EMAIL = 'EM', _('Importada')
+        CREATED = 'CR', _('Recibida')
+        ASSIGNED = 'AS', _('Asignada')
+        RETURNED = 'RT', _('Devuelto')
+        AMPLIATION_REQUESTED = 'AR', _('Ampliación solicitada')
+        AMPLIATION_ANSWERED = 'AA', _('Ampliación respondida')
+        ANSWERED = 'AN', _('Respondida')
+        CLOSED = 'CL', _('Cerrada')
+
     class Stage(models.TextChoices):
         CREATED = 'CR', _('Creada')
         IN_PROCESS = 'PR', _('En proceso')
@@ -79,13 +88,16 @@ class Radicate(models.Model):
     subject = models.CharField(max_length=256, null=True)
     annexes = models.TextField(max_length=256, null=True)
     observation = models.TextField(max_length=400, null=True)
-    data = models.TextField(max_length=2000, null=True)
+    data = models.TextField(null=True)
     type = models.ForeignKey(RadicateTypes, on_delete=models.CASCADE, related_name='radicate_type', null=False, blank=False)
     date_radicated = models.DateTimeField(default=datetime.now, db_index=True)
     creator = models.ForeignKey(User, on_delete=models.CASCADE, related_name='radicates_creator', blank=True, null=True)
     record = models.ForeignKey('Record', on_delete=models.CASCADE, related_name='radicates', blank=True, null=True)
     person = models.ForeignKey(Person, on_delete=models.CASCADE, related_name='radicates_person', blank=True, null=True)
     current_user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='radicates_user', blank=True, null=True)
+    current_functional_area = models.ForeignKey(FunctionalArea, on_delete=models.CASCADE, related_name='radicates_area', blank=True, null=True)
+    attachment_quantity = models.IntegerField(null=True, default=0)
+
     last_user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='radicates_last_user', blank=True, null=True)
     reception_mode = models.ForeignKey(ReceptionMode, on_delete=models.CASCADE, null=False, blank=False)
     use_parent_address = models.BooleanField(default=False)
@@ -95,6 +107,7 @@ class Radicate(models.Model):
     parent = models.ForeignKey('Radicate', on_delete=models.PROTECT, related_name='associated_radicates', null=True)
     mother = models.ForeignKey('Radicate', on_delete=models.PROTECT, related_name='linked_radicates', null=True)
     classification = models.CharField(max_length=3, choices=Classification.choices, default=Classification.PQR)
+    status = models.CharField(max_length=2, choices=Status.choices, default=Status.CREATED)
     folder_id = models.TextField(max_length=100, null=False, default='')
 
     reported_people = models.ManyToManyField(User, blank=True)
@@ -117,14 +130,32 @@ class Radicate(models.Model):
     def get_absolute_url(self):
         return reverse('correspondence:detail_radicate', args=[str(self.id)])
 
+    def get_status_str(self):
+        return self.Status(self.status).label
+
 class ProcessActionStep(BaseModel):
+    
+    class ActionTypes(models.TextChoices):
+        MAIL_IMPORT = 'MI', _('Importación del correo')
+        ANSWER = 'AN', _('Respuesta')
+        CREATION = 'CR', _('Creación')
+        AMPLIATION_REQUEST = 'AR', _('Solicitud de ampliación de información')
+        AMPLIATION_ANSWER = 'AA', _('Respuesta de ampliación de información')
+        ASSOCIATION = 'ASS', _('Asociación')
+        ASSIGNATION = 'ASI', _('Asignación')
+        CHANGE_TYPE = 'CT', _('Cambio de tipo')
+        RETURN = 'RET', _('Devolución')
+        REPORT = 'REP', _('Informe')
+        REMOVE_REPORT = 'RER', _('Eliminar informe')
+
     date_execution = models.DateTimeField(default=datetime.now, db_index=True)
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='prac_user', blank=True, null=True)
-    destination_user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='prac_dest_user', blank=True, null=True)
+    functional_area = models.ForeignKey(FunctionalArea, on_delete=models.PROTECT, related_name='prac_area', blank=True, null=True)
+    destination_user = models.ForeignKey(User, on_delete=models.PROTECT, related_name='prac_dest_user', blank=True, null=True)
     destination_users = models.ManyToManyField(User, related_name='prac_dest_users', blank=True)
     observation = models.TextField(max_length=512, null=True)
     detail = models.TextField(max_length=256, null=True)
-    action = models.TextField(max_length=32, null=True)
+    action = models.CharField(max_length=3, choices=ActionTypes.choices, default=ActionTypes.MAIL_IMPORT)
     radicate = models.ForeignKey(Radicate, on_delete=models.PROTECT, related_name='history')
 
     def save(self):
@@ -170,12 +201,44 @@ class PermissionRelationReport(BaseModel):
         verbose_name= 'Permiso de informe de radicados'
         verbose_name_plural= 'Permisos de informe de radicados'
 
+
+
+class RequestInternalInfo(BaseModel):
+    
+    class Status(models.TextChoices):
+        CREATED = 'CR', _('Creada')
+        CLOSED = 'CL', _('Cerrada')
+
+    requested_user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='requests_assigned', default=None)
+    description = models.CharField(max_length=20000)
+    radicate = models.ForeignKey(Radicate, on_delete=models.PROTECT, related_name='requests')
+    status = models.CharField(max_length=2, choices=Status.choices, default=Status.CREATED)
+    area = models.ForeignKey(FunctionalArea, on_delete=models.PROTECT, related_name='requests')
+    answer = models.CharField(max_length=20000, blank=True, null=True)
+
+    def get_status_str(self):
+        return self.Status(self.status).label
+    
+    def save(self):
+        user = get_current_user()
+        if user is not None:
+            if not self.pk:
+                self.user_creation = user
+        super(RequestInternalInfo, self).save()
+    
+    class Meta:
+        verbose_name= 'Requerimiento Interno de Información'
+        verbose_name_plural= 'Requerimientos Internos de Información'
+        
+
 class AlfrescoFile(models.Model):
     cmis_id = models.TextField(max_length=128, null=True)
     name = models.CharField(max_length=256, null=True)
     extension = models.CharField(max_length=6, null=True)
     size = models.IntegerField(default=0)
-    radicate = models.ForeignKey(Radicate, on_delete=models.PROTECT, related_name='files')
+    radicate = models.ForeignKey(Radicate, on_delete=models.PROTECT, related_name='files', blank=True, null=True, default=None)
+    request = models.ForeignKey(RequestInternalInfo, on_delete=models.PROTECT, related_name='files', blank=True, null=True, default=None)
+    
     
     def __str__(self):
         return self.cmis_id
@@ -289,3 +352,6 @@ def validate_file_extension(value):
     valid_extensions = ['.doc', '.docx']
     if ext not in valid_extensions:
         raise ValidationError(u'Archivo no soportado')
+
+
+

@@ -9,18 +9,18 @@
             <thead>
               <tr>
                 <th>Nombre</th>
-                <th>Tipificacion</th>
+                <th class="d-none d-md-table-cell">Tipificacion</th>
                 <th>Asunto</th>
-                <th>Fuente</th>
+                <th class="d-none d-md-table-cell">Fuente</th>
                 <th>Acciones</th>
               </tr>
             </thead>
             <tfoot>
               <tr>
                 <th>Nombre</th>
-                <th>Tipificacion</th>
+                <th class="d-none d-md-table-cell">Tipificacion</th>
                 <th>Asunto</th>
-                <th>Fuente</th>
+                <th class="d-none d-md-table-cell">Fuente</th>
                 <th>Acciones</th>
               </tr>
             </tfoot>
@@ -28,9 +28,9 @@
               {% for record in records %}
               <tr>
                 <td>{{ record.name }}</td>
-                <td>{{ record.retention }}</td>
+                <td class="d-none d-md-table-cell">{{ record.retention }}</td>
                 <td>{{ record.subject }}</td>
-                <td>{{ record.source }}</td>
+                <td class="d-none d-md-table-cell">{{ record.source }}</td>
                 <td>
                     <a href="{% url 'correspondence:detail_record' pk=record.pk %}" class="btn btn-datatable btn-icon btn-transparent-dark"><i data-feather="eye"></i></a>
                     <a href="{% url 'correspondence:edit_record' pk=record.pk %}" class="btn btn-datatable btn-icon btn-transparent-dark"><i data-feather="edit"></i></a>

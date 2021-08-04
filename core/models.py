@@ -39,7 +39,7 @@ class BaseModel(models.Model):
 class SystemParameter(models.Model):
     name = models.CharField(unique=True, max_length=128)
     value = models.TextField()
-
+    description = models.TextField(default="agregar descripcion")
     def __str__(self):
         return self.name
     class Meta:
@@ -53,7 +53,7 @@ class SystemHelpParameter(models.Model):
     def __str__(self):
         return self.name
     class Meta:
-        verbose_name= 'Parametros de Ayudas del Sistema'
+        verbose_name= 'Parametros de Ayuda del Sistema'
 
 
 class PreferencialPopulation(models.Model):
@@ -589,6 +589,8 @@ class Template(BaseModel):
 
     type = models.CharField(unique=True, max_length=2, choices=Types.choices, default=Types.PQR_CREATION)
     file = models.FileField(upload_to=template_directory_path)
+    header_file = models.FileField(upload_to=template_directory_path, default=None)
+    footer_file = models.FileField(upload_to=template_directory_path, default=None)
     name = models.TextField(max_length=64, null=False)
     description = models.TextField(max_length=256)
 

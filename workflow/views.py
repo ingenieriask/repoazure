@@ -51,8 +51,8 @@ def filing(request, radicate):
             id = sf.id
         except ValidationError as e:
             messages.error(request, e.message)
-        except:
-            messages.error(request, "Something else went wrong")
+        #except:
+        #    messages.error(request, "Something else went wrong")
         if next_view and next_view != 'None':
             return HttpResponseRedirect(reverse(next_view))
             

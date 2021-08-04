@@ -4,7 +4,7 @@ from core.models import Attorny, AttornyType, Atttorny_Person, ChatRooms, Gender
     EthnicGroup, RequestResponse, SystemParameter, AppParameter, ConsecutiveFormat, \
     FilingType, CalendarDay, CalendarDayType, Calendar, Alerts, FunctionalArea, \
     FunctionalAreaUser, Menu, NotificationsService, Notifications, Template, \
-    StyleSettings, Task, ProceedingsConsecutiveFormat
+    StyleSettings, Task, ProceedingsConsecutiveFormat, SystemHelpParameter
 from core.forms import ConsecutiveFormatForm, CalendarForm, CustomGroupAdminForm, \
     CustomUserChangeForm, ProceedingsConsecutiveFormatForm
 from django.contrib.auth.models import Group, User
@@ -78,6 +78,9 @@ class GeneralNullAdmin(admin.ModelAdmin):
 class TemplateAdmin(GeneralNullAdmin):
     exclude = ('type','name','description')
 
+class SystemParametresList(admin.ModelAdmin):
+    list_display = ('name','description',)
+
 # Register your models here.
 admin.site.register(Attorny)
 admin.site.register(AttornyType)
@@ -92,7 +95,7 @@ admin.site.register(Disability)
 admin.site.register(BooleanSelection)
 admin.site.register(EthnicGroup)
 admin.site.register(RequestResponse)
-admin.site.register(SystemParameter)
+admin.site.register(SystemParameter,SystemParametresList)
 admin.site.register(Notifications)
 admin.site.register(NotificationsService)
 admin.site.register(AppParameter)
@@ -114,4 +117,5 @@ admin.site.register(GenderTypes)
 admin.site.register(Task)
 admin.site.register(ProceedingsConsecutiveFormat, ProceedingsConsecutiveFormatAdmin)
 admin.site.register(ChatRooms)
+admin.site.register(SystemHelpParameter)
 

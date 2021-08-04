@@ -7,7 +7,7 @@ from core.models import Attorny, AttornyType, DocumentTypes, LegalPerson, Person
     Disability, PreferencialPopulation, Disability, PersonRequest, PreferencialPopulation
 from crispy_forms.layout import Field
 import json
-from core.widgets import ConsecutiveFormatWidget, NonWorkingCalendarWidget, ProceedingsConsecutiveFormatWidget
+from core.widgets import ConsecutiveFormatWidget, NonWorkingCalendarWidget, ProceedingsConsecutiveFormatWidget, RichTextQuillWidget, RichTextTinyWidget
 from core.services import RecordCodeService, CalendarService
 from core.utils_services import FormatHelper
 from django.db.models import Q
@@ -15,6 +15,7 @@ from django.contrib.auth.models import Permission, Group
 from django.contrib.admin.widgets import FilteredSelectMultiple
 from django.contrib.auth.forms import UserChangeForm
 from django.contrib.auth.forms import UserCreationForm
+from core.models import PersonType
 
 
 class CustomFileInput(Field):
@@ -256,7 +257,7 @@ class AbstractLegalPersonForm(forms.ModelForm):
             'document_number', 'document_company_number', 'verification_code',
             'phone_number', 'document_type',
             'expedition_date', 'company_name', 'name', 'lasts_name',
-            'email', 'city', 'address']
+            'email', 'city', 'address','document_type_company']
         labels = {
             'verification_code': 'Código de verificación',
             'company_name': 'Razon Social',
@@ -544,4 +545,24 @@ class ProceedingsConsecutiveFormatForm(forms.ModelForm):
 
         widgets = {
             'format': ProceedingsConsecutiveFormatWidget()
+        }
+
+class TestFormTiny(forms.ModelForm):
+    class Meta:
+        model = PersonType
+        
+        fields = ['abbr', 'name']
+
+        widgets = {
+            'name': RichTextTinyWidget(),
+        }
+
+class TestFormQuill(forms.ModelForm):
+    class Meta:
+        model = PersonType
+        
+        fields = ['abbr', 'name']
+
+        widgets = {
+            'name': RichTextQuillWidget,
         }

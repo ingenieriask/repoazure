@@ -1,0 +1,49 @@
+{% load static %}
+
+<link href="{% static 'node_modules/quill/dist/quill.snow.css' %}" rel="stylesheet">
+<link href="{% static 'node_modules/quill/dist/quill.core.css' %}" rel="stylesheet">
+
+<div id="editor-container">
+    {{ widget.value|safe }}
+</div>
+
+<div class="col-lg-10">
+    <input type="hidden" id="id-{{ widget.name }}" name="{{ widget.name }}" value="{{ widget.value }}"/>
+</div>
+
+<script src="{% static 'node_modules/jquery/dist/jquery.min.js' %}"></script>
+<script src="{% static 'node_modules/quill/dist/quill.min.js' %}"></script>
+
+<script>
+
+    var toolbarOptions = [
+    ['bold', 'italic', 'underline', 'strike'],        // toggled buttons
+    ['blockquote', 'code-block'],
+    [{ 'header': 1 }, { 'header': 2 }],               // custom button values
+    [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+    [{ 'script': 'sub'}, { 'script': 'super' }],      // superscript/subscript
+    [{ 'indent': '-1'}, { 'indent': '+1' }],          // outdent/indent
+    [{ 'direction': 'rtl' }],                         // text direction
+    [{ 'size': ['small', false, 'large', 'huge'] }],  // custom dropdown
+    [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
+    [{ 'color': [] }, { 'background': [] }],          // dropdown with defaults from theme
+    [{ 'font': [] }],
+    [{ 'align': [] }],
+    ['clean']                                         // remove formatting button
+    ];
+
+    var inputId = '#id-{{ widget.name }}'
+    var quill = new Quill('#editor-container', {
+        modules: {
+        toolbar: toolbarOptions
+        },
+        placeholder: 'Compose an epic...',
+        theme: 'snow'
+    });
+
+    quill.on('text-change', () => {
+        $(inputId).val(quill.root.innerHTML)
+        console.info('test')
+    });
+
+</script>

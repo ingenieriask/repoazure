@@ -38,13 +38,13 @@
                 <thead>
                 <tr>
                     <th class="text-dark" scope="col">No. Radicado</th>
-                    <th  class="text-dark" scope="col">Fecha Radicado</th>
+                    <th  class="text-dark d-none d-md-table-cell" scope="col">Fecha Radicado</th>
                     <th  class="text-dark" scope="col">Asunto</th>
-                    <th  class="text-dark" scope="col">Solicitante</th>
-                    <th class="text-dark"  scope="col">Tipo y Tema PQRSD</th>
-                    <th class="text-dark"  scope="col">Dias habiles respuesta</th>
-                    <th class="text-dark"  scope="col">Estado</th>
-                    <th  class="text-dark" scope="col">Dependencias</th>
+                    <th  class="text-dark d-none d-md-table-cell" scope="col">Solicitante</th>
+                    <th class="text-dark d-none d-md-table-cell"  scope="col">Tipo y Tema PQRSD</th>
+                    <th class="text-dark d-none d-md-table-cell"  scope="col">Dias habiles respuesta</th>
+                    <th class="text-dark d-none d-md-table-cell"  scope="col">Estado</th>
+                    <th  class="text-dark d-none d-md-table-cell" scope="col">Dependencias</th>
                     <th class="text-dark"  scope="col">Detalle</th>
                 </tr>
                 </thead>
@@ -52,13 +52,13 @@
                     {% for data in table%}
                     <tr>
                         <th>{{data.number}}</th>
-                        <th>{{data.date_radicated}}</th>
+                        <th class="d-none d-md-table-cell">{{data.date_radicated}}</th>
                         <th>{{data.subject}}</th>
-                        <th>{{data.person.get_full_name}}</th>
-                        <th>{{data.get_pqrs_type_subtype}}</th>
-                        <th>{{data.subtype.max_response_days}}</th>
-                        <th>{{data.pqrsobject.get_status_display}}</th>
-                        <th>{{data.office.name}}</th>
+                        <th class="d-none d-md-table-cell">{{data.person.get_full_name}}</th>
+                        <th class="d-none d-md-table-cell">{{data.get_pqrs_type_subtype}}</th>
+                        <th class="d-none d-md-table-cell">{{data.subtype.max_response_days}}</th>
+                        <th class="d-none d-md-table-cell">{{data.pqrsobject.get_status_display}}</th>
+                        <th class="d-none d-md-table-cell">{{data.office.name}}</th>
                         <th>
                             <a class="btn btn-link mx-auto" 
                             href="{% url 'correspondence:detail_radicate_review' pk=data.pk %}">

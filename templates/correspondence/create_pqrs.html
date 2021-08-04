@@ -1,0 +1,97 @@
+{%  extends 'correspondence/main_template.html'  %}
+{% block content %}
+{% load crispy_forms_tags %}
+
+{% if form %}
+<div class="card mb-4">
+    <div class="card-header">Tipo PQRSD</div>
+    <div class="card-body">
+        <form action="{%url 'correspondence:create_pqrs' pqrs=pqrs%}" method="POST">
+            {% csrf_token %}
+            {% load crispy_forms_tags %}
+            {{ form|crispy  }}
+            <div class="col-md-12 d-flex">
+             <input class="btn btn-success mx-auto" 
+             name="submit" type="submit" value="Radicado" />
+            </div>
+        </form>
+    </div>
+
+</div>
+{% endif %}
+
+{% if form_new %}
+<div class="card mb-4">
+    <div class="card-header">
+        Informaci&oacute;n PQRSD  </div>
+    <div class="card-header">
+        Tipo y Tema: <span class="text-dark">{{context.subtype}}</span>
+    </div>
+    <div class="card-header">
+        Grupo de interes: <span class="text-dark">{{context.interest_group}}</span> 
+    </div>
+    <div class="card-body">
+        <form action="{%url 'correspondence:finish_pqrs' pqrs=pqrs%}" method="POST"  enctype="multipart/form-data">
+            {% load crispy_forms_tags %}
+            {% crispy form_new %}
+           
+        </form>
+    </div>
+
+</div>
+{% endif %}
+{% endblock %}
+{% if form_new %}
+
+{% block script %} 
+    $("#id_pqrs_creation_uploaded_files").fileinput({
+        theme: 'fas',
+        allowedFileExtensions: ['PDF', 'DOC', 'DOCX', 'XLS', 'XLSX', 'EXCEL', 'PPT', 'PPTX', 
+                                'JPG', 'GIF', 'PNG', 'TIFF', 'BMP', 'WAV', 'MP3', 'AVI', 'MPEG', 
+                                'MPG', 'OGG', 'M4A', 'MP4', 'WMV', 'OGV'],
+        overwriteInitial: false,
+        maxFileSize:10000,
+        language: 'es',
+        showUpload: false,
+        previewFileIconSettings: {
+            'docx': '<i class="fas fa-file-word text-primary mt-4"></i>',
+            'xlsx': '<i class="fas fa-file-excel mt-4" style="color:green;"></i>'
+        },
+        slugCallback: function (filename) {
+            return filename.replace('(', '_').replace(']', '_');
+        }
+      });
+
+      $('#submit_button').on('click', function(e){
+
+          form_data = $('#id_form_create_pqr').serialize();
+          $.ajax({
+            type: 'POST',
+            url: '{% url "pqrs:validate-captcha" pqrs=pqrs %}',
+            data: {
+              data : form_data,
+              csrfmiddlewaretoken:$('input[name=csrfmiddlewaretoken]').val()
+            }
+          })
+          .done(function(response){
+              if (response.status == 1){
+                  $('#id_form_create_pqr').submit();
+              }
+              else {
+                  $('#validate_captcha_error').css("display", "block");
+                  $('.captcha').attr('src', response.new_cptch_image);
+                  $('#id_captcha_0').val(response.new_cptch_key);
+              }
+          })
+      })
+
+      $('.js-captcha-refresh').click(function(){
+        $.getJSON("/captcha/refresh/", function (result) {
+            $('.captcha').attr('src', result['image_url']);
+            $('#id_captcha_0').val(result['key'])
+        });
+      });
+
+{% endblock %}
+
+{% endif %}

@@ -240,7 +240,21 @@ p, .p {
     border-width:3px;
 }
 
-.welcome-message {
-    font-size: 3rem; 
-    color: var(--primary);
+#header{
+    background-color: var(--primary);
+    background-image: linear-gradient(135deg, var(--primary) 0%, var(--secondary )100%);
+    color: white;
+}
+
+#header a:link, #header a:visited{
+    color: white;
+}
+
+#branding h1{
+    color: white;
+}
+
+div.breadcrumbs {
+    background-color: var(--primary);
+    background-image: linear-gradient(135deg, var(--primary) 0%, var(--secondary )100%);
 }

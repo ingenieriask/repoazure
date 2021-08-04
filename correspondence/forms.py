@@ -1,16 +1,19 @@
+from django.db.models.query_utils import Q
+from core.services import SystemParameterHelper
+from pqrs.models import PqrsContent, SubType
 from django import forms
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Submit, Row, Column, ButtonHolder, Button, Div, HTML
 from django.contrib.auth.models import User
-from correspondence.models import Radicate, Record
-from core.models import FunctionalAreaUser, Person, UserProfileInfo
+from correspondence.models import Radicate, Record, RequestInternalInfo
+from core.models import DocumentTypes, FunctionalAreaUser, Person, UserProfileInfo
 from core.forms import CustomFileInput
 from core.utils_services import FormatHelper
 from pinax.eventlog.models import log, Log
 from django.urls import reverse
 from django.core.exceptions import ValidationError
 from django.utils.translation import gettext_lazy as _
-
+from core.widgets import RichTextTinyWidget
 
 from crispy_forms.bootstrap import (
     Accordion,
@@ -86,6 +89,9 @@ class SearchForm(forms.Form):
 
 class AssignToUserForm(forms.Form):
     observations = forms.CharField(label='Observaciones:', widget=forms.Textarea())
+    
+class RequestInternalInformatioForm(forms.Form):
+    description = forms.CharField(label='DESCRIPCIÓN SOLICITUD DE INFORMACIÓN', widget=forms.Textarea())
 
 class ReportToUserForm(forms.Form):
     observations = forms.CharField(label='Observaciones:', widget=forms.Textarea())
@@ -101,7 +107,101 @@ class SearchContentForm(forms.Form):
     term = forms.CharField(label='Búsqueda por términos clave',
                            help_text='Introduzca el termino a buscar')
 
+class SearchUserForm(forms.Form):
+    anonymous = forms.BooleanField(
+        label='Solicictante Anonimo',
+        widget= forms.CheckboxInput(),
+        required=False)
+    doc_num = forms.CharField(label='Numero de Documento' )
+    document_type= forms.ModelChoiceField(
+        queryset=DocumentTypes.objects.exclude(Q(id=3) | Q(id=6)),
+        label='Tipo de documento'
+    )
+    def __init__(self, *args, **kwargs):
+        super(SearchUserForm, self).__init__(*args, **kwargs)
+        self.helper = FormHelper(self)
+        self.helper.layout = Layout(
+            Row(
+                Column('anonymous', css_class='form-group col-md-12 mb-0'),
+            ),
+            Row(
+                Column('document_type', css_class='form-group col-md-6 mb-0'),
+                Column('doc_num',
+                       css_class='form-group col-md-6 mb-0'),
+            ),
+            Row(
+                Submit('submit', 'Buscar'), css_class='d-flex justify-content-center',
+            )
+        )
 
+class SearchLegalUserForm(forms.Form):
+    doc_num = forms.CharField(label='Numero de Documento' )
+    verification_code = forms.CharField(label='Codigo de Verificación' )
+    document_type= forms.ModelChoiceField(
+        queryset=DocumentTypes.objects.filter(Q(id=3) | Q(id=6)),
+        label='Tipo de documento'
+    )
+    def __init__(self, *args, **kwargs):
+        super(SearchLegalUserForm, self).__init__(*args, **kwargs)
+        self.helper = FormHelper(self)
+        self.helper.layout = Layout(
+            Row(
+                Column('document_type', css_class='form-group col-md-4 mb-0'),
+                Column('doc_num',
+                       css_class='form-group col-md-4 mb-0'),
+                Column('verification_code',
+                       css_class='form-group col-md-4 mb-0'),
+            ),
+            Row(
+                Submit('submit', 'Buscar'), css_class='d-flex justify-content-center',
+            )
+        )
+
+
+class CorrespondenceRadicateForm(forms.ModelForm):
+    pqrs_creation_uploaded_files = forms.FileField(widget=forms.ClearableFileInput(attrs={'multiple': True}), required=False,
+                                    label="Anexos, Documentos (Múltiples archivos - Tamaño máximo = 10 MB)")
+
+    class Meta:
+        model = PqrsContent
+        fields = ('subject', 'data', 'interestGroup', 'subtype')
+        labels = {'subject': 'Asunto',
+                  'data': 'Detalle de la solicitud',
+                  'interestGroup': 'Grupo de interés'}
+
+    def __init__(self, *args, **kwargs):
+        
+        super(CorrespondenceRadicateForm, self).__init__(*args, **kwargs)        
+        self.helper = FormHelper(self)
+        self.helper.layout = Layout(
+            Row(
+                Column('subtype', css_class='form-group col-md-6 mb-0'),
+                Column('interestGroup', css_class='form-group col-md-6 mb-0'),
+                css_class='form-row'
+            ),
+            Row(
+                Column('subject', css_class='form-group col-md-12 mb-0'),
+                css_class='form-row'
+            ),
+            Row(
+                Column('data', css_class='form-group col-md-12 mb-0'),
+                css_class='form-row'
+            ),
+            Row(
+                Column(CustomFileInput('pqrs_creation_uploaded_files'),css_class='form-group col-12 mb-0'),
+                css_class='form-row'
+            ),
+        )
+
+        self.helper.layout.extend([
+            Div(
+                Submit('submit','Siguiente',
+                css_class="btn btn-primary mx-auto",
+                ),css_class="d-flex"),
+                ])
+        self.fields['subtype'].widget = forms.HiddenInput()
+        self.fields['interestGroup'].widget = forms.HiddenInput()
+        
 class PersonForm(forms.ModelForm):
     email_confirmation = forms.CharField(
         label='Confirmación del correo electrónico', required=True)
@@ -351,3 +451,31 @@ class RecordForm(forms.ModelForm):
             )
         )
 
+
+class AnswerRequestForm(forms.ModelForm):
+    request_answer_file = forms.FileField(widget=forms.ClearableFileInput(attrs={'multiple': True}), required=False,
+                                    label="Anexos, Documentos (Múltiples archivos - Tamaño máximo = 10 MB)")
+    
+    class Meta:
+        model = RequestInternalInfo
+
+        fields = ['answer']
+        labels = {'answer': 'Respuesta'}
+
+        widgets = {
+            'answer': RichTextTinyWidget(),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super(AnswerRequestForm, self).__init__(*args, **kwargs)
+        self.helper = FormHelper(self)
+        self.helper.layout = Layout(
+            Row(
+                Column('description', css_class='form-group col-md-6 mb-0'),
+                css_class='form-row'
+            ),
+            Row(
+                Column(CustomFileInput('request_answer_file'),css_class='form-group col-12 mb-0'),
+                css_class='form-row'
+            ),
+        )

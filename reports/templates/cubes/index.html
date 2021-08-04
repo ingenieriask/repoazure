@@ -1,0 +1,72 @@
+
+{% extends 'pqrs/template.html' %}
+
+{% block content %}
+
+<STYLE type="text/css">
+  * { font-family: "Helvetica Neue", "Helvetica", sans-serif; }
+  p { line-height: 130%; font-size: 16px; }
+  h1 { font-weight: normal; }
+  h2 { font-size: 16px; margin-top: 20px; margin-left: 10px;}
+  table { font-size: 14px; border: 1px solid #ddd; border-collapse: collapse; border-spacing: 0; }
+  table td, table th { padding: 8px; border: 1px solid #ddd }
+  th { text-align: left; background-color: #f9f9f9 }
+  a { color: MidnightBlue; text-decoration: none }
+  a:visited { color: RoyalBlue }
+  footer { margin-top: 40px; }
+  ul li { padding-right: 20px; line-height: 130%; list-style-type: square; }
+  </STYLE>
+
+<div class="card mb-12 h-100">
+  <div class="card-header text-secundary">
+    <h1>Cubes OLAP server{% if label %} – {{label}}{% endif %}</h1>
+  </div>
+  <div class="tab-content">
+    <div class="col-xxl-12 col-xl-12 mb-12">
+      <div class="card mb-4 h-100 mb-3">
+
+        {% if has_about %}
+          <h2>About</h2>
+
+          {% if description %}<p>{{description}}</p>{% endif %}
+          <table id="info">
+              {% if name %}<tr><th>Name</th><td>{{name}}</td></tr>{% endif %}
+              {% if copyright %}<tr><th>Copyright</th><td>{{copyright}}</td></tr>{% endif %}
+              {% if license %}<tr><th>License</th><td>{{license}}</td></tr>{% endif %}
+              {% if maintainer %}<tr><th>Maintainer</th><td>{{maintainer}}</td></tr>{% endif %}
+              {% if keywords %}<tr><th>Keywords</th><td>{{keywords|join:", "}}</td></tr>{% endif %}
+          </table>
+
+          {% if visualizers %}
+            <h2>Visualizers</h2>
+            <ul>
+            {% for visualizer in visualizers %}
+                <li><a href="{{visualizer.url}}">{{visualizer.label}}</a></li>
+            {% endfor %}
+            </ul>
+          {% endif %}
+
+          {% if related %}
+            <h2>Related Slicers</h2>
+            <ul>
+            {% for slicer in related %}
+                <li><a href="{{slicer.url}}">{{slicer.label}}</a></li>
+            {% endfor %}
+            </ul>
+          {% endif %}
+
+        {% endif %}
+
+        <h2>System Info</h2>
+        <table id="info">
+            <tr><th>Cubes version</th><td>{{cubes_version}}</td></tr>
+            <tr><th>Authentication method</th><td>{{authentication}}</td></tr>
+            <tr><th>Time Zone</th><td>{{timezone}}</td></tr>
+            <tr><th>First Day of the Week</th><td>{{first_weekday}}</td></tr>
+            <tr><th>JSON Record Limit</th><td>{{json_record_limit}}</td></tr>
+        </table>
+      </div>
+    </div>
+    </div>
+  </div>
+{% endblock %}

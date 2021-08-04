@@ -16,6 +16,10 @@ from django.db.models import Q
 from core.services import CalendarService, NotificationsHandler
 from django.views.generic import TemplateView
 from core.models import StyleSettings
+from django.views.generic.edit import CreateView, UpdateView
+from core.models import PersonType
+from core.forms import TestFormQuill, TestFormTiny
+
 
 
 def holidays(request):
@@ -127,3 +131,24 @@ class StyleSettingsView(TemplateView):
         context = super().get_context_data(**kwargs)
         context['parameters'] = StyleSettings.objects.all()[0]
         return context
+
+class TestViewTiny(UpdateView):
+    model = PersonType
+    form_class = TestFormTiny
+    template_name = 'core/test_form.html'
+
+    def form_valid(self, form):
+        self.object = form.save(commit=False)
+        self.object.save()
+        return redirect('core:test_view', self.kwargs['pk'])
+
+class TestViewQuill(UpdateView):
+    model = PersonType
+    form_class = TestFormQuill
+    template_name = 'core/test_form.html'
+
+    def form_valid(self, form):
+        self.object = form.save(commit=False)
+        self.object.save()
+        return redirect('core:test_view', self.kwargs['pk'])
+

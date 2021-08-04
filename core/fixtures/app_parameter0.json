@@ -14,7 +14,7 @@
 	{"model": "core.appparameter", "pk": 13, "fields": {"name": "ECM_RECORD_UPDATE_URL", "value": "http://172.18.48.47:8080/alfresco/api/-default-/public/alfresco/versions/1/nodes/"}},
 	{"model": "core.appparameter", "pk": 14, "fields": {"name": "ECM_REQUEST_RENDITIONS", "value": "http://172.18.48.47:8080/alfresco/api/-default-/public/alfresco/versions/1/nodes/{nodeId}/renditions"}},
 	{"model": "core.appparameter", "pk": 15, "fields": {"name": "ECM_PREVIEW_URL", "value": "http://172.18.48.47:8080/alfresco/api/-default-/public/alfresco/versions/1/nodes/{nodeId}/renditions/imgpreview/content?attachment=false&placeholder=true"}},
-	{"model": "core.appparameter", "pk": 16, "fields": {"name": "ECM_FOLDER_URL", "value": "http://172.18.48.47:8080/alfresco/api/-default-/public/alfresco/versions/1/nodes/5ce20d5c-f92b-4e77-98ce-038c0dd5ae51/children?autoRename=false"}},
+	{"model": "core.appparameter", "pk": 16, "fields": {"name": "ECM_FOLDER_URL", "value": "http://172.18.48.47:8080/alfresco/api/-default-/public/alfresco/versions/1/nodes/{nodeId}/children?autoRename=false"}},
 	{"model": "core.appparameter", "pk": 17, "fields": {"name": "ECM_DOWNLOAD_URL", "value": "http://172.18.48.47:8080/alfresco/api/-default-/public/alfresco/versions/1/nodes/{nodeId}/content?attachment=true"}},
 	{"model": "core.appparameter", "pk": 18, "fields": {"name": "ECM_MOVE_URL", "value": "http://172.18.48.47:8080/alfresco/api/-default-/public/alfresco/versions/1/nodes/{nodeId}/move"}},
 	{"model": "core.appparameter", "pk": 19, "fields": {"name": "ECM_TEMP_FOLDER_ID", "value": "5ce20d5c-f92b-4e77-98ce-038c0dd5ae51"}},

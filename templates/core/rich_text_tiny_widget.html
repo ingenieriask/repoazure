@@ -1,0 +1,81 @@
+{% load static %}
+
+<!--
+<div id="editor-container">
+    <div class="nonEditable">
+        header
+        <div class="mceEditable">
+            {{ widget.value|safe }} 
+        </div>
+        footer
+    </div>
+</div>
+-->
+<div id="editor-container">
+    {{ widget.value|safe }} 
+</div>
+
+<div class="col-lg-10">
+    <input type="hidden" id="id-{{ widget.name }}" name="{{ widget.name }}" value="{{ widget.value }}"/>
+</div>
+
+<script src="{% static 'node_modules/jquery/dist/jquery.min.js' %}"></script>
+<script src="{% static 'node_modules/tinymce/tinymce.min.js' %}"></script>
+<script src="{% static 'node_modules/tinymce-i18n/langs/es.js' %}"></script>
+
+<script>
+    var nonEditableClass = '.nonEditable' //'.{{ nonEditableClass }}'
+    var inputId = '#id-{{ widget.name }}'
+
+    tinymce.init({
+        setup:function(ed) {
+            ed.on('change', function(e) {
+                $(inputId).val(ed.getContent())
+            });
+            ed.on('BeforeSetContent', function (e) {
+                console.log('beforeinput:', e.target);
+                console.log('beforeinput', ed.selection.getSel());
+                if (e.target.id == 'tinymce') {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    return false;
+                }
+            });
+            ed.on('keydown', function (e) {
+                console.log('Element clicked:', e.target.id);
+                console.log('Backspace or Delete key pressed!');
+                if (e.target.id == 'tinymce') {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    return false;
+                }
+                if (e.keyCode === 8 || e.keyCode === 46)  {
+                    if (e.target.id != 'tinymce' && e.target.id != 'mceEditable' || $(e.target).parents("mceEditable").length) {
+                        return true
+                    }
+                    e.preventDefault();
+                    e.stopPropagation();
+                    return false;
+                }
+            });
+        },
+        noneditable_noneditable_class: 'nonEditable',
+        language: 'es',
+        selector: '#editor-container',
+        height: 400,
+        menubar: true,
+        plugins: [
+            'print preview importcss searchreplace', 
+            'autolink autosave save directionality visualblocks visualchars', 
+            'fullscreen image link media template codesample table charmap', 
+            'hr pagebreak nonbreaking anchor toc insertdatetime advlist lists', 
+            'wordcount imagetools', 
+            'textpattern noneditable help', 
+            'charmap quickbars emoticons'
+        ],
+        toolbar: 'undo redo | bold italic underline strikethrough | fontselect fontsizeselect formatselect | alignleft aligncenter alignright alignjustify | outdent indent |  numlist bullist | forecolor backcolor permanentpen formatpainter removeformat | pagebreak | charmap emoticons | fullscreen  preview save print | insertfile image media template link anchor codesample | a11ycheck ltr rtl | showcomments addcomment',
+
+        content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:14px }'
+    });
+
+</script>

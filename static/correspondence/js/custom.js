@@ -34,6 +34,17 @@ function generate_message(msg, type) {
     .animate({ scrollTop: $(".chat-logs")[0].scrollHeight }, 1000);
 }
 
+function getSelectedOption(sel) {
+  var opt;
+  for ( var i = 0, len = sel.options.length; i < len; i++ ) {
+      opt = sel.options[i];
+      if ( opt.selected === true ) {
+          break;
+      }
+  }
+  return opt;
+}
+
 function validatePersonExists(pk) {
   var exists = false;
   $("input[name='selectedUsersInput']").each(function (idx, elem) {
@@ -87,7 +98,7 @@ function addPerson() {
 
 var permissions = [];
 
-function searchPeople(areaId, url, areaName, kindTask, target = "#user_selected") {
+function searchPeople(areaId, url, areaName, kindTask, target="#user_selected") {
   $.ajax({
     type: "GET",
     url: url,
@@ -111,6 +122,7 @@ function searchPeople(areaId, url, areaName, kindTask, target = "#user_selected"
       $(target).selectpicker("refresh");
       $("#headerForm").text(areaName);
       $("#interest_area").val(areaId);
+      $(target + "_area").val(areaId);
     },
     error: function (response) {
       console.error(response);
@@ -131,10 +143,6 @@ function descriptionPersonRequest(name, personType, dateDoc, docType, docNumber,
   $("#contPhoneNumber").html(phoneNumber);
   $("#contDepMuni").html(city);
   $("#contMail").html(email);
-}
-function historyObservation(observation) {
-  $("#containerObservation").removeClass("d-none");
-  $("#contObservation").html(observation);
 }
 function loaderBTN() {
   $("#loading").show();
@@ -198,7 +206,7 @@ $("#id_pqrs_type").on("change", function () {
     token = $("input[name=csrfmiddlewaretoken]").val();
     $.ajax({
       type: "POST",
-      url: "../bring-subtype/",
+      url:  "../../../pqrs/bring-subtype/",
       data: {
         csrfmiddlewaretoken: token,
         pqrs_type: this.value,
@@ -215,6 +223,10 @@ $("#id_pqrs_type").on("change", function () {
       },
     });
   }
+});
+$("#bologna-list a").on("click", function (e) {
+  e.preventDefault();
+  $(this).tab("show");
 });
 $(document).ready(function () {
   if ($("#id_pqrs_subtype")) {
@@ -265,13 +277,13 @@ function addNotification(activity, disable_url) {
       activity.pk +
       `)">
         <div class="dropdown-notifications-item-icon bg-warning"><i data-feather="` +
-      activity.icon +
+      'Nuevo evento' +
       `"></i></div>
         <div class="dropdown-notifications-item-content">
             <div class="dropdown-notifications-item-content-details">` +
       activity.icon +
       `</div>
-            <div class="dropdown-notifications-item-content-text">` +
+            <div>` +
       activity.info +
       `</div>
         </div>
@@ -280,7 +292,7 @@ function addNotification(activity, disable_url) {
 }
 
 function updateNotifications(url, disable_url) {
-  setInterval(function () {
+  var exec = function () {
     $.ajax({
       type: "GET",
       url: url,
@@ -295,7 +307,9 @@ function updateNotifications(url, disable_url) {
         console.error(response);
       },
     });
-  }, 5000);
+  }
+  exec()
+  setInterval(exec, 5000);
 }
 
 function disableNotification(url, pk) {

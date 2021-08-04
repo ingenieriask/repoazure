@@ -1,0 +1,69 @@
+{%  extends 'correspondence/main_template.html'  %}
+{% block content %}
+{% load crispy_forms_tags %}
+
+<div class="card mb-4">
+    <div class="card-header">
+        Seleccione tipo de solicitante
+        <ul class="nav nav-tabs card-header-tabs" id="bologna-list" role="tablist">
+            <li class="nav-item">
+            <a class="nav-link {% if np %} active {% endif %}" href="#natural" role="tab" aria-controls="description" aria-selected="true">
+                Persona Natural
+            </a>
+            </li>
+            <li class="nav-item">
+            <a class="nav-link {% if not np %} active {% endif %}"  href="#legal" role="tab" aria-controls="history" aria-selected="false">
+                Persona Legal
+            </a>
+            </li>
+        </ul>
+    </div>
+    
+    <div class="card-body">
+         <div class="tab-content mt-3">
+            <div class="tab-pane  {% if np %} active {% endif %}" id="natural" role="tabpanel">
+                <form action="{% url 'correspondence:search_person'%}" method="POST">
+                    {% csrf_token %}
+                    {% load crispy_forms_tags %}
+                    {% crispy form_np %}
+                </form>
+            </div>
+            <div class="tab-pane  {% if not np %} active {% endif %}" id="legal" role="tabpanel" aria-labelledby="legal-tab">
+                <form action="{% url 'correspondence:search_person'%}" method="POST">
+                    {% csrf_token %}
+                    {% load crispy_forms_tags %}
+                    {% crispy form_lp %}
+                </form>
+            </div>
+         </div>
+        
+    </div>
+
+</div>
+{% if form_new %}
+<div class="card mb-4">
+    <div class="card-header">Seleccione tipo de solicitante</div>
+    <div class="card-body">
+    {% if np %}
+        {% if not update %}
+        <form action="{% url 'correspondence:create_person' %}" method="POST">
+        {% else %}
+        <form action="{% url 'correspondence:update_person' pk=update_id %}" method="POST">
+        {% endif %}
+    {% else %}
+        {% if not update %}
+        <form action="{% url 'correspondence:create_legal_person' %}" method="POST">
+        {% else %}
+        <form action="{% url 'correspondence:update_legal_person' pk=update_id %}" method="POST">
+        {% endif %}
+    {% endif %}
+        
+            {% csrf_token %}
+            {% load crispy_forms_tags %}
+            {% crispy form_new %}
+        </form>
+    </div>
+
+</div>
+{% endif %}
+{% endblock %}

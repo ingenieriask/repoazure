@@ -2,6 +2,7 @@ from os import closerange
 from re import search, sub
 from django.contrib.auth.models import User
 from django.forms import widgets
+from core.widgets import RichTextTinyWidget
 from six import class_types
 from core.models import DocumentTypes, City
 from pqrs.models import InterestGroup, PqrsContent, SubType, Type,Record
@@ -20,6 +21,7 @@ from captcha.fields import CaptchaField
 from django.db.models import Q
 from datetime import date, timedelta
 from captcha.models import CaptchaStore
+from django.template import loader
 
 class AgreementModal(Field):
     template='pqrs/agreement_modal.html'
@@ -60,6 +62,22 @@ class PersonFormUpdate(AbstractPersonForm):
 class LegalPersonForm(AbstractLegalPersonForm):
     def __init__(self, *args, **kwargs):
         super(LegalPersonForm, self).__init__(*args, **kwargs)
+        self.helper.layout.extend([
+            Div(
+                Submit('submit','Siguiente',
+                css_class="btn btn-primary mx-auto",
+                ),css_class="d-flex"),
+                ])
+
+class LegalPersonFormUpdate(AbstractLegalPersonForm):
+    def __init__(self, *args, **kwargs):
+        super(LegalPersonFormUpdate, self).__init__(*args, **kwargs)
+        self.fields['document_company_number'].disabled = True
+        self.fields['document_type_company'].disabled = True
+        self.fields['document_number'].disabled = True
+        self.fields['document_type'].disabled = True
+        self.fields['expedition_date'].disabled = True
+        self.fields['verification_code'].disabled = True
         self.helper.layout.extend([
             Div(
                 Submit('submit','Siguiente',
@@ -296,7 +314,7 @@ class PqrsExtendRequestForm(forms.ModelForm):
             'subject' : mark_safe("<strong>Asunto<strong>")
         }
         widgets = {
-            'data' : forms.Textarea(),
+            'data' : RichTextTinyWidget(),
             'number' : forms.TextInput(attrs={'style':'font-size:20px; font-weight: bold;', 'class':' text-center w-50', 'readonly':True}),
             'subject' : forms.TextInput(attrs={'readonly':True})
         }
@@ -378,14 +396,25 @@ class PqrsExtendRequestForm(forms.ModelForm):
                 )
             )
 
-        
+class RenderHTML(widgets.Textarea):
+    template_name = 'core/output_html_widget.html'
+    def get_context(self, name, value, attrs=None):
+        return {'widget': {
+        'name': name,
+        'value': value,
+    }}
+
+    def render(self, name, value, attrs=None, renderer=None):
+        context = self.get_context(name, value, attrs)
+        template = loader.get_template(self.template_name).render(context)
+        return mark_safe(template)
 
 class RequestAnswerForm(forms.ModelForm):
 
     uploaded_files = forms.FileField(widget=forms.ClearableFileInput(attrs={'multiple': True}), required=False,
                                     label=mark_safe("<span class='far fa-file-alt fa-3x' style='color: blue;'></span><strong>  Anexos, Documentos<strong>"))
     question = forms.CharField(required = False, max_length=20000, label=mark_safe('<strong>Información solicitada</strong>'),
-                             widget = forms.Textarea(attrs={'readonly':True}))
+                             widget = RenderHTML)
     class Meta:
         model = Radicate
         fields = ('data', 'number')
@@ -394,7 +423,7 @@ class RequestAnswerForm(forms.ModelForm):
             'number' : mark_safe('<h3><strong>Radicado</strong></h3>'),
         }
         widgets = {
-            'data' : forms.Textarea(),
+            'data' : RichTextTinyWidget(),
             'number' : forms.TextInput(attrs={'style':'font-size:20px; font-weight: bold;', 'class': 'w-50', 'readonly':True}),
         }
         
@@ -463,7 +492,7 @@ class PqrsAnswerForm(forms.ModelForm):
         widgets = {
             'number' : forms.TextInput(attrs={'style':'font-size:20px; font-weight: bold;', 'class':' text-center w-50', 'readonly':True}),
             'subject' : forms.TextInput(attrs={'readonly': True}),
-            'data': forms.Textarea()
+            'data': RichTextTinyWidget()
         }
 
     def __init__(self, radicate, *args, **kwargs):
@@ -621,17 +650,6 @@ class RecordsForm(forms.ModelForm):
                     ), css_class='card-body'
             ), css_class="card mb-3",
             ),
-            Div(
-                Div(HTML('Aplicacion de la TRD del expediente'),
-                    css_class='card-header'),
-                Div(
-                    Row(
-                        Column('type', css_class='form-group col-md-6 mb-0'),
-                        Column('subtype_field', css_class='form-group col-md-6 mb-0'),
-                        css_class='form-row'
-                    ), css_class='card-body'
-            ), css_class="card mb-3",
-            ), 
             Div(
                 Button('cancel', 'Volver', onclick='window.location.href="{}"'.format(
                     cancel_url), css_class='btn btn-primary'),

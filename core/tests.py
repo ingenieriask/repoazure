@@ -1,6 +1,6 @@
 from django.test import TestCase
 from core.services import Notifications, RecordCodeService, CalendarService
-from correspondence.services import ECMService
+from correspondence.ecm_services import ECMService
 from django.contrib.auth.models import User
 from rolepermissions.checkers import has_permission
 from django.contrib.auth.models import Permission

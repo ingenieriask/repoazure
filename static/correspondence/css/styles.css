@@ -5318,7 +5318,7 @@ input[type=button].btn-block {
   white-space: nowrap;
 }
 .dropdown-toggle::after {
-  display: inline-block;
+  display: none;
   margin-left: 0.255em;
   vertical-align: 0.255em;
   content: "";
