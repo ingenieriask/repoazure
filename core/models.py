@@ -590,7 +590,7 @@ class Template(BaseModel):
     type = models.CharField(unique=True, max_length=2, choices=Types.choices, default=Types.PQR_CREATION)
     file = models.FileField(upload_to=template_directory_path)
     header_file = models.FileField(upload_to=template_directory_path, default=None)
-    footer_file = models.FileField(upload_to=template_directory_path, default=None, null=True, blank=True)
+    footer_file = models.FileField(upload_to=template_directory_path, default=None)
     name = models.TextField(max_length=64, null=False)
     description = models.TextField(max_length=256)
 
