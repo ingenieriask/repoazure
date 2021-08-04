@@ -3,7 +3,8 @@ from django.contrib.auth.models import User
 import logging
 import json
 from enum import Enum
-from workflow.models import SignatureFlow, SignatureNode, FilingFlow, FilingNode
+from workflow.models import SignatureFlow, SignatureNode, FilingFlow, FilingNode, SignatureAreaUser, FilingAreaUser
+from core.models import FunctionalArea
 
 logger = logging.getLogger(__name__)
 
@@ -112,22 +113,24 @@ class FlowService(object):
 
             if flow_type == cls.FlowType.FILING:
                 users = []
-                for user in node.users.all():
+                for user in node.area_users.all():
                     users.append(
                         {
-                            'id': user.id,
-                            'username': user.username, 
-                            'first_name': user.first_name,
-                            'last_name': user.last_name,
+                            'id': user.user.id,
+                            'username': user.user.username, 
+                            'first_name': user.user.first_name,
+                            'last_name': user.user.last_name,
+                            'area_id': user.area.id
                         }
                     )
             else:
                 user = {
-                    'id': node.user.id,
-                    'username': node.user.username, 
-                    'first_name': node.user.first_name,
-                    'last_name': node.user.last_name,
-                } if node.user else {}            
+                    'id': node.area_user.user.id,
+                    'username': node.area_user.user.username, 
+                    'first_name': node.area_user.user.first_name,
+                    'last_name': node.area_user.user.last_name,
+                    'area_id': node.area_user.area.id,
+                } if node.area_user else {}            
 
             formated_node = {
                 'id': node.index,
@@ -192,13 +195,17 @@ class FlowService(object):
                                 FilingNode.Types.INFORMEDUSER]:
                     if n['data'] and n['data']['users']:
                         for user_id in n['data']['users']:
+                            print('user_id:', user_id)
                             user = User.objects.get(pk=int(user_id['id']))
-                            users.append(user)
+                            area = FunctionalArea.objects.get(pk=int(user_id['area_id']))
+                            areaUser = FilingAreaUser(user=user, area=area) 
+                            users.append(areaUser)
                         n['data']['users'] = [{
-                            'id': user.id,
-                            'username': user.username, 
-                            'first_name': user.first_name,
-                            'last_name': user.last_name,
+                            'id': user.user.id,
+                            'username': user.user.username, 
+                            'first_name': user.user.first_name,
+                            'last_name': user.user.last_name,
+                            'area_id': user.area.id
                         } for user in users]
                         time = n['data']['time']
                     else:
@@ -218,12 +225,15 @@ class FlowService(object):
                                 SignatureNode.Types.GUARANTORUSER,
                                 SignatureNode.Types.LEGALSIGNINGUSER]:
                     if n['data'] and n['data']['user']['id'] and n['data']['user']['id'] != '-1':
-                        user = User.objects.get(pk=int(n['data']['user']['id']))
+                        u = User.objects.get(pk=int(n['data']['user']['id']))
+                        area = FunctionalArea.objects.get(pk=int(n['data']['user']['area_id']))
+                        user = SignatureAreaUser(user=u, area=area)
                         n['data']['user'] = {
-                            'id': user.id,
-                            'username': user.username, 
-                            'first_name': user.first_name,
-                            'last_name': user.last_name,
+                            'id': user.user.id,
+                            'username': user.user.username, 
+                            'first_name': user.user.first_name,
+                            'last_name': user.user.last_name,
+                            'area_id': user.area.id
                         }
                         time = n['data']['time']
                     else:
@@ -232,7 +242,7 @@ class FlowService(object):
                 node = SignatureNode(
                     type=n['name'], 
                     index=n['id'],
-                    user=user,
+                    area_user=user,
                     properties=json.dumps(properties),
                     signature_flow=sf,
                     time=time)
@@ -249,21 +259,21 @@ class FlowService(object):
         if flow_id:
             if flow_type == cls.FlowType.FILING:
                 FilingNode.objects.filter(filing_flow__id=flow_id).delete()
+                FilingAreaUser.objects.filter(filing_flow_id=flow_id).delete()
             else:
                 SignatureNode.objects.filter(signature_flow__id=flow_id).delete()
+                SignatureAreaUser.objects.filter(signature_flow_id=flow_id).delete()
         else:
             sf.save()
 
         if flow_type == cls.FlowType.FILING:
             node_list = FilingNode.objects.bulk_create(node_list)
         else:
+            for n in node_list:
+                if n.area_user is not None:
+                    print('n.area_user--', n.area_user)
+                    n.area_user.save()
             node_list = SignatureNode.objects.bulk_create(node_list)
-
-
-        if flow_type == cls.FlowType.FILING:
-            for i, n in enumerate(node_list):
-                if user_list[i]:
-                    n.users.add(*user_list[i])
 
         for n in node_list:
             nodes[n.index] = n
@@ -272,4 +282,13 @@ class FlowService(object):
             if graph['nodes'][str(key)]['inputs']:
                 previous = [nodes[c['node']] for c in graph['nodes'][str(key)]['inputs']['in']['connections']]
                 n.previous.set(previous)
+
+        if flow_type == cls.FlowType.FILING:
+            for i, n in enumerate(node_list):
+                if user_list[i]:
+                    for u in user_list[i]:
+                        u.filing_flow_id = sf.id
+                    if (user_list[i]):
+                        n.area_users.set(FilingAreaUser.objects.bulk_create(user_list[i]))
+        
         return sf

@@ -98,7 +98,7 @@ function addPerson() {
 
 var permissions = [];
 
-function searchPeople(areaId, url, areaName, kindTask, target = "#user_selected") {
+function searchPeople(areaId, url, areaName, kindTask, target="#user_selected") {
   $.ajax({
     type: "GET",
     url: url,
@@ -122,6 +122,7 @@ function searchPeople(areaId, url, areaName, kindTask, target = "#user_selected"
       $(target).selectpicker("refresh");
       $("#headerForm").text(areaName);
       $("#interest_area").val(areaId);
+      $(target + "_area").val(areaId);
     },
     error: function (response) {
       console.error(response);

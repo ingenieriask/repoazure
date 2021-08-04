@@ -174,6 +174,7 @@ function getVueAssignUserControl(key, userType, users, time, permission) {
             }
             return {
                 value: user.id,
+                area_id: user.area_id,
                 username: user.username,
                 user: user,
                 title: `[${user.username}] ${user.first_name} ${user.last_name}`,
@@ -200,6 +201,7 @@ function getVueAssignUserControl(key, userType, users, time, permission) {
                 $('#user_selected_submit').click(function(){ 
                     self.value = $('#user_selected').val();
                     self.title = $('#user_selected').find("option:selected").text()
+                    self.area_id = $('#user_selected_area').val()
                     self.username = self.title.match(/\[(.*)\]/i)[1];
                     $('.collapse').collapse('hide')
                     $("#headerForm").text('')
@@ -212,7 +214,7 @@ function getVueAssignUserControl(key, userType, users, time, permission) {
                 $('#user_modal').modal()
             },
             update() {
-                    this.putData('users', [{'id': this.value}])
+                    this.putData('users', [{'id': this.value, 'area_id': self.area_id}])
                     this.putData('time', this.time)
                 this.emitter.trigger('process');
             }
@@ -222,14 +224,12 @@ function getVueAssignUserControl(key, userType, users, time, permission) {
 
 function getVueNotifyUserControl(key, userType, users, time, permission) {
 
-    console.info('key.id', key)
-
     username = ''
     title = ''
     formattedUsers = {}
     $.each(users, function(key, user) { 
-        formattedUsers[user.id] = `[${user.username}] ${user.first_name} ${user.last_name}`
-        title += formattedUsers[user.id] + '; ';
+        formattedUsers[user.id] = {'user': `[${user.username}] ${user.first_name} ${user.last_name}`, 'area_id': user.area_id}
+        title += formattedUsers[user.id].user + '; ';
         username += user.username + '; '
     });
     return {
@@ -256,11 +256,11 @@ function getVueNotifyUserControl(key, userType, users, time, permission) {
                 if  (value in this.newUsers || value == '-1' || value == null) {
                     return
                 }
-                this.newUsers[value] = title
+                this.newUsers[value] = {'user': title.user, 'area_id': title.area_id}
                 $('#tbody').append(
                     `<tr id="${value}">
                         <td class="row-index">
-                            <p>${title}</p>
+                            <p>${title.user}</p>
                         </td>
                         <td class="text-right">
                             <button class="btn btn-sm btn-danger remove"
@@ -301,8 +301,8 @@ function getVueNotifyUserControl(key, userType, users, time, permission) {
                     self.title = ''
                     self.username = ''
                     $.each(self.users, function(key, value) { 
-                        self.title += value + '; ';
-                        self.username += value.match(/\[(.*)\]/i)[1] + '; '
+                        self.title += value.user + '; ';
+                        self.username += value.user.match(/\[(.*)\]/i)[1] + '; '
                     });
                     $('.collapse').collapse('hide')
                     $("#headerForm").text('')
@@ -312,7 +312,7 @@ function getVueNotifyUserControl(key, userType, users, time, permission) {
 
                 $('#users_selected').change(function(){ 
                     value = $('#users_selected').val();
-                    title = $('#users_selected').find("option:selected").text()
+                    title = {'user': $('#users_selected').find("option:selected").text(), 'area_id': $('#users_selected_area').val()}
                     self.addUser(value, title)
                 });
                 $('#users_modal').modal()
@@ -321,7 +321,7 @@ function getVueNotifyUserControl(key, userType, users, time, permission) {
                 if (this.ikey)
                     users = []
                     $.each(this.users, function(key) { 
-                        users.push({'id': key})
+                        users.push({'id': key, 'area_id':self.users[key].area_id})
                     });
                     this.putData('users', users)
                     this.putData('time', this.time)
