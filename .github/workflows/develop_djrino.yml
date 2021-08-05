@@ -38,7 +38,8 @@ jobs:
         sudo apt-get install -y gcc g++ make
         sudo apt-get install -y nodejs
         wget https://github.com/wkhtmltopdf/packaging/releases/download/0.12.6-1/wkhtmltox_0.12.6-1.bionic_amd64.deb
-        sudo dpkg -i wkhtmltox_0.12.6-1.bionic_amd64.debsudo cp /usr/local/bin/wkhtmltopdf /usr/bin
+        sudo dpkg -i wkhtmltox_0.12.6-1.bionic_amd64.deb
+        sudo cp /usr/local/bin/wkhtmltopdf /usr/bin
         sudo cp /usr/local/bin/wkhtmltoimage /usr/bin
         
     - name: Install js dependences
