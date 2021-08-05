@@ -34,10 +34,13 @@ jobs:
       run: |
         curl -sL https://deb.nodesource.com/setup_14.x -o nodesource_setup.sh
         sudo bash nodesource_setup.sh
-        sudo apt-get update && sudo apt-get install yarn
+        sudo apt-get update && sudo apt-get install yarn wget xfonts-75dpi
         sudo apt-get install -y gcc g++ make
         sudo apt-get install -y nodejs
-
+        wget https://github.com/wkhtmltopdf/packaging/releases/download/0.12.6-1/wkhtmltox_0.12.6-1.bionic_amd64.deb
+        sudo dpkg -i wkhtmltox_0.12.6-1.bionic_amd64.debsudo cp /usr/local/bin/wkhtmltopdf /usr/bin
+        sudo cp /usr/local/bin/wkhtmltoimage /usr/bin
+        
     - name: Install js dependences
       run: npm install
 
