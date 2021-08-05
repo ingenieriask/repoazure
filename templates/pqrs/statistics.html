@@ -26,11 +26,11 @@
         </div>
         
         <div class="row">
-          <div class="col-md-6 col-sm-12">
+          <div class="col-md-5 col-sm-12">
             <div class="row justify-content-center"><h1>Tipos de Persona</h1></div>
             <div id="person_type_chart" style="width: 100%;height:400px; background-color: #e6f3f8;"></div>
           </div>
-          <div class="col-md-6 col-sm-12">
+          <div class="col-md-7 col-sm-12">
             <div class="row justify-content-center"><h1>Estados</h1></div>
             <div id="state_chart" style="width: 100%;height:400px;"></div>
           </div>
@@ -40,35 +40,39 @@
             <div class="row justify-content-center mt-4"><h1>Tipos - Temas</h1></div>
             <div id="horizontal_chart" style="width: 100%;height:600px;"></div>
           </div>
+          <div class="col-md-6 col-sm-12">
+            <div class="row justify-content-center mt-4"><h1>Respuesta oprtuna</h1></div>
+            <div id="ontime_chart" style="width: 100%;height:600px;"></div>
+          </div>
         </div>
         <div class="row">
           <div class="col-md-6 col-sm-12">
             <div class="row justify-content-center"><h1>Situación de discapacidad</h1></div>
-            <div id="disability_condition_chart" style="width: 80%;height:400px;"></div>
+            <div id="disability_condition_chart" style="width: 80%;height:500px;"></div>
           </div>
           <div class="col-md-6 col-sm-12">
             <div class="row justify-content-center"><h1>Recibidas por canal</h1></div>
-            <div id="channel_chart" style="width: 80%;height:400px;"></div>
+            <div id="channel_chart" style="width: 80%;height:500px;"></div>
           </div>
         </div>
         <div class="row">
           <div class="col-md-4 col-sm-12">
             <div class="row justify-content-center"><h1>Grupo Etnico</h1></div>
-            <div id="ethnic_group_chart" style="width: 100%;height:400px;"></div>
+            <div id="ethnic_group_chart" style="width: 100%;height:500px;"></div>
           </div>
           <div class="col-md-4 col-sm-12">
             <div class="row justify-content-center"><h1>Victima de conflicto</h1></div>
-            <div id="conflict_victim_chart" style="width: 100%;height:400px;"></div>
+            <div id="conflict_victim_chart" style="width: 100%;height:500px;"></div>
           </div>
           <div class="col-md-4 col-sm-12">
             <div class="row justify-content-center"><h1>Población preferencial</h1></div>
-            <div id="preferential_population_chart" style="width: 100%;height:400px;"></div>
+            <div id="preferential_population_chart" style="width: 100%;height:500px;"></div>
           </div>
         </div>
         <div class="row">
           <div class="col-md-8 offset-2 col-sm-12">
             <div class="row justify-content-center"><h1>Recibidas por género</h1></div>
-            <div id="gender_chart" style="width: 100%;height:400px;"></div>
+            <div id="gender_chart" style="width: 100%;height:500px;"></div>
           </div>
         </div>
       </div>
@@ -191,7 +195,7 @@
               axisLabel: {
                   show: true,
                   textStyle : {
-                      fontSize: 9
+                      fontSize: 8
                   }
               },
               textStyle : {
@@ -201,7 +205,6 @@
           },
           yAxis: {
               type: 'value',
-              splitLine: true,
               show: false,
           },
           series: response['y']
@@ -226,14 +229,33 @@
       option = {
           xAxis: {
               type: 'category',
-              data: response['x']
+              data: response['x'],
+              axisLabel: {
+                  show: true,
+                  width: 50,
+                  overflow: 'break',
+                  interval: 0,
+                  textStyle : {
+                    fontSize: 8,
+                  }
+              },
+              textStyle : {
+                      fontSize: 8
+                  }
           },
           yAxis: {
-              type: 'value'
+              type: 'value',
+              axisLabel : {
+                show: false
+              }
           },
           series: [{
               data: response['y'],
-              type: 'bar'
+              type: 'bar',
+              label: {
+                  show: true,
+                  position: 'top',
+              }
           }]
       };
 
@@ -535,6 +557,67 @@
     })
   }
 
+  function ontime(){
+    $.ajax({
+      type: 'GET',
+      url: '{% url "pqrs:ontime-chart" %}',
+      data: {
+        dates : $('#reportrange span').html(),
+        selected_types : selected_list.join()
+      }
+    })
+    .done(function(response){
+      var myChart = echarts.init($('#ontime_chart')[0]);
+
+      var labelOption = {
+          show: true,
+          distance: 2,
+          fontSize: 8,
+          rich: {
+              name: {
+              }
+          }
+      };
+
+      option = {
+          tooltip: {
+              trigger: 'axis',
+              axisPointer: {
+                  type: 'shadow'
+              }
+          },
+          legend: {
+              data: response['legend']
+          },
+          xAxis: [
+              {
+                  type: 'category',
+                  axisTick: {show: false},
+                  axisLabel: {
+                      show: true,
+                      textStyle : {
+                        fontSize: 10,
+                      }
+                  },
+                  data: response['xAxis']
+              }
+          ],
+          yAxis: [
+              {
+                  type: 'value',
+                  axisLabel: {
+                      show: false
+                  },
+              }
+          ],
+          series: response['series']
+        };
+
+      myChart.setOption(option);
+    })  
+  }
+
+
   function calculateStatistics(){
     $.ajax({
       type: 'GET',
@@ -576,6 +659,7 @@
     calculateConflictVictim();
     calculatePreferentialPopulation();
     gender();
+    ontime();
   }
 
 

@@ -56,6 +56,7 @@ urlpatterns = [
     path('conflict-victim-chart/', views_statistics.calculate_conflict_victim_chart, name='conflict-victim-chart'),
     path('preferential-population-chart/', views_statistics.calculate_preferential_population_chart, name='preferential-population-chart'),
     path('gender-chart', views_statistics.calculate_gender_chart, name='gender-chart'),
+    path('ontime-chart', views_statistics.calculate_ontime_chart, name='ontime-chart'),
     path('calculate-statistics/', views_statistics.calculate_statistics, name='calculate-statistics'),
     path('records-form/', views.records_form, name='records_form'),
     path('records-form-param/<int:pk>/', views.records_form_param, name='records_form_parameter'),

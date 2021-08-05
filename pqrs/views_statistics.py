@@ -1,6 +1,6 @@
 from django.http.response import JsonResponse
 from django.shortcuts import render
-from correspondence.models import ReceptionMode
+from correspondence.models import ReceptionMode, Radicate
 from pqrs.models import PQRS, Type, PqrsContent,Type
 from core.models import Disability, EthnicGroup, PreferencialPopulation, GenderTypes
 
@@ -22,7 +22,6 @@ class PqrsStatistics(ListView):
 def calculate_statistics(request):
     if request.is_ajax():
         dates = request.GET.get('dates').split(' - ')
-        selected_types = request.GET.get('selected_types')
         init_date = datetime.strptime(dates[0], '%B %d, %Y').date()
         finish_date = datetime.strptime(dates[1], '%B %d, %Y').date() + timedelta(days=1)
         pqrsds = PqrsContent.objects.filter(date_radicated__range=[init_date, finish_date])
@@ -36,7 +35,6 @@ def calculate_statistics(request):
             'pqrsds' : pqrsds,
             'cards' : cards  
         }
-        
         return render(request, 'pqrs/statistics_body.html', context)
 
     
@@ -139,9 +137,9 @@ def calculate_state_chart(request):
         selected_types = selected_types.lower().split(',')
         pqrsds = PqrsContent.objects.annotate(name_lower=Lower('pqrsobject__pqr_type__name')).filter(date_radicated__range=[init_date, finish_date],
                                             name_lower__in = selected_types, pqrsobject__pqr_type__is_selectable=True)
-    for status in PQRS.Status:
-        response['x'].append(status.name)
-        filtered_pqrsds = pqrsds.filter(pqrsobject__status = status)
+    for status in Radicate.Status:
+        response['x'].append(status.label)
+        filtered_pqrsds = pqrsds.filter(status = status)
         response['y'].append(filtered_pqrsds.count())
         
     return JsonResponse(response)
@@ -333,4 +331,57 @@ def calculate_gender_chart(request):
         }
         response['data'].append(data)
         
+    return JsonResponse(response)
+
+
+def calculate_ontime_chart(request):
+    
+    dates = request.GET.get('dates').split(' - ')
+    selected_types = request.GET.get('selected_types')
+    response = {'series': [], 'xAxis': [], 'legend': ['En términos', 'Fuera de términos']}
+    init_date = datetime.strptime(dates[0], '%B %d, %Y').date()
+    finish_date = datetime.strptime(dates[1], '%B %d, %Y').date() + timedelta(days=1)
+    if selected_types == '':
+        pqrsds = PqrsContent.objects.filter(date_radicated__range=[init_date, finish_date], pqrsobject__pqr_type__is_selectable=True)
+        types_query_list = Type.objects.filter(is_selectable=True)
+    else:
+        selected_types = selected_types.lower().split(',')
+        pqrsds = PqrsContent.objects.annotate(name_lower=Lower('pqrsobject__pqr_type__name')).filter(date_radicated__range=[init_date, finish_date],
+                                            name_lower__in = selected_types, pqrsobject__pqr_type__is_selectable=True)
+        types_query_list = Type.objects.annotate(name_lower=Lower('name')).filter(name_lower__in = selected_types, is_selectable=True)
+    on_time_list = []
+    off_time_list = []
+    for type in types_query_list:
+        filtered_pqrsds = pqrsds.filter(date_radicated__range=[init_date, finish_date], 
+                                                   history__action='AN')
+        on_time = 0
+        off_time = 0
+        for filtered_pqrsd in filtered_pqrsds:
+            if filtered_pqrsd.history.date_execution <= filtered_pqrsd.date_radicated + timedelta(days=filtered_pqrsd.subtype.max_response_days):
+                on_time += 1
+            else:
+                off_time += 1
+        on_time_list.append(on_time)
+        off_time_list.append(off_time)
+        response['xAxis'].append(type.name)
+    response['series'].append({
+            'name': 'En términos',
+            'type': 'bar',
+            'label': 'labelOption',
+            'emphasis': {
+                'focus': 'series'
+            },
+            'data': on_time_list
+    })
+    response['series'].append({
+            'name': 'Fuera de términos',
+            'type': 'bar',
+            'label': 'labelOption',
+            'emphasis': {
+                'focus': 'series'
+            },
+            'data': off_time_list
+    })
+                
+            
     return JsonResponse(response)
