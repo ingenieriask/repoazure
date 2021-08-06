@@ -12,7 +12,7 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: python:3.8.10-buster
 
     steps:
     - uses: actions/checkout@v2
@@ -34,9 +34,11 @@ jobs:
       run: |
         curl -sL https://deb.nodesource.com/setup_14.x -o nodesource_setup.sh
         sudo bash nodesource_setup.sh
-        sudo apt-get update && sudo apt-get install yarn wget xfonts-75dpi xfonts-base
+        sudo apt-get update && sudo apt-get install yarn wget xfonts-75dpi xfonts-base unzip
         sudo apt-get install -y gcc g++ make
         sudo apt-get install -y nodejs
+        wget http://archive.ubuntu.com/ubuntu/pool/main/libj/libjpeg-turbo/libjpeg-turbo8_2.0.6-0ubuntu2_amd64.deb
+        sudo dpkg -i libjpeg-turbo8_2.0.6-0ubuntu2_amd64.deb
         wget https://github.com/wkhtmltopdf/packaging/releases/download/0.12.6-1/wkhtmltox_0.12.6-1.bionic_amd64.deb
         sudo dpkg -i wkhtmltox_0.12.6-1.bionic_amd64.deb
         sudo cp /usr/local/bin/wkhtmltopdf /usr/bin
