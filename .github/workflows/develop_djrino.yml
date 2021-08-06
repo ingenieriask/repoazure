@@ -12,7 +12,7 @@ on:
 
 jobs:
   build:
-    runs-on: python:3.8.10-buster
+    runs-on: ubuntu-latest
 
     steps:
     - uses: actions/checkout@v2
@@ -28,10 +28,15 @@ jobs:
         source venv/bin/activate
 
     - name: Install dependencies
-      run: pip install -r requirements.txt
+      run: |
+        pip install --upgrade pip
+        pip install virtualenv
+        pip install psycopg2-binary
+        pip install -r requirements.txt
     
     - name: Install nodejs
       run: |
+        sudo apt-get install curl wget
         curl -sL https://deb.nodesource.com/setup_14.x -o nodesource_setup.sh
         sudo bash nodesource_setup.sh
         sudo apt-get update && sudo apt-get install yarn wget xfonts-75dpi xfonts-base unzip
